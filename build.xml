@@ -1,0 +1,58 @@
+<project name="geoserver" default="build">
+  <import file="../../build/common.xml"/>
+
+  <property name="data.dir" value="../data_dir/target"/>
+  <property name="war.dir" value="target/geoserver"/>
+  <property name="war.file" value="${war.dir}.war"/>
+
+  <target name="build" depends="init" description="Builds project">
+    <antcall target="mvn">
+        <param name="goals" value="install"/>
+    </antcall>
+  </target>
+
+  <target name="clean" depends="destroy"/>
+
+  <target name="assemble">
+    <available file="${data.dir}/global.xml" property="dataDirIsAvailable"/>
+    <fail message="Data dir ${data.dir} not present, build ../data_dir first"
+      unless="dataDirIsAvailable"/>  
+
+    <mkdir dir="${war.dir}/data"/>
+    <copy todir="${war.dir}/data">
+      <fileset dir="${data.dir}"/>
+    </copy>
+
+    <delete file="${war.file}"/>
+    <jar destfile="${war.file}" basedir="${war.dir}"/>
+
+    <antcall target="assemble-artifact">
+      <param name="includes" value="*.war"/>
+    </antcall>
+  </target>
+
+  <target name="publish" depends="publish-artifact"/>
+
+  <target name="serve" description="Runs GeoServer">
+    <antcall target="mvn">
+      <param name="goals" value="dependency:copy-dependencies"/>
+    </antcall>
+    <condition property="jetty.port" value="${jetty.port}" else="8080">
+      <isset property="jetty.port"/>
+    </condition>
+    <condition property="geoserver.data_dir" value="${GEOSERVER_DATA_DIR}"
+      else="data">
+      <isset property="GEOSERVER_DATA_DIR"/>
+    </condition>
+    <java classname="org.geoserver.test.Start" fork="true">
+      <sysproperty key="jetty.port" value="${jetty.port}"/>
+      <sysproperty key="GEOSERVER_DATA_DIR" value="${geoserver.data_dir}"/>
+      <classpath>
+        <pathelement path="target/classes"/>
+        <pathelement path="target/test-classes"/>
+        <fileset dir="target/dependency" includes="*.jar"/>
+      </classpath>
+    </java>
+  </target>
+
+</project>

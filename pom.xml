@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.opengeo.geoserver</groupId>
+  <artifactId>web-app</artifactId>
+  <packaging>war</packaging>
+  <version>4.5-SNAPSHOT</version>
+  <name>OpenGeo Suite GeoServer Web App</name>
+
+  <properties>
+    <gs.version>2.6-SNAPSHOT</gs.version>
+    <jetty.version>7.6.13.v20130916</jetty.version>
+  </properties>
+
+  <dependencies>
+    <!-- core geoserver modules -->
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-app</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-sec-ldap</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+
+    <!-- extension modules -->
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-control-flow</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.extension</groupId>
+      <artifactId>gs-h2</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.importer</groupId>
+      <artifactId>gs-importer-web</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geoserver.importer</groupId>
+      <artifactId>gs-importer-rest</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opengeo</groupId>
+      <artifactId>gs-ysld</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>xmlunit</groupId>
+      <artifactId>xmlunit</artifactId>
+      <scope>test</scope>
+      <version>1.3</version>
+    </dependency>
+
+    <!-- Jetty test deps so that we can start GeoServer from an IDE as well -->
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <scope>test</scope>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-jndi</artifactId>
+      <scope>test</scope>
+      <version>${jetty.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-plus</artifactId>
+      <scope>test</scope>
+      <version>${jetty.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <finalName>geoserver</finalName>
+  </build> 
+
+</project>

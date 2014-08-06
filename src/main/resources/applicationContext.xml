@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="opengeoTheme" class="org.geoserver.web.HeaderContribution">
+    <property name="scope" value="org.opengeo.OpenGeoTheme"/>
+    <property name="CSSFilename" value="css/opengeo.css"/>
+    <property name="faviconFilename" value="favicon/favicon.ico"/>
+  </bean>
+
+  <bean id="suiteLayerListDemo" class="org.geoserver.web.MenuPageInfo">
+    <property name="id" value="suiteLayerListDemo"/>
+    <property name="titleKey" value="OpenGeoMapPreviewPage.title"/>
+    <property name="descriptionKey" value="OpenGeoMapPreviewPage.description"/>
+    <property name="category" ref="dataCategory"/>
+    <property name="componentClass" value="org.geoserver.web.demo.OpenGeoMapPreviewPage"/>
+    <property name="order" value="5"/>
+    <property name="icon" value="map.png"/>
+  </bean>
+
+  <bean id="layerListDemoBlacklister" class="org.geoserver.platform.NameExclusionFilter">
+  	<property name="beanId" value="layerListDemo2"/>
+  </bean>
+
+</beans>
