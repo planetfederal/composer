@@ -1,0 +1,90 @@
+/* topnav.less */
+
+@import url('../../app.less');
+
+.navbar {
+  border-radius: 0;
+  font-family: 'open-sans', helvetica, arial, sans-serif;
+  font-size: 1em;
+  margin-bottom: 0;
+}
+
+.navbar-inverse {
+  background-color: @monacoblue;
+  border-color: @monacoblue;
+  color: #eee;
+}
+.navbar-inverse .navbar-brand {
+  background: url(images/opengeo_1c_32.png) no-repeat left center;
+  padding-left: 40px;
+  margin-top: 0;
+  color: #fff;
+  font-size: 1.4em;
+}
+.navbar > .container-fluid .navbar-brand {
+  margin-left: 5px;
+}
+.brand-strong {
+  font-weight: 600;
+}
+.brand-light {
+  font-weight: 300;
+}
+.appname {
+  margin-left: 15px;
+  font-weight: 300;
+}
+.navbar-inverse {
+  .navbar-toggle {
+    border-color: @light-gray;
+    border-radius: 2px;
+  }
+  .navbar-nav > li > a {
+    color: #eee;
+    font-size: 0.9em;
+    padding-right: 10px;
+    &:hover {
+      text-decoration: underline;
+      color: @light-gray;
+    }
+  }
+  .navbar-nav > li.user > span {
+    padding: 15px 10px;
+    display: inline-block;
+  }
+
+  .navbar-nav > li.current > a {
+    text-decoration: underline !important;
+  }
+  .navbar-collapse {
+    border-color: @light-gray;
+    .navbar-nav {
+      float: right;
+    }
+  }
+}
+.navbar-form .form-control.nav-search {
+  min-width: 220px;
+}
+
+@media screen and (max-width: 600px) {
+  .brand-strong {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .navbar-collapse {
+  .navbar-nav {
+      float: none !important;
+      text-align: center;
+    }
+  }
+}
+
+
+@media screen and (max-width: 480px) {
+  .appname-long {
+    display: none;
+  }
+}

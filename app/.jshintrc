@@ -1,0 +1,17 @@
+{
+  "curly": true,
+  "eqeqeq": false,
+  "indent": 2,
+  "latedef": true,
+  "newcap": true,
+  "nonew": true,
+  "quotmark": "single",
+  "undef": true,
+  "trailing": true,
+  "maxlen": 80,
+  "globals": {
+    "angular": false,
+    "ol": false
+  },
+  "-W041": false
+}

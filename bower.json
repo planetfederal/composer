@@ -1,0 +1,29 @@
+{
+  "name": "geoserver",
+  "version": "4-SNAPSHOT",
+  "homepage": "https://github.com/boundlessgeo/suite",
+  "authors": [],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.2.0",
+    "font-awesome": "~4.1.0",
+    "angular": "~1.2.4",
+    "angular-mocks": "~1.2.4",
+    "angular-resource": "~1.2.4",
+    "angular-route": "~1.2.16",
+    "angular-bootstrap": "~0.11.0",
+    "angular-grid": "~2.0.11",
+    "angular-sanitize": "~1.2.20",
+    "angular-ui-router": "~0.2.10",
+    "angular-ui-select": "~0.3.1",
+    "angular-ui-codemirror": "~0.1.6",
+    "open-sans-fontface": "git://github.com/FontFaceKit/open-sans"
+  }
+}
