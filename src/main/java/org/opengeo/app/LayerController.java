@@ -1,5 +1,6 @@
 package org.opengeo.app;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
@@ -92,8 +93,15 @@ public class LayerController extends AppController {
         obj.put("name", name);
         obj.put("workspace", wsName);
         obj.put("srs", r.getSRS());
+
         bbox(obj, "bbox", r.getNativeBoundingBox());
-        bbox(obj, "latLonBbox", r.getLatLonBoundingBox());
+        coordinate(obj, "center", r.getNativeBoundingBox().centre());
+
+        obj.object("latlon");
+        bbox(obj, "bbox", r.getLatLonBoundingBox());
+        coordinate(obj, "center", r.getLatLonBoundingBox().centre());
+        obj.end();
+
 
         return obj.end();
     }
@@ -146,5 +154,9 @@ public class LayerController extends AppController {
 
     JSONObj bbox(JSONObj obj, String key, Envelope bbox) {
         return obj.array(key).add(bbox.getMinX()).add(bbox.getMinY()).add(bbox.getMaxX()).add(bbox.getMaxY()).end();
+    }
+
+    JSONObj coordinate(JSONObj obj, String key, Coordinate coord) {
+        return obj.array(key).add(coord.x).add(coord.y).end();
     }
 }
