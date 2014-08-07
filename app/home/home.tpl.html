@@ -1,5 +1,29 @@
 <div>
-  <div class="container-fluid">
-    <h3 class="page-title">{{title}}</h3>
+  <div id="wrapper" ng-class="{toggled: toggleSide}">
+    <div sidenav></div>
+      <div id="page-content-wrapper" class="container-fluid">
+        <h3 class="page-title">{{title}}</h3>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="panel panel-default" style="margin-top: 20px; padding-left: 20px;">
+              <div class="panel-body" style="display:inline-block;">
+                Workspace:
+                <ui-select ng-model="workspace.selected" theme="bootstrap" ng-disabled="disabled" reset-search-input="false" style="width: 250px; display:inline-block; margin-left: 10px;" ng-change="setSelectedWorkspace(workspace.selected)">
+                <ui-select-match placeholder="Select a workspace...">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices repeat="workspace in workspaces | filter: $select.search">
+                <span ng-bind-html="workspace.name | highlight: $select.search"></span>
+              </ui-select-choices>
+            </ui-select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <div><h3 class="page-title">Layers</h3></div>
+        <div layerstable selected="selectedLayer"></div>
+      </div>
+    </div>
+  </div>
   </div>
 </div>

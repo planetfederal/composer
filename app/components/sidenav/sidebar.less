@@ -1,0 +1,99 @@
+/* sidebar.less */
+
+@import url('../../app.less');
+
+@sidebar-bg: @almost-black;
+
+#sidebar-wrapper {
+  width: @sidebar_min;
+  z-index: 1000;
+  position: fixed;
+  left: @sidebar_max;
+  height: 100%;
+  margin-left: -@sidebar_max;
+  overflow-y: auto;
+  background: @sidebar-bg;
+  .transition(all 0.5s ease);
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  width: @sidebar_max;
+}
+
+.sidebar-nav {
+    position: absolute;
+    top: 10px;
+    width: calc(@sidebar_max - 10);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    .dropdown > .dropdown-menu.sidebar-submenu {
+        height: 0;
+    }
+    .dropdown.open > .dropdown-menu.sidebar-submenu {
+        height: 60px;
+        .transition(2s, ease-out);
+        z-index: auto !important;
+        position: relative !important;
+        display: block;
+        clear: both;
+        background-color: @sidebar-bg !important;
+        box-shadow: 0 3px 6px rgba(200, 200, 200, 0.175);
+        li > a {
+            color: @light-gray !important;
+            line-height: 18px;
+            &:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: @white !important;
+            }
+        }
+    }
+
+    ul#dropdown-new {
+        margin-left: 20px !important;
+        li a {
+            margin-left: 0;
+            margin-right: 0;
+        }
+    }
+
+    li {
+        text-indent: 10px;
+        line-height: 30px;
+        a {
+            display: block;
+            text-decoration: none;
+            color: #999999;
+            margin-left: 5px;
+
+            &:hover {
+                color: #fff;
+                background: rgba(255,255,255,0.2);
+                cursor: pointer;
+            }
+            &:hover,
+            &:active,
+            &:focus {
+                text-decoration: none;
+            }
+            i.fa {
+              padding-right: 5px;
+            }
+        }
+    }
+    & > .sidebar-toggle {
+        height: 24px;
+        a {
+            color: #999999;
+            &:hover {
+                color: #fff;
+                background: none;
+            }
+            &.f-right {
+                float: right;
+            }
+        }
+    }
+}
+

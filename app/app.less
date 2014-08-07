@@ -8,15 +8,19 @@
 @import "../bower_components/angular-grid/ng-grid.css";
 @import "../bower_components/angular-ui-select/dist/select.min.css";
 @import "../bower_components/codemirror/lib/codemirror.css";
-@import "../bower_components/font-awesome/css/font-awesome.min.css";
-@import url('../build/fonts/open-sans/open-sans.css');
+@import (less) "../vendor/less-elements/elements.less";
+@import '../build/fonts/font-awesome/css/font-awesome.min.css';
+@import '../build/fonts/open-sans/open-sans.css';
 @import (less) "../vendor/openlayers/ol.css";
 
 @nectarine: #F58D50;
 @monacoblue: #28728D;
 @skyblue: #7EB5D3;
+@almost-black: #030303;
+@black: #000000;
 @white: #FFFFFF;
 @light-gray: #CCCCCC;
+@dark-gray: #333333;
 @seafoamgreen: #00A78D;
 @lemonzest: #FDCC32;
 @lime: #BCD64C;
@@ -25,8 +29,22 @@
 @status-green: #5cb85c;
 @ff-primary: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
+@sidebar_min: 50px;
+@sidebar_max: 230px;
+
 body, * {
   font-family: @ff-primary;
+  font-size: 12px;
+}
+
+h1 {
+  font-size: 2.5em;
+}
+h2 {
+  font-size: 2em;
+}
+h4 {
+  font-size: 1.5em;
 }
 
 .container-fluid {
@@ -46,6 +64,46 @@ body, * {
 
 .inline {
   display: inline-block;
+}
+
+.dropdown-menu {
+  margin-top: 0;
+  border-radius: 0;
+  background-color: #efefef;
+  color: #000;
+  box-shadow: 0 3px 6px rgba(200, 200, 200,.175);
+  li > a {
+    padding-left: 5px;
+  }
+}
+
+ li.divider {
+  height: 1px;
+  margin: 5px 0 5px 5px;
+  overflow: hidden;
+  background-color: #dcdcdc;
+  clear: both;
+}
+
+/* Navigation */
+
+#wrapper {
+  border: 1px #0000ff solid;
+  padding-left: @sidebar_min;
+  .transition(all 0.5s ease);
+}
+
+#wrapper.toggled {
+  padding-left: 250px;
+}
+
+#page-content-wrapper {
+  border: 1px #00ff00 solid;
+}
+
+#wrapper.toggled #page-content-wrapper {
+  margin-right: -@sidebar_max;
+  width: 95%;
 }
 
 

@@ -5,7 +5,6 @@
 .navbar {
   border-radius: 0;
   font-family: 'open-sans', helvetica, arial, sans-serif;
-  font-size: 1em;
   margin-bottom: 0;
 }
 
@@ -19,20 +18,24 @@
   padding-left: 40px;
   margin-top: 0;
   color: #fff;
-  font-size: 1.4em;
+  z-index: 100;
 }
 .navbar > .container-fluid .navbar-brand {
   margin-left: 5px;
 }
 .brand-strong {
   font-weight: 600;
+  font-size: 1.1em;
 }
 .brand-light {
   font-weight: 300;
+  font-size: 1.1em;
 }
 .appname {
+  font-size: 1em;
   margin-left: 15px;
   font-weight: 300;
+  text-transform: uppercase;
 }
 .navbar-inverse {
   .navbar-toggle {
@@ -65,6 +68,10 @@
 }
 .navbar-form .form-control.nav-search {
   min-width: 220px;
+}
+
+ul#dropdown-user {
+  min-width: 100px;
 }
 
 @media screen and (max-width: 600px) {

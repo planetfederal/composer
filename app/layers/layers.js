@@ -91,7 +91,7 @@ angular.module('gsApp.layers', [
           $scope.workspace.selected = ws;
           $scope.workspaceChanged(ws);
         });
-        
+
         $scope.workspaces = workspaces;
       });
 

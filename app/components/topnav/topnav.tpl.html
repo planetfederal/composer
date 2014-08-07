@@ -2,38 +2,36 @@
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <button type="button" class="navbar-toggle" data-target="#collapse-items" 
+      <button type="button" class="navbar-toggle" data-target="#collapse-items"
         ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand" ui-sref="home">
         <span class="brand-strong">OpenGeo</span>
-        <span class="brand-light">Suite</span> 4.5 
-        <span class="appname">Tools 
-        <span class="appname-long">for GeoServer</span></span>
+        <span class="brand-light">Suite</span> 4.5
+        <span class="appname"> <i class="fa fa-pencil fa-lg"></i> Designer</span>
       </a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" collapse="navCollapsed" id="collapse-items">
       <ul class="nav navbar-nav">
-        <li>
-          <a ui-sref="home">Home</a>
-        </li>
         <li ng-if="session.active">
           <a href="/geoserver/web/">Admin</a>
         </li>
         <li>
           <a href="http://suite.opengeo.org">Help</a>
         </li>
-        <li ng-if="session.active">
-          <a href="#" ng-click="logout()">Logout</a>
-        </li>
-        <li ng-if="session.active" class="user">
-          <span>{{ session.user }}</span>
+        <li ng-if="session.active" class="user dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown-user">
+            <span>{{ session.user }}</span> <span class="caret"></span>
+          </a>
+          <ul id="dropdown-user" class="dropdown-menu" role="menu">
+            <li ng-if="session.active"><a href="#" ng-click="logout()">Logout</a></li>
+          </ul>
         </li>
       </ul>
     </div><!-- /.navbar-collapse -->

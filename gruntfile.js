@@ -32,7 +32,7 @@ var bowerDeps = [
   'angular-resource/angular-resource.js',
   'angular-bootstrap/ui-bootstrap.js',
   'angular-sanitize/angular-sanitize.js',
-  'angular-grid/build/ng-grid.js', 
+  'angular-grid/build/ng-grid.js',
   'angular-ui-router/release/angular-ui-router.js',
   'angular-ui-select/dist/select.js',
   'angular-ui-select/dist/select.js',
@@ -125,7 +125,7 @@ module.exports = function(grunt) {
         cwd: 'app/',
         src: 'index.html',
         dest: 'build/'
-      }, 
+      },
       fonts: {
         files: [{
           expand: true,
@@ -138,14 +138,20 @@ module.exports = function(grunt) {
           dest: 'build/fonts/open-sans',
           src: ['fonts/**/*', 'open-sans.css'],
           filter: 'isFile'
+        },{
+          expand: true,
+          cwd: 'bower_components/font-awesome',
+          dest: 'build/fonts/font-awesome',
+          src: ['fonts/*', 'css/font-awesome.css'],
+          filter: 'isFile'
         }]
-        
+
         // bootstrap: [{
-          
-        // }], 
+
+        // }],
         // sans: [{
-        
-        // }] 
+
+        // }]
       }
     },
     ngmin: {
@@ -185,7 +191,7 @@ module.exports = function(grunt) {
         options: {
           livereload: true
         }
-      }, 
+      },
       less: {
         files: sources.less,
         tasks: ['less'],
