@@ -141,13 +141,7 @@ module.exports = function(grunt) {
         },{
           expand: true,
           cwd: 'bower_components/font-awesome',
-          dest: 'build/fonts/font-awesome',
-          src: ['fonts/*', 'css/font-awesome.css'],
-          filter: 'isFile'
-        },{
-          expand: true,
-          cwd: 'bower_components/font-awesome',
-          dest: 'build/fonts/font-awesome',
+          dest: 'build/',
           src: ['fonts/*', 'css/font-awesome.css'],
           filter: 'isFile'
         },{
