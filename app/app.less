@@ -10,6 +10,7 @@
 @import "../bower_components/codemirror/lib/codemirror.css";
 @import (less) "../vendor/less-elements/elements.less";
 @import '../build/fonts/font-awesome/css/font-awesome.min.css';
+@import '../build/fonts/icomoon/style.css';
 @import '../build/fonts/open-sans/open-sans.css';
 @import (less) "../vendor/openlayers/ol.css";
 
@@ -31,6 +32,7 @@
 
 @sidebar_min: 50px;
 @sidebar_max: 230px;
+@sidebar-bg: @almost-black;
 
 body, * {
   font-family: @ff-primary;
@@ -59,7 +61,7 @@ h4 {
 
 .btn:hover, .btn:focus {
  outline: 0px !important;
- -webkit-appearance: snone;
+ -webkit-appearance: none;
 }
 
 .inline {
@@ -91,20 +93,22 @@ h4 {
   border: 1px #0000ff solid;
   padding-left: @sidebar_min;
   .transition(all 0.5s ease);
+  background-color: @sidebar-bg;
 }
 
 #wrapper.toggled {
-  padding-left: 250px;
+  padding-left: @sidebar_max;
+}
+#wrapper.fullWidth {
+ padding-left: 0;
 }
 
 #page-content-wrapper {
-  border: 1px #00ff00 solid;
+  background-color: @white;
+  margin-top: 51px;
+  width: 100%;
 }
 
-#wrapper.toggled #page-content-wrapper {
-  margin-right: -@sidebar_max;
-  width: 95%;
-}
 
 
 /* Custom Tooltip Style */
@@ -259,4 +263,51 @@ h4 {
       content: " ";
     }
   }
+}
+
+
+/* Submenus for bootstrap dropdowns
+   http://stackoverflow.com/questions/18023493/bootstrap-3-dropdown-sub-menu-missing
+*/
+
+.dropdown-submenu {
+    position:relative;
+}
+.dropdown-submenu>.dropdown-menu {
+    top:0;
+    left:100%;
+    margin-top:-6px;
+    margin-left:-1px;
+    -webkit-border-radius:0 6px 6px 6px;
+    -moz-border-radius:0 6px 6px 6px;
+    border-radius:0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+    display:block;
+}
+.dropdown-submenu>a:after {
+    display:block;
+    content:" ";
+    float:right;
+    width:0;
+    height:0;
+    border-color:transparent;
+    border-style:solid;
+    border-width:5px 0 5px 5px;
+    border-left-color:#cccccc;
+    margin-top:5px;
+    margin-right:-10px;
+}
+.dropdown-submenu:hover>a:after {
+    border-left-color:#ffffff;
+}
+.dropdown-submenu.pull-left {
+    float:none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+    left:-100%;
+    margin-left:10px;
+    -webkit-border-radius:6px 0 6px 6px;
+    -moz-border-radius:6px 0 6px 6px;
+    border-radius:6px 0 6px 6px;
 }

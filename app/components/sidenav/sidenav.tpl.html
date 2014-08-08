@@ -1,7 +1,7 @@
 <div id="sidebar-wrapper">
   <ul class="sidebar-nav">
       <li class="sidebar-toggle">
-          <a href="" ng-click="toggleSide=!toggleSide" ng-init="toggleSide=false" id="menu-toggle" ng-class="{'f-right': toggleSide}">
+          <a href="" ng-click="toggleSide=!toggleSide" id="menu-toggle" ng-class="{'f-right': toggleSide}">
             <i class="toggleIcon fa fa-2x" ng-class="{'fa-arrow-circle-o-left': toggleSide, 'fa-arrow-circle-o-right': !toggleSide}"></i>
           </a>
       </li>
@@ -16,18 +16,27 @@
       </li>
       <li role="presentation" class="divider"></li>
       <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown-workspace">
-          <i class="fa fa-folder-open fa-lg"></i> Project Workspaces
+        <a class="dropdown-toggle" ng-init="toggleProjs=false" ng-click="toggleProjs=!toggleProjs">
+          <i ng-class="{'icon-folder': !toggleProjs, 'icon-folder-open': toggleProjs}"></i>  Project Workspaces
         </a>
-        <ul class="dropdown-menu sidebar-submenu" id="dropdown-workspace" role="menu">
-          <li><a href="">Elements</a></li>
-          <li><a href="">Nestable</a></li>
+        <ul class="dropdown-menu sidebar-submenu" id="dropdown-workspaces" role="menu">
+          <li class="dropdown-submenu" ng-repeat="workspace in workspaces | limitTo: 5"
+           ng-class="{'open': toggleWkspc}" ng-init="toggleWkspc = false">
+            <a href="" ng-click="toggleWkspc=!toggleWkspc">
+              <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open': toggleWkspc,}"></i> {{ workspace.name }}
+            </a>
+             <ul class="dropdown-menu sidebar-submenu" id="dropdown-{{workspace.name}}" role="menu">
+                <li><a href="#"><i class="icon-map"></i> Maps</a></li>
+                <li><a href="#"><i class="fa fa-database fa-lg"></i> Data</a></li>
+            </ul>
+          </li>
+          <li ng-show="workspaces.length > 2" class="more"><a href="">More...</a></li>
         </ul>
       </li>
       <li role="presentation" class="divider"></li>
-      <li><a href="#"><i class="fa fa-folder fa-lg"></i> All Workspaces</a></li>
-      <li><a href="#"><i class="fa fa-globe fa-lg"></i> All Maps</a></li>
-      <li><a href="#"><i class="fa fa-reorder fa-lg"></i> All Layers</a></li>
+      <li><a href="#"><i class="icon-stack"></i> All Workspaces</a></li>
+      <li><a href="#"><i class="icon-map"></i> All Maps</a></li>
+      <li><a ui-sref="layers"><i class="icon-stack"></i> All Layers</a></li>
       <li><a href="#"><i class="fa fa-database fa-lg"></i> All Data</a></li>
       <li role="presentation" class="divider"></li>
       <li><a href="#"><i class="fa fa-gears fa-lg"></i> Diagnostics</a></li>

@@ -5,8 +5,8 @@
     <div class="workspace-choice">
       <span>Select a workspace:</span>
       <div>
-        <ui-select ng-model="workspace.selected"  ng-disabled="disabled" 
-          ng-change="workspaceChanged($select.selected)" theme="bootstrap" 
+        <ui-select ng-model="workspace.selected"  ng-disabled="disabled"
+          ng-change="workspaceChanged($select.selected)" theme="bootstrap"
           reset-search-input="false">
           <ui-select-match>
             {{$select.selected.name}}

@@ -19,7 +19,7 @@ angular.module('gsApp.layers', [
     }])
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state', '$log',
     function($scope, GeoServer, $state, $log) {
-      $scope.title = 'Layers';
+      $scope.title = 'All Layers';
 
       $scope.onStyleEdit = function(layer) {
         $state.go('layer.style', {
@@ -66,6 +66,7 @@ angular.module('gsApp.layers', [
           }
         ],
         enablePaging: true,
+        enableColumnResize: false,
         showFooter: true,
         pagingOptions: $scope.pagingOptions,
         filterOptions: {

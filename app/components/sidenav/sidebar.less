@@ -2,12 +2,11 @@
 
 @import url('../../app.less');
 
-@sidebar-bg: @almost-black;
-
 #sidebar-wrapper {
   width: @sidebar_min;
   z-index: 1000;
   position: fixed;
+  margin-top: 52px;
   left: @sidebar_max;
   height: 100%;
   margin-left: -@sidebar_max;
@@ -19,6 +18,9 @@
 #wrapper.toggled #sidebar-wrapper {
   width: @sidebar_max;
 }
+#wrapper.fullWidth #sidebar-wrapper {
+  width: 0;
+}
 
 .sidebar-nav {
     position: absolute;
@@ -28,21 +30,27 @@
     padding: 0;
     list-style: none;
 
+    .more {
+        margin-left: 8px;
+        display:block;
+    }
+
     .dropdown > .dropdown-menu.sidebar-submenu {
         height: 0;
     }
     .dropdown.open > .dropdown-menu.sidebar-submenu {
-        height: 60px;
-        .transition(2s, ease-out);
+        height: auto;
+        .transition(2s, ease);
         z-index: auto !important;
         position: relative !important;
         display: block;
         clear: both;
+        padding: 0 0 10px 0;
         background-color: @sidebar-bg !important;
-        box-shadow: 0 3px 6px rgba(200, 200, 200, 0.175);
         li > a {
             color: @light-gray !important;
             line-height: 18px;
+
             &:hover {
                 background: rgba(255, 255, 255, 0.2);
                 color: @white !important;
@@ -50,12 +58,35 @@
         }
     }
 
-    ul#dropdown-new {
-        margin-left: 20px !important;
-        li a {
-            margin-left: 0;
-            margin-right: 0;
+    .dropdown-submenu:hover>.dropdown-menu.sidebar-submenu {
+        display: none;
+    }
+    li.dropdown-submenu>a:after {
+        display: none;
+    }
+    .dropdown-submenu.open > .dropdown-menu.sidebar-submenu {
+        .transition(2s, ease);
+        position: relative;
+        left: 2em;
+        top: 8px;
+        bottom: 8px;
+        z-index: 0;
+        display: block;
+        height: auto;
+        clear: both;
+        padding: 0 0 10px 0;
+        background-color: @sidebar-bg;
+        box-shadow: none;
+        li > a {
+            color: @light-gray !important;
+            line-height: 18px;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.2);
+                color: @white !important;
+            }
         }
+
     }
 
     li {
@@ -77,8 +108,14 @@
             &:focus {
                 text-decoration: none;
             }
-            i.fa {
-              padding-right: 5px;
+            i {
+                padding-right: 5px;
+
+                &[class^="icon-"], &[class*=" icon-"] {
+                    font-size: 1.33333333em;
+                    line-height: 0.75em;
+                    display: inline-block;
+                }
             }
         }
     }

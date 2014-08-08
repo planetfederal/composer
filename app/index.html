@@ -9,7 +9,10 @@
   </head>
   <body ng-controller="AppCtrl">
     <top-nav></top-nav>
-    <div ui-view></div>
+    <div id="wrapper" ng-class="{toggled: toggleSide, fullWidth: !session.active}" ng-init="toggleSide=true">
+      <div sidenav></div>
+      <div ui-view id="page-content-wrapper"></div>
+    </div>
     <script src="geoserver.min.js"></script>
   </body>
 </html>

@@ -144,6 +144,18 @@ module.exports = function(grunt) {
           dest: 'build/fonts/font-awesome',
           src: ['fonts/*', 'css/font-awesome.css'],
           filter: 'isFile'
+        },{
+          expand: true,
+          cwd: 'bower_components/font-awesome',
+          dest: 'build/fonts/font-awesome',
+          src: ['fonts/*', 'css/font-awesome.css'],
+          filter: 'isFile'
+        },{
+          expand: true,
+          cwd: 'vendor/icomoon',
+          dest: 'build/fonts/icomoon',
+          src: ['fonts/*', 'style.css'],
+          filter: 'isFile'
         }]
 
         // bootstrap: [{
