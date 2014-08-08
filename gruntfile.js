@@ -152,7 +152,7 @@ module.exports = function(grunt) {
           filter: 'isFile'
         },{
           expand: true,
-          cwd: 'vendor/icomoon',
+          cwd: 'bower_components/icomoon',
           dest: 'build/fonts/icomoon',
           src: ['fonts/*', 'style.css'],
           filter: 'isFile'

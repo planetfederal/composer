@@ -24,6 +24,7 @@
     "angular-ui-router": "~0.2.10",
     "angular-ui-select": "~0.3.1",
     "angular-ui-codemirror": "~0.1.6",
-    "open-sans-fontface": "git://github.com/FontFaceKit/open-sans"
+    "open-sans-fontface": "git://github.com/FontFaceKit/open-sans",
+    "icomoon": "git://github.com/layerssss/icomoon-bower.git"
   }
 }
