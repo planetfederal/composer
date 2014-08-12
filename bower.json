@@ -25,6 +25,8 @@
     "angular-ui-select": "~0.3.1",
     "angular-ui-codemirror": "~0.1.6",
     "open-sans-fontface": "git://github.com/FontFaceKit/open-sans",
-    "icomoon": "git://github.com/layerssss/icomoon-bower.git"
+    "icomoon": "git://github.com/layerssss/icomoon-bower.git",
+    "lesselements": "git://github.com/dmitryf/elements.git",
+    "angular-animate": "~1.2.22"
   }
 }

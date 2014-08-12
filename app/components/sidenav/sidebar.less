@@ -32,61 +32,11 @@
 
     .more {
         margin-left: 8px;
-        display:block;
-    }
-
-    .dropdown > .dropdown-menu.sidebar-submenu {
-        height: 0;
-    }
-    .dropdown.open > .dropdown-menu.sidebar-submenu {
-        height: auto;
-        .transition(2s, ease);
-        z-index: auto !important;
-        position: relative !important;
         display: block;
-        clear: both;
-        padding: 0 0 10px 0;
-        background-color: @sidebar-bg !important;
-        li > a {
-            color: @light-gray !important;
-            line-height: 18px;
-
-            &:hover {
-                background: rgba(255, 255, 255, 0.2);
-                color: @white !important;
-            }
-        }
     }
 
-    .dropdown-submenu:hover>.dropdown-menu.sidebar-submenu {
-        display: none;
-    }
-    li.dropdown-submenu>a:after {
-        display: none;
-    }
-    .dropdown-submenu.open > .dropdown-menu.sidebar-submenu {
-        .transition(2s, ease);
-        position: relative;
-        left: 2em;
-        top: 8px;
-        bottom: 8px;
-        z-index: 0;
-        display: block;
-        height: auto;
-        clear: both;
-        padding: 0 0 10px 0;
-        background-color: @sidebar-bg;
-        box-shadow: none;
-        li > a {
-            color: @light-gray !important;
-            line-height: 18px;
-
-            &:hover {
-                background: rgba(255, 255, 255, 0.2);
-                color: @white !important;
-            }
-        }
-
+    #projects {
+        margin-bottom: 20px;
     }
 
     li {
@@ -117,6 +67,10 @@
                     display: inline-block;
                 }
             }
+        }
+        ul {
+            list-style: none;
+            padding-left: 17px;
         }
     }
     & > .sidebar-toggle {

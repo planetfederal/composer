@@ -31,6 +31,8 @@ var bowerDeps = [
   'angular/angular.js',
   'angular-resource/angular-resource.js',
   'angular-bootstrap/ui-bootstrap.js',
+  'angular-bootstrap/ui-bootstrap-tpls.js',
+  'angular-animate/angular-animate.js',
   'angular-sanitize/angular-sanitize.js',
   'angular-grid/build/ng-grid.js',
   'angular-ui-router/release/angular-ui-router.js',

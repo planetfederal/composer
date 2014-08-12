@@ -1,6 +1,7 @@
 angular.module('gsApp', [
   'ngResource',
   'ngSanitize',
+  'ngAnimate',
   'ui.router',
   'ui.bootstrap',
   'gsApp.core',
@@ -9,6 +10,7 @@ angular.module('gsApp', [
   'gsApp.login',
   'gsApp.home',
   'gsApp.layers',
+  'gsApp.workspaces',
   'gsApp.maps',
   'gsApp.data'
 ])
