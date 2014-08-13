@@ -34,7 +34,7 @@
     <context:component-scan base-package="org.opengeo.app"/>
     <mvc:annotation-driven>
         <mvc:message-converters register-defaults="true">
-            <bean class="org.opengeo.app.JSONObjMessageConverter"/>
+            <bean class="org.opengeo.app.JSONMessageConverter"/>
             <bean class="org.opengeo.app.SLDMessageConverter"/>
         </mvc:message-converters>
     </mvc:annotation-driven>

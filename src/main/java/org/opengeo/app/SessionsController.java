@@ -1,5 +1,7 @@
 package org.opengeo.app;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -15,28 +17,25 @@ import java.util.Enumeration;
 public class SessionsController {
 
     @RequestMapping(method= RequestMethod.GET)
-    public @ResponseBody JSONObj list() {
+    public @ResponseBody JSONArr list() {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd'T'HH:mm:ssZ");
 
-        JSONObj obj = new JSONObj().array();
+        JSONArr arr = new JSONArr();
         for (HttpSession session : AppSessionDebugger.list()) {
-            obj.object()
-               .put("id", session.getId())
+            JSONObj obj = arr.addObject();
+            obj.put("id", session.getId())
                .put("created", dateFormat.format(new Date(session.getCreationTime())))
                .put("updated", dateFormat.format(new Date(session.getLastAccessedTime())))
                .put("timeout", session.getMaxInactiveInterval());
 
             Enumeration<String> attNames = session.getAttributeNames();
-            obj.object("attributes");
+            JSONObj atts = obj.putObject("attributes");
             while (attNames.hasMoreElements()) {
                 String attName = attNames.nextElement();
-                obj.put(attName, session.getAttribute(attName).toString());
+                atts.put(attName, session.getAttribute(attName).toString());
             }
-            obj.end();
-
-            obj.end();
-
         }
-        return obj.end();
+
+        return arr;
     }
 }

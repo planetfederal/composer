@@ -19,6 +19,7 @@ import org.geotools.geometry.jts.Geometries;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.logging.Logging;
+import org.json.simple.JSONObject;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +50,8 @@ public class LayerController extends AppController {
     }
 
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
-    public @ResponseBody JSONObj list(@PathVariable String wsName) {
-        JSONObj obj = new JSONObj().array();
+    public @ResponseBody JSONArr list(@PathVariable String wsName) {
+        JSONArr arr = new JSONArr();
 
         Catalog cat = geoServer.getCatalog();
 
@@ -62,48 +63,23 @@ public class LayerController extends AppController {
         }
 
         CloseableIterator<LayerInfo> it =
-            cat.list(LayerInfo.class, equal("resource.namespace.prefix", wsName), null, null, null);
+            cat.list(LayerInfo.class, equal("resource.namespace.prefix", wsName));
         try {
             while (it.hasNext()) {
-                LayerInfo l = it.next();
-                ResourceInfo r = l.getResource();
-
-                obj.object()
-                   .put("name", l.getName())
-                    .put("workspace", wsName)
-                   .put("title", l.getTitle() != null ? l.getTitle() : r.getTitle())
-                   .put("srs", r.getSRS())
-                   .put("type", type(r))
-                   .end();
+                layer(arr.addObject(), it.next(), wsName, false);
             }
         }
         finally {
             it.close();
         }
 
-        return obj.end();
+        return arr;
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name) {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
-        ResourceInfo r = l.getResource();
-
-        JSONObj obj = new JSONObj().object();
-        obj.put("name", name);
-        obj.put("workspace", wsName);
-        obj.put("srs", r.getSRS());
-
-        bbox(obj, "bbox", r.getNativeBoundingBox());
-        coordinate(obj, "center", r.getNativeBoundingBox().centre());
-
-        obj.object("latlon");
-        bbox(obj, "bbox", r.getLatLonBoundingBox());
-        coordinate(obj, "center", r.getLatLonBoundingBox().centre());
-        obj.end();
-
-
-        return obj.end();
+        return layer(new JSONObj(), l, wsName, true);
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.GET)
@@ -133,10 +109,14 @@ public class LayerController extends AppController {
 
     String type(ResourceInfo r)  {
         if (r instanceof CoverageInfo) {
-            return "Raster";
+            return "raster";
         }
+        else {
+            return "vector";
+        }
+    }
 
-        FeatureTypeInfo ft = (FeatureTypeInfo) r;
+    String geometry(FeatureTypeInfo ft) {
         try {
             FeatureType schema = ft.getFeatureType();
             GeometryDescriptor gd = schema.getGeometryDescriptor();
@@ -152,11 +132,37 @@ public class LayerController extends AppController {
         }
     }
 
-    JSONObj bbox(JSONObj obj, String key, Envelope bbox) {
-        return obj.array(key).add(bbox.getMinX()).add(bbox.getMinY()).add(bbox.getMaxX()).add(bbox.getMaxY()).end();
+    JSONObj layer(JSONObj obj, LayerInfo l, String wsName, boolean details) {
+        ResourceInfo r = l.getResource();
+        obj.put("name", l.getName())
+            .put("workspace", wsName)
+            .put("title", l.getTitle() != null ? l.getTitle() : r.getTitle())
+            .put("type", type(r));
+
+        if (r instanceof FeatureTypeInfo) {
+            FeatureTypeInfo ft = (FeatureTypeInfo) r;
+            obj.put("geometry", geometry(ft));
+        }
+
+        JSONObj proj = obj.putObject("proj");
+        proj.put("srs", r.getSRS());
+        //TODO: units
+
+        JSONObj bbox = obj.putObject("bbox");
+        bbox(bbox.putObject("native"), r.getNativeBoundingBox());
+        bbox(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
+
+        return obj;
     }
 
-    JSONObj coordinate(JSONObj obj, String key, Coordinate coord) {
-        return obj.array(key).add(coord.x).add(coord.y).end();
+    JSONObj bbox(JSONObj obj, Envelope bbox) {
+        Coordinate center = bbox.centre();
+        obj.put("west", bbox.getMinX())
+           .put("south", bbox.getMinY())
+           .put("east", bbox.getMaxX())
+           .put("north", bbox.getMaxY())
+           .putArray("center").add(center.x).add(center.y);
+        return obj;
     }
+
 }

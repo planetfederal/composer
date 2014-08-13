@@ -1,12 +1,10 @@
 package org.opengeo.app;
 
-import net.sf.json.JSONObject;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerInfo;
 import org.geoserver.config.ServiceInfo;
 import org.geoserver.config.SettingsInfo;
 import org.geotools.util.Version;
@@ -32,35 +30,29 @@ public class ServerInfoController extends AppController {
     @RequestMapping(method= RequestMethod.GET)
     public @ResponseBody JSONObj get() {
         JSONObj obj = new JSONObj();
-        obj.object();
+        obj.toObject();
 
         SettingsInfo settings = geoServer.getGlobal().getSettings();
-        obj.object("server")
-           .put("title", settings.getTitle())
-           .end();
+        obj.putObject("service")
+           .put("title", settings.getTitle());
 
-        obj.object("services");
+        JSONObj services = obj.putObject("services");
         for (ServiceInfo service : geoServer.getServices()) {
-            obj.object(service.getName())
-               .put("title", service.getTitle());
+            JSONArr versions = services.putObject(service.getName())
+               .put("title", service.getTitle())
+               .putArray("versions");
 
-            obj.array("versions");
             for (Version ver : service.getVersions()) {
-                obj.add(ver.toString());
+                versions.add(ver.toString());
             }
-            obj.end();
-
-            obj.end();
         }
-        obj.end();
 
         Catalog cat = geoServer.getCatalog();
-        obj.object("catalog")
+        obj.putObject("catalog")
            .put("workspaces", cat.count(WorkspaceInfo.class, Filter.INCLUDE))
            .put("layers", cat.count(LayerInfo.class, Filter.INCLUDE))
-           .put("maps", cat.count(LayerGroupInfo.class, Filter.INCLUDE))
-           .end();
+           .put("maps", cat.count(LayerGroupInfo.class, Filter.INCLUDE));
 
-        return obj.end();
+        return obj;
     }
 }

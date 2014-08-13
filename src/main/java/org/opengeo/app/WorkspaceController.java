@@ -7,7 +7,6 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,17 +21,16 @@ public class WorkspaceController extends AppController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public @ResponseBody JSONObj list() {
-        JSONObj obj = new JSONObj().array();
+    public @ResponseBody JSONArr list() {
+        JSONArr arr = new JSONArr();
 
         Catalog cat = geoServer.getCatalog();
 
         WorkspaceInfo def = cat.getDefaultWorkspace();
         if (def != null) {
-           obj.object()
+           arr.addObject()
               .put("name", def.getName())
-              .put("default", true)
-              .end();
+              .put("default", true);
         }
 
         CloseableIterator<WorkspaceInfo> list = cat.list(WorkspaceInfo.class, Predicates.acceptAll());
@@ -43,17 +41,16 @@ public class WorkspaceController extends AppController {
                 if (def != null && ws.getName().equals(def.getName())) {
                     continue;
                 }
-                obj.object()
+                arr.addObject()
                    .put("name", ws.getName())
-                   .put("default", false)
-                   .end();
+                   .put("default", false);
             }
         }
         finally {
             list.close();
         }
 
-        return obj.end();
+        return arr;
     }
 
 }

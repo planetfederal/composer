@@ -2,6 +2,7 @@ package org.opengeo.app;
 
 import org.geoserver.security.GeoServerSecurityManager;
 import org.geoserver.security.impl.GeoServerUser;
+import org.json.simple.JSONObject;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -24,7 +25,6 @@ public class LoginController {
     @RequestMapping()
     public @ResponseBody JSONObj handle(HttpServletRequest req, HttpServletResponse res) {
         JSONObj obj = new JSONObj();
-        obj.object();
 
         HttpSession session = req.getSession(false);
         if (session != null) {
@@ -38,6 +38,6 @@ public class LoginController {
             obj.put("user", user.getUsername());
         }
 
-        return obj.end();
+        return obj;
     }
 }
