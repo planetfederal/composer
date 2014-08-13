@@ -33,7 +33,7 @@ angular.module('gsApp.layers.style', [
       };
 
       $scope.onCodeMirrorLoad = function(editor) {
-        
+
       };
 
     }]);

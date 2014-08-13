@@ -24,24 +24,24 @@ angular.module('gsApp.layers', [
       $scope.onStyleEdit = function(layer) {
         $state.go('layer.style', {
           workspace: layer.workspace,
-          name:layer.name
+          name: layer.name
         });
       };
       $scope.pagingOptions = {
-        pageSizes: [25,50,100],
+        pageSizes: [25, 50, 100],
         pageSize: 25
       };
       $scope.gridOptions = {
         data: 'layerData',
         columnDefs: [
-          {field:'name', displayName:'Name'},
-          {field:'title', displayName:'Title'},
-          {field:'type', displayName:'Type'},
-          {field:'srs', displayName:'SRS'},
+          {field: 'name', displayName: 'Name'},
+          {field: 'title', displayName: 'Title'},
+          {field: 'type', displayName: 'Type'},
+          {field: 'srs', displayName: 'SRS'},
           {
             field: 'style',
             displayName: 'Style',
-            cellTemplate: '<div ng-class="col.colIndex()">'+
+            cellTemplate: '<div ng-class="col.colIndex()">' +
               '<a ng-click="onStyleEdit(row.entity)">Edit</a></div>'
           },
           {
@@ -79,7 +79,7 @@ angular.module('gsApp.layers', [
       $scope.workspaces = [];
 
       $scope.workspaceChanged = function(ws) {
-        GeoServer.layers.get({workspace:ws.name}).$promise
+        GeoServer.layers.get({workspace: ws.name}).$promise
           .then(function(layers) {
             $scope.layerData = layers;
           });

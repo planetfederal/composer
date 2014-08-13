@@ -22,7 +22,7 @@
         <ul class="workspaces" collapse="!toggleProjs" role="menu">
           <li class="single-workspace" ng-repeat="workspace in workspaces | limitTo: 5"
            ng-class="{'open': toggleWkspc}" ng-init="toggleWkspc=false">
-            <a href="" ng-click="toggleWkspc=!toggleWkspc">
+            <a href="" ng-click="toggleWkspc=!toggleWkspc; onWorkspaceClick(workspace);">
               <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open': toggleWkspc,}"></i> {{ workspace.name }}
             </a>
              <ul class="workspace-items" collapse="!toggleWkspc" role="menu">
@@ -30,12 +30,11 @@
                 <li><a href="#"><i class="fa fa-database fa-lg"></i> Data</a></li>
             </ul>
           </li>
-          <li ng-show="workspaces.length > 4" class="more"><a href="">More...</a></li>
+          <li ng-show="workspaces.length > 2" class="more"><a ui-sref="workspaces">More...</a></li>
         </ul>
       </li>
 
       <li role="presentation" class="divider"></li>
-      <li><a ui-sref="workspaces"><i class="icon-folder"></i> All Workspaces</a></li>
       <li><a href="#"><i class="icon-map"></i> All Maps</a></li>
       <li><a ui-sref="layers"><i class="icon-stack"></i> All Layers</a></li>
       <li><a href="#"><i class="fa fa-database fa-lg"></i> All Data</a></li>
