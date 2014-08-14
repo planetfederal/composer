@@ -16,7 +16,7 @@ angular.module('gsApp.olmap', [])
             view: new ol.View({
               center:[0,0],
               zoom: 2,
-              projection: layers[0].srs
+              projection: layers[0].proj.srs
             }),
             layers: mapLayers
           };
@@ -31,7 +31,6 @@ angular.module('gsApp.olmap', [])
         restrict: 'EA',
         scope: {
           layers: '=?',
-          proj: '=?',
           center: '=?',
           zoom: '=?'
         },
@@ -45,9 +44,7 @@ angular.module('gsApp.olmap', [])
             map.setTarget($element[0]);
 
             var view = map.getView();
-            if ($scope.proj) {
-              view.setProjection($scope.proj);
-            }
+
             if ($scope.center) {
               view.setCenter($scope.center);
             }
