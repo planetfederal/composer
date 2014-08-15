@@ -38,8 +38,8 @@ angular.module('gsApp.workspaces', [
           {
             field: 'name',
             displayName: 'Name',
-            cellTemplate:
-            '<a ng-click="onWorkspaceClick(row.getProperty(\'name\'))">{{row.getProperty(\'name\')}}</a>'
+            cellTemplate: '<a ng-click="onWorkspaceClick(row.getProperty(' +
+              '\'name\'))">{{row.getProperty(\'name\')}}</a>'
           },
           {
             field: 'default',

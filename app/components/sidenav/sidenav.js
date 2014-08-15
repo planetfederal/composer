@@ -1,6 +1,6 @@
 angular.module('gsApp.sidenav', [
   'gsApp.workspaces.workspace'
-  ])
+])
 .directive('sidenav', function() {
     return {
       restrict: 'EA',
