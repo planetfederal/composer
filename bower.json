@@ -27,6 +27,7 @@
     "open-sans-fontface": "git://github.com/FontFaceKit/open-sans",
     "icomoon": "git://github.com/layerssss/icomoon-bower.git",
     "lesselements": "git://github.com/dmitryf/elements.git",
-    "angular-animate": "~1.2.22"
+    "angular-animate": "~1.2.22",
+    "js-yaml": "~3.1.0"
   }
 }
