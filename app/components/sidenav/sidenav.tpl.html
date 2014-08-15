@@ -1,8 +1,8 @@
 <div id="sidebar-wrapper">
   <ul class="sidebar-nav">
       <li class="sidebar-toggle">
-          <a href="" ng-click="toggleSide=!toggleSide" id="menu-toggle" ng-class="{'f-right': toggleSide}">
-            <i class="toggleIcon fa fa-2x" ng-class="{'fa-arrow-circle-o-left': toggleSide, 'fa-arrow-circle-o-right': !toggleSide}"></i>
+          <a href="" ng-click="toggleSide=!toggleSide" id="menu-toggle" ng-class="{'f-right': !toggleSide}">
+            <i class="toggleIcon fa fa-2x" ng-class="{'fa-arrow-circle-o-left': !toggleSide, 'fa-arrow-circle-o-right': toggleSide}"></i>
           </a>
       </li>
       <li class="dropdown">
@@ -16,7 +16,7 @@
       </li>
       <li role="presentation" class="divider"></li>
       <li id="projects">
-        <a class="all-workspaces" ng-init="toggleProjs=false" ng-click="toggleProjs=!toggleProjs">
+        <a class="all-workspaces" ng-init="toggleProjs=false" ng-click="toggleProjs=!toggleProjs" ui-sref="home">
           <i ng-class="{'icon-folder-open': toggleProjs, 'icon-folder': !toggleProjs}"></i>  Project Workspaces
         </a>
         <ul class="workspaces" collapse="!toggleProjs" role="menu">

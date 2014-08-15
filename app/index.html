@@ -9,7 +9,7 @@
   </head>
   <body ng-controller="AppCtrl">
     <top-nav></top-nav>
-    <div id="wrapper" ng-class="{toggled: toggleSide, fullWidth: !session.active}" ng-init="toggleSide=true">
+    <div id="wrapper" ng-class="{toggled: toggleSide, fullWidth: !session.active}" ng-init="toggleSide=false">
       <div sidenav></div>
       <div ui-view id="page-content-wrapper"></div>
     </div>

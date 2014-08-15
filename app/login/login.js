@@ -17,7 +17,7 @@ angular.module('gsApp.login', [])
       $scope.login = function() {
         GeoServer.login($scope.creds.username, $scope.creds.password)
           .then(function(result) {
-            // update form failed flag 
+            // update form failed flag
             $scope.loginFailed = !result.success;
             return result;
           })
@@ -41,6 +41,6 @@ angular.module('gsApp.login', [])
             }
             return result;
           })
-          .catch(function(result) {});
+          .catch (function(result) {});
       };
     }]);

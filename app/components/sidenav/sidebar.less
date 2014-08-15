@@ -1,25 +1,27 @@
 /* sidebar.less */
 
-@import url('../../app.less');
+@import "../../variables.less";
+
 
 #sidebar-wrapper {
-  width: @sidebar_min;
+  width: @sidebar_max;
   z-index: 1000;
   position: fixed;
   margin-top: 52px;
-  left: @sidebar_max;
+  left: @sidebar_min;
   height: 100%;
-  margin-left: -@sidebar_max;
+  margin-left: -@sidebar_min;
   overflow-y: auto;
   background: @sidebar-bg;
   .transition(all 0.5s ease);
 }
 
 #wrapper.toggled #sidebar-wrapper {
-  width: @sidebar_max;
+  width: @sidebar_min;
 }
 #wrapper.fullWidth #sidebar-wrapper {
-  width: 0;
+  width: 0px !important;
+  left: 0px;
 }
 
 .sidebar-nav {
@@ -39,7 +41,7 @@
         margin-bottom: 20px;
     }
 
-    #dropdown-new {
+    li.dropdown ul#dropdown-new {
         padding-left: 0;
         margin-left: 15px;
     }
@@ -76,6 +78,8 @@
         ul {
             list-style: none;
             padding-left: 17px;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
     }
     & > .sidebar-toggle {

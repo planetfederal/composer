@@ -1,18 +1,39 @@
-<div class="container-fluid">
-  <h3 class="page-title">{{title}}</h3>
+<div class="home container-fluid">
+<h3 class="page-title">{{title}}</h3>
   <div class="row">
-    <div class="col-sm-6">
-      <div class="panel panel-default" style="margin-top: 20px; padding-left: 20px;">
-        <div class="panel-body" style="display:inline-block;">
-          Workspace:
-          <ui-select ng-model="workspace.selected" theme="bootstrap" ng-disabled="disabled" reset-search-input="false" style="width: 250px; display:inline-block; margin-left: 10px;" ng-change="setSelectedWorkspace(workspace.selected)">
-            <ui-select-match placeholder="Select a workspace...">{{$select.selected.name}}</ui-select-match>
-            <ui-select-choices repeat="workspace in workspaces | filter: $select.search">
-              <span ng-bind-html="workspace.name | highlight: $select.search"></span>
-            </ui-select-choices>
-          </ui-select>
-        </div>
-      </div>
+    <div class="col-sm-12">
+      <h4>GeoServer Details</h4>
+      <p ng-if="server.title">{{ server.title }}</p>
+      <p>{{ server.url }}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-9">
+      <h4>Catalog</h4>
+      <ul class="catalog">
+        <li>
+          <a ui-sref="workspaces">Project Workspaces: {{ catalog.workspaces }}</a>
+        </li>
+        <li>
+          <a ui-sref="layers">Layers: {{ catalog.layers }}</a>
+        </li>
+        <li>
+          <a ui-sref="maps">Maps: {{ catalog.maps }}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-sm-3">
+      <h4>Services</h4>
+      <ul class="catalog">
+        <li ng-repeat="(key,val) in services">
+          <p><strong>{{ key }}</strong></p>
+          <ul class="services">
+            <li ng-repeat="version in val.versions">
+              <a href="{{ server.url }}/ows?service={{key}}&version={{version}}&request=GetCapabilities">{{ version }}</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
     </div>
   </div>
 </div>

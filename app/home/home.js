@@ -10,8 +10,15 @@ angular.module('gsApp.home', [])
     }])
 .controller('HomeCtrl', ['$scope', 'GeoServer',
     function($scope, GeoServer) {
-      $scope.title = 'Home';
+      $scope.title = 'Summary';
       GeoServer.serverInfo.get().$promise.then(function(serverInfo) {
         $scope.serverInfo = serverInfo;
+        $scope.server = serverInfo.server;
+        if (!$scope.server) {
+          $scope.server = {};
+        }
+        $scope.server.url = GeoServer.baseUrl();
+        $scope.catalog = serverInfo.catalog;
+        $scope.services = serverInfo.services;
       });
     }]);
