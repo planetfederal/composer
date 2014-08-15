@@ -22,7 +22,6 @@ angular.module('gsApp.layers.style', [
           $scope.layers = [layer];
           $scope.proj = layer.proj.srs;
           $scope.center = layer.bbox.native.center;
-          $scope.zoom = 4;
 
           GeoServer.style.get(wsName, name).then(function(result) {
             $scope.style = result.data;

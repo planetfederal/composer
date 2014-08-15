@@ -2,7 +2,7 @@ angular.module('gsApp.olmap', [])
 .factory('MapFactory', ['GeoServer',
     function(GeoServer) {
       return {
-        createMap: function(layers, options) {
+        createMap: function(layers, element, options) {
           var mapLayers = layers.map(function(l) {
             return new ol.layer.Image({
               source: new ol.source.ImageWMS({
@@ -12,16 +12,32 @@ angular.module('gsApp.olmap', [])
               })
             });
           });
+
+          // determine projection from first layer
+          var l = layers[0];
+          var proj = new ol.proj.Projection({
+            code: l.proj.srs,
+            units: l.proj.unit,
+            axisOrientation: l.proj.type == 'geographic' ? 'neu' : 'enu'
+          });
+
           var mapOpts = {
             view: new ol.View({
-              center:[0,0],
-              zoom: 2,
-              projection: layers[0].proj.srs
+              center: l.bbox.native.center,
+              projection: proj
             }),
             layers: mapLayers
           };
           mapOpts = angular.extend(mapOpts, options || {});
-          return new ol.Map(mapOpts);
+
+          var map = new ol.Map(mapOpts);
+
+          // set initial extent
+          var bbox = l.bbox.native;
+          var extent = [bbox.west,bbox.south,bbox.east,bbox.north];
+          var size = [element.width(),element.height()];
+          map.getView().fitExtent(extent, size);
+          return  map;
         }
       };
     }])
@@ -40,7 +56,7 @@ angular.module('gsApp.olmap', [])
             if (newVal == null) {
               return;
             }
-            var map = MapFactory.createMap($scope.layers);
+            var map = MapFactory.createMap($scope.layers, $element);
             map.setTarget($element[0]);
 
             var view = map.getView();

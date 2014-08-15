@@ -30,6 +30,9 @@ import org.geotools.ysld.Ysld;
 import org.json.simple.JSONObject;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeographicCRS;
+import org.opengis.referencing.crs.ProjectedCRS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
@@ -231,13 +234,40 @@ public class LayerController extends AppController {
             obj.put("geometry", geometry(ft));
         }
 
-        JSONObj proj = obj.putObject("proj");
-        proj.put("srs", r.getSRS());
-        //TODO: units
+        proj(obj, r);
 
         JSONObj bbox = obj.putObject("bbox");
         bbox(bbox.putObject("native"), r.getNativeBoundingBox());
         bbox(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
+
+        return obj;
+    }
+
+    JSONObj proj(JSONObj obj, ResourceInfo r) {
+        JSONObj proj = obj.putObject("proj");
+        proj.put("srs", r.getSRS());
+
+        CoordinateReferenceSystem crs = r.getCRS();
+
+        // type
+        proj.put("type",
+            crs instanceof ProjectedCRS ? "projected" : crs instanceof GeographicCRS ? "geographic" : "other");
+
+        // units
+        String units = null;
+        try {
+            // try to determine from actual crs
+            String unit = crs.getCoordinateSystem().getAxis(0).getUnit().toString();
+            if ("ft".equals(unit) || "feets".equals(unit))
+                units = "ft";
+        } catch (Exception e) {
+            LOG.log(Level.WARNING, "Unable to determine units from crs", e);
+        }
+        if (units == null) {
+            // fallback: meters for projected, otherwise degrees
+            units = crs instanceof ProjectedCRS ? "m" : "degrees";
+        }
+        proj.put("unit", units);
 
         return obj;
     }
