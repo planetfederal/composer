@@ -16,14 +16,14 @@ angular.module('gsApp.olmap', [])
           // determine projection from first layer
           var l = layers[0];
           var proj = new ol.proj.Projection({
-            code: l.proj.srs,
-            units: l.proj.unit,
-            axisOrientation: l.proj.type == 'geographic' ? 'neu' : 'enu'
+            code: l.srs,
+          //  units: l.proj.unit,
+          //  axisOrientation: l.proj.type == 'geographic' ? 'neu' : 'enu'
           });
 
           var mapOpts = {
             view: new ol.View({
-              center: l.bbox.native.center,
+              center: l.center,
               projection: proj
             }),
             layers: mapLayers
@@ -33,7 +33,7 @@ angular.module('gsApp.olmap', [])
           var map = new ol.Map(mapOpts);
 
           // set initial extent
-          var bbox = l.bbox.native;
+          var bbox = l.bbox;
           var extent = [bbox.west,bbox.south,bbox.east,bbox.north];
           var size = [element.width(),element.height()];
           map.getView().fitExtent(extent, size);

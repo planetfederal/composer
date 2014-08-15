@@ -1,6 +1,6 @@
 /*global $:false */
 /**
- * Module for backend api service. 
+ * Module for backend api service.
  */
 angular.module('gsApp.core.backend',[])
 .factory('GeoServer', ['$http', '$resource', '$q', '$log',

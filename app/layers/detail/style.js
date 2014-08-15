@@ -20,8 +20,14 @@ angular.module('gsApp.layers.style', [
         .then(function(layer) {
           $scope.layer = layer;
           $scope.layers = [layer];
-          $scope.proj = layer.proj.srs;
-          $scope.center = layer.bbox.native.center;
+          $scope.proj = layer.srs;
+          $scope.bbox = {
+            'west': layer.bbox[0],
+            'south': layer.bbox[1],
+            'east': layer.bbox[2],
+            'north': layer.bbox[3]
+          };
+          $scope.center = layer.center;
 
           GeoServer.style.get(wsName, name).then(function(result) {
             $scope.style = result.data;
