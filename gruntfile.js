@@ -25,9 +25,8 @@ var vendorDeps = [
 var bowerDeps = [
   'jquery/dist/jquery.min.js',
   'codemirror/lib/codemirror.js',
-  'codemirror/mode/xml/xml.js',
+  'codemirror/mode/yaml/yaml.js',
   'codemirror/addon/hint/show-hint.js',
-  'codemirror/addon/hint/xml-hint.js',
   'angular/angular.js',
   'angular-resource/angular-resource.js',
   'angular-bootstrap/ui-bootstrap.js',

@@ -10,6 +10,7 @@ angular.module('gsApp.styleditor', ['ui.codemirror'])
         templateUrl: '/components/styleditor/styleditor.tpl.html',
         controller: function($scope, $element) {
           $scope.onCodeMirrorLoad = function(editor) {
+            editor.setOption('mode', 'yaml');
             editor.setOption('lineNumbers', true);
             $scope.editor = editor;
           };
