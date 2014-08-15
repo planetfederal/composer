@@ -111,7 +111,7 @@ public class LayerController extends AppController {
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
-    public void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name) {
+    public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name) {
         // first thing is sanity check on the style content
         try {
             Ysld.parse(ByteSource.wrap(rawStyle).openStream());
