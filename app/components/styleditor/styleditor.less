@@ -1,7 +1,31 @@
 @import "../../app.less";
+
 .style-editor {
   .CodeMirror {
     height: 100%;
   }
   //border: 1px solid @light-gray;
+}
+
+.style-toolbar {
+  background-color: @almost-black;
+  ul {
+    margin-bottom: 0px;
+    li {
+        text-align: center;
+        padding: 10px 20px;
+        a {
+          text-decoration: none;
+          color: @light-gray;
+        }
+
+        &:hover {
+          background-color: @light-gray;
+          cursor: pointer;
+          a {
+            color: @dark-gray;
+          }
+        }
+    }
+  }
 }

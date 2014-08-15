@@ -9,6 +9,10 @@ angular.module('gsApp.styleditor', ['ui.codemirror'])
         },
         templateUrl: '/components/styleditor/styleditor.tpl.html',
         controller: function($scope, $element) {
+          $scope.onCodeMirrorLoad = function(editor) {
+            $scope.editor = editor;
+          };
+
           $scope.codeMirrorOpts = {
             lineWrapping : true,
             lineNumbers: true,

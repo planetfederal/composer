@@ -1,4 +1,15 @@
 <div>
-  <div ui-codemirror ui-codemirror-opts="codeMirrorOpts" ng-model="style" 
-    class="style-editor"></div>
+  <div class="style-toolbar">
+    <ul class="list-inline">
+      <li>
+         <a ng-click="save()">
+          <i class="icon-disk"></i>
+          <div>Save</div>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="style-editor" ui-codemirror="{ onLoad : onCodeMirrorLoad }"
+      ui-codemirror-opts="codeMirrorOpts" ng-model="style"
+    ></div>
 </div>
