@@ -24,7 +24,7 @@ angular.module('gsApp.layers.style', [
           $scope.center = layer.bbox.native.center;
           $scope.zoom = 4;
 
-          GeoServer.style(wsName, name).then(function(result) {
+          GeoServer.style.get(wsName, name).then(function(result) {
             $scope.style = result.data;
           });
         });
@@ -32,9 +32,9 @@ angular.module('gsApp.layers.style', [
       $scope.refreshMap = function() {
         $scope.$broadcast('refresh');
       };
-
-      $scope.onCodeMirrorLoad = function(editor) {
-
+      $scope.saveStyle = function(content) {
+        GeoServer.style.put(wsName, name, content).then(function(result) {
+          $scope.refreshMap();
+        });
       };
-
     }]);
