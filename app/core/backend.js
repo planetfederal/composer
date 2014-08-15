@@ -100,27 +100,49 @@ angular.module('gsApp.core.backend',[])
           }
         }),
 
-        style: function(workspace, layer) {
-          var d = $q.defer();
-          $http({
-            method: 'GET',
-            url: apiRoot+'/layers/'+workspace+'/'+layer+'/style',
-            headers: {
-              'Accept': 'application/vnd.ogc.sld+xml'
-            }
-          }).success(function(data, status, headers, config) {
-            d.resolve({
-              success: status == 200,
-              status: status,
-              data: data
+        style: {
+          get: function(workspace, layer) {
+            var d = $q.defer();
+            $http({
+              method: 'GET',
+              url: apiRoot+'/layers/'+workspace+'/'+layer+'/style'
+            }).success(function(data, status, headers, config) {
+              d.resolve({
+                success: status == 200,
+                status: status,
+                data: data
+              });
+            }).error(function(data, status, headers, config) {
+              d.reject({
+                status: status,
+                data: data
+              });
             });
-          }).error(function(data, status, headers, config) {
-            d.reject({
-              status: status,
-              data: data
+            return d.promise;
+          },
+          put: function(workspace, layer, content) {
+            var d = $q.defer();
+            $http({
+              method: 'PUT',
+              url: apiRoot+'/layers/'+workspace+'/'+layer+'/style',
+              data: content,
+              headers: {
+                'Content-Type': 'application/vnd.geoserver.ysld+yaml'
+              }
+            }).success(function(data, status, headers, config) {
+              d.resolve({
+                success: status == 200,
+                status: status,
+                data: data
+              });
+            }).error(function(data, status, headers, config) {
+              d.reject({
+                status: status,
+                data: data
+              });
             });
-          });
-          return d.promise;
+            return d.promise;
+          }
         }
       };
     }]);
