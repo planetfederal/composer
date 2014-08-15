@@ -1,6 +1,7 @@
 package org.opengeo.app;
 
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerDataDirectory;
 
 /**
  * Base class for app controllers.
@@ -13,4 +14,7 @@ public abstract class AppController {
         this.geoServer = geoServer;
     }
 
+    protected GeoServerDataDirectory dataDir() {
+        return new GeoServerDataDirectory(geoServer.getCatalog().getResourceLoader());
+    }
 }

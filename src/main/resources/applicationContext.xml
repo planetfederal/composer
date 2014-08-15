@@ -35,7 +35,8 @@
     <mvc:annotation-driven>
         <mvc:message-converters register-defaults="true">
             <bean class="org.opengeo.app.JSONMessageConverter"/>
-            <bean class="org.opengeo.app.SLDMessageConverter"/>
+            <bean class="org.opengeo.app.YsldMessageConverter"/>
+            <bean class="org.opengeo.app.ResourceMessageConverter"/>
         </mvc:message-converters>
     </mvc:annotation-driven>
 </beans>

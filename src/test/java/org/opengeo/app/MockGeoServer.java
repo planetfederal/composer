@@ -11,18 +11,34 @@ import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.config.GeoServer;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Paths;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.ResourceStore;
+import org.geoserver.ysld.YsldHandler;
 import org.geotools.data.DataUtilities;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.SchemaException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Rule;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyleFactory;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.annotation.Nullable;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +70,51 @@ public class MockGeoServer {
         return catalog;
     }
 
-    public class Builder {
+    public abstract class Builder {
+
+        public abstract MockGeoServer geoServer();
+
+    }
+
+    public class ResourcesBuilder extends  Builder {
+
+        ResourceStore resourceStore;
+        CatalogBuilder catalogBuilder;
+
+        public ResourcesBuilder(CatalogBuilder catalogBuilder) {
+            this.catalogBuilder = catalogBuilder;
+
+            Resource base = mock(Resource.class);
+            when(base.dir()).thenReturn(null);
+
+            resourceStore = mock(ResourceStore.class);
+            when(resourceStore.get(Paths.BASE)).thenReturn(base);
+
+            when(catalogBuilder.catalog.getResourceLoader())
+                .thenAnswer(new Answer<GeoServerResourceLoader>() {
+                    @Override
+                    public GeoServerResourceLoader answer(InvocationOnMock invocation) throws Throwable {
+                        return new GeoServerResourceLoader(resourceStore);
+                    }
+                });
+        }
+
+        public ResourcesBuilder resource(String path, String content) {
+            return resource(path, new ByteArrayInputStream(content.getBytes()));
+        }
+
+        public ResourcesBuilder resource(String path, InputStream content) {
+            Resource r = mock(Resource.class);
+            when(r.in()).thenReturn(content);
+            when(r.out()).thenReturn(new ByteArrayOutputStream());
+            when(resourceStore.get(path)).thenReturn(r);
+            return this;
+        }
+
+        @Override
+        public MockGeoServer geoServer() {
+            return catalogBuilder.geoServer();
+        }
     }
 
     public class CatalogBuilder extends Builder {
@@ -73,6 +133,10 @@ public class MockGeoServer {
             WorkspaceBuilder wsBuilder = new WorkspaceBuilder(name, uri, isDefault, this);
             workspaces.add(wsBuilder);
             return wsBuilder;
+        }
+
+        public ResourcesBuilder resources() {
+            return new ResourcesBuilder(this);
         }
 
         public MockGeoServer geoServer() {
@@ -175,7 +239,7 @@ public class MockGeoServer {
 
     }
 
-    public class LayerBuilder {
+    public class LayerBuilder extends Builder {
 
         String name;
         LayerInfo layer;
@@ -198,12 +262,20 @@ public class MockGeoServer {
             when(catalog.getLayerByName(new NameImpl(wsName, name))).thenReturn(layer);
         }
 
+        public StyleBuilder style() {
+            return new StyleBuilder(this);
+        }
+
         public FeatureTypeBuilder featureType() {
             return new FeatureTypeBuilder(this);
         }
+
+        public MockGeoServer geoServer() {
+            return workspaceBuilder.geoServer();
+        }
     }
 
-    public class ResourceBuilder<T extends ResourceInfo> {
+    public class ResourceBuilder<T extends ResourceInfo> extends Builder {
 
         protected T resource;
         protected LayerBuilder layerBuilder;
@@ -266,6 +338,54 @@ public class MockGeoServer {
               .latLonBbox(-180, -90, 180, 90);
 
             return schema("geom:Point,name:String");
+        }
+    }
+
+    public class StyleBuilder extends Builder {
+
+        StyleInfo style;
+        LayerBuilder layerBuilder;
+        StyleFactory styleFactory;
+
+        public StyleBuilder(LayerBuilder layerBuilder) {
+            this.layerBuilder = layerBuilder;
+            this.styleFactory = CommonFactoryFinder.getStyleFactory();
+
+            style = mock(StyleInfo.class);
+            when(style.getWorkspace()).thenReturn(layerBuilder.workspaceBuilder.workspace);
+            when(layerBuilder.layer.getDefaultStyle()).thenReturn(style);
+        }
+
+        public StyleBuilder ysld(String filename) {
+            when(style.getFormat()).thenReturn(YsldHandler.FORMAT);
+            when(style.getFilename()).thenReturn(filename);
+            return this;
+        }
+
+        public StyleBuilder point() {
+            Rule rule = styleFactory.createRule();
+            rule.symbolizers().add(styleFactory.createPointSymbolizer());
+
+            FeatureTypeStyle featureTypeStyle = styleFactory.createFeatureTypeStyle();
+            featureTypeStyle.rules().add(rule);
+
+            Style style = styleFactory.createStyle();
+            style.featureTypeStyles().add(featureTypeStyle);
+
+            try {
+                when(this.style.getStyle()).thenReturn(style);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return this;
+        }
+
+        public LayerBuilder layer() {
+            return layerBuilder;
+        }
+
+        public MockGeoServer geoServer() {
+            return layerBuilder.geoServer();
         }
     }
 }

@@ -2,23 +2,39 @@ package org.opengeo.app;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.apache.commons.io.IOUtils;
+import org.geoserver.catalog.StyleHandler;
 import org.geoserver.config.GeoServer;
+import org.geoserver.platform.GeoServerExtensions;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.ysld.YsldHandler;
+import org.geotools.styling.NamedLayer;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyledLayerDescriptor;
+import org.geotools.ysld.Ysld;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.annotation.Nullable;
 
+import java.io.ByteArrayOutputStream;
+
 import static org.junit.Assert.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 public class LayerControllerTest {
 
@@ -31,10 +47,21 @@ public class LayerControllerTest {
     MockMvc mvc;
 
     @Before
-    public void setUp() {
+    public void setUpAppContext() {
+        WebApplicationContext appContext = mock(WebApplicationContext.class);
+        when(appContext.getBeanNamesForType(StyleHandler.class)).thenReturn(new String[]{"ysldHandler"});
+        when(appContext.getBean("ysldHandler")).thenReturn(new YsldHandler());
+
+        new GeoServerExtensions().setApplicationContext(appContext);
+    }
+
+    @Before
+    public void setUpMVC() {
         MockitoAnnotations.initMocks(this);
 
-        mvc = MockMvcBuilders.standaloneSetup(ctrl).setMessageConverters(new JSONMessageConverter()).build();
+        mvc = MockMvcBuilders.standaloneSetup(ctrl).setMessageConverters(
+                new JSONMessageConverter(), new ResourceMessageConverter(),
+                new YsldMessageConverter(), new ByteArrayHttpMessageConverter()).build();
     }
 
     @Test
@@ -72,7 +99,7 @@ public class LayerControllerTest {
 
     @Test
     public void testGet() throws Exception {
-        MockGeoServer.get().catalog()
+        GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
                 .layer("one")
                 .featureType().defaults()
@@ -103,5 +130,71 @@ public class LayerControllerTest {
         assertEquals(90d, obj.object("bbox").object("lonlat").doub("north"), 0.1);
         assertEquals(0d, obj.object("bbox").object("lonlat").array("center").doub(0), 0.1);
         assertEquals(0d, obj.object("bbox").object("lonlat").array("center").doub(1), 0.1);
+    }
+
+    @Test
+    public void testGetStyle() throws Exception {
+        MockGeoServer.get().catalog()
+          .workspace("foo", "http://scratch.org", true)
+            .layer("one")
+              .style().point()
+          .geoServer().build(geoServer);
+
+        MvcResult result = mvc.perform(get("/backend/layers/foo/one/style"))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(YsldMessageConverter.MEDIA_TYPE))
+            .andReturn();
+
+        StyledLayerDescriptor sld = Ysld.parse(result.getResponse().getContentAsString());
+        Style style = ((NamedLayer)sld.layers().get(0)).getStyles()[0];
+
+        assertTrue(style.featureTypeStyles().get(0).rules().get(0).symbolizers().get(0) instanceof PointSymbolizer);
+    }
+
+    @Test
+    public void testGetStyleRaw() throws Exception {
+        MockGeoServer.get().catalog()
+          .resources()
+            .resource("workspaces/foo/styles/one.yaml", "title: raw")
+          .geoServer().catalog()
+            .workspace("foo", "http://scratch.org", true)
+              .layer("one")
+                .style().ysld("one.yaml")
+          .geoServer().build(geoServer);
+
+        MvcResult result = mvc.perform(get("/backend/layers/foo/one/style"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(YsldMessageConverter.MEDIA_TYPE))
+                .andReturn();
+
+        assertEquals("title: raw", result.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void testPutStyle() throws Exception {
+        MockGeoServer.get().catalog()
+            .resources()
+                .resource("workspaces/foo/styles/one.yaml", "title: blah")
+            .geoServer().catalog()
+                .workspace("foo", "http://scratch.org", true)
+                   .layer("one")
+                      .style().ysld("one.yaml")
+            .geoServer().build(geoServer);
+
+
+        MockHttpServletRequestBuilder req = put("/backend/layers/foo/one/style")
+            .contentType(YsldMessageConverter.MEDIA_TYPE)
+            .content("title: raw");
+
+        MvcResult result = mvc.perform(req)
+            .andExpect(status().isOk())
+            .andReturn();
+
+        Resource r = geoServer.getCatalog().getResourceLoader().get("workspaces/foo/styles/one.yaml");
+        assertEquals("title: raw", toString(r));
+    }
+
+    String toString(Resource r) {
+        return new String(((ByteArrayOutputStream)r.out()).toByteArray());
     }
 }

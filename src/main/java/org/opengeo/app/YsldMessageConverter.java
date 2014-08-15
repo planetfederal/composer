@@ -1,7 +1,6 @@
 package org.opengeo.app;
 
-import org.geoserver.catalog.Styles;
-import org.geotools.styling.StyledLayer;
+import org.geoserver.ysld.YsldHandler;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
@@ -12,9 +11,14 @@ import org.springframework.http.converter.HttpMessageNotWritableException;
 
 import java.io.IOException;
 
-public class SLDMessageConverter extends AbstractHttpMessageConverter<StyledLayerDescriptor> {
+/**
+ * Message converter for Ysld content.
+ */
+public class YsldMessageConverter extends AbstractHttpMessageConverter<StyledLayerDescriptor> {
 
-    public SLDMessageConverter() {
+    public static final MediaType MEDIA_TYPE = MediaType.valueOf(YsldHandler.MIMETYPE);
+
+    public YsldMessageConverter() {
         super(MediaType.ALL);
     }
 
@@ -26,14 +30,13 @@ public class SLDMessageConverter extends AbstractHttpMessageConverter<StyledLaye
     @Override
     protected StyledLayerDescriptor readInternal(Class<? extends StyledLayerDescriptor> clazz, HttpInputMessage message)
         throws IOException, HttpMessageNotReadableException {
-        MediaType contentType = message.getHeaders().getContentType();
-        return Styles.handler(contentType.toString()).parse(message.getBody(), null, null, null);
+        return new YsldHandler().parse(message.getBody(), null, null, null);
     }
 
     @Override
     protected void writeInternal(StyledLayerDescriptor sld, HttpOutputMessage message)
         throws IOException, HttpMessageNotWritableException {
-        MediaType contentType = message.getHeaders().getContentType();
-        Styles.handler(contentType.toString()).encode(sld, null, true, message.getBody());
+        message.getHeaders().setContentType(MEDIA_TYPE);
+        new YsldHandler().encode(sld, null, true, message.getBody());
     }
 }

@@ -1,8 +1,12 @@
 package org.opengeo.app;
 
+import com.google.common.io.ByteSource;
+import com.google.common.io.ByteStreams;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageInfo;
@@ -14,11 +18,15 @@ import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.ysld.YsldHandler;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
+import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
+import org.geotools.ysld.Ysld;
 import org.json.simple.JSONObject;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -33,6 +41,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.w3.xlink.ResourceType;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,8 +91,8 @@ public class LayerController extends AppController {
         return layer(new JSONObj(), l, wsName, true);
     }
 
-    @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.GET)
-    public @ResponseBody StyledLayerDescriptor style(@PathVariable String wsName, @PathVariable String name)
+    @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.GET, produces = YsldHandler.MIMETYPE)
+    public @ResponseBody Object style(@PathVariable String wsName, @PathVariable String name)
         throws IOException {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
         StyleInfo s = l.getDefaultStyle();
@@ -91,12 +100,90 @@ public class LayerController extends AppController {
             throw new NotFoundException(String.format("Layer %s:%s has no default style", wsName, name));
         }
 
-        Style style = s.getStyle();
-        return Styles.sld(style);
+        // if the style is already stored in Ysld format just pull it directly, otherwise encode the style
+        if (YsldHandler.FORMAT.equalsIgnoreCase(s.getFormat())) {
+            return dataDir().style(s);
+        }
+        else {
+            Style style = s.getStyle();
+            return Styles.sld(style);
+        }
     }
 
-    @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT)
-    public void style(@RequestBody StyledLayerDescriptor sld, @PathVariable String wsName, @PathVariable String name) {
+    @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
+    public void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name) {
+        // first thing is sanity check on the style content
+        try {
+            Ysld.parse(ByteSource.wrap(rawStyle).openStream());
+        } catch (Exception e) {
+            throw new BadRequestException("Invalid Ysld", e);
+        }
+
+        Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
+        LayerInfo l = findLayer(wsName, name, cat);
+
+        StyleInfo s = l.getDefaultStyle();
+
+        if (s == null) {
+            // create one
+            s = cat.getFactory().createStyle();
+            s.setName(findUniqueStyleName(wsName, name, cat));
+            s.setFilename(s.getName()+".yaml");
+            s.setWorkspace(ws);
+        }
+        else {
+            // we are converting from normal SLD?
+            if (!YsldHandler.FORMAT.equalsIgnoreCase(s.getFormat())) {
+                // reuse base file name
+                String base = FilenameUtils.getBaseName(s.getFilename());
+                s.setFilename(base + ".yaml");
+            }
+         }
+
+        s.setFormat(YsldHandler.FORMAT);
+        s.setFormatVersion(new Version("1.0.0"));
+
+        // write out the resource
+        OutputStream output = dataDir().style(s).out();
+        try {
+            try {
+                IOUtils.copy(ByteSource.wrap(rawStyle).openStream(), output);
+                output.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        finally {
+            IOUtils.closeQuietly(output);
+        }
+
+        if (s.getId() == null) {
+            cat.add(s);
+        }
+        else {
+            cat.save(s);
+        }
+    }
+
+    String findUniqueStyleName(String wsName, String name, Catalog cat) {
+        String tryName = name;
+        int i = 0;
+        while (i++ < 100) {
+            if (cat.getStyleByName(wsName, tryName) == null) {
+                return tryName;
+            }
+            tryName = name + String.valueOf(i);
+        }
+        throw new RuntimeException("Unable to find unqiue name for style");
+    }
+
+    WorkspaceInfo findWorkspace(String wsName, Catalog cat) {
+        WorkspaceInfo ws = cat.getWorkspaceByName(wsName);
+        if (ws == null) {
+            throw new NotFoundException(String.format("No such workspace %s", wsName));
+        }
+        return ws;
     }
 
     LayerInfo findLayer(String wsName, String name, Catalog cat) {
