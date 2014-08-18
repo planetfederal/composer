@@ -1,4 +1,7 @@
-angular.module('gsApp.styleditor', ['ui.codemirror'])
+angular.module('gsApp.styleditor', [
+  'ui.codemirror',
+  'gsApp.styleditor.ysldhinter'
+])
 .directive('styleEditor', ['$log',
     function($log) {
       return {
@@ -18,7 +21,17 @@ angular.module('gsApp.styleditor', ['ui.codemirror'])
             lineNumbers: true,
             mode: 'yaml',
             gutters: ['CodeMirror-lint-markers'],
-            lint: true
+            lint: true,
+            extraKeys: {
+              'Ctrl-Space': 'autocomplete',
+              'Tab': function(cm) {
+                // replace tabs with spaces
+                var spaces =
+                  new Array(cm.getOption('indentUnit') + 1).join(' ');
+                cm.replaceSelection(spaces);
+              }
+            },
+            tabMode: 'spaces'
           };
 
           $scope.save = function() {
@@ -29,5 +42,15 @@ angular.module('gsApp.styleditor', ['ui.codemirror'])
             $scope.style = newVal;
           });
         }
+      };
+    }])
+.run(['YsldHinter', '$log',
+    function(YsldHinter, $log) {
+      CodeMirror.commands.autocomplete = function(cm) {
+        cm.showHint({
+          hint: function(cm, options) {
+            return YsldHinter.hints(cm, options);
+          }
+        });
       };
     }]);
