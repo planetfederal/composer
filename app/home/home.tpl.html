@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container-fluid">
 <h3 class="page-title"><i class="icon-lg icon-home"></i> {{title}}</h3>
   <div class="row">
     <div class="col-sm-12">
@@ -29,7 +29,7 @@
           <p><strong>{{ key }}</strong></p>
           <ul class="services">
             <li ng-repeat="version in val.versions">
-              <a href="{{ server.url }}/ows?service={{key}}&version={{version}}&request=GetCapabilities">{{ version }}</a>
+              <a href="{{ server.url }}/ows?service={{key}}&version={{version}}&request=GetCapabilities" target="_blank">{{ version }}</a>
             </li>
           </ul>
         </li>

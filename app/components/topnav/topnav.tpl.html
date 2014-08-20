@@ -22,14 +22,14 @@
           <a href="/geoserver/web/" target="_blank">Admin</a>
         </li>
         <li>
-          <a href="http://suite.opengeo.org">Help</a>
+          <a href="http://suite.opengeo.org" target="_blank">Help</a>
         </li>
         <li ng-if="session.active" class="user dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown-user">
             <span>{{ session.user }}</span> <span class="caret"></span>
           </a>
           <ul id="dropdown-user" class="dropdown-menu" role="menu">
-            <li ng-if="session.active"><a href="#" ng-click="logout()">Logout</a></li>
+            <li ng-if="session.active"><a ui-sref="#" ng-click="logout()">Logout</a></li>
           </ul>
         </li>
       </ul>

@@ -1,13 +1,13 @@
 <div id="sidebar-wrapper">
-  <ul class="sidebar-nav">
+  <ul class="sidebar-nav" ng-show="session.active">
       <li class="sidebar-toggle">
           <a href="" ng-click="toggleSide=!toggleSide" id="menu-toggle" ng-class="{'f-right': !toggleSide}">
             <i class="toggleIcon fa fa-2x" ng-class="{'fa-arrow-circle-o-left': !toggleSide, 'fa-arrow-circle-o-right': toggleSide}"></i>
           </a>
       </li>
       <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown-new">
-          New <span class="caret"></span>
+        <a class="dropdown-toggle" data-toggle="dropdown-new"> <i class="icon-plus" ng-show="toggleSide"></i>
+          <span class="txt">New <span class="caret"></span></span>
         </a>
         <ul id="dropdown-new" class="dropdown-menu" role="menu">
             <li><a href="#">New Project Workspace</a></li>
@@ -15,31 +15,44 @@
         </ul>
       </li>
       <li role="presentation" class="divider"></li>
-      <li id="projects">
+      <li id="projects" ng-show="!toggleSide">
         <a class="all-workspaces" ng-init="toggleProjs=false" ng-click="toggleProjs=!toggleProjs" ui-sref="home">
-          <i ng-class="{'icon-folder-open': toggleProjs, 'icon-folder': !toggleProjs}"></i>  Project Workspaces
+          <i ng-class="{'icon-folder-open': toggleProjs, 'icon-folder': !toggleProjs}"></i> <span class="txt">Project Workspaces</span>
         </a>
         <ul class="workspaces" collapse="!toggleProjs" role="menu">
           <li class="single-workspace" ng-repeat="workspace in workspaces | limitTo: 5"
            ng-class="{'open': toggleWkspc}" ng-init="toggleWkspc=false">
             <a href="" ng-click="toggleWkspc=!toggleWkspc; onWorkspaceClick(workspace);">
-              <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open': toggleWkspc,}"></i> {{ workspace.name }}
+              <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open': toggleWkspc,}"></i> <span class="txt">{{ workspace.name }}</span>
             </a>
-             <ul class="workspace-items" collapse="!toggleWkspc" role="menu">
-                <li><a href="#"><i class="icon-map"></i> Maps</a></li>
-                <li><a href="#"><i class="fa fa-database fa-lg"></i> Data</a></li>
+            <ul class="workspace-items" collapse="!toggleWkspc" role="menu">
+              <li><a href="#"><i class="icon-map"></i> <span class="txt">Maps</span></a></li>
+              <li><a href="#"><i class="fa fa-database fa-lg"></i> <span class="txt">Data</span></a></li>
             </ul>
           </li>
-          <li ng-show="workspaces.length > 2" class="more"><a ui-sref="workspaces">More...</a></li>
+          <li ng-show="workspaces.length > 2" class="more"><a ui-sref="workspaces"><span class="txt">More...</span></a></li>
         </ul>
       </li>
-
+      <li id="projects" ng-show="toggleSide" class="dropdown">
+        <a ng-show="toggleSide" class="dropdown-toggle" data-toggle="tgdropdown">
+          <i ng-class="{'icon-folder-open': toggleProjs, 'icon-folder': !toggleProjs}"></i> <span class="txt">Project Workspaces</span>
+        </a>
+        <ul ng-show="toggleSide" id="tgdropdown" class="dropdown-menu" role="menu">
+          <li class="single-workspace" ng-repeat="workspace in workspaces | limitTo: 5"
+           ng-class="{'open': toggleWkspc}" ng-init="toggleWkspc=false">
+            <a href="" ng-click="toggleWkspc=!toggleWkspc; onWorkspaceClick(workspace);">
+              <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open': toggleWkspc,}"></i> {{ workspace.name }}
+            </a>
+          </li>
+          <li ng-show="workspaces.length > 2" class="more"><a ui-sref="workspaces"> More...</a></li>
+        </ul>
+      </li>
       <li role="presentation" class="divider"></li>
-      <li><a href="#"><i class="icon-map"></i> All Maps</a></li>
-      <li><a ui-sref="layers"><i class="icon-stack"></i> All Layers</a></li>
-      <li><a href="#"><i class="fa fa-database fa-lg"></i> All Data</a></li>
+      <li><a href="#"><i class="icon-map"></i> <span class="txt">All Maps</span></a></li>
+      <li><a ui-sref="layers"><i class="icon-stack"></i> <span class="txt">All Layers</span></a></li>
+      <li><a href="#"><i class="fa fa-database fa-lg"></i> <span class="txt">All Data</span></a></li>
       <li role="presentation" class="divider"></li>
-      <li><a ui-sref="home"><i class="fa fa-gears fa-lg"></i> Diagnostics</a></li>
+      <li><a ui-sref="home"><i class="fa fa-gears fa-lg"></i> <span class="txt">Diagnostics</span></a></li>
 
   </ul>
 </div>
