@@ -202,6 +202,23 @@
 
   <build>
     <finalName>geoserver</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>target</directory>
+              <includes>
+                <include>app/**/*</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+    </plugins>
   </build> 
 
 </project>

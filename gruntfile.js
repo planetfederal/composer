@@ -1,6 +1,19 @@
+/*global require, module, __dirname */
 var fs = require('fs');
 var path = require('path');
 var url = require('url');
+
+Array.prototype.diff = function(a) {
+    return this.filter(function(i) {return a.indexOf(i) < 0;});
+};
+
+String.prototype.startsWith = function(s) {
+  return this.indexOf(s) == 0;
+};
+
+String.prototype.endsWith = function(s) {
+  return this.substr(-s.length) == s;
+};
 
 var config = {
   proxy: {
@@ -16,36 +29,72 @@ var sources = {
   tpl: 'app/**/*.tpl.html'
 };
 
-var vendorDeps = [
-  'openlayers/ol.js'
-].map(function(dep) {
-  return 'vendor/' + dep;
-});
+var deps = {
+  js: [
+    '/vendor/openlayers/ol.js',
+    'jquery/dist/jquery.min.js',
+    'js-yaml/dist/js-yaml.js',
+    'codemirror/lib/codemirror.js',
+    'codemirror/mode/yaml/yaml.js',
+    'codemirror/addon/hint/show-hint.js',
+    'codemirror/addon/lint/lint.js',
+    'codemirror/addon/lint/yaml-lint.js',
+    'angular/angular.js',
+    'angular-resource/angular-resource.js',
+    'angular-bootstrap/ui-bootstrap.js',
+    'angular-bootstrap/ui-bootstrap-tpls.js',
+    'angular-animate/angular-animate.js',
+    'angular-sanitize/angular-sanitize.js',
+    'angular-grid/build/ng-grid.js',
+    'angular-ui-router/release/angular-ui-router.js',
+    'angular-ui-select/dist/select.js',
+    'angular-ui-codemirror/ui-codemirror.js'
+  ], 
+  
 
-var bowerDeps = [
-  'jquery/dist/jquery.min.js',
-  'js-yaml/dist/js-yaml.js',
-  'codemirror/lib/codemirror.js',
-  'codemirror/mode/yaml/yaml.js',
-  'codemirror/addon/hint/show-hint.js',
-  'codemirror/addon/lint/lint.js',
-  'codemirror/addon/lint/yaml-lint.js',
-  'angular/angular.js',
-  'angular-resource/angular-resource.js',
-  'angular-bootstrap/ui-bootstrap.js',
-  'angular-bootstrap/ui-bootstrap-tpls.js',
-  'angular-animate/angular-animate.js',
-  'angular-sanitize/angular-sanitize.js',
-  'angular-grid/build/ng-grid.js',
-  'angular-ui-router/release/angular-ui-router.js',
-  'angular-ui-select/dist/select.js',
-  'angular-ui-select/dist/select.js',
-  'angular-ui-codemirror/ui-codemirror.js'
-].map(function(dep) {
-  return 'bower_components/'+dep;
-});
+  less: [
+    'bootstrap/less/bootstrap.less'
+  ],
 
-var dependencies = [].concat(vendorDeps).concat(bowerDeps);
+  css: [
+    'angular-grid/ng-grid.css',
+    'angular-ui-select/dist/select.min.css',
+    'codemirror/lib/codemirror.css',
+    'codemirror/addon/hint/show-hint.css',
+    'codemirror/addon/lint/lint.css',
+    'font-awesome/css/font-awesome.css',
+    'icomoon/style.css',
+    'open-sans-fontface/open-sans.css'
+  ],
+
+  font: [
+    'font-awesome/fonts/*',
+    'icomoon/fonts/*',
+    'open-sans-fontface/fonts/**/*',
+  ]
+};
+
+var prefixDeps = function(deps) {
+  return deps.map(function(dep) {
+    return dep.indexOf('/') == 0 ? dep.substring(1) : 'bower_components/'+dep;
+  });
+};
+
+var codeMirrorDeps = function() {
+  return deps.js.filter(function(dep) {
+    return dep.startsWith('codemirror');
+  });
+};
+
+var olDeps = function() {
+  return deps.js.filter(function(dep) {
+    return dep.endsWith('ol.js');
+  });
+};
+
+var standaloneDeps = function() {
+  return deps.js.diff(codeMirrorDeps().concat(olDeps()));
+};
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -64,27 +113,31 @@ module.exports = function(grunt) {
             var middlewares = [];
 
             // proxy
-            middlewares.push(require('grunt-connect-proxy/lib/utils').proxyRequest);
+            middlewares.push(
+              require('grunt-connect-proxy/lib/utils').proxyRequest);
 
             // debug script loader
             middlewares.push(function(req, res, next) {
               var parts = url.parse(req.url);
-              var loaderUrl = '/geoserver.min.js';
-              if (parts.pathname.substr(-loaderUrl.length) === loaderUrl) {
+              if (parts.pathname.endsWith('/geoserver.min.js')) {
                 var template = path.join(__dirname, 'app', 'loader.js');
                 fs.readFile(template, 'utf8', function(err, string) {
                   if (err) {
                     return next(err);
                   }
-                  var scripts = grunt.file.expand(dependencies.concat(sources.js))
+                  var scripts = grunt.file
+                      .expand(prefixDeps(standaloneDeps())
+                        .concat(sources.js))
                       .map(function(script) {
                         return '/' + script.split(path.sep).join('/');
                       });
                   res.setHeader('content-type', 'application/javascript');
-                  var body = string.replace('{{{ paths }}}', JSON.stringify(scripts));
+                  var body = 
+                    string.replace('{{{ paths }}}', JSON.stringify(scripts));
                   res.end(body, 'utf8');
                 });
-              } else {
+              } 
+              else {
                 next();
               }
             });
@@ -95,7 +148,8 @@ module.exports = function(grunt) {
             });
 
             // directory browsable
-            var directory = options.directory || options.base[options.base.length - 1];
+            var directory = 
+              options.directory || options.base[options.base.length - 1];
             middlewares.push(connect.directory(directory));
 
             return middlewares;
@@ -117,6 +171,9 @@ module.exports = function(grunt) {
     },
     less: {
       build: {
+        options: {
+          paths: ['build/css']
+        },
         cleancss: true,
         files: {
           'build/geoserver.css': [sources.less]
@@ -130,38 +187,26 @@ module.exports = function(grunt) {
         src: 'index.html',
         dest: 'build/'
       },
-      fonts: {
+      assets: {
         files: [{
           expand: true,
-          cwd: 'bower_components/bootstrap/fonts',
-          dest: 'build/fonts',
-          src: ['**']
+          cwd: 'bower_components',
+          src: deps.css.concat(deps.font),
+          dest: 'build/assets'
         }, {
           expand: true,
-          cwd: 'bower_components/open-sans-fontface',
-          dest: 'build/fonts/open-sans',
-          src: ['fonts/**/*', 'open-sans.css'],
-          filter: 'isFile'
-        },{
-          expand: true,
-          cwd: 'bower_components/font-awesome',
-          dest: 'build/',
-          src: ['fonts/*', 'css/font-awesome.css'],
-          filter: 'isFile'
-        },{
-          expand: true,
-          cwd: 'bower_components/icomoon',
-          dest: 'build/fonts/icomoon',
-          src: ['fonts/*', 'style.css'],
-          filter: 'isFile'
+          cwd: 'app',
+          src: 'images/**/*',
+          dest: 'build/'
         }]
-
-        // bootstrap: [{
-
-        // }],
-        // sans: [{
-
-        // }]
+      },
+      ol: {
+        files: [{
+          expand: true,
+          flatten: true,
+          src: prefixDeps(olDeps()),
+          dest: 'build/'
+        }]
       }
     },
     ngmin: {
@@ -175,24 +220,39 @@ module.exports = function(grunt) {
         options: {
           base: 'app',
           module: 'gsApp.templates',
-          fileFooterString: 'angular.module("gsApp").requires.push("gsApp.templates");'
+          fileFooterString: 
+            'angular.module("gsApp").requires.push("gsApp.templates");',
+          rename: function(name) {
+            return '/' + name;
+          }
         },
         src: sources.tpl,
         dest: 'build/templates.js'
       }
     },
-    uglify: {
-       dist: {
-         files: {
-            'build/geoserver.min.js': dependencies.concat('build/geoserver.js', 'build/templates.js')
-         }
-       }
-    },
     concat: {
-      dist: {
-        src: dependencies.concat('build/geoserver.js', 'build/templates.js'),
+      codemirror: {
+        src: prefixDeps(codeMirrorDeps()),
+        dest: 'build/codemirror.js'
+      },
+      debug: {
+        src: ['build/geoserver.js', 'build/templates.js'],
         dest: 'build/geoserver.debug.js'
       }
+    },
+    uglify: {
+      codemirror: {
+        files: {
+          'build/codemirror.min.js': ['build/codemirror.js']
+        }
+      },
+      dist: {
+         files: {
+            'build/geoserver.min.js':
+              prefixDeps(deps.js.diff(codeMirrorDeps()).diff(olDeps()))
+                .concat('build/geoserver.js', 'build/templates.js')
+         }
+       }
     },
     watch: {
       index: {
@@ -226,6 +286,16 @@ module.exports = function(grunt) {
         //tasks: ['jshint:spec', 'karma:dev:run']
       }
     },
+    replace: {
+      index: {
+         src: ['build/index.html'],
+         overwrite: true,
+         replacements: [{
+          from: /base href=".*"/g,
+          to: 'base href="/geoserver/app/"'
+         }]
+       }
+    },
     clean: {
       build: {
         src: 'build/'
@@ -245,10 +315,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-connect-proxy');
   grunt.loadNpmTasks('grunt-ngmin');
   grunt.loadNpmTasks('grunt-html2js');
+  grunt.loadNpmTasks('grunt-text-replace');
 
   // tasks
   grunt.registerTask('build', [
     'copy', 'less', 'ngmin', 'html2js', 'concat', 'uglify']);
   grunt.registerTask('start', [
     'less', 'configureProxies:server','connect', 'watch']);
+  grunt.registerTask('dist', ['replace']);
 };

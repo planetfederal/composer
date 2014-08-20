@@ -236,7 +236,8 @@
     <!-- spring dispatcher servlet, dispatches all incoming requests -->
     <servlet>
       <servlet-name>dispatcher</servlet-name>
-      <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+      <!--<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>-->
+      <servlet-class>org.opengeo.app.AppDispatcher</servlet-class>
     </servlet>
     
     <!-- single mapping to spring, this only works properly if the advanced dispatch filter is 

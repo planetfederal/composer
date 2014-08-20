@@ -20,12 +20,12 @@
     "grunt-contrib-concat": "~0.5.0",
     "grunt-connect-proxy": "~0.1.7",
     "grunt-ngmin": "0.0.3",
-    "grunt-html2js": "~0.2.4"
+    "grunt-html2js": "~0.2.4",
+    "grunt-text-replace": "~0.3.12"
   },
   "scripts": {
-    "install": "bower install && grunt build",
+    "install": "bower install && grunt build && grunt dist",
     "test": "grunt test",
-    "start": "grunt start",
-    "archive": "grunt archive"
+    "start": "grunt start"
   }
 }

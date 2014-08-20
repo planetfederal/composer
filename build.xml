@@ -5,13 +5,30 @@
   <property name="war.dir" value="target/geoserver"/>
   <property name="war.file" value="${war.dir}.war"/>
 
-  <target name="build" depends="init" description="Builds project">
+  <target name="build" depends="init,build-client,build-server" 
+    description="Builds project">
+  </target>
+
+  <target name="build-client">
+    <exec executable="npm" failonerror="true">
+       <arg line="install"/>
+    </exec>
+    <mkdir dir="target/app"/>
+    <copy todir="target/app">
+      <fileset dir="build" includes="**/*"/>
+    </copy>
+  </target>
+  <target name="build-server">
     <antcall target="mvn">
         <param name="goals" value="install"/>
     </antcall>
   </target>
 
-  <target name="clean" depends="destroy"/>
+  <target name="clean" depends="destroy">
+    <exec executable="grunt" failonerror="true">
+       <arg line="clean"/>
+    </exec>
+  </target>
 
   <target name="assemble">
     <available file="${data.dir}/global.xml" property="dataDirIsAvailable"/>
