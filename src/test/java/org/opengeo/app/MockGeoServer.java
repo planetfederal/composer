@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
@@ -169,6 +170,8 @@ public class MockGeoServer {
                 .thenReturn(new CloseableIteratorAdapter<NamespaceInfo>(allNamespaces.iterator()));
 
             List<LayerInfo> allLayers = new ArrayList<LayerInfo>();
+            List<LayerGroupInfo> allMaps = new ArrayList<LayerGroupInfo>();
+
             for (WorkspaceBuilder wsBuilder : workspaces) {
                 List<LayerInfo> layers = Lists.transform(wsBuilder.layers, new Function<LayerBuilder, LayerInfo>() {
                     @Nullable
@@ -181,11 +184,27 @@ public class MockGeoServer {
 
                 when(catalog.list(LayerInfo.class, Predicates.equal("resource.namespace.prefix",
                     wsBuilder.workspace.getName()))).thenReturn(new CloseableIteratorAdapter<LayerInfo>(layers.iterator()));
+
+                List<LayerGroupInfo> maps = Lists.transform(wsBuilder.maps, new Function<MapBuilder, LayerGroupInfo>() {
+                    @Nullable
+                    @Override
+                    public LayerGroupInfo apply(@Nullable MapBuilder mapBuilder) {
+                        return mapBuilder.map;
+                    }
+                });
+                allMaps.addAll(maps);
+
+                when(catalog.list(LayerGroupInfo.class, Predicates.equal("workspace.name",
+                    wsBuilder.workspace.getName()))).thenReturn(new CloseableIteratorAdapter<LayerGroupInfo>(maps.iterator()));
             }
 
             when(catalog.getLayers()).thenReturn(allLayers);
             when(catalog.list(LayerInfo.class, Predicates.acceptAll())).thenReturn(
                 new CloseableIteratorAdapter<LayerInfo>(allLayers.iterator()));
+            when(catalog.getLayerGroups()).thenReturn(allMaps);
+            when(catalog.list(LayerGroupInfo.class, Predicates.acceptAll())).thenReturn(
+                    new CloseableIteratorAdapter<LayerGroupInfo>(allMaps.iterator()));
+
             when(geoServer.getCatalog()).thenReturn(catalog);
         }
     }
@@ -195,8 +214,10 @@ public class MockGeoServer {
         CatalogBuilder catalogBuilder;
         WorkspaceInfo workspace;
         NamespaceInfo namespace;
+
         List<StoreBuilder> stores = new ArrayList<StoreBuilder>();
         List<LayerBuilder> layers = new ArrayList<LayerBuilder>();
+        List<MapBuilder> maps = new ArrayList<MapBuilder>();
 
         public WorkspaceBuilder(String name, String uri, boolean isDefault, CatalogBuilder catalogBuilder) {
             this.catalogBuilder = catalogBuilder;
@@ -225,6 +246,12 @@ public class MockGeoServer {
             return lBuilder;
         }
 
+        public MapBuilder map(String name) {
+            MapBuilder mapBuilder = new MapBuilder(name, this);
+            maps.add(mapBuilder);
+            return mapBuilder;
+        }
+
         public CatalogBuilder catalog() {
             return catalogBuilder;
         }
@@ -239,12 +266,72 @@ public class MockGeoServer {
 
     }
 
+    public class MapBuilder extends Builder {
+
+        String name;
+        LayerGroupInfo map;
+        WorkspaceBuilder workspaceBuilder;
+        List<LayerBuilder> layers = new ArrayList<LayerBuilder>();
+
+        public MapBuilder(String name, WorkspaceBuilder workspaceBuilder) {
+            this.name = name;
+            this.workspaceBuilder = workspaceBuilder;
+
+            String wsName = workspaceBuilder.workspace.getName();
+            map = mock(LayerGroupInfo.class);
+            when(map.getName()).thenReturn(name);
+            when(map.prefixedName()).thenReturn(wsName + ":" + name);
+            when(map.layers()).thenAnswer(new Answer<List<LayerInfo>>() {
+                @Override
+                public List<LayerInfo> answer(InvocationOnMock invocation) throws Throwable {
+                    return Lists.transform(layers, new Function<LayerBuilder, LayerInfo>() {
+                        @Nullable
+                        @Override
+                        public LayerInfo apply(@Nullable LayerBuilder input) {
+                            return input.layer;
+                        }
+                    });
+                }
+            });
+
+            Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
+            when(catalog.getLayerGroupByName(name)).thenReturn(map);
+            when(catalog.getLayerGroupByName(wsName, name)).thenReturn(map);
+
+        }
+
+        public MapBuilder bbox(double x1, double y1, double x2, double y2, CoordinateReferenceSystem crs) {
+            when(map.getBounds()).thenReturn(new ReferencedEnvelope(x1,x2,y1,y2,crs));
+            return this;
+        }
+
+        public MapBuilder defaults() {
+            return bbox(-180,-90,180,90,DefaultGeographicCRS.WGS84);
+        }
+
+        public LayerBuilder layer(String name) {
+            LayerBuilder layerBuilder = new LayerBuilder(name, this);
+            layers.add(layerBuilder);
+            return layerBuilder;
+        }
+
+        @Override
+        public MockGeoServer geoServer() {
+            return workspaceBuilder.geoServer();
+        }
+
+        public WorkspaceBuilder workspace() {
+            return workspaceBuilder;
+        }
+    }
+
     public class LayerBuilder extends Builder {
 
         String name;
         LayerInfo layer;
 
         WorkspaceBuilder workspaceBuilder;
+        MapBuilder mapBuilder;
         ResourceBuilder resourceBuilder;
 
         public LayerBuilder(String name, WorkspaceBuilder workspaceBuilder) {
@@ -260,6 +347,11 @@ public class MockGeoServer {
             when(catalog.getLayerByName(name)).thenReturn(layer);
             when(catalog.getLayerByName(wsName+":"+name)).thenReturn(layer);
             when(catalog.getLayerByName(new NameImpl(wsName, name))).thenReturn(layer);
+        }
+
+        public LayerBuilder(String name, MapBuilder mapBuilder) {
+            this(name, mapBuilder.workspaceBuilder);
+            this.mapBuilder = mapBuilder;
         }
 
         public StyleBuilder style() {
@@ -287,6 +379,13 @@ public class MockGeoServer {
             LayerInfo layer = layerBuilder.layer;
             when(resource.getName()).thenReturn(layerBuilder.name);
             when(resource.getNativeName()).thenReturn(layerBuilder.name);
+
+            when(resource.getNamespace()).thenAnswer(new Answer<NamespaceInfo>() {
+                @Override
+                public NamespaceInfo answer(InvocationOnMock invocation) throws Throwable {
+                    return ResourceBuilder.this.layerBuilder.workspaceBuilder.namespace;
+                }
+            });
             when(layer.getResource()).thenReturn(resource);
         }
 
@@ -309,6 +408,10 @@ public class MockGeoServer {
 
         public WorkspaceBuilder workspace() {
             return layerBuilder.workspaceBuilder;
+        }
+
+        public MapBuilder map() {
+            return layerBuilder.mapBuilder;
         }
 
         public MockGeoServer geoServer() {

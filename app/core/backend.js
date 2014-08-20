@@ -143,6 +143,14 @@ angular.module('gsApp.core.backend',[])
             });
             return d.promise;
           }
-        }
+        },
+
+        maps: $resource(apiRoot+'/maps/:workspace', {workspace:'default'}, {
+          get: {
+            method: 'GET',
+            responseType: 'json',
+            isArray: true
+          }
+        })
       };
     }]);

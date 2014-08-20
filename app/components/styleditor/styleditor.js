@@ -1,3 +1,4 @@
+/*global CodeMirror */
 angular.module('gsApp.styleditor', [
   'ui.codemirror',
   'gsApp.styleditor.ysldhinter'

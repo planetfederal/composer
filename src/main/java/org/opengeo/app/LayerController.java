@@ -78,7 +78,7 @@ public class LayerController extends AppController {
             cat.list(LayerInfo.class, equal("resource.namespace.prefix", wsName));
         try {
             while (it.hasNext()) {
-                layer(arr.addObject(), it.next(), wsName, false);
+                IO.layer(arr.addObject(), it.next());
             }
         }
         finally {
@@ -91,7 +91,7 @@ public class LayerController extends AppController {
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name) {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
-        return layer(new JSONObj(), l, wsName, true);
+        return IO.layer(new JSONObj(), l);
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.GET, produces = YsldHandler.MIMETYPE)
@@ -196,90 +196,4 @@ public class LayerController extends AppController {
         }
         return l;
     }
-
-    String type(ResourceInfo r)  {
-        if (r instanceof CoverageInfo) {
-            return "raster";
-        }
-        else {
-            return "vector";
-        }
-    }
-
-    String geometry(FeatureTypeInfo ft) {
-        try {
-            FeatureType schema = ft.getFeatureType();
-            GeometryDescriptor gd = schema.getGeometryDescriptor();
-            if (gd == null) {
-                return "Vector";
-            }
-
-            Geometries geomType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
-            return geomType.getName();
-        } catch (IOException e) {
-            LOG.log(Level.WARNING, "Error looking up schema", e);
-            return "Unknown";
-        }
-    }
-
-    JSONObj layer(JSONObj obj, LayerInfo l, String wsName, boolean details) {
-        ResourceInfo r = l.getResource();
-        obj.put("name", l.getName())
-            .put("workspace", wsName)
-            .put("title", l.getTitle() != null ? l.getTitle() : r.getTitle())
-            .put("type", type(r));
-
-        if (r instanceof FeatureTypeInfo) {
-            FeatureTypeInfo ft = (FeatureTypeInfo) r;
-            obj.put("geometry", geometry(ft));
-        }
-
-        proj(obj, r);
-
-        JSONObj bbox = obj.putObject("bbox");
-        bbox(bbox.putObject("native"), r.getNativeBoundingBox());
-        bbox(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
-
-        return obj;
-    }
-
-    JSONObj proj(JSONObj obj, ResourceInfo r) {
-        JSONObj proj = obj.putObject("proj");
-        proj.put("srs", r.getSRS());
-
-        CoordinateReferenceSystem crs = r.getCRS();
-
-        // type
-        proj.put("type",
-            crs instanceof ProjectedCRS ? "projected" : crs instanceof GeographicCRS ? "geographic" : "other");
-
-        // units
-        String units = null;
-        try {
-            // try to determine from actual crs
-            String unit = crs.getCoordinateSystem().getAxis(0).getUnit().toString();
-            if ("ft".equals(unit) || "feets".equals(unit))
-                units = "ft";
-        } catch (Exception e) {
-            LOG.log(Level.WARNING, "Unable to determine units from crs", e);
-        }
-        if (units == null) {
-            // fallback: meters for projected, otherwise degrees
-            units = crs instanceof ProjectedCRS ? "m" : "degrees";
-        }
-        proj.put("unit", units);
-
-        return obj;
-    }
-
-    JSONObj bbox(JSONObj obj, Envelope bbox) {
-        Coordinate center = bbox.centre();
-        obj.put("west", bbox.getMinX())
-           .put("south", bbox.getMinY())
-           .put("east", bbox.getMaxX())
-           .put("north", bbox.getMaxY())
-           .putArray("center").add(center.x).add(center.y);
-        return obj;
-    }
-
 }
