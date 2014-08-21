@@ -1,6 +1,7 @@
+/*global document */
 angular.module('gsApp.olmap', [])
-.factory('MapFactory', ['GeoServer',
-    function(GeoServer) {
+.factory('MapFactory', ['GeoServer', '$log',
+    function(GeoServer, $log) {
       return {
         createMap: function(layers, element, options) {
           var mapLayers = layers.map(function(l) {
@@ -21,12 +22,20 @@ angular.module('gsApp.olmap', [])
             axisOrientation: l.proj.type == 'geographic' ? 'neu' : 'enu'
           });
 
+          var scaleControl = document.createElement('div');
+          scaleControl.setAttribute('class', 'ol-scale');
+
           var mapOpts = {
             view: new ol.View({
               center: l.bbox.native.center,
               projection: proj
             }),
-            layers: mapLayers
+            layers: mapLayers,
+            controls: new ol.control.defaults({
+              attribution: false
+            }).extend([
+              new ol.control.Control({element: scaleControl})
+            ])
           };
           mapOpts = angular.extend(mapOpts, options || {});
 
@@ -36,6 +45,16 @@ angular.module('gsApp.olmap', [])
           var bbox = l.bbox.native;
           var extent = [bbox.west,bbox.south,bbox.east,bbox.north];
           var size = [element.width(),element.height()];
+
+          map.getView().on('change:resolution', function(evt) {
+            var res = evt.target.get('resolution');
+            var units = map.getView().get('projection').getUnits();
+            var dpi = 25.4 / 0.28;
+            var mpu = ol.proj.METERS_PER_UNIT[units];
+            var scale = Math.round(res * mpu * 39.37 * dpi);
+            scaleControl.innerHTML =  '1 : ' + scale;
+          });
+
           map.getView().fitExtent(extent, size);
           return  map;
         }
