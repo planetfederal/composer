@@ -228,6 +228,7 @@ public class MockGeoServer {
 
             namespace = mock(NamespaceInfo.class);
             when(namespace.getName()).thenReturn(name);
+            when(namespace.getPrefix()).thenReturn(name);
             when(namespace.getURI()).thenReturn(uri);
 
             when(cat.getWorkspaceByName(name)).thenReturn(workspace);

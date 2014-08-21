@@ -116,7 +116,7 @@ public class IO {
 
         JSONObj bbox = obj.putObject("bbox");
         bounds(bbox.putObject("native"), r.getNativeBoundingBox());
-        bounds(bbox.putObject("native"), r.getLatLonBoundingBox());
+        bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
 
         return obj;
     }
