@@ -9,8 +9,9 @@ angular.module('gsApp.sidenav', [
       replace: true
     };
   })
-.controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer', 'AppEvent', '$state',
-  '$log', function($scope, $rootScope, GeoServer, AppEvent, $state, $log) {
+.controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer', 'AppEvent',
+  '$state', '$log',
+  function($scope, $rootScope, GeoServer, AppEvent, $state, $log) {
 
     GeoServer.workspaces.get().$promise.then(function(workspaces) {
       workspaces.filter(function(ws) {
