@@ -101,6 +101,7 @@
     }
     & > .sidebar-toggle {
         height: 24px;
+        padding-top: 3px;
         a {
             color: #999999;
             &:hover {
@@ -116,15 +117,21 @@
 
 
 #wrapper.toggled #sidebar-wrapper .sidebar-nav {
-    li a {
-        line-height: 25px;
-        padding: 8px 0 8px 3px;
+    width: 50px;
+    li {
+        a {
+            line-height: 25px;
+            padding: 8px 0 8px 3px;
 
-        i {
-           // padding: 5px 0 5px 0;
+            i {
+               // padding: 5px 0 5px 0;
+            }
+            .txt {
+                display: none;
+            }
         }
-        .txt {
-            display: none;
+        &:first-child a {
+            padding-top: 4px;
         }
     }
     li.dropdown {
@@ -137,14 +144,12 @@
             }
         }
     }
-    li.dropdown {
-        margin-top: 14px;
-    }
     li#projects {
         margin-bottom: 0;
     }
     li.sidebar-toggle {
         margin-left: -2px;
+        margin-bottom: 14px;
     }
     li.divider {
         width: 40px;

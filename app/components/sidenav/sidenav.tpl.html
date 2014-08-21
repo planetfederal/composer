@@ -45,10 +45,11 @@
             </a>
           </li>
           <li ng-show="workspaces.length > 2" class="more"><a ui-sref="workspaces"> More...</a></li>
+          <li ng-show="workspaces.length == 0" class="single-workspace">No Project Workspaces</li>
         </ul>
       </li>
       <li role="presentation" class="divider"></li>
-      <li><a ui-sref="maps"><i class="icon-map"></i> <span class="txt">All Maps</span></a></li>
+      <li><a href="#"><i class="icon-map"></i> <span class="txt">All Maps</span></a></li>
       <li><a ui-sref="layers"><i class="icon-stack"></i> <span class="txt">All Layers</span></a></li>
       <li><a href="#"><i class="fa fa-database fa-lg"></i> <span class="txt">All Data</span></a></li>
       <li role="presentation" class="divider"></li>
