@@ -7,7 +7,7 @@ angular.module('gsApp.olmap', [])
             return new ol.layer.Image({
               source: new ol.source.ImageWMS({
                 url: GeoServer.baseUrl()+'/'+l.workspace+'/wms',
-                params: {'LAYERS': l.name},
+                params: {'LAYERS': l.name, 'VERSION': '1.1.1'},
                 serverType: 'geoserver'
               })
             });
