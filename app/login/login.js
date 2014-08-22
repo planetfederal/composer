@@ -36,7 +36,7 @@ angular.module('gsApp.login', [])
                 $state.go('home');
               }
               else {
-                $state.go(prev.name);
+                $state.go(prev.name, prev.params);
               }
             }
             return result;

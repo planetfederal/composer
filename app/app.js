@@ -39,8 +39,8 @@ angular.module('gsApp', [
       $scope.state = {};
       $scope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {
-              $scope.state.curr = to;
-              $scope.state.prev = from;
+              $scope.state.curr = {name: to, params: toParams};
+              $scope.state.prev = {name: from, params: fromParams};
             });
     }])
 .run(['$rootScope', 'GeoServer', 'AppSession',
