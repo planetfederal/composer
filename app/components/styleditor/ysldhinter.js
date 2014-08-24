@@ -68,7 +68,9 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'external': mapping,
           'url': scalar,
           'format': scalar,
-          'type': scalar
+          'type': scalar,
+          'halo': mapping,
+          'radius': scalar
         };
 
         this.mappings = {
@@ -139,7 +141,8 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'font-size',
             'font-style',
             'font-weight',
-            'placement'
+            'halo',
+            'placement',
           ],
           'raster': [
             'color-map',
@@ -176,6 +179,12 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'anchor',
             'displacement',
             'rotation'
+          ],
+          'halo': [
+            'fill-color',
+            'fill-opacity',
+            'fill-graphic',
+            'radius'
           ]
         };
       };
