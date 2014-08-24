@@ -1,51 +1,37 @@
 package org.opengeo.app;
 
 import com.google.common.io.ByteSource;
-import com.google.common.io.ByteStreams;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CoverageInfo;
-import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.ysld.YsldHandler;
 import org.geotools.feature.NameImpl;
-import org.geotools.geometry.jts.Geometries;
 import org.geotools.styling.Style;
-import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
-import org.json.simple.JSONObject;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.w3.xlink.ResourceType;
+import org.yaml.snakeyaml.error.Mark;
+import org.yaml.snakeyaml.error.MarkedYAMLException;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.logging.Level;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.geoserver.catalog.Predicates.*;
@@ -114,12 +100,12 @@ public class LayerController extends AppController {
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
-    public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name) {
+    public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name)
+        throws IOException {
         // first thing is sanity check on the style content
-        try {
-            Ysld.parse(ByteSource.wrap(rawStyle).openStream());
-        } catch (Exception e) {
-            throw new BadRequestException("Invalid Ysld", e);
+        List<MarkedYAMLException> errors = Ysld.validate(ByteSource.wrap(rawStyle).openStream());
+        if (!errors.isEmpty()) {
+            throw new InvalidYsldException(errors);
         }
 
         Catalog cat = geoServer.getCatalog();
@@ -167,6 +153,26 @@ public class LayerController extends AppController {
         else {
             cat.save(s);
         }
+    }
+
+    @ExceptionHandler(InvalidYsldException.class)
+    public @ResponseBody JSONObj error(InvalidYsldException e, HttpServletResponse response) {
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+
+        JSONObj obj = new JSONObj()
+            .put("message", e.getMessage())
+            .put("trace", AppExceptionHandler.trace(e));
+
+        JSONArr errors = obj.putArray("errors");
+        for (MarkedYAMLException error : e.errors()) {
+            JSONObj err = errors.addObject()
+                .put("problem", error.getProblem());
+            Mark mark = error.getProblemMark();
+            if (mark != null) {
+                err.put("line", mark.getLine()+1).put("column", mark.getColumn()+1);
+            }
+        }
+        return obj;
     }
 
     String findUniqueStyleName(String wsName, String name, Catalog cat) {

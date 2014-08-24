@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
@@ -59,9 +60,11 @@ public class LayerControllerTest {
     public void setUpMVC() {
         MockitoAnnotations.initMocks(this);
 
-        mvc = MockMvcBuilders.standaloneSetup(ctrl).setMessageConverters(
+        mvc = MockMvcBuilders.standaloneSetup(ctrl)
+            .setMessageConverters(
                 new JSONMessageConverter(), new ResourceMessageConverter(),
-                new YsldMessageConverter(), new ByteArrayHttpMessageConverter()).build();
+                new YsldMessageConverter(), new ByteArrayHttpMessageConverter())
+            .build();
     }
 
     @Test
@@ -192,6 +195,38 @@ public class LayerControllerTest {
 
         Resource r = geoServer.getCatalog().getResourceLoader().get("workspaces/foo/styles/one.yaml");
         assertEquals("title: raw", toString(r));
+    }
+
+    @Test
+    public void testPutStyleInvalid() throws Exception {
+        MockGeoServer.get().catalog()
+            .resources()
+                .resource("workspaces/foo/styles/one.yaml", "title: blah")
+            .geoServer().catalog()
+                .workspace("foo", "http://scratch.org", true)
+                    .layer("one")
+                     .style().ysld("one.yaml")
+            .geoServer().build(geoServer);
+
+        MockHttpServletRequestBuilder req = put("/backend/layers/foo/one/style")
+            .contentType(YsldMessageConverter.MEDIA_TYPE)
+            .content("title: raw\nbad");
+
+        MvcResult result = mvc.perform(req)
+            .andExpect(status().isBadRequest())
+            .andReturn();
+
+        JSONObj obj = JSONWrapper.read(result.getResponse().getContentAsString()).toObject();
+        assertNotNull(obj.get("message"));
+        assertNotNull(obj.get("trace"));
+
+        JSONArr arr = obj.array("errors");
+        assertEquals(1, arr.size());
+
+        assertNotNull(arr.object(0).get("problem"));
+        assertNotNull(arr.object(0).get("line"));
+        assertNotNull(arr.object(0).get("column"));
+
     }
 
     String toString(Resource r) {
