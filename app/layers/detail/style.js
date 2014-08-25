@@ -1,7 +1,8 @@
 angular.module('gsApp.layers.style', [
   'ui.codemirror',
   'gsApp.olmap',
-  'gsApp.styleditor'
+  'gsApp.styleditor',
+  'gsApp.alertpanel'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -39,7 +40,33 @@ angular.module('gsApp.layers.style', [
       };
       $scope.saveStyle = function(content) {
         GeoServer.style.put(wsName, name, content).then(function(result) {
-          $scope.refreshMap();
+          if (result.success == true) {
+            $scope.alerts = [{
+              type: 'success',
+              message: 'Styled saved.',
+              fadeout: true
+            }];
+            $scope.refreshMap();
+          }
+          else {
+            if (result.status == 400) {
+              // validation error
+              $scope.alerts = result.data.errors.map(function(err) {
+                return {
+                  type: 'danger',
+                  message: 'Line ' + err.line + ', Column ' + err.column +
+                    ': ' + err.problem
+                };
+              });
+            }
+            else {
+              $scope.alerts = [{
+                type: 'danger',
+                message: 'Error occurred saving style: ' + result.data.message,
+                details: result.data.trace
+              }];
+            }
+          }
         });
       };
     }]);
