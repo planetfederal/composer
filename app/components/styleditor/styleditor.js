@@ -25,6 +25,9 @@ angular.module('gsApp.styleditor', [
             lint: true,
             extraKeys: {
               'Ctrl-Space': 'autocomplete',
+              'Ctrl-S': function(cm) {
+                $scope.save();
+              },
               'Tab': function(cm) {
                 // replace tabs with spaces
                 var spaces =
