@@ -3,12 +3,13 @@ angular.module('gsApp.styleditor', [
   'ui.codemirror',
   'gsApp.styleditor.ysldhinter'
 ])
-.directive('styleEditor', ['$log',
-    function($log) {
+.directive('styleEditor', ['$compile', '$sanitize', '$log',
+    function($compile, $sanitize, $log) {
       return {
         restrict: 'EA',
         scope: {
           style: '=?',
+          markers: '=?',
           onSave: '=?'
         },
         templateUrl: '/components/styleditor/styleditor.tpl.html',
@@ -21,8 +22,7 @@ angular.module('gsApp.styleditor', [
             lineWrapping : true,
             lineNumbers: true,
             mode: 'yaml',
-            gutters: ['CodeMirror-lint-markers'],
-            lint: true,
+            gutters: ['markers'],
             extraKeys: {
               'Ctrl-Space': 'autocomplete',
               'Ctrl-S': function(cm) {
@@ -44,6 +44,22 @@ angular.module('gsApp.styleditor', [
 
           $scope.$watch('style', function(newVal) {
             $scope.style = newVal;
+          });
+          $scope.$watch('markers', function(newVal) {
+            if (newVal != null) {
+              newVal.forEach(function(mark) {
+                var html = '<i class="icon-warning" ' +
+                  'popover="' + $sanitize(mark.problem) + '" ' +
+                  'popover-trigger="mouseenter" ' +
+                  'popover-append-to-body="true"></i>';
+
+                var marker = $compile(html)($scope)[0];
+                $scope.editor.setGutterMarker(mark.line, 'markers', marker);
+              });
+            }
+            else {
+              $scope.editor.clearGutter('markers');
+            }
           });
         }
       };

@@ -41,6 +41,7 @@ angular.module('gsApp.layers.style', [
       $scope.saveStyle = function(content) {
         GeoServer.style.put(wsName, name, content).then(function(result) {
           if (result.success == true) {
+            $scope.markers = null;
             $scope.alerts = [{
               type: 'success',
               message: 'Styled saved.',
@@ -51,13 +52,11 @@ angular.module('gsApp.layers.style', [
           else {
             if (result.status == 400) {
               // validation error
-              $scope.alerts = result.data.errors.map(function(err) {
-                return {
-                  type: 'danger',
-                  message: 'Line ' + err.line + ', Column ' + err.column +
-                    ': ' + err.problem
-                };
-              });
+              $scope.markers = result.data.errors;
+              $scope.alerts = [{
+                type: 'danger',
+                message: 'Style not saved due to errors.'
+              }];
             }
             else {
               $scope.alerts = [{

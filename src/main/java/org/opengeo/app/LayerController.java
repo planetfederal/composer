@@ -169,7 +169,7 @@ public class LayerController extends AppController {
                 .put("problem", error.getProblem());
             Mark mark = error.getProblemMark();
             if (mark != null) {
-                err.put("line", mark.getLine()+1).put("column", mark.getColumn()+1);
+                err.put("line", mark.getLine()).put("column", mark.getColumn());
             }
         }
         return obj;

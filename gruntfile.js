@@ -38,8 +38,6 @@ var deps = {
     'codemirror/lib/codemirror.js',
     'codemirror/mode/yaml/yaml.js',
     'codemirror/addon/hint/show-hint.js',
-    'codemirror/addon/lint/lint.js',
-    'codemirror/addon/lint/yaml-lint.js',
     'angular/angular.js',
     'angular-resource/angular-resource.js',
     'angular-bootstrap/ui-bootstrap.js',
@@ -62,7 +60,6 @@ var deps = {
     'angular-ui-select/dist/select.min.css',
     'codemirror/lib/codemirror.css',
     'codemirror/addon/hint/show-hint.css',
-    'codemirror/addon/lint/lint.css',
     'font-awesome/css/font-awesome.css',
     'icomoon/style.css',
     'open-sans-fontface/open-sans.css'
