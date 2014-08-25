@@ -2,6 +2,7 @@ angular.module('gsApp', [
   'ngResource',
   'ngSanitize',
   'ngAnimate',
+  'ngClipboard',
   'ui.router',
   'ui.bootstrap',
   'gsApp.core',

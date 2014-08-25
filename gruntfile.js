@@ -34,6 +34,7 @@ var deps = {
     '/vendor/openlayers/ol.js',
     'jquery/dist/jquery.min.js',
     'js-yaml/dist/js-yaml.js',
+    'zeroclipboard/dist/ZeroClipboard.js',
     'codemirror/lib/codemirror.js',
     'codemirror/mode/yaml/yaml.js',
     'codemirror/addon/hint/show-hint.js',
@@ -48,9 +49,9 @@ var deps = {
     'angular-grid/build/ng-grid.js',
     'angular-ui-router/release/angular-ui-router.js',
     'angular-ui-select/dist/select.js',
-    'angular-ui-codemirror/ui-codemirror.js'
-  ], 
-  
+    'angular-ui-codemirror/ui-codemirror.js',
+    'ng-clip/src/ngClip.js'
+  ],
 
   less: [
     'bootstrap/less/bootstrap.less'
