@@ -5,16 +5,18 @@
     </div>
     <div class="modal-body">
       <div class="alert-modal-details">
-        {{ feedback.details }}
+        {{ message.details }}
       </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-primary" ng-click="copy(feedback)">Copy</button>
+        <button class="btn btn-primary" clip-copy="message.details" 
+          clip-click="copy()">Copy</button>
         <button class="btn btn-primary" ng-click="close()">Close</button>
     </div>
   </script>
   <alert ng-repeat="msg in messages" ng-show="msg.show" type="{{msg.type}}" 
     close="closeAlert($index)">
     {{msg.message}}
+    <a ng-if="msg.details" ng-click="showDetails(msg)" class="alert-details">Details</a>
   </alert>
 </div>
