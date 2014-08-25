@@ -1,0 +1,42 @@
+@import url('../../app.less');
+
+.alert-panel {
+  padding: 5px;
+  ul {
+    margin-bottom: 0px;
+  }
+  div[class*='bg-'] {
+    padding: 5px;
+    border-radius: 2px;
+  }
+
+  .alert:first-child {
+    margin-top: 5px;
+  }
+
+  .alert:last-child {
+    margin-bottom: 0px;
+  }
+
+  .alert {
+    padding: 5px 25px 5px 10px;
+    margin-bottom: 5px;
+    -webkit-transition:all linear 1s;
+    transition:all linear 1s;
+  } 
+
+  .alert.ng-hide {
+    opacity: 0;
+  }
+  
+  .alert-detail {
+    cursor: pointer;
+    float: right;
+  }
+}
+
+.alert-modal-details {
+  white-space: pre;
+  max-height: 600px;
+  overflow-y: scroll;
+}
