@@ -1,4 +1,4 @@
-/*global document */
+/*global document, ZeroClipboard, $ */
 angular.module('gsApp.olmap', [])
 .factory('MapFactory', ['GeoServer', '$log',
     function(GeoServer, $log) {
@@ -24,6 +24,13 @@ angular.module('gsApp.olmap', [])
 
           var scaleControl = document.createElement('div');
           scaleControl.setAttribute('class', 'ol-scale');
+
+          var clip = new ZeroClipboard(scaleControl);
+          clip.on('copy', function (event) {
+            var clipboard = event.clipboardData;
+            clipboard.setData('text/plain',
+              $(scaleControl).text().split(' : ')[1]);
+          });
 
           var mapOpts = {
             view: new ol.View({
