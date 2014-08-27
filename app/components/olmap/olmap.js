@@ -97,7 +97,7 @@ angular.module('gsApp.olmap', [])
             $scope.map = map;
           });
 
-          $scope.$on('refresh', function() {
+          $scope.$on('olmap-refresh', function() {
             $scope.map.getLayers().getArray().forEach(function(l) {
               var source = l.getSource();
               if (source instanceof ol.source.ImageWMS) {
