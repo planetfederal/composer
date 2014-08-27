@@ -190,7 +190,8 @@ angular.module('gsApp.styleditor.ysldhinter', [])
       };
 
       YsldHinter.prototype.strip = function(line) {
-        return line.replace(/^[ -]*/,'').replace(/:.*/,'');
+        return line.replace(/^[ -]*/,'').replace(/:.*/,'')
+          .replace(/ *#.*/g, '');
       };
 
       YsldHinter.prototype.indent = function(line) {
