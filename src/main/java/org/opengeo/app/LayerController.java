@@ -184,7 +184,7 @@ public class LayerController extends AppController {
             }
             tryName = name + String.valueOf(i);
         }
-        throw new RuntimeException("Unable to find unqiue name for style");
+        throw new RuntimeException("Unable to find unique name for style");
     }
 
     WorkspaceInfo findWorkspace(String wsName, Catalog cat) {

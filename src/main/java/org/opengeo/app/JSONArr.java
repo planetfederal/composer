@@ -1,6 +1,7 @@
 package org.opengeo.app;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Iterators;
 import org.json.simple.JSONArray;
 
@@ -96,5 +97,20 @@ public class JSONArr extends JSONWrapper<JSONArray> implements Iterable<Object> 
                 return JSONWrapper.wrapOrSelf(o);
             }
         });
+    }
+
+    public Iterable<JSONObj> objects() {
+        return new Iterable<JSONObj>() {
+            @Override
+            public Iterator<JSONObj> iterator() {
+                return Iterators.transform(JSONArr.this.iterator(), new Function<Object, JSONObj>() {
+                    @Nullable
+                    @Override
+                    public JSONObj apply(@Nullable Object input) {
+                        return (JSONObj) input;
+                    }
+                });
+            }
+        };
     }
 }

@@ -1,6 +1,7 @@
 package org.opengeo.app;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geoserver.catalog.Catalog;
@@ -10,6 +11,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -51,6 +53,10 @@ import static org.mockito.Mockito.*;
  * Helper to mock up GeoServer configuration.
  */
 public class MockGeoServer {
+
+    public static interface Mocker<T> {
+        void mock(T mock);
+    };
 
     CatalogBuilder catalog;
 
@@ -295,10 +301,37 @@ public class MockGeoServer {
                 }
             });
 
+            List<PublishedInfo> layerList = mock(List.class);
+            when(layerList.iterator()).thenAnswer(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return Iterables.transform(layers, new Function<LayerBuilder, Object>() {
+                        @Nullable @Override
+                        public Object apply(@Nullable LayerBuilder input) {
+                            return input.layer;
+                        }
+                    });
+                }
+            });
+            when(map.getLayers()).thenReturn(layerList);
+
+            List<StyleInfo> styleList = mock(List.class);
+            when(styleList.iterator()).thenAnswer(new Answer<Object>() {
+                @Override
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return Iterables.transform(layers, new Function<LayerBuilder, Object>() {
+                        @Nullable @Override
+                        public Object apply(@Nullable LayerBuilder input) {
+                            return input.layer.getDefaultStyle();
+                        }
+                    });
+                }
+            });
+            when(map.getStyles()).thenReturn(styleList);
+
             Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
             when(catalog.getLayerGroupByName(name)).thenReturn(map);
             when(catalog.getLayerGroupByName(wsName, name)).thenReturn(map);
-
         }
 
         public MapBuilder bbox(double x1, double y1, double x2, double y2, CoordinateReferenceSystem crs) {
@@ -308,6 +341,11 @@ public class MockGeoServer {
 
         public MapBuilder defaults() {
             return bbox(-180,-90,180,90,DefaultGeographicCRS.WGS84);
+        }
+
+        public MapBuilder with(Mocker<LayerGroupInfo> m) {
+            m.mock(map);
+            return this;
         }
 
         public LayerBuilder layer(String name) {
@@ -353,6 +391,10 @@ public class MockGeoServer {
         public LayerBuilder(String name, MapBuilder mapBuilder) {
             this(name, mapBuilder.workspaceBuilder);
             this.mapBuilder = mapBuilder;
+        }
+
+        public MapBuilder map() {
+            return mapBuilder;
         }
 
         public StyleBuilder style() {
