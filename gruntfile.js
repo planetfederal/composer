@@ -33,6 +33,10 @@ var deps = {
   js: [
     '/vendor/openlayers/ol.js',
     'jquery/dist/jquery.min.js',
+    'jquery-ui/ui/core.js',
+    'jquery-ui/ui/widget.js',
+    'jquery-ui/ui/mouse.js',
+    'jquery-ui/ui/sortable.js',
     'js-yaml/dist/js-yaml.js',
     'zeroclipboard/dist/ZeroClipboard.js',
     'codemirror/lib/codemirror.js',
@@ -48,6 +52,7 @@ var deps = {
     'angular-ui-router/release/angular-ui-router.js',
     'angular-ui-select/dist/select.js',
     'angular-ui-codemirror/ui-codemirror.js',
+    'angular-ui-sortable/sortable.js',
     'ng-clip/src/ngClip.js'
   ],
 
