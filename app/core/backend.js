@@ -8,66 +8,52 @@ angular.module('gsApp.core.backend',[])
       var gsRoot = '/geoserver';
       var apiRoot = gsRoot + '/app/backend';
 
+      /*
+       * simple wrapper around $http to set up defer/promise, etc...
+       */
+      var http = function(config) {
+        var d = $q.defer();
+        $http(config)
+          .success(function(data, status, headers, config) {
+            d.resolve({
+              success: status == 200,
+              status: status,
+              data: data
+            });
+          })
+          .error(function(data, status, headers, config) {
+            d.reject({status: status, data: data});
+          });
+        return d.promise;
+      };
+
       return {
         baseUrl: function() {
           return gsRoot;
         },
 
         session: function() {
-          var d = $q.defer();
-          $http({
+          return http({
             method: 'GET',
             url: apiRoot + '/login',
             headers : { 'Content-Type': 'application/x-www-form-urlencoded' }
-          }).success(function(data, status, headers, config) {
-            d.resolve({
-              success: status == 200,
-              status: status,
-              data: data
-            });
-          }).error(function(data, status, headers, config) {
-            d.reject();
           });
-
-          return d.promise;
         },
 
         login: function(username, password) {
-          var d = $q.defer();
-
-          $http({
+          return http({
             method: 'POST',
             url: apiRoot + '/login',
             headers : { 'Content-Type': 'application/x-www-form-urlencoded' },
             data: $.param({ username: username, password: password })
-          }).success(function(data, status, headers, config) {
-            d.resolve({
-              success: status == 200,
-              status: status,
-              data: data
-            });
-          }).error(function(data, status, headers, config) {
-            d.reject({
-              status: status,
-              data: data
-            });
           });
-
-          return d.promise;
         },
 
         logout: function() {
-          var d = $q.defer();
-          $http({
+          return http({
             method: 'GET',
             url: apiRoot + '/logout'
-          }).success(function(data, status, headers, config) {
-            d.resolve();
-          }).error(function(data, status, headers, config) {
-            d.reject();
           });
-
-          return d.promise;
         },
 
         serverInfo: $resource(apiRoot+'/serverInfo', {}, {
@@ -102,46 +88,20 @@ angular.module('gsApp.core.backend',[])
 
         style: {
           get: function(workspace, layer) {
-            var d = $q.defer();
-            $http({
+            return http({
               method: 'GET',
               url: apiRoot+'/layers/'+workspace+'/'+layer+'/style'
-            }).success(function(data, status, headers, config) {
-              d.resolve({
-                success: status == 200,
-                status: status,
-                data: data
-              });
-            }).error(function(data, status, headers, config) {
-              d.reject({
-                status: status,
-                data: data
-              });
             });
-            return d.promise;
           },
           put: function(workspace, layer, content) {
-            var d = $q.defer();
-            $http({
+            return http({
               method: 'PUT',
               url: apiRoot+'/layers/'+workspace+'/'+layer+'/style',
               data: content,
               headers: {
                 'Content-Type': 'application/vnd.geoserver.ysld+yaml'
               }
-            }).success(function(data, status, headers, config) {
-              d.resolve({
-                success: status == 200,
-                status: status,
-                data: data
-              });
-            }).error(function(data, status, headers, config) {
-              d.reject({
-                status: status,
-                data: data
-              });
             });
-            return d.promise;
           }
         },
 
@@ -151,6 +111,25 @@ angular.module('gsApp.core.backend',[])
             responseType: 'json',
             isArray: true
           }
-        })
+        }),
+
+        map: {
+          get: function(workspace, name) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/maps/'+workspace+'/'+name
+            });
+          },
+
+          layers: {
+            put: function(workspace, map, layers) {
+              return http({
+                method: 'PUT',
+                url: apiRoot+'/maps/'+workspace+'/'+map+'/layers',
+                data: JSON.stringify(layers)
+              });
+            }
+          }
+        }
       };
     }]);
