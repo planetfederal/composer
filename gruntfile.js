@@ -42,6 +42,7 @@ var deps = {
     'codemirror/lib/codemirror.js',
     'codemirror/mode/yaml/yaml.js',
     'codemirror/addon/hint/show-hint.js',
+    'spectrum/spectrum.js',
     'angular/angular.js',
     'angular-resource/angular-resource.js',
     'angular-bootstrap/ui-bootstrap.js',
@@ -67,7 +68,8 @@ var deps = {
     'codemirror/addon/hint/show-hint.css',
     'font-awesome/css/font-awesome.css',
     'icomoon/style.css',
-    'open-sans-fontface/open-sans.css'
+    'open-sans-fontface/open-sans.css',
+    'spectrum/spectrum.css'
   ],
 
   font: [
