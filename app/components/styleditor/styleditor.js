@@ -31,6 +31,7 @@ angular.module('gsApp.styleditor', [
           $scope.codeMirrorOpts = {
             lineWrapping : true,
             lineNumbers: true,
+            styleActiveLine: true,
             mode: 'yaml',
             gutters: ['markers'],
             extraKeys: {

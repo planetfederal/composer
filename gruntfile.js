@@ -42,6 +42,7 @@ var deps = {
     'codemirror/lib/codemirror.js',
     'codemirror/mode/yaml/yaml.js',
     'codemirror/addon/hint/show-hint.js',
+    'codemirror/addon/selection/active-line.js',
     'spectrum/spectrum.js',
     'angular/angular.js',
     'angular-resource/angular-resource.js',
