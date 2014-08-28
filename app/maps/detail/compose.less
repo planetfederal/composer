@@ -1,0 +1,66 @@
+@import "../../variables.less";
+
+.transition(@property, @duration, @effect) {
+  -webkit-transition: @property @duration @effect;
+  -moz-transition:  @property @duration @effect;
+  -o-transition:  @property @duration @effect;
+  transition: @property @duration @effect;
+}
+
+.map-detail-compose {
+  > .row {
+    margin-left: 0;
+    margin-right: 0;
+
+    div[class*='col-'] {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+}
+
+.map-detail-compose {
+
+  .map-layers {
+    margin-top: 50px;
+    width: 0px;
+    overflow: hidden;
+    float: left;
+    .transition(width, 0.5s, ease-in-out);
+
+    ul {
+      list-style-type: none;
+      margin-bottom: 0px;
+
+      li {
+        padding: 5px;
+        cursor: pointer;
+        border-top-left-radius: 2px;
+        border-bottom-left-radius: 2px;
+        margin-bottom: 5px;
+        background-color: @light-gray;
+      }
+
+      li:hover {
+        background-color: @dark-gray;
+        color: white;
+      }
+
+      li.active {
+        background-color: @skyblue;
+        color: white;
+      }
+    }
+  }
+
+  .map-layers.show {
+    width: 15%;
+    margin-left: 5px;
+  }
+
+  .map-editor {
+    width: auto;
+    overflow: hidden;
+    .transition(width, 0.5s, ease-in-out);
+  }
+}

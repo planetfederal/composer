@@ -36,9 +36,10 @@ angular.module('gsApp.layers.style', [
         });
 
       $scope.refreshMap = function() {
-        $scope.$broadcast('refresh');
+        $scope.$broadcast('olmap-refresh');
       };
-      $scope.saveStyle = function(content) {
+      $scope.saveStyle = function() {
+        var content = $scope.editor.getValue();
         GeoServer.style.put(wsName, name, content).then(function(result) {
           if (result.success == true) {
             $scope.markers = null;

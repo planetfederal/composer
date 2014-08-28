@@ -5,7 +5,13 @@
     </div>
     <div class="col-md-6">
       <alert-panel alerts="alerts"></alert-panel>
-      <div style-editor style="style" markers="markers" on-save="saveStyle"></div>
+      <div class="style-toolbar">
+        <ul class="list-unstyled list-inline">
+          <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
+          <style-editor-undo editor="editor"></style-editor-undo>
+        </ul>
+      </div>
+      <div style-editor editor="editor" style="style" markers="markers"></div>
     </div>
   </div>
 </div>

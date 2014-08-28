@@ -1,1 +1,31 @@
-{{ title }}
+<div class="map-detail-compose">
+  <div class="row">
+    <div class="col-md-6">
+      <div ol-map class="map" layers="layers" center="center" zoom="zoom"></div>
+    </div>
+    <div class="col-md-6">
+      <alert-panel alerts="alerts"></alert-panel>
+      <div>
+        <div class="map-layers" ng-class="{show: toggle == true}">
+          <ul ui-sortable="{stop:layersReordered}" ng-model="map.layers" 
+              class="list-unstyled">
+            <li ng-repeat="l in map.layers"  ng-click="selectLayer(l)" 
+              ng-class="{active: activeLayer == l}" >
+              {{ l.name }}
+            </li>
+          </ul>
+        </div>
+        <div class="map-editor">
+          <div class="style-toolbar">
+            <ul class="list-unstyled list-inline">
+              <style-editor-layers click="toggleLayers"></style-editor-layers>
+              <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
+              <style-editor-undo editor="editor"></style-editor-undo>
+            </ul>
+          </div>
+          <style-editor style="style" editor="editor"></style-editor>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

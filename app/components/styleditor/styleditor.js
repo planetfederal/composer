@@ -1,21 +1,31 @@
 /*global CodeMirror */
 angular.module('gsApp.styleditor', [
   'ui.codemirror',
-  'gsApp.styleditor.ysldhinter'
+  'gsApp.styleditor.ysldhinter',
+  'gsApp.styleditor.save',
+  'gsApp.styleditor.undo',
+  'gsApp.styleditor.layers'
 ])
-.directive('styleEditor', ['$compile', '$sanitize', '$log',
-    function($compile, $sanitize, $log) {
+.directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
+    function($compile, $sanitize, $timeout, $log) {
       return {
         restrict: 'EA',
         scope: {
           style: '=?',
           markers: '=?',
-          onSave: '=?'
+          editor: '=?'
         },
         templateUrl: '/components/styleditor/styleditor.tpl.html',
         controller: function($scope, $element) {
           $scope.onCodeMirrorLoad = function(editor) {
             $scope.editor = editor;
+            editor.on('change', function(cm, change) {
+              if ('setValue' == change.origin) {
+                $timeout(function() {
+                  cm.clearHistory();
+                }, 0);
+              }
+            });
           };
 
           $scope.codeMirrorOpts = {
@@ -25,9 +35,6 @@ angular.module('gsApp.styleditor', [
             gutters: ['markers'],
             extraKeys: {
               'Ctrl-Space': 'autocomplete',
-              'Ctrl-S': function(cm) {
-                $scope.save();
-              },
               'Tab': function(cm) {
                 // replace tabs with spaces
                 var spaces =
@@ -36,10 +43,6 @@ angular.module('gsApp.styleditor', [
               }
             },
             tabMode: 'spaces'
-          };
-
-          $scope.save = function() {
-            $scope.onSave($scope.editor.getValue());
           };
 
           $scope.$watch('style', function(newVal) {

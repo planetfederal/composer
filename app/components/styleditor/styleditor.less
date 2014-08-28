@@ -22,20 +22,20 @@
   background-color: @almost-black;
   ul {
     margin-bottom: 0px;
+    margin-left: 0px;
     li {
+        color: @light-gray;
         text-align: center;
         padding: 10px 20px;
-        a {
-          text-decoration: none;
-          color: @light-gray;
+
+        span {
+          display: block;
         }
 
         &:hover {
+          color: @dark-gray;
           background-color: @light-gray;
           cursor: pointer;
-          a {
-            color: @dark-gray;
-          }
         }
     }
   }
