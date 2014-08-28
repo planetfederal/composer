@@ -25,7 +25,7 @@
     "angular-ui-router": "~0.2.10",
     "angular-ui-select": "~0.3.1",
     "angular-ui-codemirror": "~0.1.6",
-    "angular-ui-sortable": "0.12.10",
+    "angular-ui-sortable": "~0.12.10",
     "ng-clip": "~0.2.2",
     "open-sans-fontface": "git://github.com/FontFaceKit/open-sans",
     "icomoon": "git://github.com/layerssss/icomoon-bower.git",
