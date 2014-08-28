@@ -4,7 +4,10 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.ysldhinter',
   'gsApp.styleditor.save',
   'gsApp.styleditor.undo',
-  'gsApp.styleditor.layers'
+  'gsApp.styleditor.layers',
+  'gsApp.styleditor.font',
+  'gsApp.styleditor.size',
+  'gsApp.styleditor.color'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
     function($compile, $sanitize, $timeout, $log) {

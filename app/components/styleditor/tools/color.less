@@ -1,0 +1,53 @@
+@import "../../../variables.less";
+
+.sp-thumb-active .sp-thumb-inner {
+  background-image: none !important;
+}
+
+.sp-palette .sp-thumb-el {
+  float: none;
+}
+
+.sp-button-container {
+  margin-top: 5px;
+  .sp-cancel {
+    color: transparent !important;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    margin-right: 5px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    background-image: url(images/icons/dark/cancel-circle.svg);
+
+    &:hover {
+      color: transparent !important;
+      background-image: url(images/icons/lighter/cancel-circle.svg);
+    }
+  }
+
+  button.sp-choose {
+    color: transparent;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    text-shadow: none;
+    border: 0;
+    border-radius: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    background-color: transparent;
+    background-image: url(images/icons/dark/checkmark-circle.svg);
+
+    &:hover {
+      background-image: url(images/icons/lighter/checkmark-circle.svg);
+    }
+  }
+}
+
+
+

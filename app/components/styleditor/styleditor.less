@@ -20,10 +20,10 @@
 
 .style-toolbar {
   background-color: @almost-black;
-  ul {
+  > ul {
     margin-bottom: 0px;
     margin-left: 0px;
-    li {
+    > li {
         color: @light-gray;
         text-align: center;
         padding: 10px 20px;
@@ -37,6 +37,23 @@
           background-color: @light-gray;
           cursor: pointer;
         }
+    }
+  }
+
+  .dropdown-menu {
+    li {
+      a {
+        color: @dark-gray;
+      }
+
+      &:not(active) {
+
+        a:hover {
+          background-color: @light-gray;
+          color: @monacoblue;
+        }
+
+      }
     }
   }
 }
