@@ -129,7 +129,7 @@ public class MapController extends AppController {
             reStyles.add(mapLayer.style);
         }
 
-        m.getLayers().clear();;
+        m.getLayers().clear();
         m.getLayers().addAll(reLayers);
 
         m.getStyles().clear();

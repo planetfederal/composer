@@ -196,8 +196,8 @@ public class MapControllerTest {
             @Override
             public boolean matches(Object argument) {
                 List l = (List) argument;
-                return "two".equals(((LayerInfo)l.get(0)).getName()) &&
-                       "one".equals(((LayerInfo)l.get(1)).getName());
+                return "one".equals(((LayerInfo)l.get(0)).getName()) &&
+                       "two".equals(((LayerInfo)l.get(1)).getName());
             }
         }));
 
@@ -206,8 +206,8 @@ public class MapControllerTest {
             @Override
             public boolean matches(Object argument) {
                 List l = (List) argument;
-                return "two.ysld".equals(((StyleInfo)l.get(0)).getFilename()) &&
-                        "one.ysld".equals(((StyleInfo)l.get(1)).getFilename());
+                return "one.ysld".equals(((StyleInfo)l.get(0)).getFilename()) &&
+                        "two.ysld".equals(((StyleInfo)l.get(1)).getFilename());
             }
         }));
 
