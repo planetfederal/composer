@@ -253,9 +253,11 @@ module.exports = function(grunt) {
         }
       },
       dist: {
+         options: {
+          mangle: false
+         },
          files: {
-            'build/geoserver.min.js':
-              prefixDeps(deps.js.diff(codeMirrorDeps()).diff(olDeps()))
+            'build/geoserver.min.js': prefixDeps(standaloneDeps())
                 .concat('build/geoserver.js', 'build/templates.js')
          }
        }
