@@ -115,7 +115,17 @@ public class IO {
         proj(obj.putObject("proj"), r.getCRS(), r.getSRS());
 
         JSONObj bbox = obj.putObject("bbox");
-        bounds(bbox.putObject("native"), r.getNativeBoundingBox());
+
+        if (r.getNativeBoundingBox() != null) {
+            bounds(bbox.putObject("native"), r.getNativeBoundingBox());
+        }
+        else {
+            // check if the crs is geographic, if so use lat lon
+            if (r.getCRS() instanceof GeographicCRS) {
+                bounds(bbox.putObject("native"), r.getLatLonBoundingBox());
+            }
+        }
+
         bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
 
         return obj;

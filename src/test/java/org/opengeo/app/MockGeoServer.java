@@ -49,6 +49,8 @@ import java.util.List;
 import static org.geoserver.catalog.Predicates.equal;
 import static org.mockito.Mockito.*;
 
+import static org.opengeo.app.AppController.DEFAULT_PAGESIZE;
+
 /**
  * Helper to mock up GeoServer configuration.
  */
@@ -179,7 +181,7 @@ public class MockGeoServer {
             List<LayerGroupInfo> allMaps = new ArrayList<LayerGroupInfo>();
 
             for (WorkspaceBuilder wsBuilder : workspaces) {
-                List<LayerInfo> layers = Lists.transform(wsBuilder.layers, new Function<LayerBuilder, LayerInfo>() {
+                final List<LayerInfo> layers = Lists.transform(wsBuilder.layers, new Function<LayerBuilder, LayerInfo>() {
                     @Nullable
                     @Override
                     public LayerInfo apply(@Nullable LayerBuilder layerBuilder) {
@@ -188,10 +190,18 @@ public class MockGeoServer {
                 });
                 allLayers.addAll(layers);
 
+                Answer<CloseableIteratorAdapter<LayerInfo>> a = new Answer<CloseableIteratorAdapter<LayerInfo>>() {
+                    @Override
+                    public CloseableIteratorAdapter<LayerInfo> answer(InvocationOnMock invocation) throws Throwable {
+                        return new CloseableIteratorAdapter<LayerInfo>(layers.iterator());
+                    }
+                };
                 when(catalog.list(LayerInfo.class, Predicates.equal("resource.namespace.prefix",
-                    wsBuilder.workspace.getName()))).thenReturn(new CloseableIteratorAdapter<LayerInfo>(layers.iterator()));
+                    wsBuilder.workspace.getName()))).thenAnswer(a);
+                when(catalog.list(LayerInfo.class, Predicates.equal("resource.namespace.prefix",
+                    wsBuilder.workspace.getName()), null, DEFAULT_PAGESIZE, null)).thenAnswer(a);
 
-                List<LayerGroupInfo> maps = Lists.transform(wsBuilder.maps, new Function<MapBuilder, LayerGroupInfo>() {
+                final List<LayerGroupInfo> maps = Lists.transform(wsBuilder.maps, new Function<MapBuilder, LayerGroupInfo>() {
                     @Nullable
                     @Override
                     public LayerGroupInfo apply(@Nullable MapBuilder mapBuilder) {
@@ -200,13 +210,23 @@ public class MockGeoServer {
                 });
                 allMaps.addAll(maps);
 
+                Answer<CloseableIteratorAdapter<LayerGroupInfo>> b = new Answer<CloseableIteratorAdapter<LayerGroupInfo>>() {
+                    @Override
+                    public CloseableIteratorAdapter<LayerGroupInfo> answer(InvocationOnMock invocation) throws Throwable {
+                        return new CloseableIteratorAdapter<LayerGroupInfo>(maps.iterator());
+                    }
+                };
                 when(catalog.list(LayerGroupInfo.class, Predicates.equal("workspace.name",
-                    wsBuilder.workspace.getName()))).thenReturn(new CloseableIteratorAdapter<LayerGroupInfo>(maps.iterator()));
+                    wsBuilder.workspace.getName()))).thenAnswer(b);
+                when(catalog.list(LayerGroupInfo.class, Predicates.equal("workspace.name",
+                    wsBuilder.workspace.getName()))).thenAnswer(b);
             }
 
             when(catalog.getLayers()).thenReturn(allLayers);
             when(catalog.list(LayerInfo.class, Predicates.acceptAll())).thenReturn(
                 new CloseableIteratorAdapter<LayerInfo>(allLayers.iterator()));
+            when(catalog.list(LayerInfo.class, Predicates.acceptAll())).thenReturn(
+                    new CloseableIteratorAdapter<LayerInfo>(allLayers.iterator()));
             when(catalog.getLayerGroups()).thenReturn(allMaps);
             when(catalog.list(LayerGroupInfo.class, Predicates.acceptAll())).thenReturn(
                     new CloseableIteratorAdapter<LayerGroupInfo>(allMaps.iterator()));

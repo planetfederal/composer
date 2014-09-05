@@ -16,6 +16,7 @@ import org.geotools.styling.Style;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
+import org.opengis.filter.sort.SortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -48,7 +50,7 @@ public class LayerController extends AppController {
     }
 
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
-    public @ResponseBody JSONArr list(@PathVariable String wsName) {
+    public @ResponseBody JSONArr list(@PathVariable String wsName, HttpServletRequest req) {
         JSONArr arr = new JSONArr();
 
         Catalog cat = geoServer.getCatalog();
@@ -60,8 +62,8 @@ public class LayerController extends AppController {
             }
         }
 
-        CloseableIterator<LayerInfo> it =
-            cat.list(LayerInfo.class, equal("resource.namespace.prefix", wsName));
+        CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, equal("resource.namespace.prefix", wsName),
+            offset(req), count(req), null);
         try {
             while (it.hasNext()) {
                 IO.layer(arr.addObject(), it.next());
