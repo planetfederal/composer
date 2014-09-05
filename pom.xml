@@ -9,6 +9,17 @@
   <version>4.5-SNAPSHOT</version>
   <name>OpenGeo Suite GeoServer Web App</name>
 
+  <repositories>
+    <repository>
+      <id>boundless</id>
+      <name>Boundless Maven Repository</name>
+      <url>http://repo.boundlessgeo.com/main</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
+
   <properties>
     <gs.version>2.6-SNAPSHOT</gs.version>
     <jetty.version>7.6.13.v20130916</jetty.version>
