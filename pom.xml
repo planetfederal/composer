@@ -245,4 +245,32 @@
     </plugins>
   </build> 
 
+  <profiles>
+    <profile>
+      <id>geoscript</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.geoserver.script</groupId>
+          <artifactId>gs-script-py</artifactId>
+          <version>${gs.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.geoserver.script</groupId>
+          <artifactId>gs-script-web</artifactId>
+          <version>${gs.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+    <profile>
+      <id>wps</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.opengeo.geoserver</groupId>
+          <artifactId>web-wps-ext</artifactId>
+          <version>${gs.version}</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 </project>
