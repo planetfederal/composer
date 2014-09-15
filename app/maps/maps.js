@@ -42,8 +42,8 @@ angular.module('gsApp.maps', [
       $scope.gridOptions = {
         data: 'mapData',
         columnDefs: [
-          {field: 'name', displayName: 'Name'},
-          {field: 'title', displayName: 'Title'},
+          {field: 'name', displayName: 'Map Name'},
+          {field: 'title', displayName: 'Map Title'},
           {
             field: 'compose',
             displayName: 'Compose',

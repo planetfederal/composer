@@ -129,6 +129,19 @@ angular.module('gsApp.core.backend',[])
                 data: JSON.stringify(layers)
               });
             }
+          },
+
+          thumbnail: {
+            get: function(workspace, name, layers, width, height) {
+              var url = gsRoot + '/wms/reflect?&layers=' + layers;
+              if (width) {
+                url = url + '&width=' + width;
+              }
+              if (height) {
+                url = url + '&height=' + height;
+              }
+              return url;
+            }
           }
         }
       };
