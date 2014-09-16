@@ -354,6 +354,12 @@ public class MockGeoServer {
             when(catalog.getLayerGroupByName(wsName, name)).thenReturn(map);
         }
 
+        public MapBuilder info(String title, String description) {
+            when(map.getTitle()).thenReturn(title);
+            when(map.getAbstract()).thenReturn(description);
+            return this;
+        }
+
         public MapBuilder bbox(double x1, double y1, double x2, double y2, CoordinateReferenceSystem crs) {
             when(map.getBounds()).thenReturn(new ReferencedEnvelope(x1,x2,y1,y2,crs));
             return this;
@@ -411,6 +417,12 @@ public class MockGeoServer {
         public LayerBuilder(String name, MapBuilder mapBuilder) {
             this(name, mapBuilder.workspaceBuilder);
             this.mapBuilder = mapBuilder;
+        }
+
+        public LayerBuilder info(String title, String description) {
+            when(layer.getTitle()).thenReturn(title);
+            when(layer.getAbstract()).thenReturn(description);
+            return this;
         }
 
         public MapBuilder map() {

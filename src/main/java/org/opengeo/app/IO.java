@@ -105,6 +105,7 @@ public class IO {
         obj.put("name", layer.getName())
                 .put("workspace", wsName)
                 .put("title", layer.getTitle() != null ? layer.getTitle() : r.getTitle())
+                .put("description", layer.getAbstract() != null ? layer.getAbstract() : r.getAbstract())
                 .put("type", type(r));
 
         if (r instanceof FeatureTypeInfo) {

@@ -104,7 +104,7 @@ public class LayerControllerTest {
     public void testGet() throws Exception {
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
-                .layer("one")
+                .layer("one").info("The layer", "This layer is cool!")
                 .featureType().defaults()
             .geoServer().build(geoServer);
 
@@ -117,6 +117,8 @@ public class LayerControllerTest {
         assertEquals("one", obj.str("name"));
         assertEquals("foo", obj.str("workspace"));
         assertEquals("vector", obj.str("type"));
+        assertEquals("The layer", obj.str("title"));
+        assertEquals("This layer is cool!", obj.str("description"));
 
         assertEquals("EPSG:4326", obj.object("proj").str("srs"));
 
