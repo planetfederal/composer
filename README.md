@@ -1,8 +1,21 @@
 # GeoServer Web Application
 
-This module contains the GeoServer web application. Building it requires Node
-be [installed](http://nodejs.org/). It is comprised of a backend api on the 
-Java/GeoServer side, and an angular based client. 
+This module contains the GeoServer web application. It is comprised of a backend api on the Java/GeoServer side, and an angular based client. 
+
+## Building
+
+Building it requires Node be [installed](http://nodejs.org/). In addition to 
+installing node and npm it is recommended that `bower` and `grunt-cli` be installed 
+globally.
+
+    npm install -g bower
+    npm install -g grunt-cli
+
+Once the node dependencies are satisifed invoke ant to build the module.
+
+    ant build
+
+This will result in a deployable GeoServer war file.
 
 ## Developing
 
