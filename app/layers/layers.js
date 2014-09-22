@@ -41,6 +41,7 @@ angular.module('gsApp.layers', [
         pageSizes: [25, 50, 100],
         pageSize: 25
       };
+      $scope.gridSelections = [];
       $scope.gridOptions = {
         data: 'layerData',
         columnDefs: [{
