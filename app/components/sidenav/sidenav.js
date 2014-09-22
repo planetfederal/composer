@@ -9,8 +9,8 @@ angular.module('gsApp.sidenav', [
       replace: true
     };
   })
-.controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer',
-  'AppEvent', '$state', '$log',
+.controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer', 'AppEvent',
+  '$state', '$log',
   function($scope, $rootScope, GeoServer, AppEvent, $state, $log) {
 
     GeoServer.workspaces.get().$promise.then(function(workspaces) {
@@ -21,16 +21,10 @@ angular.module('gsApp.sidenav', [
       $scope.workspaces = workspaces;
     });
 
-    $scope.onWorkspaceClick = function(workspace, tab) {
-      if (tab) {
-        $state.go('workspace.home.'+tab, {
-          workspace: workspace.name
-        });
-      } else {
-        $state.go('workspace.home.maps', {
-          workspace: workspace.name
-        });
-      }
+    $scope.onWorkspaceClick = function(workspace) {
+      $state.go('workspace.home', {
+        workspace: workspace.name
+      });
     };
 
   }]);

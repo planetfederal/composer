@@ -7,7 +7,7 @@ angular.module('gsApp.workspaces', [
       $stateProvider
         .state('workspaces', {
           url: '/workspaces',
-          template: '<div><div ui-view></div></div>',
+          templateUrl: '/workspaces/workspaces.tpl.html',
           controller: 'WorkspacesCtrl'
         })
         .state('workspace', {
