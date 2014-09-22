@@ -128,5 +128,4 @@ angular.module('gsApp.layers', [
 
         $scope.workspaces = workspaces;
       });
-
     }]);
