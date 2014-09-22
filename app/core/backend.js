@@ -71,6 +71,14 @@ angular.module('gsApp.core.backend',[])
           }
         }),
 
+        // Stubbing in for now
+        datastores: {
+          get: function() {
+            var l = '{"datastores": [{"workspace": "medford", "store": "med_shp", "type": "shp", "source": "72.45.34.23/mnt/vol2/dataset1/ne/", "description": "directory of spatial files (shp)", "srs": "EPSG:4326"}]}';
+            return JSON.parse(l);
+          }
+        },
+
         layers: $resource(apiRoot+'/layers/:workspace', {workspace:'default'}, {
           get: {
             method: 'GET',
@@ -151,8 +159,8 @@ angular.module('gsApp.core.backend',[])
             get: function(workspace, layergroup, bbox, width, height) {
               var url = gsRoot + '/' + workspace +
                '/wms?service=WMS&version=1.1.0&request=GetMap&layers=' +
-               layergroup + bbox + '&width=' + width
-               + '&height=' + height +
+               layergroup + bbox + '&width=' + width +
+               '&height=' + height +
                '&srs=EPSG:4326&format=application/openlayers';
               return url;
             }

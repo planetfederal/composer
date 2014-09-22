@@ -34,7 +34,9 @@ angular.module('gsApp.workspaces.workspace', [
             $scope.maps[i].workspace = wsName;
             $scope.maps[i].layergroupname = wsName + ':' + map.name;
             $scope.maps[i].layerCount = map.layers.length;
-            var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west + ',' + map.bbox.south + ',' + map.bbox.east + ',' + map.bbox.north;
+            var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west +
+             ',' + map.bbox.south + ',' + map.bbox.east + ',' +
+             map.bbox.north;
 
             var url = GeoServer.map.thumbnail.get(map.workspace, map,
               map.layergroupname, 250, 250);
@@ -48,9 +50,6 @@ angular.module('gsApp.workspaces.workspace', [
       $scope.sanitizeHTML = function(description) {
         return $sce.trustAsHtml(description);
       };
-
-
-      http://horizon.boundlessgeo.com/geoserver/medford/wms?service=WMS&version=1.1.0&request=GetMap&layers=medford&styles=&bbox=-122.911,42.291,-122.787,42.398&width=512&height=441&srs=EPSG:4326&format=application/openlayers
 
       $scope.newOLWindow = function(map) {
         var baseUrl = GeoServer.map.openlayers.get(map.workspace,
