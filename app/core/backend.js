@@ -142,6 +142,20 @@ angular.module('gsApp.core.backend',[])
               }
               return url;
             }
+          },
+
+          // return an openlayers map URL
+          // TODO - not showing getFeatureInfo information as on
+          // geoserver OpenLayers template, try to copy that template
+          openlayers: {
+            get: function(workspace, layergroup, bbox, width, height) {
+              var url = gsRoot + '/' + workspace +
+               '/wms?service=WMS&version=1.1.0&request=GetMap&layers=' +
+               layergroup + bbox + '&width=' + width
+               + '&height=' + height +
+               '&srs=EPSG:4326&format=application/openlayers';
+              return url;
+            }
           }
         }
       };

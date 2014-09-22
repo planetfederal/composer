@@ -1,5 +1,5 @@
 angular.module('gsApp.workspaces.workspace', [
-  'ngGrid'
+  'ngGrid', 'ngSanitize'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -9,9 +9,10 @@ angular.module('gsApp.workspaces.workspace', [
         controller: 'WorkspaceHomeCtrl'
       });
     }])
-.controller('WorkspaceHomeCtrl', ['$scope', '$stateParams', 'GeoServer', '$log',
-  'baseUrl', '$window', '$state',
-    function($scope, $stateParams, GeoServer, $log, baseUrl, $window, $state) {
+.controller('WorkspaceHomeCtrl', ['$scope', '$stateParams',
+  'GeoServer', '$log', '$sce', 'baseUrl', '$window', '$state',
+    function($scope, $stateParams, GeoServer, $log, $sce, baseUrl,
+      $window, $state) {
 
       var wsName = $stateParams.workspace;
       $scope.title = wsName;
@@ -33,24 +34,28 @@ angular.module('gsApp.workspaces.workspace', [
             $scope.maps[i].workspace = wsName;
             $scope.maps[i].layergroupname = wsName + ':' + map.name;
             $scope.maps[i].layerCount = map.layers.length;
+            var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west + ',' + map.bbox.south + ',' + map.bbox.east + ',' + map.bbox.north;
 
             var url = GeoServer.map.thumbnail.get(map.workspace, map,
               map.layergroupname, 250, 250);
-            var bbox = '&bbox=' + map.bbox.west + ',' + map.bbox.south +
-              ',' + map.bbox.east + ',' + map.bbox.north;
             var srs = '&srs=' + map.proj.srs;
 
             $scope.thumbnails[map.name] = baseUrl + url + bbox +
               '&format=image/png' + srs;
           }
-
         });
 
-      $scope.newWindow = function(map) {
-        var baseUrl = GeoServer.map.thumbnail.get(map.workspace, map,
-          map.layergroupname, 800, 400);
-        var url = $scope.thumbnails[map.name];
-        $window.open(url);
+      $scope.sanitizeHTML = function(description) {
+        return $sce.trustAsHtml(description);
+      };
+
+
+      http://horizon.boundlessgeo.com/geoserver/medford/wms?service=WMS&version=1.1.0&request=GetMap&layers=medford&styles=&bbox=-122.911,42.291,-122.787,42.398&width=512&height=441&srs=EPSG:4326&format=application/openlayers
+
+      $scope.newOLWindow = function(map) {
+        var baseUrl = GeoServer.map.openlayers.get(map.workspace,
+          map.name, map.bbox, 800, 500);
+        $window.open(baseUrl);
       };
 
       $scope.onEdit = function(map) {
@@ -59,7 +64,6 @@ angular.module('gsApp.workspaces.workspace', [
           name: map.name
         });
       };
-
 
       // Data
 

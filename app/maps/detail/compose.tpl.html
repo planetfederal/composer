@@ -7,10 +7,11 @@
       <alert-panel alerts="alerts"></alert-panel>
       <div>
         <div class="map-layers" ng-class="{show: toggle == true}">
-          <ul ui-sortable="{stop:layersReordered}" ng-model="map.layers" 
+          <ul ui-sortable="{stop:layersReordered}" ng-model="map.layers"
               class="list-unstyled">
-            <li ng-repeat="l in map.layers"  ng-click="selectLayer(l)" 
+            <li ng-repeat="l in map.layers" ng-click="selectLayer(l)"
               ng-class="{active: activeLayer == l}" >
+              <input type="checkbox" ng-model="visibleMapLayers[$index].checked">
               {{ l.name }}
             </li>
           </ul>
