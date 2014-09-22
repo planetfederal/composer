@@ -26,8 +26,8 @@
               <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open': toggleWkspc,}"></i> <span class="txt">{{ workspace.name }}</span>
             </a>
             <ul class="workspace-items" collapse="!toggleWkspc" role="menu">
-              <li><a href="#"><i class="icon-map"></i> <span class="txt">Maps</span></a></li>
-              <li><a href="#"><i class="fa fa-database fa-lg"></i> <span class="txt">Data</span></a></li>
+              <li><a ng-click="onWorkspaceClick(workspace);"><i class="icon-map"></i> <span class="txt">Maps</span></a></li>
+              <li><a ng-click="onWorkspaceClick(workspace);"><i class="fa fa-database fa-lg"></i> <span class="txt">Data</span></a></li>
             </ul>
           </li>
           <li ng-show="workspaces.length > 2" class="more"><a ui-sref="workspaces"><span class="txt">More...</span></a></li>
