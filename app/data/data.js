@@ -17,7 +17,7 @@ angular.module('gsApp.data', [
       /*GeoServer.alldata.get().$promise.then(function(data) {
         $scope.data = data;
       });*/
-      $scope.datastores = GeoServer.datastores.get().datastores;
+      $scope.datastores = GeoServer.datastores.get().datastores; // stub
 
       $scope.pagingOptions = {
         pageSizes: [25, 50, 100],
@@ -43,15 +43,4 @@ angular.module('gsApp.data', [
         }
       };
 
-/*
-      GeoServer.workspaces.get().$promise.then(function(workspaces) {
-        workspaces.filter(function(ws) {
-          return ws['default'];
-        }).forEach(function(ws) {
-          $scope.workspace.selected = ws;
-          $scope.workspaceChanged(ws);
-        });
-
-        $scope.workspaces = workspaces;
-      });*/
     }]);

@@ -1,18 +1,46 @@
 angular.module('gsApp.workspaces.workspace', [
-  'ngGrid', 'ngSanitize'
+  'ngGrid', 'ngSanitize', 'ui.router',
 ])
-.config(['$stateProvider',
-    function($stateProvider) {
-      $stateProvider.state('workspace.home', {
-        url: '/home',
-        templateUrl: '/workspaces/detail/workspace-home.tpl.html',
-        controller: 'WorkspaceHomeCtrl'
-      });
+.config(['$stateProvider', '$urlRouterProvider',
+    function($stateProvider, $urlRouterProvider) {
+      $urlRouterProvider.otherwise('/home/maps');
+
+      $stateProvider
+        .state('workspace.home', {
+          url: '',
+          templateUrl: '/workspaces/detail/workspace-home.tpl.html',
+          controller: 'WorkspaceHomeCtrl'
+        })
+        .state('workspace.home.maps', {
+          url: '/maps',
+          templateUrl: '/workspaces/detail/workspace-maps.tpl.html'
+        })
+        .state('workspace.home.data', {
+          url: '/data',
+          templateUrl: '/workspaces/detail/workspace-data.tpl.html'
+        });
     }])
 .controller('WorkspaceHomeCtrl', ['$scope', '$stateParams',
   'GeoServer', '$log', '$sce', 'baseUrl', '$window', '$state',
     function($scope, $stateParams, GeoServer, $log, $sce, baseUrl,
       $window, $state) {
+
+      // Allow tabs in url
+      $scope.tabs = [
+        { heading: 'Maps', route:'workspace.home.maps', active:false },
+        { heading: 'Data', route:'workspace.home.data', active:false }
+      ];
+      $scope.go = function(route){
+        $state.go(route);
+      };
+      $scope.active = function(route){
+        return $state.is(route);
+      };
+      $scope.$on('$stateChangeSuccess', function() {
+        $scope.tabs.forEach(function(tab) {
+            tab.active = $scope.active(tab.route);
+        });
+      });
 
       var wsName = $stateParams.workspace;
       $scope.title = wsName;
@@ -66,22 +94,21 @@ angular.module('gsApp.workspaces.workspace', [
 
       // Data
 
+      $scope.datastores = GeoServer.datastores.get().datastores; // stub
+
       $scope.pagingOptions = {
         pageSizes: [25, 50, 100],
         pageSize: 25
       };
       $scope.gridOptions = {
-        data: 'layer2Data',
+        data: 'datastores',
         columnDefs: [
-          {field: 'name', displayName: 'Name'},
-          {field: 'title', displayName: 'Title'},
-          {field: 'type', displayName: 'Type'},
-          {field: 'srs', displayName: 'SRS'},
-          {
-            field: 'style',
-            displayName: 'Style',
-            cellTemplate: '<div>hello</div>'
-          }
+          {field: 'workspace', displayName: 'Workspace'},
+          {field: 'store', displayName: 'Store'},
+          {field: 'type', displayName: 'Data Type'},
+          {field: 'source', displayName: 'Source', width: '30%'},
+          {field: 'description', displayName: 'Description', width: '20%'},
+          {field: 'srs', displayName: 'SRS'}
         ],
         enablePaging: true,
         enableColumnResize: false,
@@ -92,14 +119,6 @@ angular.module('gsApp.workspaces.workspace', [
           useExternalFilter: true
         }
       };
-
-      $scope.layerData = [];
-
-      // TODO change this to get workspace maps and data
-      GeoServer.layers.get({workspace: wsName}).$promise
-      .then(function(layers) {
-        $scope.layerData = layers;
-      });
 
     }]);
 
