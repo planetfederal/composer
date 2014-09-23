@@ -14,7 +14,8 @@ angular.module('gsApp.maps.compose', [
     }])
 .controller('MapComposeCtrl',
     ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log',
-    function($scope, $stateParams, GeoServer, $timeout, $log) {
+    'olMapService',
+    function($scope, $stateParams, GeoServer, $timeout, $log, olMapService) {
       var wsName = $stateParams.workspace;
       var name = $stateParams.name;
 
@@ -30,6 +31,15 @@ angular.module('gsApp.maps.compose', [
         })];
         $scope.proj = map.srs;
         $scope.center = map.bbox.center;
+
+        $timeout(function() {
+          $scope.olMap = olMapService.map;
+          var layers = $scope.olMap.getLayerGroup().getLayers();
+          layers.forEach(function(layer, i) {
+           // console.log(layer.getVisible());
+            //console.log(layer);
+          });
+        }, 200);
       });
 
       $scope.toggle = true;
@@ -47,7 +57,6 @@ angular.module('gsApp.maps.compose', [
           }
           layerState[activeLayer.name].style = $scope.style;
         }
-
         $scope.activeLayer = layer;
       };
 
@@ -120,4 +129,5 @@ angular.module('gsApp.maps.compose', [
           }, 5000);
         }
       });
+
     }]);

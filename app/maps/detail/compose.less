@@ -7,6 +7,10 @@
   transition: @property @duration @effect;
 }
 
+.editor-background {
+  background: @gray;
+}
+
 .map-detail-compose {
   > .row {
     margin-left: 0;
@@ -22,11 +26,21 @@
 .map-detail-compose {
 
   .map-layers {
-    margin-top: 50px;
+    padding-top: 10px;
     width: 0px;
+    height: 100%;
+    box-shadow: inset -5px -1px 5px -3px @dark-gray;
     overflow: hidden;
+    position: relative;
     float: left;
-    .transition(width, 0.5s, ease-in-out);
+    .transition(width, 0.4s, ease-in-out);
+
+    h6 {
+      color: @white;
+      white-space: nowrap;
+      margin-bottom: 30px;
+      margin-left: 5px;
+    }
 
     ul {
       list-style-type: none;
@@ -39,6 +53,8 @@
         border-bottom-left-radius: 2px;
         margin-bottom: 5px;
         background-color: @light-gray;
+        box-shadow: inset -5px 0px 5px -2px @dark-gray;
+        white-space: nowrap;
       }
 
       li:hover {
@@ -54,12 +70,15 @@
   }
 
   .map-layers.show {
-    width: 15%;
+    width: 20%;
     margin-left: 5px;
   }
 
   .map-editor {
     width: auto;
+    position: relative;
+    z-index: 10;
+
     overflow: hidden;
     .transition(width, 0.5s, ease-in-out);
   }

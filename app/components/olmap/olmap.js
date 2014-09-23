@@ -5,6 +5,7 @@ angular.module('gsApp.olmap', [])
       return {
         createMap: function(layers, element, options) {
           var mapLayers = layers.map(function(l) {
+
             return new ol.layer.Image({
               source: new ol.source.ImageWMS({
                 url: GeoServer.baseUrl()+'/'+l.workspace+'/wms',
@@ -63,12 +64,13 @@ angular.module('gsApp.olmap', [])
           });
 
           map.getView().fitExtent(extent, size);
-          return  map;
+          return map;
         }
       };
     }])
 .directive('olMap', ['$timeout', 'MapFactory', 'GeoServer', '$log',
-    function($timeout, MapFactory, GeoServer, $log) {
+  'olMapService',
+    function($timeout, MapFactory, GeoServer, $log, olMapService) {
       return {
         restrict: 'EA',
         scope: {
@@ -83,6 +85,7 @@ angular.module('gsApp.olmap', [])
               return;
             }
             var map = MapFactory.createMap($scope.layers, $element);
+            olMapService.updateMap(map);
             map.setTarget($element[0]);
 
             var view = map.getView();
@@ -107,4 +110,14 @@ angular.module('gsApp.olmap', [])
           });
         }
       };
-    }]);
+    }])
+.service('olMapService', [function() {
+    var map;
+    this.updateMap = function(map) {
+      this.map = map;
+    }
+    return {
+      map: map,
+      updateMap: this.updateMap
+    };
+}]);
