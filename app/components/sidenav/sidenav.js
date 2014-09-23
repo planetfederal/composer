@@ -21,11 +21,16 @@ angular.module('gsApp.sidenav', [
       $scope.workspaces = workspaces;
     });
 
-    $scope.onWorkspaceClick = function(workspace) {
-      $state.go('workspace.home', {
-        workspace: workspace.name
-      });
+    $scope.onWorkspaceClick = function(workspace, detail) {
+      if (detail) {
+        $state.go('workspace.home.' + detail, {
+          workspace: workspace.name
+        });
+      } else {
+        $state.go('workspace.home', {
+          workspace: workspace.name
+        });
+      }
     };
-
   }]);
 

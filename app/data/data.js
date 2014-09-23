@@ -43,15 +43,4 @@ angular.module('gsApp.data', [
         }
       };
 
-/*
-      GeoServer.workspaces.get().$promise.then(function(workspaces) {
-        workspaces.filter(function(ws) {
-          return ws['default'];
-        }).forEach(function(ws) {
-          $scope.workspace.selected = ws;
-          $scope.workspaceChanged(ws);
-        });
-
-        $scope.workspaces = workspaces;
-      });*/
     }]);
