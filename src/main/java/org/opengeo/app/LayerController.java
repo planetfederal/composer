@@ -1,8 +1,22 @@
 package org.opengeo.app;
 
-import com.google.common.io.ByteSource;
+import static org.geoserver.catalog.Predicates.equal;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.StyleInfo;
@@ -10,13 +24,20 @@ import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Paths;
+import org.geoserver.platform.resource.Resource;
 import org.geoserver.ysld.YsldHandler;
 import org.geotools.feature.NameImpl;
+import org.geotools.styling.AbstractStyleVisitor;
 import org.geotools.styling.Style;
+import org.geotools.util.KVP;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
-import org.opengis.filter.sort.SortBy;
+import org.opengis.metadata.citation.OnLineResource;
+import org.opengis.style.ExternalGraphic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -29,14 +50,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.logging.Logger;
-
-import static org.geoserver.catalog.Predicates.*;
+import com.google.common.io.ByteSource;
 
 @Controller
 @RequestMapping("/backend/layers")
@@ -101,6 +115,81 @@ public class LayerController extends AppController {
         }
     }
 
+    public static KVP ICON_FORMATS = new KVP(
+            "png","image/png",
+            "jpeg","image/jpeg",
+            "jpg","image/jpeg",
+            "gif","image/gif",
+            "svg","image/svg+xml",
+            "ttf","application/font-sfnt",
+            "properties","text/x-java-properties");
+    
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/{wsName}/{name}/style/icons", method = RequestMethod.GET)
+    public @ResponseBody JSONArr icons(@PathVariable String wsName, @PathVariable String name)
+            throws IOException {
+        JSONArr arr = new JSONArr();
+
+        Catalog cat = geoServer.getCatalog();
+        LayerInfo l = findLayer(wsName, name, cat);
+        StyleInfo s = l.getDefaultStyle();
+        WorkspaceInfo ws;
+        if ("default".equals(wsName)) {
+            ws = cat.getDefaultWorkspace();
+            wsName = ws.getName();
+        } else {
+            ws = cat.getWorkspaceByName(wsName);
+        }
+        if (ws == null) {
+            throw new RuntimeException("Unable to find workspace " + wsName);
+        }
+        if (s == null) {
+            throw new NotFoundException(String.format("Layer %s:%s has no default style", wsName, name));
+        }
+        // check what icons/fonts are referenced style
+        //
+        Set<String> referenced;
+        Style style = s.getStyle();
+        
+        if( style != null ){
+            referenced = (Set<String>) style.accept(new StyleAdaptor() {
+                public Object visit(OnLineResource resource, Object data) {
+                    URI uri = resource.getLinkage();
+                    if (uri != null) {
+                        String filename = Files.filename(uri.getPath());
+                        if (filename != null) {
+                            ((Set<String>) data).add(filename);
+                        }
+                    }
+                    return data;
+                }
+            }, new HashSet<String>());
+        }
+        else {
+            referenced = Collections.emptySet();
+        }
+        GeoServerResourceLoader rl = cat.getResourceLoader();
+        
+        // Scan workspace styles directory for supported formats
+        String path = Paths.path("workspaces",ws.getName(), "styles");
+        Resource styles = rl.get(path);
+        for( Resource r : styles.list() ){
+            String n = r.name();
+            if (n == null || n.lastIndexOf('.') == -1) {
+                continue;
+            }
+            String ext = n.substring(n.lastIndexOf('.') + 1);
+            if( !ICON_FORMATS.containsKey(ext.toLowerCase())){
+                continue;
+            }
+            arr.addObject().put("name",n).
+               put("format",ext).
+               put("mime",ICON_FORMATS.get(ext)).
+               put("used", referenced.contains(name));
+        }
+        return arr;
+    }
+ 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
     public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name)
         throws IOException {

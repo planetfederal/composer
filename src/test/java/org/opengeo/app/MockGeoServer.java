@@ -4,6 +4,11 @@ import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Envelope;
+
+
+
+
+//import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.FeatureTypeInfo;
@@ -19,8 +24,10 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.platform.resource.ResourceStore;
 import org.geoserver.ysld.YsldHandler;
 import org.geotools.data.DataUtilities;
@@ -38,6 +45,7 @@ import org.mockito.stubbing.Answer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.annotation.Nullable;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -48,7 +56,6 @@ import java.util.List;
 
 import static org.geoserver.catalog.Predicates.equal;
 import static org.mockito.Mockito.*;
-
 import static org.opengeo.app.AppController.DEFAULT_PAGESIZE;
 
 /**
@@ -86,7 +93,8 @@ public class MockGeoServer {
     }
 
     public class ResourcesBuilder extends  Builder {
-
+        
+        List<String> paths;
         ResourceStore resourceStore;
         CatalogBuilder catalogBuilder;
 
@@ -96,7 +104,7 @@ public class MockGeoServer {
             Resource base = mock(Resource.class);
             when(base.dir()).thenReturn(null);
 
-            resourceStore = mock(ResourceStore.class);
+            this.resourceStore = mock(ResourceStore.class);
             when(resourceStore.get(Paths.BASE)).thenReturn(base);
 
             when(catalogBuilder.catalog.getResourceLoader())
@@ -106,6 +114,8 @@ public class MockGeoServer {
                         return new GeoServerResourceLoader(resourceStore);
                     }
                 });
+
+            this.paths = new ArrayList<String>();
         }
 
         public ResourcesBuilder resource(String path, String content) {
@@ -114,12 +124,50 @@ public class MockGeoServer {
 
         public ResourcesBuilder resource(String path, InputStream content) {
             Resource r = mock(Resource.class);
+            when(r.path()).thenReturn(path);
+            when(r.name()).thenReturn(path.substring(path.lastIndexOf('/')+1));
+            when(r.getType()).thenReturn(Type.RESOURCE);
             when(r.in()).thenReturn(content);
             when(r.out()).thenReturn(new ByteArrayOutputStream());
+            
             when(resourceStore.get(path)).thenReturn(r);
+            paths.add( path );
             return this;
         }
 
+        public ResourcesBuilder directory(final String path) {
+            Resource r = mock(Resource.class);
+            when(r.path()).thenReturn(path);
+            when(r.name()).thenReturn(path.substring(path.lastIndexOf('/')+1));
+            when(r.getType()).thenReturn(Type.DIRECTORY);
+            when(resourceStore.get(path)).thenReturn(r);
+            paths.add( path );
+            
+            when(r.list()).then( new Answer<List<Resource>>() {
+                @Override
+                public List<Resource> answer(InvocationOnMock invocation) throws Throwable {
+                    final List<String> c = new ArrayList<String>();
+                    for(String p : paths ){
+                        if( p.startsWith(path+'/')){
+                            String n = p.substring(path.length()+1);
+                            if( n.indexOf('/')!=-1){
+                                n = n.substring(0,n.indexOf('/'));
+                            }
+                            if( !c.contains(n)){
+                                c.add(n);
+                            }                            
+                        }
+                    }
+                    List<Resource> answer = new ArrayList<Resource>();
+                    for( int i=0;i<c.size();i++){
+                        answer.add( resourceStore.get(Paths.path(path,c.get(i))) );
+                    }
+                    return answer;
+                }
+            });
+            return this;
+        }
+        
         @Override
         public MockGeoServer geoServer() {
             return catalogBuilder.geoServer();

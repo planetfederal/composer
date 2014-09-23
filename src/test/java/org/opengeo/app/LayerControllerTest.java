@@ -2,11 +2,14 @@ package org.opengeo.app;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerExtensions;
+import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
 import org.geotools.styling.NamedLayer;
 import org.geotools.styling.PointSymbolizer;
@@ -156,6 +159,35 @@ public class LayerControllerTest {
         assertTrue(style.featureTypeStyles().get(0).rules().get(0).symbolizers().get(0) instanceof PointSymbolizer);
     }
 
+    @Test
+    public void testGetStyleIcons() throws Exception {
+        MockGeoServer.get().catalog()
+        .resources()
+          .resource("workspaces/foo/styles/one.yaml", "title: raw")
+          .directory("workspaces/foo/styles")
+          .resource("workspaces/foo/styles/icon.png", "PNG8")
+          .resource("workspaces/foo/styles/symbols.TTF", "TTF")
+        .geoServer().catalog()
+          .workspace("foo", "http://scratch.org", true)
+            .layer("one")
+              .style().ysld("one.yaml")
+        .geoServer().build(geoServer);
+
+      // Test directory placeholder
+      GeoServerResourceLoader rl = this.geoServer.getCatalog().getResourceLoader();
+      Resource d = rl.get("workspaces/foo/styles");
+      assertEquals( d.getType(), Type.DIRECTORY );
+      assertEquals( 3, d.list().size() );
+      
+      MvcResult result = mvc.perform(get("/backend/layers/foo/one/style/icons"))
+              .andExpect(status().isOk())
+              .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+              .andReturn();
+
+      JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
+      assertEquals( 2, arr.size() );
+    }
+    
     @Test
     public void testGetStyleRaw() throws Exception {
         MockGeoServer.get().catalog()
