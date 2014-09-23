@@ -184,7 +184,7 @@ public class LayerController extends AppController {
             }
             arr.addObject().put("name",n).
                put("format",ext).
-               put("mime",ICON_FORMATS.get(ext)).
+               put("mime",ICON_FORMATS.get(ext.toLowerCase())).
                put("used", referenced.contains(name));
         }
         return arr;
