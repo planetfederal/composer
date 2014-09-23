@@ -31,16 +31,31 @@ angular.module('gsApp.maps.compose', [
         })];
         $scope.proj = map.srs;
         $scope.center = map.bbox.center;
+        $scope.visibleMapLayers = [];
 
+        // wait for map to load
         $timeout(function() {
           $scope.olMap = olMapService.map;
-          var layers = $scope.olMap.getLayerGroup().getLayers();
+          var layers = $scope.olMap.getLayers();
           layers.forEach(function(layer, i) {
-           // console.log(layer.getVisible());
-            //console.log(layer);
+            $scope.visibleMapLayers[i] = layer.getVisible();
           });
-        }, 200);
+        }, 300);
       });
+
+      // for checkboxes in Layers list
+      $scope.toggleVisibility = function(l, index) {
+        var layers = $scope.olMap.getLayers();
+        var toggledLayer;
+        angular.forEach(layers, function(layer, key) {
+          if (layer.getProperties().name === l.name) {
+            toggledLayer = layer;
+            return;
+          }
+        });
+        toggledLayer.setVisible($scope.visibleMapLayers[index] =
+         !$scope.visibleMapLayers[index]);
+      };
 
       $scope.toggle = true;
       $scope.toggleLayers = function() {

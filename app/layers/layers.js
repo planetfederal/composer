@@ -37,7 +37,7 @@ angular.module('gsApp.layers', [
                 '</div>' +
                 '<div ng-switch-default class="grid"><img ng-src="images/layer-raster.png" alt="Layer Type: Raster" title="Layer Type: Raster" /></div>' +
               '</div>'
-  }
+  };
 })
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state', '$log',
     function($scope, GeoServer, $state, $log) {

@@ -4,16 +4,20 @@ angular.module('gsApp.olmap', [])
     function(GeoServer, $log) {
       return {
         createMap: function(layers, element, options) {
-          var mapLayers = layers.map(function(l) {
+          var requestedlayersList = layers[0].layers;
+          var mapLayers = [];
 
-            return new ol.layer.Image({
+          for (var k=requestedlayersList.length-1; k >= 0; k--) {
+            var ll = requestedlayersList[k];
+            mapLayers.push(new ol.layer.Image({
               source: new ol.source.ImageWMS({
-                url: GeoServer.baseUrl()+'/'+l.workspace+'/wms',
-                params: {'LAYERS': l.name, 'VERSION': '1.1.1'},
+                url: GeoServer.baseUrl()+'/'+ll.workspace+'/wms',
+                params: {'LAYERS': ll.name, 'VERSION': '1.1.1'},
                 serverType: 'geoserver'
-              })
-            });
-          });
+              }),
+              name: ll.name
+            }));
+          }
 
           // determine projection from first layer
           var l = layers[0];
@@ -115,9 +119,9 @@ angular.module('gsApp.olmap', [])
     var map;
     this.updateMap = function(map) {
       this.map = map;
-    }
+    };
     return {
       map: map,
       updateMap: this.updateMap
     };
-}]);
+  }]);
