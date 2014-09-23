@@ -25,20 +25,34 @@
 
 .map-detail-compose {
 
+  .map-name, .map-name-row, .navbar-brand, ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
+    min-height: 35px;
+    height: 35px;
+  }
+  .navbar-brand, ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .navbar-brand {
+    padding-top: 5px;
+  }
+  ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
+    padding-top: 2px;
+  }
+
   .map-layers {
-    padding-top: 10px;
+    padding-top: 5px;
     width: 0px;
-    height: 100%;
     box-shadow: inset -5px -1px 5px -3px @dark-gray;
     overflow: hidden;
     position: relative;
     float: left;
     .transition(width, 0.4s, ease-in-out);
 
-    h6 {
+    h6.title {
       color: @white;
       white-space: nowrap;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       margin-left: 5px;
     }
 
@@ -71,7 +85,16 @@
 
   .map-layers.show {
     width: 20%;
+    height: 100%;
     margin-left: 5px;
+  }
+
+  .optional {
+    margin-top: 20px;
+    h6 {
+      color: @white;
+      margin-left: 5px;
+    }
   }
 
   .map-editor {

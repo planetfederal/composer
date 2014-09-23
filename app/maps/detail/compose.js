@@ -17,6 +17,7 @@ angular.module('gsApp.maps.compose', [
     'olMapService',
     function($scope, $stateParams, GeoServer, $timeout, $log, olMapService) {
       var wsName = $stateParams.workspace;
+      $scope.workspace = wsName;
       var name = $stateParams.name;
 
       GeoServer.map.get(wsName, name).then(function(result) {
@@ -40,6 +41,7 @@ angular.module('gsApp.maps.compose', [
           layers.forEach(function(layer, i) {
             $scope.visibleMapLayers[i] = layer.getVisible();
           });
+          $scope.numLayers = layers.getLength();
         }, 300);
       });
 
