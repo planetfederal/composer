@@ -3,6 +3,7 @@ package org.opengeo.app;
 import org.geotools.styling.ColorMapEntry;
 import org.geotools.styling.Mark;
 import org.geotools.styling.Symbol;
+import org.geotools.styling.TextSymbolizer2;
 import org.opengis.metadata.citation.OnLineResource;
 import org.opengis.style.AnchorPoint;
 import org.opengis.style.ChannelSelection;
@@ -67,20 +68,35 @@ abstract class StyleAdaptor implements StyleVisitor {
 
     @Override
     public Object visit(PointSymbolizer ps, Object data) {
-        if (ps.getDescription() != null) {
-            data = ps.getDescription().accept(this,data);
-        }
+        data = safeVisit( ps.getDescription(), data );
         if (ps.getGraphic() != null) {
             data = ps.getGraphic().accept(this,data);
         }
         return data;
     }
-
-    @Override
-    public Object visit(LineSymbolizer line, Object data) {
-        if (line.getDescription() != null) {
-            data = line.getDescription().accept(this,data);
+   /**
+    * Null safe visit (which avoids DescriptionImpl return null).
+    * 
+    * @param description
+    * @param data
+    * @return
+    */
+    private Object safeVisit( Description description, Object data ){
+        if( description == null ){
+            return data;
         }
+        Object update = description.accept( this, data );
+        if( update == null ){
+            // DescriptionImpl is not implemented correctly
+            return this.visit( description, data );
+        }
+        else {
+            return update;
+        }
+    }
+    @Override
+    public Object visit(LineSymbolizer line, Object data) {        
+        data = safeVisit(line.getDescription(), data);
         if (line.getStroke() != null) {
             data = line.getStroke().accept(this,data);
         }
@@ -89,9 +105,7 @@ abstract class StyleAdaptor implements StyleVisitor {
 
     @Override
     public Object visit(PolygonSymbolizer poly, Object data) {
-        if (poly.getDescription() != null) {
-            data = poly.getDescription().accept(this,data);
-        }
+        data = safeVisit( poly.getDescription(), data );
         if (poly.getDisplacement() != null) {
             data = poly.getDisplacement().accept(this,this);
         }
@@ -106,9 +120,7 @@ abstract class StyleAdaptor implements StyleVisitor {
 
     @Override
     public Object visit(TextSymbolizer text, Object data) {
-        if (text.getDescription() != null) {
-            data = text.getDescription().accept(this,data);
-        }
+        data = safeVisit( text.getDescription(), data );
         if (text.getFill() != null) {
             data = text.getFill().accept(this,data);
         }
@@ -121,11 +133,15 @@ abstract class StyleAdaptor implements StyleVisitor {
         if (text.getLabelPlacement() != null) {
             data = text.getLabelPlacement().accept(this,data);
         }
+        if( text instanceof TextSymbolizer2 && ((TextSymbolizer2)text).getGraphic() != null ){
+            data = ((TextSymbolizer2)text).getGraphic().accept(this,data);
+        }
         return data;
     }
 
     @Override
     public Object visit(RasterSymbolizer raster, Object data) {
+        data = safeVisit( raster.getDescription(), data );
         if (raster.getChannelSelection() != null) {
             data = raster.getChannelSelection().accept(this,data);
         }
@@ -134,9 +150,6 @@ abstract class StyleAdaptor implements StyleVisitor {
         }
         if (raster.getContrastEnhancement() != null) {
             data = raster.getContrastEnhancement().accept(this,data);
-        }
-        if (raster.getDescription() != null) {
-            data = raster.getDescription().accept(this,data);
         }
         if (raster.getImageOutline() != null) {
             data = raster.getImageOutline().accept(this,data);
@@ -149,9 +162,7 @@ abstract class StyleAdaptor implements StyleVisitor {
 
     @Override
     public Object visit(ExtensionSymbolizer extension, Object data) {
-        if (extension.getDescription() != null) {
-            data = extension.getDescription().accept(this,data);
-        }
+        data = safeVisit( extension.getDescription(), data );
         return data;
     }
 

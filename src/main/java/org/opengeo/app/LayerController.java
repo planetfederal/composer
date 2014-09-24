@@ -2,9 +2,15 @@ package org.opengeo.app;
 
 import static org.geoserver.catalog.Predicates.equal;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -28,10 +35,14 @@ import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
 import org.geotools.feature.NameImpl;
 import org.geotools.styling.AbstractStyleVisitor;
+import org.geotools.styling.DefaultResourceLocator;
+import org.geotools.styling.ResourceLocator;
 import org.geotools.styling.Style;
+import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.KVP;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
@@ -99,19 +110,38 @@ public class LayerController extends AppController {
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.GET, produces = YsldHandler.MIMETYPE)
     public @ResponseBody Object style(@PathVariable String wsName, @PathVariable String name)
         throws IOException {
-        LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
+        Catalog cat = geoServer.getCatalog();
+        LayerInfo l = findLayer(wsName, name, cat);
         StyleInfo s = l.getDefaultStyle();
         if (s == null) {
             throw new NotFoundException(String.format("Layer %s:%s has no default style", wsName, name));
         }
 
-        // if the style is already stored in Ysld format just pull it directly, otherwise encode the style
+        // if the style is already stored in ySLD format just pull it directly, otherwise encode the style
         if (YsldHandler.FORMAT.equalsIgnoreCase(s.getFormat())) {
             return dataDir().style(s);
         }
-        else {
-            Style style = s.getStyle();
-            return Styles.sld(style);
+        else {            
+            GeoServerResourceLoader rl = cat.getResourceLoader();
+            GeoServerDataDirectory dd = new GeoServerDataDirectory(rl);
+            final Resource r = dd.style(s);
+            
+            // Similar to s.getStyle() and GeoServerDataDirectory.parsedStyle(s)
+            // But avoid resolving external graphics to absolute file references 
+            if ( r.getType() == Type.UNDEFINED ){
+                throw new IOException( "No such resource: " + s.getFilename());
+            }
+            // Force use of unmodified URI, avoiding absolute file references
+            ResourceLocator locator = new ResourceLocator(){
+                public URL locateResource(String spec) {
+                    return null;
+                }
+            };            
+            StyleHandler handler = Styles.handler(s.getFormat());
+            StyledLayerDescriptor sld = handler.parse(r, s.getFormatVersion(), locator, null);
+            
+            final Style style = Styles.style(sld); // extract 1st style
+            return Styles.sld(style);              // encode in generated SLD
         }
     }
 
@@ -157,6 +187,9 @@ public class LayerController extends AppController {
                     URI uri = resource.getLinkage();
                     if (uri != null) {
                         String filename = Files.filename(uri.getPath());
+                        if( data == null ){
+                            data = new HashSet<String>();
+                        }
                         if (filename != null) {
                             ((Set<String>) data).add(filename);
                         }
@@ -182,10 +215,13 @@ public class LayerController extends AppController {
             if( !ICON_FORMATS.containsKey(ext.toLowerCase())){
                 continue;
             }
-            arr.addObject().put("name",n).
+            Object format = ICON_FORMATS.get(ext.toLowerCase());
+            JSONObj item = arr.addObject().put("name",n).
                put("format",ext).
-               put("mime",ICON_FORMATS.get(ext.toLowerCase())).
-               put("used", referenced.contains(name));
+               put("mime",format);
+            if( referenced.contains(n)){
+               item.put("used", true );
+            }
         }
         return arr;
     }
