@@ -74,8 +74,17 @@ angular.module('gsApp.core.backend',[])
         // Stubbing in for now
         datastores: {
           get: function() {
-            var l = '{"datastores": [{"workspace": "i_am_a_stub", "store": "med_shp", "type": "shp", "source": "72.45.34.23/mnt/vol2/dataset1/ne/", "description": "directory of spatial files (shp)", "srs": "EPSG:4326"}]}';
-            return JSON.parse(l);
+            return {
+              'datastores': [{
+                'workspace': 'i_am_a_stub',
+                'store': 'med_shp',
+                'type': 'shp',
+                'source':  '72.45.34.23/mnt/vol2/dataset1/ne/',
+                'description':
+                'directory of spatial files (shp)',
+                'srs': 'EPSG:4326'
+              }]
+            };
           }
         },
 
