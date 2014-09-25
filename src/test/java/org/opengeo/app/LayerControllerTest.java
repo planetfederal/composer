@@ -4,7 +4,10 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import org.apache.commons.io.IOUtils;
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.SLDHandler;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerExtensions;
@@ -17,6 +20,9 @@ import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.ysld.Ysld;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -262,7 +268,40 @@ public class LayerControllerTest {
         assertNotNull(arr.object(0).get("problem"));
         assertNotNull(arr.object(0).get("line"));
         assertNotNull(arr.object(0).get("column"));
+    }
 
+    @Test
+    public void testDelete() throws Exception {
+        GeoServer gs = MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true)
+                .layer("one").info("The layer", "This layer is cool!")
+                .geoServer().build(geoServer);
+
+        mvc.perform(delete("/backend/layers/foo/one"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        Catalog cat = geoServer.getCatalog();
+        verify(cat, times(1)).remove(isA(LayerInfo.class));
+    }
+
+    @Test
+    public void testPut() throws Exception {
+        GeoServer gs = MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true)
+                .layer("one").info("The layer", "This layer is cool!")
+                .featureType().defaults()
+                .geoServer().build(geoServer);
+
+        JSONObj obj = new JSONObj().put("title", "new title");
+        MockHttpServletRequestBuilder req = put("/backend/layers/foo/one")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+
+        LayerInfo l = gs.getCatalog().getLayerByName("foo:one");
+        verify(l, times(1)).setTitle("new title");
     }
 
     String toString(Resource r) {

@@ -18,8 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.util.file.Files;
+import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
@@ -33,6 +35,9 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.ResourceLocator;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
@@ -41,8 +46,11 @@ import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
 import org.opengis.metadata.citation.OnLineResource;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -100,6 +108,66 @@ public class LayerController extends AppController {
     public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name) {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
         return IO.layer(new JSONObj(), l);
+    }
+
+    @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.DELETE)
+    public @ResponseBody void delete(@PathVariable String wsName, @PathVariable String name) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        LayerInfo layer = findLayer(wsName, name, cat);
+        new CascadeDeleteVisitor(cat).visit(layer);
+    }
+
+    @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PATCH)
+    public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+        return  put(wsName, name, obj);
+    }
+
+    @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+
+        LayerInfo layer = findLayer(wsName, name, cat);
+        ResourceInfo resource = layer.getResource();
+
+        for (String prop : obj.keys()) {
+            if ("title".equals(prop)) {
+                layer.setTitle(obj.str("title"));
+            }
+            else if ("description".equals(prop)) {
+                layer.setAbstract(obj.str("description"));
+            }
+            else if ("bbox".equals(prop)) {
+                JSONObj bbox = obj.object("bbox");
+                if (bbox.has("native")) {
+                    resource.setNativeBoundingBox(
+                        new ReferencedEnvelope(IO.bounds(bbox.object("native")), resource.getCRS()));
+                }
+                if (bbox.has("lonlat")) {
+                    resource.setNativeBoundingBox(
+                        new ReferencedEnvelope(IO.bounds(bbox.object("lonlat")), DefaultGeographicCRS.WGS84));
+                }
+            }
+            else if ("proj".equals(prop)) {
+                JSONObj proj = obj.object("proj");
+                if (!proj.has("srs")) {
+                    throw new BadRequestException("proj property must contain a 'srs' property");
+                }
+
+                String srs = proj.str("srs");
+                try {
+                    CRS.decode(srs);
+                } catch (Exception e) {
+                    throw new BadRequestException("Unknown spatial reference identifier: " + srs);
+                }
+
+                resource.setSRS(srs);
+            }
+        }
+
+        cat.save(resource);
+        cat.save(layer);
+
+        return get(wsName, name);
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.GET, produces = YsldHandler.MIMETYPE)
