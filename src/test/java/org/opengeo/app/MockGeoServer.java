@@ -8,6 +8,9 @@ import com.vividsolutions.jts.geom.Envelope;
 
 
 
+
+
+
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
@@ -38,6 +41,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Rule;
+import org.geotools.styling.SLDTransformer;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
 import org.mockito.invocation.InvocationOnMock;
@@ -45,6 +49,7 @@ import org.mockito.stubbing.Answer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.annotation.Nullable;
+import javax.xml.transform.TransformerException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -93,7 +98,7 @@ public class MockGeoServer {
     }
 
     public class ResourcesBuilder extends  Builder {
-        
+       
         List<String> paths;
         ResourceStore resourceStore;
         CatalogBuilder catalogBuilder;
@@ -601,6 +606,21 @@ public class MockGeoServer {
             try {
                 when(this.style.getStyle()).thenReturn(style);
             } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            ResourcesBuilder resources = geoServer().catalog().resources();
+            String wsName = layerBuilder.workspaceBuilder.namespace.getName();
+            String fileName = "point.sld";
+            when(this.style.getFilename() ).thenReturn(fileName );
+            when(this.style.getWorkspace() ).thenReturn( layerBuilder.workspaceBuilder.workspace );
+            when(this.style.getFormat()).thenReturn("sld");
+            ByteArrayOutputStream content = new ByteArrayOutputStream();
+            SLDTransformer tx = new SLDTransformer();
+            tx.setIndentation(2);
+            try {
+                tx.transform( style, content );
+                resources.resource(Paths.path("workspaces",wsName,"styles",fileName), content.toString() );
+            } catch (TransformerException e) {
                 throw new RuntimeException(e);
             }
             return this;

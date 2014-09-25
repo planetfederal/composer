@@ -4,6 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
 import org.apache.commons.io.IOUtils;
+import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerExtensions;
@@ -53,8 +54,9 @@ public class LayerControllerTest {
     @Before
     public void setUpAppContext() {
         WebApplicationContext appContext = mock(WebApplicationContext.class);
-        when(appContext.getBeanNamesForType(StyleHandler.class)).thenReturn(new String[]{"ysldHandler"});
+        when(appContext.getBeanNamesForType(StyleHandler.class)).thenReturn(new String[]{"ysldHandler","sldHandler"});
         when(appContext.getBean("ysldHandler")).thenReturn(new YsldHandler());
+        when(appContext.getBean("sldHandler")).thenReturn(new SLDHandler());
 
         new GeoServerExtensions().setApplicationContext(appContext);
     }

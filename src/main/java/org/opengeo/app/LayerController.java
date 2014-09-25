@@ -123,12 +123,18 @@ public class LayerController extends AppController {
         }
         else {            
             GeoServerResourceLoader rl = cat.getResourceLoader();
-            GeoServerDataDirectory dd = new GeoServerDataDirectory(rl);
-            final Resource r = dd.style(s);
+            String path;
+            if( s.getWorkspace() == null ){
+                path = Paths.path("styles",s.getFilename());
+            }
+            else {
+                path = Paths.path("workspaces",s.getWorkspace().getName(),"styles",s.getFilename());
+            }
+            final Resource r = rl.get(path);
             
             // Similar to s.getStyle() and GeoServerDataDirectory.parsedStyle(s)
             // But avoid resolving external graphics to absolute file references 
-            if ( r.getType() == Type.UNDEFINED ){
+            if ( r == null || r.getType() == Type.UNDEFINED ){
                 throw new IOException( "No such resource: " + s.getFilename());
             }
             // Force use of unmodified URI, avoiding absolute file references
