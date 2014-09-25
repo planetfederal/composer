@@ -1,7 +1,7 @@
 /*global document, ZeroClipboard, $ */
 angular.module('gsApp.olmap', [])
-.factory('MapFactory', ['GeoServer', '$log',
-    function(GeoServer, $log) {
+.factory('MapFactory', ['GeoServer', '$log', 'olMapService',
+    function(GeoServer, $log, olMapService) {
       return {
         createMap: function(layers, element, options) {
           var requestedlayersList = layers[0].layers;
@@ -37,6 +37,39 @@ angular.module('gsApp.olmap', [])
               $(scaleControl).text().split(' : ')[1]);
           });
 
+          var extentControl = document.createElement('div');
+          extentControl.setAttribute('class', 'ol-zoom');
+
+          // Copy bounds button
+          var boundsControl = document.createElement('div');
+          var boundsButton = document.createElement('button');
+          boundsButton.setAttribute('onmouseover',
+            'window.boundsTip(this);');
+          boundsButton.setAttribute('onclick',
+            'window.boundsTip(this, true);');
+          boundsControl.appendChild(boundsButton);
+          boundsControl.setAttribute('class',
+            'bounds ol-unselectable ol-control');
+          var controlOptions = {};
+          ol.control.Control.call(this, {
+            element: boundsControl,
+            target: controlOptions.target
+          });
+          ol.inherits(boundsControl, ol.control.Control);
+
+          var boundsClip = new ZeroClipboard(boundsButton);
+          boundsClip.on('copy', function (event) {
+            var clipboard = event.clipboardData;
+            var map = olMapService.map;
+            var extent = map.getView().calculateExtent(map.getSize());
+            clipboard.setData('text/plain', extent.toString());
+          });
+
+          // initial extent
+          var bbox = l.bbox.native;
+          var extent = [bbox.west,bbox.south,bbox.east,bbox.north];
+          var size = [element.width(),element.height()];
+
           var mapOpts = {
             view: new ol.View({
               center: l.bbox.native.center,
@@ -46,17 +79,15 @@ angular.module('gsApp.olmap', [])
             controls: new ol.control.defaults({
               attribution: false
             }).extend([
-              new ol.control.Control({element: scaleControl})
+              new ol.control.Control({element: scaleControl}),
+              new ol.control.ZoomToExtent({element: extentControl,
+                extent: extent }),
+              new ol.control.Control({element: boundsControl})
             ])
           };
           mapOpts = angular.extend(mapOpts, options || {});
 
           var map = new ol.Map(mapOpts);
-
-          // set initial extent
-          var bbox = l.bbox.native;
-          var extent = [bbox.west,bbox.south,bbox.east,bbox.north];
-          var size = [element.width(),element.height()];
 
           map.getView().on('change:resolution', function(evt) {
             var res = evt.target.get('resolution');
@@ -73,8 +104,9 @@ angular.module('gsApp.olmap', [])
       };
     }])
 .directive('olMap', ['$timeout', 'MapFactory', 'GeoServer', '$log',
-  'olMapService',
-    function($timeout, MapFactory, GeoServer, $log, olMapService) {
+  'olMapService', '$window',
+    function($timeout, MapFactory, GeoServer, $log, olMapService,
+      $window) {
       return {
         restrict: 'EA',
         scope: {
@@ -103,6 +135,29 @@ angular.module('gsApp.olmap', [])
 
             $scope.map = map;
           });
+
+          // tooltip for bounds button
+          // OL Tooltips not possible:
+          // https://github.com/zeroclipboard/zeroclipboard/issues/369
+          var boundsTipTimer = null;
+          var tip = document.createElement('span');
+          tip.setAttribute('class', 'b-tooltip');
+          tip.innerHTML = ' Copy bounds ';
+
+          var copiedTip = document.createElement('span');
+          copiedTip.setAttribute('class', 'b-tooltip');
+          copiedTip.innerHTML = ' Bounds copied to clipboard ';
+
+          $window.boundsTip = function(el, copied) {
+            var tipType = copied? copiedTip : tip;
+            if (boundsTipTimer === null) {
+              el.parentNode.appendChild(tipType);
+              boundsTipTimer = $timeout(function() {
+                el.parentNode.removeChild(tipType);
+                boundsTipTimer = null;
+              }, 900);
+            }
+          };
 
           $scope.$on('olmap-refresh', function() {
             $scope.map.getLayers().getArray().forEach(function(l) {
