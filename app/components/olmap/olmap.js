@@ -65,6 +65,10 @@ angular.module('gsApp.olmap', [])
             clipboard.setData('text/plain', extent.toString());
           });
 
+          boundsClip.on('aftercopy', function(event) {
+            boundsButton.onclick();
+          });
+
           // initial extent
           var bbox = l.bbox.native;
           var extent = [bbox.west,bbox.south,bbox.east,bbox.north];
@@ -147,13 +151,21 @@ angular.module('gsApp.olmap', [])
           var copiedTip = document.createElement('span');
           copiedTip.setAttribute('class', 'b-tooltip');
           copiedTip.innerHTML = ' Bounds copied to clipboard ';
+          var currentTip;
 
           $window.boundsTip = function(el, copied) {
             var tipType = copied? copiedTip : tip;
+            if (copied) {
+              el.parentNode.removeChild(currentTip);
+              boundsTipTimer = null;
+            }
             if (boundsTipTimer === null) {
               el.parentNode.appendChild(tipType);
+              currentTip = tipType;
               boundsTipTimer = $timeout(function() {
-                el.parentNode.removeChild(tipType);
+                if (tipType.parentNode == el.parentNode) {
+                  el.parentNode.removeChild(tipType);
+                }
                 boundsTipTimer = null;
               }, 900);
             }
