@@ -1,5 +1,7 @@
 angular.module('gsApp.sidenav', [
-  'gsApp.workspaces.workspace', 'ui.bootstrap',
+  'gsApp.workspaces.workspace',
+  'ui.bootstrap',
+  'gsApp.olmap'
 ])
 .directive('sidenav', function() {
     return {
@@ -9,9 +11,10 @@ angular.module('gsApp.sidenav', [
       replace: true
     };
   })
-.controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer', 'AppEvent',
-  '$state', '$log',
-  function($scope, $rootScope, GeoServer, AppEvent, $state, $log) {
+.controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer',
+  'AppEvent','$state', '$log', 'olMapService', '$timeout',
+  function($scope, $rootScope, GeoServer, AppEvent, $state, $log,
+    olMapService, $timeout) {
 
     GeoServer.workspaces.get().$promise.then(function(workspaces) {
       workspaces.filter(function(ws) {
@@ -20,6 +23,17 @@ angular.module('gsApp.sidenav', [
 
       $scope.workspaces = workspaces;
     });
+
+    // Update map 550 ms after sidebar is resized
+    var mapsizeTimer = null;
+    $scope.updateMapSize = function() {
+      if (mapsizeTimer === null) {
+        mapsizeTimer = $timeout(function() {
+          olMapService.updateMapSize();
+          mapsizeTimer = null;
+        }, 450);
+      }
+    };
 
     $scope.onWorkspaceClick = function(workspace, detail) {
       if (detail) {

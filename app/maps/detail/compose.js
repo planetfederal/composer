@@ -15,7 +15,8 @@ angular.module('gsApp.maps.compose', [
 .controller('MapComposeCtrl',
     ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log',
     'olMapService',
-    function($scope, $stateParams, GeoServer, $timeout, $log, olMapService) {
+    function($scope, $stateParams, GeoServer, $timeout, $log,
+      olMapService) {
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;

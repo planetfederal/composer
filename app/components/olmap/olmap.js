@@ -40,7 +40,7 @@ angular.module('gsApp.olmap', [])
           var extentControl = document.createElement('div');
           extentControl.setAttribute('class', 'ol-zoom');
 
-          // Copy bounds button
+          // Get bounds button
           var boundsControl = document.createElement('div');
           var boundsButton = document.createElement('button');
           boundsButton.setAttribute('onmouseover',
@@ -187,8 +187,12 @@ angular.module('gsApp.olmap', [])
     this.updateMap = function(map) {
       this.map = map;
     };
+    this.updateMapSize = function() {
+      this.map.updateSize();
+    };
     return {
       map: map,
-      updateMap: this.updateMap
+      updateMap: this.updateMap,
+      updateMapSize: this.updateMapSize
     };
   }]);
