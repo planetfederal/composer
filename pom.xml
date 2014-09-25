@@ -201,6 +201,12 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
 
 
     <!-- Jetty test deps so that we can start GeoServer from an IDE as well -->

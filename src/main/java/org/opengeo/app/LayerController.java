@@ -2,15 +2,10 @@ package org.opengeo.app;
 
 import static org.geoserver.catalog.Predicates.equal;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLStreamHandler;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -31,15 +26,13 @@ import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
-import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.importer.Importer;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
-import org.geotools.feature.NameImpl;
-import org.geotools.styling.AbstractStyleVisitor;
-import org.geotools.styling.DefaultResourceLocator;
+
 import org.geotools.styling.ResourceLocator;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
@@ -48,7 +41,6 @@ import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
 import org.opengis.metadata.citation.OnLineResource;
-import org.opengis.style.ExternalGraphic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -69,9 +61,12 @@ public class LayerController extends AppController {
 
     static Logger LOG = Logging.getLogger(LayerController.class);
 
+    Importer importer;
+
     @Autowired
-    public LayerController(GeoServer geoServer) {
+    public LayerController(GeoServer geoServer, Importer importer) {
         super(geoServer);
+        this.importer = importer;
     }
 
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
@@ -318,21 +313,5 @@ public class LayerController extends AppController {
             tryName = name + String.valueOf(i);
         }
         throw new RuntimeException("Unable to find unique name for style");
-    }
-
-    WorkspaceInfo findWorkspace(String wsName, Catalog cat) {
-        WorkspaceInfo ws = cat.getWorkspaceByName(wsName);
-        if (ws == null) {
-            throw new NotFoundException(String.format("No such workspace %s", wsName));
-        }
-        return ws;
-    }
-
-    LayerInfo findLayer(String wsName, String name, Catalog cat) {
-        LayerInfo l = cat.getLayerByName(new NameImpl(wsName, name));
-        if (l == null) {
-            throw new NotFoundException(String.format("No such layer %s:%s", wsName, name));
-        }
-        return l;
     }
 }

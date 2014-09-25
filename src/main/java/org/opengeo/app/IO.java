@@ -94,6 +94,15 @@ public class IO {
     }
 
     /**
+     * Decodes a bounding box within the specified object.
+     *
+     * @return The object passed in.
+     */
+    public static Envelope bounds(JSONObj obj) {
+        return new Envelope(obj.doub("west"), obj.doub("east"), obj.doub("south"), obj.doub("north"));
+    }
+
+    /**
      * Encodes a layer within the specified object.
      *
      * @return The object passed in.
