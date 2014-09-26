@@ -149,4 +149,18 @@ public class WorkspaceControllerTest {
         WorkspaceInfo ws = cat.getWorkspaceByName("foo");
         verify(ws, times(1)).setName("blah");
     }
+
+    @Test
+    public void testDelete() throws Exception {
+        MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true).catalog()
+            .geoServer().build(geoServer);
+
+        mvc.perform(delete("/backend/workspaces/foo"))
+            .andExpect(status().isOk())
+            .andReturn();
+
+        Catalog cat = geoServer.getCatalog();
+        verify(cat, times(1)).remove(isA(WorkspaceInfo.class));
+    }
 }

@@ -1,5 +1,6 @@
 package org.opengeo.app;
 
+import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
@@ -142,6 +143,14 @@ public class WorkspaceController extends AppController {
         }
 
         return IO.workspace(new JSONObj(), ws, ns, isDefault == Boolean.TRUE);
+    }
+
+    @RequestMapping(value = "/{wsName}", method = RequestMethod.DELETE)
+    public void delete(@PathVariable String wsName) {
+        Catalog cat = geoServer.getCatalog();
+
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
+        new CascadeDeleteVisitor(cat).visit(ws);
     }
 
 }
