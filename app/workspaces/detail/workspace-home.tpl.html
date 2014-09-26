@@ -49,7 +49,7 @@
             <ul class="list-unstyled stores-list">
               <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
                 <div class="icon-column">
-                  <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.type=='shp', 'fa fa-database fa-md': ds.type=='postgis'}"></i></h3>
+                  <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.type=='shp', 'fa fa-database fa-md': ds.type=='postgis', 'fa fa-th fa-md': ds.type=='raster'}"></i></h3>
                   <p class="datastore-label">{{ ds.type }}</p>
                 </div>
                 <div class="info-column">

@@ -95,6 +95,6 @@ angular.module('gsApp.workspaces.workspace', [
         $scope.selectedStore = store;
         $scope.selectedStore.imported = store.layers_imported.length;
         $scope.selectedStore.unimported = store.layers_unimported.length;
-      }
+      };
 
     }]);

@@ -3,21 +3,55 @@ angular.module('gsApp.olmap', [])
 .factory('MapFactory', ['GeoServer', '$log', 'olMapService',
     function(GeoServer, $log, olMapService) {
       return {
-        createMap: function(layers, element, options) {
-          var requestedlayersList = layers[0].layers;
-          var mapLayers = [];
+        updateMap: function(layers) {
+          var requestedlayers = layers[0].layers;
+          var rLayers = '';
+          var rWorkspace = layers[0].workspace;
 
-          for (var k=requestedlayersList.length-1; k >= 0; k--) {
-            var ll = requestedlayersList[k];
-            mapLayers.push(new ol.layer.Image({
-              source: new ol.source.ImageWMS({
-                url: GeoServer.baseUrl()+'/'+ll.workspace+'/wms',
-                params: {'LAYERS': ll.name, 'VERSION': '1.1.1'},
-                serverType: 'geoserver'
-              }),
-              name: ll.name
-            }));
+          if (requestedlayers.length ===
+              olMapService.getRLayers().length) {
+            return; // no change
           }
+
+          for (var k=requestedlayers.length-1; k >= 0; k--) {
+            var ll = requestedlayers[k];
+            if (ll.visible) {
+              olMapService.addRLayer(ll);
+              rLayers += (rWorkspace + ':' + ll.name + ',');
+            }
+          }
+          // trim last comma
+          rLayers = rLayers.substring(0, rLayers.length-1);
+
+          var mapLayer = new ol.layer.Image({
+              source: new ol.source.ImageWMS({
+                url: GeoServer.baseUrl()+'/'+rWorkspace+'/wms',
+                params: {'LAYERS': rLayers, 'VERSION': '1.1.1'},
+                serverType: 'geoserver',
+              })
+            });
+          var map = olMapService.map;
+          map.addLayer(mapLayer);
+          map.removeLayer(map.getLayers().item(0));
+        },
+        createMap: function(layers, element, options) {
+
+          var requestedlayers = layers[0].layers;
+          for (var k=requestedlayers.length-1; k >= 0; k--) {
+            var ll = requestedlayers[k];
+            if (ll.visible) {
+              olMapService.addRLayer(ll);
+            }
+          }
+          var mapLayers = layers.map(function(l) {
+            return new ol.layer.Image({
+              source: new ol.source.ImageWMS({
+                url: GeoServer.baseUrl()+'/'+l.workspace+'/wms',
+                params: {'LAYERS': l.name, 'VERSION': '1.1.1'},
+                serverType: 'geoserver',
+              })
+            });
+          });
 
           // determine projection from first layer
           var l = layers[0];
@@ -120,6 +154,7 @@ angular.module('gsApp.olmap', [])
         },
         templateUrl: '/components/olmap/olmap.tpl.html',
         controller: function($scope, $element) {
+
           $scope.$watch('layers', function(newVal) {
             if (newVal == null) {
               return;
@@ -139,6 +174,14 @@ angular.module('gsApp.olmap', [])
 
             $scope.map = map;
           });
+
+          $scope.$watch('layers', function(newVal) {
+            if (newVal == null) {
+              return;
+            }
+            MapFactory.updateMap($scope.layers, $element);
+
+          }, true); // deep watch
 
           // tooltip for bounds button
           // OL Tooltips not possible:
@@ -183,7 +226,7 @@ angular.module('gsApp.olmap', [])
       };
     }])
 .service('olMapService', [function() {
-    var map;
+    var map, rLayers = []; // requested layers
     this.updateMap = function(map) {
       this.map = map;
     };
@@ -192,9 +235,25 @@ angular.module('gsApp.olmap', [])
         this.map.updateSize();
       }
     };
+    this.getRLayers = function() {
+      return rLayers;
+    };
+    this.addRLayer = function(layer) {
+      rLayers.push(layer);
+    };
+    this.removeLayer = function(layer) {
+      rLayers.forEach(function(l, i) {
+        if (layer.name == l.name) {
+          rLayers.splice(i, 1);
+        }
+      });
+    };
     return {
       map: map,
       updateMap: this.updateMap,
-      updateMapSize: this.updateMapSize
+      updateMapSize: this.updateMapSize,
+      getRLayers: this.getRLayers,
+      addRLayer: this.addRLayer,
+      removeLayer: this.removeLayer
     };
   }]);

@@ -31,33 +31,39 @@ angular.module('gsApp.maps.compose', [
             native: map.bbox
           }
         })];
+
+        $scope.layers[0].layers.forEach(function(layer, i) {
+          layer.visible = true;
+        });
+
         $scope.proj = map.srs;
         $scope.center = map.bbox.center;
         $scope.visibleMapLayers = [];
 
         // wait for map to load
         $timeout(function() {
-          $scope.olMap = olMapService.map;
-          var layers = $scope.olMap.getLayers();
+          var layers = olMapService.getRLayers();
           layers.forEach(function(layer, i) {
-            $scope.visibleMapLayers[i] = layer.getVisible();
+            $scope.visibleMapLayers[i] = true;
           });
-          $scope.numLayers = layers.getLength();
+          $scope.numLayers = layers.length;
         }, 300);
       });
 
       // for checkboxes in Layers list
       $scope.toggleVisibility = function(l, index) {
-        var layers = $scope.olMap.getLayers();
+        var layers = $scope.layers[0].layers;
         var toggledLayer;
         angular.forEach(layers, function(layer, key) {
-          if (layer.getProperties().name === l.name) {
+          if (layer.name === l.name) {
             toggledLayer = layer;
+            layer.visible = !layer.visible;
+            olMapService.removeLayer(layer);
             return;
           }
         });
-        toggledLayer.setVisible($scope.visibleMapLayers[index] =
-         !$scope.visibleMapLayers[index]);
+        $scope.visibleMapLayers[index] =
+          !$scope.visibleMapLayers[index];
       };
 
       $scope.toggle = true;
