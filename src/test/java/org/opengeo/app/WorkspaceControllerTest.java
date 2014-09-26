@@ -52,9 +52,11 @@ public class WorkspaceControllerTest {
         JSONObj obj = arr.object(0);
         assertEquals("foo", obj.str("name"));
         assertTrue(obj.bool("default"));
+        assertEquals("http://scratch.org", obj.str("uri"));
 
         obj = arr.object(1);
         assertEquals("bar", obj.str("name"));
         assertFalse(obj.bool("default"));
+        assertEquals("http://bar.org", obj.str("uri"));
     }
 }

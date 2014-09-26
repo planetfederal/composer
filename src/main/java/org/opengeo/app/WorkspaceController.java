@@ -1,6 +1,7 @@
 package org.opengeo.app;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
@@ -28,9 +29,11 @@ public class WorkspaceController extends AppController {
 
         WorkspaceInfo def = cat.getDefaultWorkspace();
         if (def != null) {
+           NamespaceInfo ns = namespaceFor(def);
            arr.addObject()
               .put("name", def.getName())
-              .put("default", true);
+              .put("default", true)
+              .put("uri", ns.getURI());
         }
 
         CloseableIterator<WorkspaceInfo> list = cat.list(WorkspaceInfo.class, Predicates.acceptAll());
@@ -41,9 +44,12 @@ public class WorkspaceController extends AppController {
                 if (def != null && ws.getName().equals(def.getName())) {
                     continue;
                 }
+
+                NamespaceInfo ns = namespaceFor(ws);
                 arr.addObject()
                    .put("name", ws.getName())
-                   .put("default", false);
+                   .put("default", false)
+                   .put("uri", ns.getURI());
             }
         }
         finally {
