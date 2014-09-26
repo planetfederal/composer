@@ -62,7 +62,7 @@ angular.module('gsApp.workspaces.workspace', [
               map.layergroupname, 250, 250);
             var srs = '&srs=' + map.proj.srs;
 
-            $scope.thumbnails[map.name] = baseUrl + url + bbox +
+            $scope.thumbnails[map.name] = url + bbox +
               '&format=image/png' + srs;
           }
         });
