@@ -30,15 +30,28 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.mvc.Controller;
 
 import javax.annotation.Nullable;
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -68,10 +81,9 @@ public class LayerControllerTest {
     }
 
     @Before
-    public void setUpMVC() {
+    public void setUpUpContextAndMVC() {
         MockitoAnnotations.initMocks(this);
-
-        mvc = MockMvcBuilders.standaloneSetup(ctrl)
+        mvc = MockMvcBuilders.standaloneSetup( ctrl )
             .setMessageConverters(
                 new JSONMessageConverter(), new ResourceMessageConverter(),
                 new YsldMessageConverter(), new ByteArrayHttpMessageConverter())
