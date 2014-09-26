@@ -198,7 +198,8 @@ angular.module('gsApp.olmap', [])
 
           $window.boundsTip = function(el, copied) {
             var tipType = copied? copiedTip : tip;
-            if (copied) {
+            if (copied &&
+              el.parentNode == currentTip.parentNode) {
               el.parentNode.removeChild(currentTip);
               boundsTipTimer = null;
             }
