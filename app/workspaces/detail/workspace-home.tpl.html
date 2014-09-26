@@ -1,9 +1,10 @@
 <div>
   <div class="container-fluid">
     <h3 class="section-title"><i class="icon-lg icon-folder-open"></i> {{ title }}</h3>
-    <tabset>
+    <tabset class="maps-data-tabs">
       <tab heading="Maps" active="tabs.maps">
         <h3>Maps</h3>
+        <p>{{ maps.length }} map<span ng-if="maps.length > 1">s</span>
         <div ng-repeat="map in maps" class="map-summary">
           <div class="row" ng-if="$index % 2 == 0">
             <div class="col-sm-6">
@@ -34,8 +35,59 @@
         </div>
       </tab>
       <tab heading="Data" active="tabs.data">
-        <h3>Datastores</h3>
-          <div class="data-table" ng-grid="gridOptions"></div>
+        <h3>Data Stores</h3>
+        <p>
+          <strong>{{ datastores.length }}</strong> data store<span ng-if="datastores.length > 1">s</span> in <strong>{{ workspace }}</strong>
+          <span class="data-store-crud">
+            <i class="fa fa-plus circular-icon"></i>
+            <i class="fa fa-minus circular-icon"></i>
+            <i class="fa fa-gear circular-icon"></i>
+          </span>
+        </p>
+        <div class="row datastores">
+          <div class="col-sm-6">
+            <ul class="list-unstyled stores-list">
+              <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
+                <div class="icon-column">
+                  <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.type=='shp', 'fa fa-database fa-md': ds.type=='postgis'}"></i></h3>
+                  <p class="datastore-label">{{ ds.type }}</p>
+                </div>
+                <div class="info-column">
+                  <p><strong>Store:</strong> {{ ds.name }}</p>
+                  <p><strong>Source:</strong> {{ ds.source }}</p>
+                  <p><strong>Description:</strong> {{ ds.description }}</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="col-sm-6">
+            <div>
+              <p class="x-imported">
+                <span style="float:left;" ng-if="selectedStore"><strong>Imported:</strong> {{ selectedStore.imported}} Layers</span>
+                <span style="float:right;" ng-if="selectedStore">{{ selectedStore.unimported }} more available</span>
+              </p>
+              <div class="imports">
+                <ul class="list-unstyled">
+                  <li class="layer_imported" ng-repeat="imported_layer in selectedStore.layers_imported">
+                    <div class="img_placeholder"></div>
+                    <div class="layer_info">
+                      <div class="info"><strong>Name:</strong> {{ imported_layer }}</div>
+                      <div class="info"><strong>Title:</strong>  {{ imported_layer }}</div>
+                      <div class="info"><strong>Type:</strong>  {{ imported_layer }}</div>
+                    </div>
+                    <div class="srs_info">
+                      <div class="label">SRS</div>
+                      <div class="label">EPSG:4326</div>
+                      <div class="attr_info">
+                        <i class="fa fa-list-alt fa-lg"></i> <span class="label">View Attributes</span>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </tab>
     </tabset>
   </div>

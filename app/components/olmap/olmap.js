@@ -188,7 +188,9 @@ angular.module('gsApp.olmap', [])
       this.map = map;
     };
     this.updateMapSize = function() {
-      this.map.updateSize();
+      if (this.map) {
+        this.map.updateSize();
+      }
     };
     return {
       map: map,

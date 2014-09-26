@@ -34,6 +34,7 @@ angular.module('gsApp.workspaces.workspace', [
         });
 
       var wsName = $stateParams.workspace;
+      $scope.workspace = wsName;
       $scope.title = wsName;
       $scope.thumbnails = {};
       $scope.olmaps = {};
@@ -90,28 +91,10 @@ angular.module('gsApp.workspaces.workspace', [
       });*/
       $scope.datastores = GeoServer.datastores.get().datastores;
 
-      $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
-        pageSize: 25
-      };
-      $scope.gridOptions = {
-        data: 'datastores',
-        columnDefs: [
-          {field: 'workspace', displayName: 'Workspace'},
-          {field: 'store', displayName: 'Store'},
-          {field: 'type', displayName: 'Data Type'},
-          {field: 'source', displayName: 'Source', width: '30%'},
-          {field: 'description', displayName: 'Description', width: '20%'},
-          {field: 'srs', displayName: 'SRS'}
-        ],
-        enablePaging: true,
-        enableColumnResize: false,
-        showFooter: true,
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: {
-          filterText: '',
-          useExternalFilter: true
-        }
-      };
+      $scope.selectStore = function(store) {
+        $scope.selectedStore = store;
+        $scope.selectedStore.imported = store.layers_imported.length;
+        $scope.selectedStore.unimported = store.layers_unimported.length;
+      }
 
     }]);
