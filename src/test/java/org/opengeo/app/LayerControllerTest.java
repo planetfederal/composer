@@ -30,6 +30,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -39,6 +41,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
@@ -194,6 +197,39 @@ public class LayerControllerTest {
 
       JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
       assertEquals( 2, arr.size() );
+    }
+    @Test
+    public void testGetStyleIconsUpload() throws Exception {
+        MockGeoServer.get().catalog()
+        .resources()
+          .resource("workspaces/foo/styles/one.yaml", "title: raw")
+          .directory("workspaces/foo/styles")
+          .resource("workspaces/foo/styles/icon.png", "PNG8")
+          .resource("workspaces/foo/styles/symbols.TTF", "TTF")
+        .geoServer().catalog()
+          .workspace("foo", "http://scratch.org", true)
+            .layer("one")
+              .style().ysld("one.yaml")
+        .geoServer().build(geoServer);
+        
+        GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();
+        Resource d = rl.get("workspaces/foo/styles");
+        File directory = d.dir();
+        assertTrue( directory.exists() );
+        
+        // test upload
+        MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
+        request.addFile(new MockMultipartFile("set.properties", "square=LINESTRING".getBytes() ));
+        
+//        MvcResult result = mvc.perform(
+//                fileUpload("/backend/layers/foo/one/style/icons/upload").
+//                    file("set.properties","square=LINESTRING(0 0,1 0,1 1,0 1,0 0)".getBytes() ).content("body"))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
+//                .andReturn();
+//        
+//        JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
+//        assertEquals( 1, arr.size() );
     }
     
     @Test

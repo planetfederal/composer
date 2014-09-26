@@ -11,6 +11,8 @@ import com.vividsolutions.jts.geom.Envelope;
 
 
 
+
+
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
@@ -53,6 +55,7 @@ import javax.xml.transform.TransformerException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -98,7 +101,7 @@ public class MockGeoServer {
     }
 
     public class ResourcesBuilder extends  Builder {
-       
+        File base;
         List<String> paths;
         ResourceStore resourceStore;
         CatalogBuilder catalogBuilder;
@@ -106,11 +109,20 @@ public class MockGeoServer {
         public ResourcesBuilder(CatalogBuilder catalogBuilder) {
             this.catalogBuilder = catalogBuilder;
 
-            Resource base = mock(Resource.class);
-            when(base.dir()).thenReturn(null);
+            File base;
+            try {
+                base = File.createTempFile("resource","base");
+                base.deleteOnExit();
+                base.mkdir();
+            } catch (IOException e) {
+                base = null;
+            }
+            
+            Resource baseResource = mock(Resource.class);
+            when(baseResource.dir()).thenReturn(base);
 
             this.resourceStore = mock(ResourceStore.class);
-            when(resourceStore.get(Paths.BASE)).thenReturn(base);
+            when(resourceStore.get(Paths.BASE)).thenReturn(baseResource);
 
             when(catalogBuilder.catalog.getResourceLoader())
                 .thenAnswer(new Answer<GeoServerResourceLoader>() {
@@ -145,6 +157,14 @@ public class MockGeoServer {
             when(r.path()).thenReturn(path);
             when(r.name()).thenReturn(path.substring(path.lastIndexOf('/')+1));
             when(r.getType()).thenReturn(Type.DIRECTORY);
+            when(r.dir()).then( new Answer<File>() {
+                @Override
+                public File answer(InvocationOnMock invocation) throws Throwable {
+                    File dir = new File(base,path);
+                    dir.mkdirs();
+                    return dir;
+                }
+            });
             when(resourceStore.get(path)).thenReturn(r);
             paths.add( path );
             
