@@ -354,7 +354,7 @@ public class LayerController extends AppController {
                 filename = filename.substring(filename.lastIndexOf('\\'));
             }
             String ext = pathExtension(filename);
-            if( ICON_FORMATS.containsKey(ext)){
+            if( !ICON_FORMATS.containsKey(ext)){
                 throw new IllegalArgumentException("Icon format "+ext+" unsupported - try:"+ICON_FORMATS.keySet() );
             }
             File icon = new File(iconsDir,filename);            

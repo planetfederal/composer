@@ -30,15 +30,25 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.mock.web.MockMultipartHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.DispatcherServlet;
+import org.springframework.web.servlet.mvc.Controller;
 
 import javax.annotation.Nullable;
+import javax.mail.internet.InternetHeaders;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMultipart;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -71,10 +81,9 @@ public class LayerControllerTest {
     }
 
     @Before
-    public void setUpMVC() {
+    public void setUpUpContextAndMVC() {
         MockitoAnnotations.initMocks(this);
-
-        mvc = MockMvcBuilders.standaloneSetup(ctrl)
+        mvc = MockMvcBuilders.standaloneSetup( ctrl )
             .setMessageConverters(
                 new JSONMessageConverter(), new ResourceMessageConverter(),
                 new YsldMessageConverter(), new ByteArrayHttpMessageConverter())
@@ -197,39 +206,6 @@ public class LayerControllerTest {
 
       JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
       assertEquals( 2, arr.size() );
-    }
-    @Test
-    public void testGetStyleIconsUpload() throws Exception {
-        MockGeoServer.get().catalog()
-        .resources()
-          .resource("workspaces/foo/styles/one.yaml", "title: raw")
-          .directory("workspaces/foo/styles")
-          .resource("workspaces/foo/styles/icon.png", "PNG8")
-          .resource("workspaces/foo/styles/symbols.TTF", "TTF")
-        .geoServer().catalog()
-          .workspace("foo", "http://scratch.org", true)
-            .layer("one")
-              .style().ysld("one.yaml")
-        .geoServer().build(geoServer);
-        
-        GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();
-        Resource d = rl.get("workspaces/foo/styles");
-        File directory = d.dir();
-        assertTrue( directory.exists() );
-        
-        // test upload
-        MockMultipartHttpServletRequest request = new MockMultipartHttpServletRequest();
-        request.addFile(new MockMultipartFile("set.properties", "square=LINESTRING".getBytes() ));
-        
-//        MvcResult result = mvc.perform(
-//                fileUpload("/backend/layers/foo/one/style/icons/upload").
-//                    file("set.properties","square=LINESTRING(0 0,1 0,1 1,0 1,0 0)".getBytes() ).content("body"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.MULTIPART_FORM_DATA_VALUE))
-//                .andReturn();
-//        
-//        JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
-//        assertEquals( 1, arr.size() );
     }
     
     @Test
