@@ -14,57 +14,25 @@ angular.module('gsApp.maps.compose', [
     }])
 .controller('MapComposeCtrl',
     ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log',
-    'olMapService',
-    function($scope, $stateParams, GeoServer, $timeout, $log,
-      olMapService) {
+    function($scope, $stateParams, GeoServer, $timeout, $log) {
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;
 
       GeoServer.map.get(wsName, name).then(function(result) {
         var map = result.data;
+
         $scope.map = map;
         $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
 
-        $scope.layers = [angular.extend(map, {
-          bbox: {
-            native: map.bbox
-          }
-        })];
-
-        $scope.layers[0].layers.forEach(function(layer, i) {
-          layer.visible = true;
+        // map options, extend map obj and add visible flag to layers
+        $scope.mapOpts = angular.extend(map, {
+          layers: map.layers.map(function(l) {
+            l.visible = true;
+            return l;
+          })
         });
-
-        $scope.proj = map.srs;
-        $scope.center = map.bbox.center;
-        $scope.visibleMapLayers = [];
-
-        // wait for map to load
-        $timeout(function() {
-          var layers = olMapService.getRLayers();
-          layers.forEach(function(layer, i) {
-            $scope.visibleMapLayers[i] = true;
-          });
-          $scope.numLayers = layers.length;
-        }, 300);
       });
-
-      // for checkboxes in Layers list
-      $scope.toggleVisibility = function(l, index) {
-        var layers = $scope.layers[0].layers;
-        var toggledLayer;
-        angular.forEach(layers, function(layer, key) {
-          if (layer.name === l.name) {
-            toggledLayer = layer;
-            layer.visible = !layer.visible;
-            olMapService.removeLayer(layer);
-            return;
-          }
-        });
-        $scope.visibleMapLayers[index] =
-          !$scope.visibleMapLayers[index];
-      };
 
       $scope.toggle = true;
       $scope.toggleLayers = function() {

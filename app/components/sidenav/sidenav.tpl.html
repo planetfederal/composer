@@ -1,7 +1,7 @@
 <div id="sidebar-wrapper">
   <ul class="sidebar-nav" ng-show="session.active">
       <li class="sidebar-toggle">
-          <a href="" ng-click="toggleSide=!toggleSide;updateMapSize();" id="menu-toggle" ng-class="{'f-right': !toggleSide}">
+          <a href="" ng-click="toggleSide=!toggleSide;onResize()" id="menu-toggle" ng-class="{'f-right': !toggleSide}">
             <i class="toggleIcon fa fa-2x" ng-class="{'fa-arrow-circle-o-left': !toggleSide, 'fa-arrow-circle-o-right': toggleSide}"></i>
           </a>
       </li>
