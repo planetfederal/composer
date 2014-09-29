@@ -105,7 +105,7 @@ angular.module('gsApp.layers', [
         selectedItems: $scope.gridSelections,
         multiSelect: true,
         columnDefs: [
-          {field: 'name', displayName: 'Layername', width: 250},
+          {field: 'name', displayName: 'Layer', width: 250},
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,
