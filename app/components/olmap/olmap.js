@@ -153,6 +153,15 @@ angular.module('gsApp.olmap', [])
         layer.getSource().updateParams({ LAYERS: layerNames });
       };
 
+      OLMap.prototype.refresh = function() {
+        this.olMap.getLayers().getArray().forEach(function(l) {
+            var source = l.getSource();
+            if (source instanceof ol.source.ImageWMS) {
+              source.updateParams({update:Math.random()});
+            }
+          });
+      };
+
       return {
         createMap: function(mapOpts, element, options) {
           return new OLMap(mapOpts, element, options);
@@ -186,12 +195,7 @@ angular.module('gsApp.olmap', [])
           }, true);
 
           $scope.$on('olmap-refresh', function() {
-            $scope.map.getLayers().getArray().forEach(function(l) {
-              var source = l.getSource();
-              if (source instanceof ol.source.ImageWMS) {
-                source.updateParams({update:Math.random()});
-              }
-            });
+            $scope.map.refresh();
           });
         }
       };
