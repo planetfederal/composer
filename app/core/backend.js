@@ -113,6 +113,13 @@ angular.module('gsApp.core.backend',[])
           get: {
             method: 'GET',
             responseType: 'json'
+          },
+          update: {
+            method: 'PATCH',
+            responseType: 'json'
+          },
+          remove: {
+            method: 'DELETE'
           }
         }),
 
