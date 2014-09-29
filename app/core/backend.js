@@ -158,6 +158,21 @@ angular.module('gsApp.core.backend',[])
             });
           },
 
+          update: function(workspace, name, patch) {
+            return http({
+              method: 'PATCH',
+              url: apiRoot+'/maps/'+workspace+'/'+name,
+              data: patch
+            });
+          },
+
+          remove: function(workspace, name) {
+            return http({
+              method: 'DELETE',
+              url: apiRoot+'/maps/'+workspace+'/'+name
+            });
+          },
+
           layers: {
             put: function(workspace, map, layers) {
               return http({
