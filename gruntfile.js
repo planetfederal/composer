@@ -15,11 +15,13 @@ String.prototype.endsWith = function(s) {
   return this.substr(-s.length) == s;
 };
 
+function loadProxyConfig() {
+  return fs.existsSync('./proxy.json') ? require('./proxy.json') :
+    {host: 'horizon.boundlessgeo.com', port: 80};
+}
+
 var config = {
-  proxy: {
-    host: 'horizon.boundlessgeo.com',
-    port: '80'
-  }
+  proxy: loadProxyConfig()
 };
 
 var sources = {

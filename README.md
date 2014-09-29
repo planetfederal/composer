@@ -35,3 +35,14 @@ Once built start the debug server:
 By default the frontend server starts on port 8000. The server will watch for
 changes to JavaScript and CSS assets and perform a live reload without having 
 to restart the debug server.
+
+### GeoServer Proxy Settings
+
+By default the frontend server will proxy for GeoServer at 
+horizon.boundlessgeo.com. To change this create a file named `proxy.json` in the
+same directory as `gruntfile.js`. For example:
+
+    {
+       "host": "localhost",
+       "port": 8080
+    }
