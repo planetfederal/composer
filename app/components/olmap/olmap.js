@@ -48,7 +48,7 @@ angular.module('gsApp.olmap', [])
         var boundsTipTimer = null;
         var tip = $('<span>').addClass('b-tooltip').html('Copy bounds')[0];
         var copiedTip = $('<span>').addClass('b-tooltip')
-          .html('Bounds copied to clipboard ');
+          .html('Bounds copied to clipboard ')[0];
         var currentTip;
 
         var boundsTip = function(el, copied) {
