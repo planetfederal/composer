@@ -39,7 +39,7 @@
         <p>
           <strong>{{ datastores.length }}</strong> data store<span ng-if="datastores.length > 1">s</span> in <strong>{{ workspace }}</strong>
           <span class="data-store-crud">
-            <i class="fa fa-plus circular-icon"></i>
+            <i class="fa fa-plus circular-icon" ng-click="addNewStore();"></i>
             <i class="fa fa-minus circular-icon"></i>
             <i class="fa fa-gear circular-icon"></i>
           </span>
