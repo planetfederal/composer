@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Controller
-@RequestMapping("/backend/workspaces")
+@RequestMapping("/api/workspaces")
 public class WorkspaceController extends AppController {
 
     @Autowired

@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.Enumeration;
 
 @Controller
-@RequestMapping("/backend/sessions")
+@RequestMapping("/api/sessions")
 public class SessionsController {
 
     @RequestMapping(method= RequestMethod.GET)

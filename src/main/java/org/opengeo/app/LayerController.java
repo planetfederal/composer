@@ -72,7 +72,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.io.ByteSource;
 
 @Controller
-@RequestMapping("/backend/layers")
+@RequestMapping("/api/layers")
 public class LayerController extends AppController {
 
     static Logger LOG = Logging.getLogger(LayerController.class);

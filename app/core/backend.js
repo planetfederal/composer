@@ -6,7 +6,7 @@ angular.module('gsApp.core.backend',[])
 .factory('GeoServer', ['$http', '$resource', '$q', '$log',
     function($http, $resource, $q, $log) {
       var gsRoot = '/geoserver';
-      var apiRoot = gsRoot + '/app/backend';
+      var apiRoot = gsRoot + '/app/api';
       var importRoot = apiRoot + '/imports/';
 
       /*

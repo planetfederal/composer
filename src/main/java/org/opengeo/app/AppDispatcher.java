@@ -35,7 +35,7 @@ public class AppDispatcher extends DispatcherServlet {
 
     @Override
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if (request.getServletPath().startsWith("/app") && !request.getPathInfo().startsWith("/backend")) {
+        if (request.getServletPath().startsWith("/app") && !request.getPathInfo().startsWith("/api")) {
             String path = request.getPathInfo();
 
             // handle redirect

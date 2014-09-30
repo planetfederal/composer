@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 import static org.geoserver.catalog.Predicates.equal;
 
 @Controller
-@RequestMapping("/backend/maps")
+@RequestMapping("/api/maps")
 public class MapController extends AppController {
 
     static Logger LOG = Logging.getLogger(LayerController.class);
