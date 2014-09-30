@@ -134,9 +134,7 @@ angular.module('gsApp.workspaces.workspace', [
   };
 
   $scope.cancel = function () {
-    if ($scope.upload) {
-      $scope.upload.abort();
-    }
+    $scope.abortAll();
     $modalInstance.dismiss('cancel');
   };
 
@@ -152,9 +150,7 @@ angular.module('gsApp.workspaces.workspace', [
     $scope.upload[index] = null;
   };
 
-  $scope.onFileSelect = function($files) {
-    $scope.selectedFiles = [];
-    $scope.progress = [];
+  $scope.abortAll = function() {
     if ($scope.upload && $scope.upload.length > 0) {
       for (var k = 0; k < $scope.upload.length; k++) {
         if ($scope.upload[k] != null) {
@@ -162,6 +158,12 @@ angular.module('gsApp.workspaces.workspace', [
         }
       }
     }
+  };
+
+  $scope.onFileSelect = function($files) {
+    $scope.selectedFiles = [];
+    $scope.progress = [];
+    $scope.abortAll();
     $scope.upload = [];
     $scope.uploadResult = [];
     $scope.selectedFiles = $files;
