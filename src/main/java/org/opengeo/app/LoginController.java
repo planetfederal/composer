@@ -19,7 +19,7 @@ import java.security.Principal;
  * Sends back session info after a successful login.
  */
 @Controller
-@RequestMapping("/backend/login")
+@RequestMapping("/api/login")
 public class LoginController {
 
     @RequestMapping()

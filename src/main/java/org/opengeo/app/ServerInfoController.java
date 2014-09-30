@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * Summarizes information about the GeoServer instance.
  */
 @Controller
-@RequestMapping("/backend/serverInfo")
+@RequestMapping("/api/serverInfo")
 public class ServerInfoController extends AppController {
 
     @Autowired

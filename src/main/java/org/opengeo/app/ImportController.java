@@ -34,7 +34,7 @@ import java.io.File;
 import java.util.Iterator;
 
 @Controller
-@RequestMapping("/backend/imports")
+@RequestMapping("/api/imports")
 public class ImportController extends AppController {
 
     Importer importer;
