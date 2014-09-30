@@ -42,7 +42,7 @@
             <span class="progress" ng-show="progress[$index] >= 0">
             <div style="width:{{progress[$index]}}%">{{ progress[$index] }} {{$index}} <span ng-show="progress[$index] > 0">%</span></div>
             </span>
-            <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) &amp;&amp; progress[$index] < 100">Cancel</button>
+            <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) && progress[$index] < 100 && uploadResult.length == 0">Cancel</button>
             <span class="fileinfo">Filename: {{ f.name }}  &nbsp; &nbsp; &nbsp; &nbsp; Size: {{ f.size }}B  &nbsp; &nbsp; &nbsp; &nbsp;  Type: {{ 'none' || f.type }}</span>
           </div>
         </div>
