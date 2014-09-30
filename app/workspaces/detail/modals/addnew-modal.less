@@ -1,0 +1,54 @@
+@import "../../../variables.less";
+
+.upload-options {
+  width: 60%;
+  text-align: center;
+  margin: 0 auto;
+
+  .btn-group > button {
+    font-size: 12px;
+  }
+}
+
+.upload-options-content {
+  margin-top: 20px;
+  padding: 0 20px;
+
+  .drop-box {
+    margin-top: 20px;
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    width: 100%;
+    height: 100px;
+    text-align: center;
+    padding-top: 28px;
+    margin: 0 auto;
+    font-size: 24px;
+    font-weight: bold;
+    color: @light-gray;
+  }
+  .sel-file {
+    display: inline-block;
+    padding: 1px;
+
+    .progress {
+      display: inline-block;
+      width: 100px;
+      border: 1px groove #CCC;
+      border-radius: 1px;
+      margin-bottom: 0;
+
+      div {
+        font-size: smaller;
+        background: orange;
+        display: inline-block;
+        padding-top: 2px;
+      }
+    }
+    .fileinfo {
+      margin-left: 10px;
+      display: inline-block;
+      vertical-align: bottom;
+    }
+  }
+}

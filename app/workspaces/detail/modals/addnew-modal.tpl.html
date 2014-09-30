@@ -1,0 +1,74 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">New Data Source</h4>
+  </div>
+  <div class="modal-body">
+    <div class="upload-options btn-group btn-group-justified">
+      <div class="btn-group">
+        <button type="button" ng-init="addfile=true;" class="btn btn-default" ng-class="{'active': addfile}" ng-click="addfile=true;">Add Files</button>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-default" ng-class="{'active': !addfile}" ng-click="addfile=false;">Add Database</button>
+      </div>
+    </div>
+    <div class="upload-options-content">
+      <div ng-show="addfile">
+        <p>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" placeholder="Files to upload (shapefiles, .zip, etc.)">
+                <span class="input-group-btn">
+                  <button class="btn btn-primary btn-sm" type="button" ng-file-select="onFileSelect($files)" data-multiple="true">Browse</button>
+                </span>
+              </div><!-- /input-group -->
+            </div><!-- /.col-lg-6 -->
+          </div><!-- /.row -->
+        </p>
+        <p style="text-align:center">or</p>
+        <p>
+          <div class="drop-box" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class-name-or-function"
+                ng-show="dropSupported">Drop files here</div>
+          <div ng-file-drop-available="dropSupported=true"
+                ng-show="!dropSupported">HTML5 Drop File is not supported</div>
+        </p>
+          <div class="err" ng-show="errorMsg != null">{{errorMsg}}</div>
+        <div ng-show="selectedFiles != null" class="">
+          <p><strong>Progress: </strong></p>
+          <div class="sel-file ng-binding ng-scope" ng-repeat="f in selectedFiles">
+            {{($index + 1) + '.'}}
+            <img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}">
+            <button class="button ng-hide" ng-click="start($index)" ng-show="progress[$index] < 0">Start</button>
+            <span class="progress" ng-show="progress[$index] >= 0">
+            <div style="width:{{progress[$index]}}%">{{ progress[$index] }} {{$index}} <span ng-show="progress[$index] > 0">%</span></div>
+            </span>
+            <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) &amp;&amp; progress[$index] < 100">Cancel</button>
+            <span class="fileinfo">Filename: {{ f.name }}  &nbsp; &nbsp; &nbsp; &nbsp; Size: {{ f.size }}B  &nbsp; &nbsp; &nbsp; &nbsp;  Type: {{ 'none' || f.type }}</span>
+          </div>
+        </div>
+        <div class="response" ng-show="uploadResult.length > 0">
+          Server Response:
+          <ul>
+            <li ng-repeat="result in uploadResult">
+              <div data-ng-show="result.result == null" ng-bind-html="result"></div>
+              <ul>
+                <li ng-repeat="item in result.result">
+                  <div data-ng-show="item.name">file name: {{item.name}}</div>
+                  <div data-ng-show="item.fieldName">name: {{item.fieldName}}</div>
+                  <div data-ng-show="item.size">size on the serve: {{item.size}}</div>
+                  <div data-ng-show="item.value">value: {{item.value}}</div>
+                </li>
+              </ul>
+              <div data-ng-show="result.requestHeaders" class="reqh">request headers: {{result.requestHeaders}}</div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div ng-show="!addfile">Database</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-success btn-sm" ng-click="ok()" style="margin-left: 20px;margin-right: 20px;">Next &rarr;</button>
+  </div>
+</div>

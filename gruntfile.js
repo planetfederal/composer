@@ -57,6 +57,8 @@ var deps = {
     'angular-ui-select/dist/select.js',
     'angular-ui-codemirror/ui-codemirror.js',
     'angular-ui-sortable/sortable.js',
+    'ng-file-upload/angular-file-upload-shim.js',
+    'ng-file-upload/angular-file-upload.js',
     'ng-clip/src/ngClip.js'
   ],
 
@@ -140,11 +142,11 @@ module.exports = function(grunt) {
                         return '/' + script.split(path.sep).join('/');
                       });
                   res.setHeader('content-type', 'application/javascript');
-                  var body = 
+                  var body =
                     string.replace('{{{ paths }}}', JSON.stringify(scripts));
                   res.end(body, 'utf8');
                 });
-              } 
+              }
               else {
                 next();
               }
@@ -156,7 +158,7 @@ module.exports = function(grunt) {
             });
 
             // directory browsable
-            var directory = 
+            var directory =
               options.directory || options.base[options.base.length - 1];
             middlewares.push(connect.directory(directory));
 
@@ -228,7 +230,7 @@ module.exports = function(grunt) {
         options: {
           base: 'app',
           module: 'gsApp.templates',
-          fileFooterString: 
+          fileFooterString:
             'angular.module("gsApp").requires.push("gsApp.templates");',
           rename: function(name) {
             return '/' + name;

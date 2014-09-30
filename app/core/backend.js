@@ -7,6 +7,7 @@ angular.module('gsApp.core.backend',[])
     function($http, $resource, $q, $log) {
       var gsRoot = '/geoserver';
       var apiRoot = gsRoot + '/app/backend';
+      var importRoot = apiRoot + '/imports/';
 
       /*
        * simple wrapper around $http to set up defer/promise, etc...
@@ -30,6 +31,12 @@ angular.module('gsApp.core.backend',[])
       return {
         baseUrl: function() {
           return gsRoot;
+        },
+
+        import: {
+          getUrl: function(workspace) {
+            return importRoot + workspace;
+          }
         },
 
         session: function() {
