@@ -1,6 +1,7 @@
 angular.module('gsApp.layers', [
   'ngGrid',
-  'ui.select'
+  'ui.select',
+  'gsApp.layers.style'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
