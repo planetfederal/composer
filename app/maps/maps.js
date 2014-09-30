@@ -41,30 +41,44 @@ angular.module('gsApp.maps', [
       };
       $scope.gridOptions = {
         data: 'mapData',
+        enableCellSelection: false,
+        enableRowSelection: true,
+        enableCellEdit: false,
+        checkboxHeaderTemplate:
+          '<input class="ngSelectionHeader" type="checkbox"' +
+            'ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
+        sortInfo: {fields: ['name'], directions: ['asc']},
+        showSelectionCheckbox: true,
+        selectWithCheckboxOnly: false,
+        selectedItems: $scope.gridSelections,
+        multiSelect: true,
         columnDefs: [
-          {field: 'name', displayName: 'Map Name', width: 250},
+          {field: 'name', displayName: 'Map Name', width: '20%'},
           {field: 'title',
             displayName: 'Title',
+            enableCellEdit: true,
             cellTemplate:
               '<div class="grid-text-padding"' +
                 'alt="{{row.entity.description}}"' +
                 'title="{{row.entity.description}}">'+
                 '{{row.entity.title}}' +
               '</div>',
-            width: 250
+            width: '25%'
           },
           {field: 'compose',
             displayName: 'Compose',
             cellClass: 'text-center',
+            sortable: false,
             cellTemplate:
               '<div class="grid-text-padding" ng-class="col.colIndex()">' +
                 '<a ng-click="onCompose(row.entity)">Compose</a>' +
               '</div>',
-            width: 75
+            width: '10%'
           },
           {field: 'preview',
             displayName: 'Preview',
             cellClass: 'text-center',
+            sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
                 '<a ng-click="onStyleEdit(row.entity)">' +
@@ -72,10 +86,11 @@ angular.module('gsApp.maps', [
                     'title="Preview Map" />' +
                 '</a>' +
               '</div>',
-            width: 75
+            width: '10%'
           },
           {field: 'settings',
             displayName: 'Settings',
+            sortable: false,
             cellClass: 'text-center',
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
@@ -84,9 +99,9 @@ angular.module('gsApp.maps', [
                     'alt="Edit Map Settings" title="Edit Map Settings" />' +
                 '</a>' +
               '</div>',
-            width: 75
+            width: '10%'
           },
-          {field: '', displayName: '', width:725}
+          {field: '', displayName: '', width: '*'},
         ],
         enablePaging: true,
         enableColumnResize: false,

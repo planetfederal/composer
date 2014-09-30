@@ -1,7 +1,6 @@
 angular.module('gsApp.layers', [
   'ngGrid',
-  'ui.select',
-  'gsApp.layers.style'
+  'ui.select'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -29,40 +28,33 @@ angular.module('gsApp.layers', [
     restrict: 'A',
     replace: true,
     transclude: true,
-    scope: { type: '@type', geometry: '@geometry' },
+    scope: { geometry: '@geometry' },
     template:
-      '<div ng-switch on="type">' +
-        '<div ng-switch-when="vector">' +
-          '<div ng-switch on="geometry">' +
-            '<div ng-switch-when="Point">' +
-              '<img ng-src="images/layer-point.png"' +
-                'alt="Layer Type: Point" title="Layer Type: Point" /></div>' +
-            '<div ng-switch-when="MultiPoint">' +
-              '<img ng-src="images/layer-point.png"' +
-                'alt="Layer Type: MultiPoint" title="Layer Type: MultiPoint"' +
-                '/></div>' +
-            '<div ng-switch-when="LineString">' +
-              '<img  ng-src="images/layer-line.png"' +
-                'alt="Layer Type: LineString" title="Layer Type: LineString"' +
-                '/></div>' +
-            '<div ng-switch-when="MultiLineString">' +
-              '<img  ng-src="images/layer-line.png"' +
-                'alt="Layer Type: MultiLineString"' +
-                'title="Layer Type: MultiLineString" /></div>' +
-            '<div ng-switch-when="Polygon">' +
-              '<img  ng-src="images/layer-polygon.png"' +
-                'alt="Layer Type: Polygon" title="Layer Type: Polygon" />' +
-                '</div>' +
-            '<div ng-switch-when="MultiPolygon">' +
-              '<img  ng-src="images/layer-polygon.png"' +
-                'alt="Layer Type: MultiPolygon"' +
-                'title="Layer Type: MultiPolygon" /></div>' +
-            '<div ng-switch-default class="grid">' +
-              '<img ng-src="images/layer-vector.png"' +
-                'alt="Layer Type: Vector" title="Layer Type: Vector" />' +
-                '</div>' +
-          '</div>' +
-        '</div>' +
+      '<div ng-switch on="geometry">' +
+        '<div ng-switch-when="Point">' +
+          '<img ng-src="images/layer-point.png"' +
+            'alt="Layer Type: Point"' +
+            'title="Layer Type: Point" /></div>' +
+        '<div ng-switch-when="MultiPoint">' +
+          '<img ng-src="images/layer-point.png"' +
+            'alt="Layer Type: MultiPoint"' +
+            'title="Layer Type: MultiPoint"/></div>' +
+        '<div ng-switch-when="LineString">' +
+          '<img  ng-src="images/layer-line.png"' +
+            'alt="Layer Type: LineString"' +
+            'title="Layer Type: LineString"/></div>' +
+        '<div ng-switch-when="MultiLineString">' +
+          '<img  ng-src="images/layer-line.png"' +
+            'alt="Layer Type: MultiLineString"' +
+            'title="Layer Type: MultiLineString" /></div>' +
+        '<div ng-switch-when="Polygon">' +
+          '<img  ng-src="images/layer-polygon.png"' +
+            'alt="Layer Type: Polygon"' +
+            'title="Layer Type: Polygon" /></div>' +
+        '<div ng-switch-when="MultiPolygon">' +
+          '<img  ng-src="images/layer-polygon.png"' +
+            'alt="Layer Type: MultiPolygon"' +
+            'title="Layer Type: MultiPolygon" /></div>' +
         '<div ng-switch-default class="grid">' +
           '<img ng-src="images/layer-raster.png" alt="Layer Type: Raster"' +
             'title="Layer Type: Raster" /></div>' +
@@ -72,40 +64,53 @@ angular.module('gsApp.layers', [
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state', '$log',
     function($scope, GeoServer, $state, $log) {
       $scope.title = 'All Layers';
-      
+
       $scope.onStyleEdit = function(layer) {
         $state.go('layer.style', {
           workspace: layer.workspace,
           name: layer.name
         });
       };
-      $scope.updateEntity = function(column, row, cellValue) {
-        //console.log(row.entity);
-        //console.log(column.field);
-        row.entity[column.field] = cellValue;
-
+      $scope.updateEntity = function(column, row) {
+        $log(row.entity);
+        $log(column.field);
+        
         //TODO: add code for saving to the server here.
         //row.entity.$update();
       };
+      $scope.$on('ngGridEventEndCellEdit', function(evt){
+        $log(evt.targetScope.row.entity);  // the underlying data bound to row
+        // TODO: Detect changes and send entity to server 
+      });
       $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
-        pageSize: 25
+        pageSizes: [10, 50, 100],
+        pageSize: 10,
+        currentPage: 1,
+        totalServerItems: 0
       };
+      $scope.filterOptions = {
+          filterText: '',
+          useExternalFilter: true
+        };
       $scope.gridSelections = [];
       $scope.gridOptions = {
         data: 'layerData',
-        enableCellSelection: true,
-        enableRowSelection: false,
-        enableCellEdit: true,
+        enableCellSelection: false,
+        enableRowSelection: true,
+        enableCellEdit: false,
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
+        int: function() {
+          $log('done');
+        },
+        sortInfo: {fields: ['name'], directions: ['asc']},
         showSelectionCheckbox: true,
-        selectWithCheckboxOnly: true,
+        selectWithCheckboxOnly: false,
         selectedItems: $scope.gridSelections,
         multiSelect: true,
         columnDefs: [
-          {field: 'name', displayName: 'Layername', width: 250},
+          {field: 'name', displayName: 'Layername', width: '20%'},
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,
@@ -113,22 +118,23 @@ angular.module('gsApp.layers', [
               '<div class="grid-text-padding"' +
                 'alt="{{row.entity.description}}"' +
                 'title="{{row.entity.description}}"' +
+                'ng-class="\'colt\' + col.index"' +
                 'ng-input="COL_FIELD"' +
-                'ng-change="updateEntity(COL_FIELD, row.entity, cellValue)"' +
-                'ng-model="cellValue">' +
+                'ng-blur="updateEntity(col, row)"' +
+                'ng-model="COL_FIELD">' +
                 '{{row.entity.title}}' +
               '</div>',
-            width: 250
+            width: '20%'
           },
-          {field: 'type',
+          {field: 'geometry',
             displayName: 'Type',
             cellClass: 'text-center',
             cellTemplate:
               '<div get-type ' +
-                'type="{{row.entity.type}}"' +
                 'geometry="{{row.entity.geometry}}">' +
               '</div>',
-            width: 50},
+            width: '5%'
+          },
           {field: 'srs',
             displayName: 'SRS',
             cellClass: 'text-center',
@@ -136,11 +142,12 @@ angular.module('gsApp.layers', [
               '<div class="grid-text-padding">' +
                 '{{row.entity.proj.srs}}' +
               '</div>',
-            width: 150
+            width: '7%'
           },
           {field: 'settings',
             displayName: 'Settings',
             cellClass: 'text-center',
+            sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
                 '<a ng-click="onStyleEdit(row.entity)">' +
@@ -148,11 +155,12 @@ angular.module('gsApp.layers', [
                     'alt="Edit Layer Settings" title="Edit Layer Settings" />' +
                 '</a>' +
               '</div>',
-            width: 75
+            width: '10%'
           },
           {field: 'style',
             displayName: 'Styles',
             cellClass: 'text-center',
+            sortable: false,
             /*
             cellTemplate: 
               '<li class="list-unstyled dropdown">' +
@@ -176,11 +184,12 @@ angular.module('gsApp.layers', [
               '<div class="grid-text-padding" ng-class="col.colIndex()">' +
                 '<a ng-click="onStyleEdit(row.entity)">Edit</a>' +
               '</div>',
-            width: 75
+            width: '7%'
           },
           {field: 'download',
             displayName: 'Download',
             cellClass: 'text-center',
+            sortable: false,
             cellTemplate:
               '<li class="list-unstyled dropdown">' +
                 '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
@@ -193,28 +202,17 @@ angular.module('gsApp.layers', [
                   '<li><a href="#">KML</a></li>' +
                 '</ul>' +
               '</li>',
-            width: 75
-          },
-          {field: 'preview',
-            displayName: 'Preview',
-            cellClass: 'text-center',
-            cellTemplate:
-              '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onStyleEdit(row.entity)">' +
-                  '<img ng-src="images/preview.png" alt="Preview Layer"' +
-                    'title="Preview Layer" />' +
-                '</a>' +
-              '</div>',
-            width: 75
+            width: '7%'
           },
           {field: 'lastEdited',
             displayName: 'Last Edited',
             cellTemplate: '<div ng-class="col.colIndex()"></div>',
-            width: 100
+            width: '10%'
           },
           {field: '',
             displayName: '',
             cellClass: 'text-center',
+            sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
                 '<a ng-click="onDeleteStyle(row.entity)">' +
@@ -222,18 +220,13 @@ angular.module('gsApp.layers', [
                     'title="Remove Layer" />' +
                 '</a>' +
               '</div>',
-            width: 30
-          },
-          {field: '', displayName: '', width: 30}
+            width: '*'
+          }
         ],
         enablePaging: true,
         enableColumnResize: false,
         showFooter: true,
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: {
-          filterText: '',
-          useExternalFilter: true
-        }
+        pagingOptions: $scope.pagingOptions
       };
 
       $scope.workspace = {};
@@ -253,7 +246,7 @@ angular.module('gsApp.layers', [
           $scope.workspace.selected = ws;
           $scope.workspaceChanged(ws);
         });
-
+        
         $scope.workspaces = workspaces;
       });
     }]);

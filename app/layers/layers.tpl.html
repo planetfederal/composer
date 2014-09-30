@@ -8,7 +8,7 @@
         <ui-select ng-model="workspace.selected"  ng-disabled="disabled"
           ng-change="workspaceChanged($select.selected)" theme="bootstrap"
           reset-search-input="false">
-          <ui-select-match>
+          <ui-select-match placeholder="Select a workspace...">
             {{$select.selected.name}}
           </ui-select-match>
           <ui-select-choices repeat="ws in workspaces">
@@ -23,8 +23,7 @@
         </button>
       </span>
     </div>
-    <div class="layers-table" ng-grid="gridOptions">
-    </div>
+    <div ng-grid="gridOptions"></div>
     <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
     <br />
     <strong>Add to Map: </strong>
