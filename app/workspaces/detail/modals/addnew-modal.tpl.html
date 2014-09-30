@@ -17,11 +17,12 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="input-group input-group-sm">
-                <input type="text" class="form-control" placeholder="Files to upload (shapefiles, .zip, etc.)">
+                <input type="text" class="form-control">
                 <span class="input-group-btn">
                   <button class="btn btn-primary btn-sm" type="button" ng-file-select="onFileSelect($files)" data-multiple="true">Browse</button>
                 </span>
               </div><!-- /input-group -->
+              <small style="margin-top: 5px;margin-left: 10px;">Upload a .zip or a complete set of .shp, .prj, .dbf, .shx files</small>
             </div><!-- /.col-lg-6 -->
           </div><!-- /.row -->
         </p>
@@ -36,32 +37,38 @@
         <div ng-show="selectedFiles != null" class="">
           <p><strong>Progress: </strong></p>
           <div class="sel-file ng-binding ng-scope" ng-repeat="f in selectedFiles">
-            {{($index + 1) + '.'}}
-            <img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}">
-            <button class="button ng-hide" ng-click="start($index)" ng-show="progress[$index] < 0">Start</button>
-            <span class="progress" ng-show="progress[$index] >= 0">
-            <div style="width:{{progress[$index]}}%">{{ progress[$index] }} {{$index}} <span ng-show="progress[$index] > 0">%</span></div>
-            </span>
-            <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) && progress[$index] < 100 && uploadResult.length == 0">Cancel</button>
-            <span class="fileinfo">Filename: {{ f.name }}  &nbsp; &nbsp; &nbsp; &nbsp; Size: {{ f.size }}B  &nbsp; &nbsp; &nbsp; &nbsp;  Type: {{ 'none' || f.type }}</span>
+            <div class="file-prog-1">
+              {{($index + 1) + '.'}}
+              <img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}">
+              <button class="button ng-hide" ng-click="start($index)" ng-show="progress[$index] < 0">Start</button>
+              <div class="progress" ng-show="progress[$index] >= 0">
+                <div ng-show="uploadComplete[$index]" style="width:{{progress[$index]}}%">{{ progress[$index] }} <span ng-show="progress[$index] > 0">%</span></div>
+                <div ng-show="!uploadComplete[$index]" class="prog_error">Upload Error</div>
+              </div>
+              <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) && progress[$index] < 100 && uploadResult.length == 0">Cancel</button>
+            </div>
+            <div class="file-prog-2">
+              <span class="fileinfo">
+                {{ f.name }}  &nbsp; &nbsp; &nbsp; &nbsp; Size: {{ f.bytes }} &nbsp; &nbsp; &nbsp; &nbsp;
+              </span>
+            </div>
+            <div class="file-prog-3">
+              <div class="result" ng-repeat="result in uploadResult">
+                <div class="no_crs" ng-show="result=='NO_CRS'">
+                  <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click">
+                    <i class="fa fa-warning"></i>
+                    <small>Missing CRS</small>
+                  </div>
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" placeholder="Add CRS">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button">Add</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="response" ng-show="uploadResult.length > 0">
-          Server Response:
-          <ul>
-            <li ng-repeat="result in uploadResult">
-              <div data-ng-show="result.result == null" ng-bind-html="result"></div>
-              <ul>
-                <li ng-repeat="item in result.result">
-                  <div data-ng-show="item.name">file name: {{item.name}}</div>
-                  <div data-ng-show="item.fieldName">name: {{item.fieldName}}</div>
-                  <div data-ng-show="item.size">size on the serve: {{item.size}}</div>
-                  <div data-ng-show="item.value">value: {{item.value}}</div>
-                </li>
-              </ul>
-              <div data-ng-show="result.requestHeaders" class="reqh">request headers: {{result.requestHeaders}}</div>
-            </li>
-          </ul>
         </div>
       </div>
       <div ng-show="!addfile">Database</div>

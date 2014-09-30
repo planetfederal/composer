@@ -29,26 +29,82 @@
   }
   .sel-file {
     display: inline-block;
-    padding: 1px;
+    padding: 0 1px;
+    width: 100%;
+
+    .file-prog-1 {
+      width: 20%;
+      display: inline-block;
+    }
+    .file-prog-2 {
+      width: 33%;
+      display: inline-block;
+    }
+    .file-prog-3 {
+      width: 44%;
+      float: right;
+      display: inline-block;
+      .crs-warning {
+        display: inline-block;
+        float: left;
+        padding-right: 15px;
+        cursor: pointer;
+
+        i.fa-warning {
+          font-size: 18px;
+          float: left;
+          padding-right: 5px;
+          line-height: 24px;
+        }
+        small {
+          line-height: 24px;
+        }
+      }
+      .input-group {
+        input, .input-group-btn > button {
+          height: 24px;
+        }
+        input {
+          padding-bottom: 4px;
+        }
+        .input-group-btn > button {
+          padding-top: 3px;
+        }
+      }
+    }
 
     .progress {
       display: inline-block;
-      width: 100px;
+      width: 90px;
       border: 1px groove #CCC;
       border-radius: 1px;
       margin-bottom: 0;
+
+      .prog_error {
+        background: transparent;
+        width: 100%;
+      }
 
       div {
         font-size: smaller;
         background: orange;
         display: inline-block;
         padding-top: 2px;
+        text-align: center;
+        height: 100%;
       }
     }
     .fileinfo {
       margin-left: 10px;
       display: inline-block;
       vertical-align: bottom;
+    }
+    .result {
+      display: inline-block;
+      .no_crs {
+        display: inline-block;
+
+      }
     }
   }
 }

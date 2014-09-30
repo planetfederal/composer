@@ -1,5 +1,6 @@
 angular.module('gsApp.workspaces.workspace', [
-  'ngGrid', 'ngSanitize', 'angularFileUpload'
+  'gsApp.workspaces.datastores',
+  'ngSanitize'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -103,7 +104,7 @@ angular.module('gsApp.workspaces.workspace', [
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/addnew-modal.tpl.html',
           controller: 'AddNewModalCtrl',
-          size: 'md',
+          size: 'lg',
           resolve: {
             workspace: function() {
               return $scope.workspace;
@@ -116,98 +117,4 @@ angular.module('gsApp.workspaces.workspace', [
 
       };
 
-    }])
-.controller('AddNewModalCtrl', ['$scope', '$modalInstance', 'workspace',
-  'geoserver', '$upload', '$timeout', '$sce', '$http', '$window',
-  function ($scope, $modalInstance, workspace, geoserver, $upload, $timeout,
-   $sce, $http, $window) {
-
-  $scope.workspace = workspace;
-  $scope.geoserver = geoserver;
-
-  $scope.selected = {
-    item: $scope.workspace
-  };
-
-  $scope.ok = function () {
-    $modalInstance.close($scope.selected.item);
-  };
-
-  $scope.cancel = function () {
-    $scope.abortAll();
-    $modalInstance.dismiss('cancel');
-  };
-
-  // File Upload - https://github.com/danialfarid/angular-file-upload/blob/master/demo/war/js/angular-file-upload.js
-
-  $scope.usingFlash = false;
-  $scope.uploadRightAway = false;
-  $scope.hasUploader = function(index) {
-    return $scope.upload[index] !== null;
-  };
-  $scope.abort = function(index) {
-    $scope.upload[index].abort();
-    $scope.upload[index] = null;
-  };
-
-  $scope.abortAll = function() {
-    if ($scope.upload && $scope.upload.length > 0) {
-      for (var k = 0; k < $scope.upload.length; k++) {
-        if ($scope.upload[k] != null) {
-          $scope.upload[k].abort();
-        }
-      }
-    }
-  };
-
-  $scope.onFileSelect = function($files) {
-    $scope.selectedFiles = [];
-    $scope.progress = [];
-    $scope.abortAll();
-    $scope.upload = [];
-    $scope.uploadResult = [];
-    $scope.selectedFiles = $files;
-    $scope.dataUrls = [];
-    for (var i = 0; i < $files.length; i++) {
-      $scope.progress[i] = -1;
-      if ($scope.uploadRightAway) {
-        $scope.start(i);
-      }
-    }
-  };
-
-  $scope.start = function(index) {
-    $scope.progress[index] = 0;
-    $scope.errorMsg = null;
-    //$upload.upload()
-    $scope.upload[index] = $upload.upload({
-        url: geoserver.import.getUrl($scope.workspace),
-        method: 'POST',
-        //headers: {'my-header': 'my-header-value'},
-        data : {
-          myModel : $scope.myModel,
-          errorCode: $scope.generateErrorOnServer && $scope.serverErrorCode,
-          errorMessage: $scope.generateErrorOnServer && $scope.serverErrorMsg
-        },
-        file: $scope.selectedFiles[index],
-        fileFormDataName: 'myFile'
-      });
-    $scope.upload[index].then(function(response) {
-      $timeout(function() {
-        $scope.uploadResult.push(response.statusText);
-      });
-    }, function(response) {
-      if (response.status > 0) {
-        $scope.errorMsg = response.status + ': ' + response.data;
-      }
-    }, function(evt) {
-      // Math.min is to fix IE which reports 200% sometimes
-      $scope.progress[index] = Math.min(100, parseInt(100.0 *
-       evt.loaded / evt.total));
-    });
-    $scope.upload[index].xhr(function(xhr){
-    });
-
-  };
-
-}]);
+    }]);
