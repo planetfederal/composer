@@ -1,5 +1,6 @@
 angular.module('gsApp.workspaces.workspace', [
-  'ngGrid', 'ngSanitize',
+  'gsApp.workspaces.datastores',
+  'ngSanitize'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -19,9 +20,9 @@ angular.module('gsApp.workspaces.workspace', [
     }])
 .controller('WorkspaceHomeCtrl', ['$scope', '$stateParams',
   'GeoServer', '$log', '$sce', 'baseUrl', '$window', '$state',
-  '$location',
+  '$location', '$modal',
     function($scope, $stateParams, GeoServer, $log, $sce, baseUrl,
-      $window, $state, $location) {
+      $window, $state, $location, $modal) {
 
       $scope.tabs = {'data': false, 'maps': true};
       $scope.$on('$stateChangeSuccess', function(event, toState,
@@ -34,6 +35,7 @@ angular.module('gsApp.workspaces.workspace', [
         });
 
       var wsName = $stateParams.workspace;
+      $scope.workspace = wsName;
       $scope.title = wsName;
       $scope.thumbnails = {};
       $scope.olmaps = {};
@@ -61,7 +63,7 @@ angular.module('gsApp.workspaces.workspace', [
               map.layergroupname, 250, 250);
             var srs = '&srs=' + map.proj.srs;
 
-            $scope.thumbnails[map.name] = baseUrl + url + bbox +
+            $scope.thumbnails[map.name] = url + bbox +
               '&format=image/png' + srs;
           }
         });
@@ -90,28 +92,29 @@ angular.module('gsApp.workspaces.workspace', [
       });*/
       $scope.datastores = GeoServer.datastores.get().datastores;
 
-      $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
-        pageSize: 25
+      $scope.selectStore = function(store) {
+        $scope.selectedStore = store;
+        $scope.selectedStore.imported = store.layers_imported.length;
+        $scope.selectedStore.unimported = store.layers_unimported.length;
       };
-      $scope.gridOptions = {
-        data: 'datastores',
-        columnDefs: [
-          {field: 'workspace', displayName: 'Workspace'},
-          {field: 'store', displayName: 'Store'},
-          {field: 'type', displayName: 'Data Type'},
-          {field: 'source', displayName: 'Source', width: '30%'},
-          {field: 'description', displayName: 'Description', width: '20%'},
-          {field: 'srs', displayName: 'SRS'}
-        ],
-        enablePaging: true,
-        enableColumnResize: false,
-        showFooter: true,
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: {
-          filterText: '',
-          useExternalFilter: true
-        }
+
+      // Modals
+
+      $scope.addNewStore = function() {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/addnew-modal.tpl.html',
+          controller: 'AddNewModalCtrl',
+          size: 'lg',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            geoserver: function() {
+              return GeoServer;
+            }
+          }
+        });
+
       };
 
     }]);

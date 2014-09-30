@@ -2,19 +2,26 @@ package org.opengeo.app;
 
 import static org.geoserver.catalog.Predicates.equal;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.util.file.Files;
@@ -34,7 +41,6 @@ import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
-
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
@@ -61,6 +67,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.google.common.io.ByteSource;
 
 @Controller
@@ -224,14 +232,10 @@ public class LayerController extends AppController {
             "properties","text/x-java-properties");
     
     @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/{wsName}/{name}/style/icons", method = RequestMethod.GET)
-    public @ResponseBody JSONArr icons(@PathVariable String wsName, @PathVariable String name)
+    @RequestMapping(value = "/{wsName}/{layer}/style/icons", method = RequestMethod.GET)
+    public @ResponseBody JSONArr icons(@PathVariable String wsName, @PathVariable String layer)
             throws IOException {
-        JSONArr arr = new JSONArr();
-
         Catalog cat = geoServer.getCatalog();
-        LayerInfo l = findLayer(wsName, name, cat);
-        StyleInfo s = l.getDefaultStyle();
         WorkspaceInfo ws;
         if ("default".equals(wsName)) {
             ws = cat.getDefaultWorkspace();
@@ -242,16 +246,42 @@ public class LayerController extends AppController {
         if (ws == null) {
             throw new RuntimeException("Unable to find workspace " + wsName);
         }
+        LayerInfo l = findLayer(wsName, layer, cat);
+        StyleInfo s = l.getDefaultStyle();
         if (s == null) {
-            throw new NotFoundException(String.format("Layer %s:%s has no default style", wsName, name));
+            throw new NotFoundException(String.format("Layer %s:%s has no default style", wsName, layer));
         }
         // check what icons/fonts are referenced style
-        //
-        Set<String> referenced;
+        Set<String> referenced = referencedIcons( s );
+        GeoServerResourceLoader rl = cat.getResourceLoader();
+
+        JSONArr arr = new JSONArr();
+
+        // Scan workspace styles directory for supported formats
+        String path = Paths.path("workspaces",ws.getName(), "styles");
+        Resource styles = rl.get(path);
+        for( Resource r : styles.list() ){
+            String n = r.name();
+            String ext = pathExtension(n);
+            
+            if( !ICON_FORMATS.containsKey(ext.toLowerCase())){
+                continue;
+            }
+            Object format = ICON_FORMATS.get(ext.toLowerCase());
+            JSONObj item = arr.addObject().put("name",n).
+               put("format",ext).
+               put("mime",format);
+            if( referenced.contains(n)){
+               item.put("used", true );
+            }
+        }
+        return arr;
+    }
+ 
+    private Set<String> referencedIcons(StyleInfo s) throws IOException {
         Style style = s.getStyle();
-        
         if( style != null ){
-            referenced = (Set<String>) style.accept(new StyleAdaptor() {
+            return (Set<String>) style.accept(new StyleAdaptor() {
                 public Object visit(OnLineResource resource, Object data) {
                     URI uri = resource.getLinkage();
                     if (uri != null) {
@@ -268,33 +298,82 @@ public class LayerController extends AppController {
             }, new HashSet<String>());
         }
         else {
-            referenced = Collections.emptySet();
+            return Collections.emptySet();
         }
+    }
+
+    /**
+     * Replacement for {@link Paths#extension}.
+     * <p>
+     * Extension is lowercase suitable for use with {@link #ICON_FORMATS}.get(extension).
+     * @param filename
+     * @return extension for provided filename, or null
+     */
+    private String pathExtension(String filename) {
+        if (filename == null || filename.lastIndexOf('.') == -1) {
+            return null;
+        }
+        String ext = filename.substring(filename.lastIndexOf('.') + 1);
+        return ext.toLowerCase();
+    }
+
+    @RequestMapping(
+            value = "/{wsName}/{layer}/style/icons/upload",
+            method = RequestMethod.POST,consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    public @ResponseBody JSONArr iconsUpload(@PathVariable String wsName, @PathVariable String layer, HttpServletRequest request ) throws IOException, FileUploadException {
+        Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
         GeoServerResourceLoader rl = cat.getResourceLoader();
         
-        // Scan workspace styles directory for supported formats
-        String path = Paths.path("workspaces",ws.getName(), "styles");
-        Resource styles = rl.get(path);
-        for( Resource r : styles.list() ){
-            String n = r.name();
-            if (n == null || n.lastIndexOf('.') == -1) {
-                continue;
+        // Resource resource = dataDir().get(ws).get("icons"); // GEOS-6690
+        Resource resource = rl.get(Paths.path("workspaces",ws.getName(),"styles"));
+        
+        File iconsDir = resource.dir();
+        
+        LayerInfo l = findLayer(wsName, layer, cat);
+        StyleInfo s = l.getDefaultStyle();
+        if (s == null) {
+            throw new NotFoundException(String.format("Layer %s:%s has no default style", wsName, layer));
+        }
+        Set<String> referenced = referencedIcons( s );
+        
+        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+
+        JSONArr arr = new JSONArr();
+        
+        @SuppressWarnings("unchecked")
+        List<FileItem> input = (List<FileItem>) upload.parseRequest(request);
+        for (FileItem file : input) {
+            String filename = file.getName();
+
+            // trim filename if required
+            if (filename.lastIndexOf('/') != -1) {
+                filename = filename.substring(filename.lastIndexOf('/'));
             }
-            String ext = n.substring(n.lastIndexOf('.') + 1);
-            if( !ICON_FORMATS.containsKey(ext.toLowerCase())){
-                continue;
+            if (filename.lastIndexOf('\\') != -1) {
+                filename = filename.substring(filename.lastIndexOf('\\'));
+            }
+            String ext = pathExtension(filename);
+            if( !ICON_FORMATS.containsKey(ext)){
+                throw new IllegalArgumentException("Icon format "+ext+" unsupported - try:"+ICON_FORMATS.keySet() );
+            }
+            File icon = new File(iconsDir,filename);            
+            try {
+                file.write(icon);
+            } catch (Exception e) {
+                LOG.info("Unable to write "+icon);
             }
             Object format = ICON_FORMATS.get(ext.toLowerCase());
-            JSONObj item = arr.addObject().put("name",n).
+            JSONObj item = arr.addObject().put("name",filename).
                put("format",ext).
                put("mime",format);
-            if( referenced.contains(n)){
+            if( referenced.contains(filename)){
                item.put("used", true );
             }
         }
         return arr;
     }
- 
+    
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
     public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name)
         throws IOException {

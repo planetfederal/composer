@@ -44,3 +44,144 @@
     width: 90%;
   }
 }
+
+.maps-data-tabs {
+  ul.nav.nav-tabs {
+    li {
+      width: 150px;
+      text-align: center;
+      font-weight: 600;
+    }
+  }
+  .tab-content {
+    margin-left: 10px;
+  }
+}
+
+.data-store-crud {
+  display: inline;
+  float: right;
+  margin-right: 50%;
+  margin-top: -10px;
+  padding-right: 20px;
+
+  .circular-icon {
+    .rounded(50%);
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 12px;
+    text-align: center;
+    display: inline-block;
+    border: solid 1px @gray;
+    color: @gray;
+    margin-right: 5px;
+    &:hover {
+      cursor: pointer;
+      background-color: @gray;;
+      color: @white;
+    }
+  }
+}
+
+.datastores {
+  margin-top: 10px;
+
+  p.x-imported {
+    padding-bottom: 10px;
+  }
+
+  .stores-list {
+    margin-top: 5px;
+    display: inline-block;
+    width: 100%;
+  }
+  .store-row {
+    padding: 14px 12px 4px 8px;
+    width: 90%;
+
+    &.selected {
+      background-color: @very-lt-gray;
+    }
+
+    &:hover {
+      background-color: @almost-white;
+      cursor: pointer;
+    }
+  }
+  .icon-column {
+    width: 40px;
+    margin-top: 18px;
+    display: inline-block;
+    vertical-align: top;
+  }
+  .info-column {
+    display: inline-block;
+    margin-left: 15px;
+  }
+  .datastore-icons {
+    color: @gray;
+    margin: 0 auto;
+    width: 24px;
+  }
+  .datastore-label {
+    text-align: center;
+    font-size: 10px;
+  }
+
+  .imports {
+    clear:both;
+    min-height: 60%;
+    max-height: 80%;
+    border: 1px solid @gray;
+    overflow-y:scroll;
+    background-color: @almost-white;
+
+    li.layer_imported {
+      border-bottom: 1px solid @gray;
+      padding: 10px;
+      height: auto;
+      background-color: @white;
+
+      .img_placeholder {
+        height: 60px;
+        width: 60px;
+        background-color: @light-gray;
+        border: 1px solid @gray;
+        display: inline-block;
+        vertical-align: middle;
+      }
+      .layer_info {
+        display: inline-block;
+        margin-left: 15px;
+        vertical-align: middle;
+        .info {
+          margin-bottom: 5px;
+        }
+      }
+      .srs_info {
+        display: inline-block;
+        float: right;
+        text-align: center;
+
+        .label {
+          font-weight: bold;
+          display: block;
+          color: @black;
+        }
+        .attr_info {
+          text-align: center;
+          margin-top: 8px;
+          cursor: pointer;
+
+          .label {
+            display: block;
+            margin-top: 2px;
+          }
+        }
+      }
+    }
+  }
+
+}

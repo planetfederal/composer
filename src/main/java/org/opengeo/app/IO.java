@@ -6,7 +6,9 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
@@ -100,6 +102,25 @@ public class IO {
      */
     public static Envelope bounds(JSONObj obj) {
         return new Envelope(obj.doub("west"), obj.doub("east"), obj.doub("south"), obj.doub("north"));
+    }
+
+    /**
+     * Encodes a workspace within the specified object.
+     *
+     * @param obj The object to encode within.
+     * @param workspace The workspace to encode.
+     * @param namespace The namespace corresponding to the workspace.
+     * @param isDefault Flag indicating whether the workspace is the default.
+     *
+     * @return The object passed in.
+     */
+    public static JSONObj workspace(JSONObj obj, WorkspaceInfo workspace, NamespaceInfo namespace, boolean isDefault) {
+        obj.put("name", workspace.getName());
+        if (namespace != null) {
+            obj.put("uri", namespace.getURI());
+        }
+        obj.put("default", isDefault);
+        return obj;
     }
 
     /**

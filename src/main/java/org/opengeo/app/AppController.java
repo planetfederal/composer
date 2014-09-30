@@ -2,6 +2,7 @@ package org.opengeo.app;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
@@ -61,4 +62,10 @@ public abstract class AppController {
         return l;
     }
 
+    /**
+     * Returns the namespace associated with the specified workspace.
+     */
+    protected NamespaceInfo namespaceFor(WorkspaceInfo ws) {
+        return geoServer.getCatalog().getNamespaceByPrefix(ws.getName());
+    }
 }

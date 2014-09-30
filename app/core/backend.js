@@ -7,6 +7,7 @@ angular.module('gsApp.core.backend',[])
     function($http, $resource, $q, $log) {
       var gsRoot = '/geoserver';
       var apiRoot = gsRoot + '/app/backend';
+      var importRoot = apiRoot + '/imports/';
 
       /*
        * simple wrapper around $http to set up defer/promise, etc...
@@ -30,6 +31,12 @@ angular.module('gsApp.core.backend',[])
       return {
         baseUrl: function() {
           return gsRoot;
+        },
+
+        import: {
+          getUrl: function(workspace) {
+            return importRoot + workspace;
+          }
         },
 
         session: function() {
@@ -77,11 +84,24 @@ angular.module('gsApp.core.backend',[])
             return {
               'datastores': [{
                 'workspace': 'i_am_a_stub',
-                'store': 'med_shp',
+                'name': 'med_shp',
                 'type': 'shp',
+                'layers_imported': ['schools', 'police'],
+                'layers_unimported': ['municipal'],
                 'source':  '72.45.34.23/mnt/vol2/dataset1/ne/',
                 'description':
                 'directory of spatial files (shp)',
+                'srs': 'EPSG:4326'
+              },
+              {
+                'workspace': 'i_too_am_a_stub',
+                'name': 'med_postgis',
+                'type': 'postgis',
+                'layers_imported': ['schools', 'police', 'churches'],
+                'layers_unimported': ['municipal'],
+                'source':  '72.45.34.23/postgis/med:54321',
+                'description':
+                'backup postgis database for medford',
                 'srs': 'EPSG:4326'
               }]
             };
@@ -100,6 +120,13 @@ angular.module('gsApp.core.backend',[])
           get: {
             method: 'GET',
             responseType: 'json'
+          },
+          update: {
+            method: 'PATCH',
+            responseType: 'json'
+          },
+          remove: {
+            method: 'DELETE'
           }
         }),
 
@@ -134,6 +161,21 @@ angular.module('gsApp.core.backend',[])
           get: function(workspace, name) {
             return http({
               method: 'GET',
+              url: apiRoot+'/maps/'+workspace+'/'+name
+            });
+          },
+
+          update: function(workspace, name, patch) {
+            return http({
+              method: 'PATCH',
+              url: apiRoot+'/maps/'+workspace+'/'+name,
+              data: patch
+            });
+          },
+
+          remove: function(workspace, name) {
+            return http({
+              method: 'DELETE',
               url: apiRoot+'/maps/'+workspace+'/'+name
             });
           },

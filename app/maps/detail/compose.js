@@ -14,51 +14,25 @@ angular.module('gsApp.maps.compose', [
     }])
 .controller('MapComposeCtrl',
     ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log',
-    'olMapService',
-    function($scope, $stateParams, GeoServer, $timeout, $log,
-      olMapService) {
+    function($scope, $stateParams, GeoServer, $timeout, $log) {
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;
 
       GeoServer.map.get(wsName, name).then(function(result) {
         var map = result.data;
+
         $scope.map = map;
         $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
 
-        $scope.layers = [angular.extend(map, {
-          bbox: {
-            native: map.bbox
-          }
-        })];
-        $scope.proj = map.srs;
-        $scope.center = map.bbox.center;
-        $scope.visibleMapLayers = [];
-
-        // wait for map to load
-        $timeout(function() {
-          $scope.olMap = olMapService.map;
-          var layers = $scope.olMap.getLayers();
-          layers.forEach(function(layer, i) {
-            $scope.visibleMapLayers[i] = layer.getVisible();
-          });
-          $scope.numLayers = layers.getLength();
-        }, 300);
-      });
-
-      // for checkboxes in Layers list
-      $scope.toggleVisibility = function(l, index) {
-        var layers = $scope.olMap.getLayers();
-        var toggledLayer;
-        angular.forEach(layers, function(layer, key) {
-          if (layer.getProperties().name === l.name) {
-            toggledLayer = layer;
-            return;
-          }
+        // map options, extend map obj and add visible flag to layers
+        $scope.mapOpts = angular.extend(map, {
+          layers: map.layers.map(function(l) {
+            l.visible = true;
+            return l;
+          })
         });
-        toggledLayer.setVisible($scope.visibleMapLayers[index] =
-         !$scope.visibleMapLayers[index]);
-      };
+      });
 
       $scope.toggle = true;
       $scope.toggleLayers = function() {
