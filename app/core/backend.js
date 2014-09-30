@@ -120,6 +120,13 @@ angular.module('gsApp.core.backend',[])
           get: {
             method: 'GET',
             responseType: 'json'
+          },
+          update: {
+            method: 'PATCH',
+            responseType: 'json'
+          },
+          remove: {
+            method: 'DELETE'
           }
         }),
 
@@ -154,6 +161,21 @@ angular.module('gsApp.core.backend',[])
           get: function(workspace, name) {
             return http({
               method: 'GET',
+              url: apiRoot+'/maps/'+workspace+'/'+name
+            });
+          },
+
+          update: function(workspace, name, patch) {
+            return http({
+              method: 'PATCH',
+              url: apiRoot+'/maps/'+workspace+'/'+name,
+              data: patch
+            });
+          },
+
+          remove: function(workspace, name) {
+            return http({
+              method: 'DELETE',
               url: apiRoot+'/maps/'+workspace+'/'+name
             });
           },
