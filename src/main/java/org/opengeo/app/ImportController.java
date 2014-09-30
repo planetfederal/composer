@@ -18,6 +18,7 @@ import org.geoserver.importer.ImportFilter;
 import org.geoserver.importer.ImportTask;
 import org.geoserver.importer.Importer;
 import org.geotools.referencing.CRS;
+import org.h2.store.DiskFile;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -57,7 +58,10 @@ public class ImportController extends AppController {
         File uploadsDir = dataDir().get(ws).get("uploads").dir();
 
         // create an uploader to handle the form upload
-        ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+        DiskFileItemFactory diskFactory = new DiskFileItemFactory();
+        diskFactory.setSizeThreshold(1024*1024*256); // TODO: make this configurable
+
+        ServletFileUpload upload = new ServletFileUpload(diskFactory);
 
         // filter out only file fields
         Iterator<FileItem> files = Iterables.filter(upload.parseRequest(request), new Predicate<FileItem>() {
