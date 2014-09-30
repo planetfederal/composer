@@ -1,0 +1,81 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">New Data Source</h4>
+  </div>
+  <div class="modal-body">
+    <div class="upload-options btn-group btn-group-justified">
+      <div class="btn-group">
+        <button type="button" ng-init="addfile=true;" class="btn btn-default" ng-class="{'active': addfile}" ng-click="addfile=true;">Add Files</button>
+      </div>
+      <div class="btn-group">
+        <button type="button" class="btn btn-default" ng-class="{'active': !addfile}" ng-click="addfile=false;">Add Database</button>
+      </div>
+    </div>
+    <div class="upload-options-content">
+      <div ng-show="addfile">
+        <p>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control">
+                <span class="input-group-btn">
+                  <button class="btn btn-primary btn-sm" type="button" ng-file-select="onFileSelect($files)" data-multiple="true">Browse</button>
+                </span>
+              </div><!-- /input-group -->
+              <small style="margin-top: 5px;margin-left: 10px;">Upload a .zip or a complete set of .shp, .prj, .dbf, .shx files</small>
+            </div><!-- /.col-lg-6 -->
+          </div><!-- /.row -->
+        </p>
+        <p style="text-align:center">or</p>
+        <p>
+          <div class="drop-box" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class-name-or-function"
+                ng-show="dropSupported">Drop files here</div>
+          <div ng-file-drop-available="dropSupported=true"
+                ng-show="!dropSupported">HTML5 Drop File is not supported</div>
+        </p>
+          <div class="err" ng-show="errorMsg != null">{{errorMsg}}</div>
+        <div ng-show="selectedFiles != null" class="">
+          <p><strong>Progress: </strong></p>
+          <div class="sel-file ng-binding ng-scope" ng-repeat="f in selectedFiles">
+            <div class="file-prog-1">
+              {{($index + 1) + '.'}}
+              <img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}">
+              <button class="button ng-hide" ng-click="start($index)" ng-show="progress[$index] < 0">Start</button>
+              <div class="progress" ng-show="progress[$index] >= 0">
+                <div ng-show="uploadComplete[$index]" style="width:{{progress[$index]}}%">{{ progress[$index] }} <span ng-show="progress[$index] > 0">%</span></div>
+                <div ng-show="!uploadComplete[$index]" class="prog_error">Upload Error</div>
+              </div>
+              <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) && progress[$index] < 100 && uploadResult.length == 0">Cancel</button>
+            </div>
+            <div class="file-prog-2">
+              <span class="fileinfo">
+                {{ f.name }}  &nbsp; &nbsp; &nbsp; &nbsp; Size: {{ f.bytes }} &nbsp; &nbsp; &nbsp; &nbsp;
+              </span>
+            </div>
+            <div class="file-prog-3">
+              <div class="result" ng-repeat="result in uploadResult">
+                <div class="no_crs" ng-show="result=='NO_CRS'">
+                  <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click">
+                    <i class="fa fa-warning"></i>
+                    <small>Missing CRS</small>
+                  </div>
+                  <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" placeholder="Add CRS">
+                    <span class="input-group-btn">
+                      <button class="btn btn-default" type="button">Add</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div ng-show="!addfile">Database</div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-success btn-sm" ng-click="ok()" style="margin-left: 20px;margin-right: 20px;">Next &rarr;</button>
+  </div>
+</div>

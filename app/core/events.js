@@ -14,5 +14,9 @@ angular.module('gsApp.core.event', [])
   /**
    * Fired on logout.
    */
-  Logout: 'app-logout'
+  Logout: 'app-logout',
+  /**
+   * Fired when sidenav resized.
+   */
+  SidenavResized: 'app-sidenav-resized'
 });

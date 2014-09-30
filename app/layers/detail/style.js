@@ -19,16 +19,13 @@ angular.module('gsApp.layers.style', [
 
       GeoServer.layer.get({ name: name, workspace: wsName }).$promise
         .then(function(layer) {
-          $scope.layer = layer;
-          $scope.layers = [layer];
-          $scope.proj = layer.srs;
-          $scope.bbox = {
-            'west': layer.bbox[0],
-            'south': layer.bbox[1],
-            'east': layer.bbox[2],
-            'north': layer.bbox[3]
+          $scope.mapOpts = {
+            workspace: wsName,
+            layers: [{name: layer.name, visible: true}],
+            proj: layer.proj,
+            bbox: layer.bbox.native,
+            center: layer.bbox.native.center
           };
-          $scope.center = layer.center;
 
           GeoServer.style.get(wsName, name).then(function(result) {
             $scope.style = result.data;
