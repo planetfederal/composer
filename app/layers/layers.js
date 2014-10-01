@@ -17,13 +17,6 @@ angular.module('gsApp.layers', [
           templateUrl: '/layers/detail/layer.tpl.html'
         });
     }])
-.directive('ngBlur', function () {
-  return function (scope, elem, attrs) {
-    elem.bind('blur', function () {
-      scope.$apply(attrs.ngBlur);
-    });
-  };
-})
 .directive('getType', function() {
   return {
     restrict: 'A',
@@ -113,6 +106,19 @@ angular.module('gsApp.layers', [
         selectedItems: $scope.gridSelections,
         multiSelect: true,
         columnDefs: [
+          {field: '',
+            displayName: '',
+            cellClass: 'text-center',
+            sortable: false,
+            cellTemplate:
+              '<div ng-class="col.colIndex()">' +
+                '<a ng-click="onDeleteStyle(row.entity)">' +
+                  '<img ng-src="images/delete.png" alt="Remove Layer"' +
+                    'title="Remove Layer" />' +
+                '</a>' +
+              '</div>',
+            width: '2%'
+          },
           {field: 'name', displayName: 'Layer', width: '20%'},
           {field: 'title',
             displayName: 'Title',
@@ -120,10 +126,7 @@ angular.module('gsApp.layers', [
             cellTemplate:
               '<div class="grid-text-padding"' +
                 'alt="{{row.entity.description}}"' +
-                'title="{{row.entity.description}}"' +
-                'ng-class="\'colt\' + col.index"' +
-                'ng-input="COL_FIELD"' +
-                'ng-model="COL_FIELD">' +
+                'title="{{row.entity.description}}">' +
                 '{{row.entity.title}}' +
               '</div>',
             width: '20%'
@@ -209,19 +212,6 @@ angular.module('gsApp.layers', [
           {field: 'lastEdited',
             displayName: 'Last Edited',
             cellTemplate: '<div ng-class="col.colIndex()"></div>',
-            width: '10%'
-          },
-          {field: '',
-            displayName: '',
-            cellClass: 'text-center',
-            sortable: false,
-            cellTemplate:
-              '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onDeleteStyle(row.entity)">' +
-                  '<img ng-src="images/delete.png" alt="Remove Layer"' +
-                    'title="Remove Layer" />' +
-                '</a>' +
-              '</div>',
             width: '*'
           }
         ],
