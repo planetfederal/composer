@@ -79,7 +79,7 @@ public class MapControllerTest {
             .andReturn();
 
         JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
-        assertEquals(arr.size(), 2);
+        assertEquals(2,arr.size());
 
         Iterables.find(arr, new Predicate<Object>() {
             @Override
