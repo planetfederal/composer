@@ -30,7 +30,9 @@ angular.module('gsApp.workspaces.datastores', [
     return $scope.upload[index] !== null;
   };
   $scope.abort = function(index) {
-    $scope.upload[index].abort();
+    if ($scope.upload[index]) {
+      $scope.upload[index].abort();
+    }
     $scope.upload[index] = null;
   };
 
@@ -68,9 +70,7 @@ angular.module('gsApp.workspaces.datastores', [
       if ($scope.uploadRightAway) {
         $scope.start(i);
       }
-      //console.log(bytesToSize($files[i].size));
       $files[i].bytes = bytesToSize($files[i].size);
-      //console.log($files[i]);
     }
   };
 
@@ -83,40 +83,38 @@ angular.module('gsApp.workspaces.datastores', [
 
     //$upload.upload()
     $scope.upload[index] = $upload.upload({
-        url: geoserver.import.getUrl($scope.workspace),
-        method: 'POST',
-        //headers: {'my-header': 'my-header-value'},
-        data : {
-          myModel : $scope.myModel,
-          errorCode: $scope.generateErrorOnServer && $scope.serverErrorCode,
-          errorMessage: $scope.generateErrorOnServer && $scope.serverErrorMsg
-        },
-        file: $scope.selectedFiles[index],
-        fileFormDataName: 'myFile'
-      });
-    $scope.upload[index].then(function(response) {
-     // console.log($scope.selectedFiles[index]);
-     // console.log(response);
-      var r = response.data;
+      url: geoserver.import.getImportUrl($scope.workspace),
+      method: 'POST',
+      //headers: {'my-header': 'my-header-value'},
+      data : {
+        myModel : $scope.myModel
+      },
+      file: $scope.selectedFiles[index],
+      fileFormDataName: 'myFile'
+    });
 
-      if (r.imported.length > 0) {
+    $scope.upload[index].then(function(response) {
+      var r = response.data;
+      $scope.upload[index].rememberId = r.id;
+
+      if (r.imported && r.imported.length > 0) {
         var upFilename = $scope.selectedFiles[index].name;
         r.imported.forEach(function(item) {
           if (upFilename.indexOf(item.file) > -1) {
             $scope.uploadResult.push(response.statusText);
-            $scope.uploadComplete[index] = true;
+            $timeout(function() {
+              $scope.uploadComplete[index] = true;
+            }, 200);
           }
         });
-
-      } else if (r.pending.length > 0) {
-        var rememberTask;
+      } else if (r.pending && r.pending.length > 0) {
         r.pending.forEach(function(item) {
-          rememberTask = item.task;
+          $scope.upload[index].rememberTask = item.task;
           $scope.uploadResult.push(item.problem);
         });
       }
 
-/*
+      /*
       $timeout(function() {
         $scope.uploadResult.push(response.statusText);
       });*/
@@ -128,7 +126,7 @@ angular.module('gsApp.workspaces.datastores', [
       }
     }, function(evt) {
         //console.log(evt);
-       // console.log("why here");
+        //console.log("why is this here");
         // Math.min is to fix IE which reports 200% sometimes
         $scope.progress[index] = Math.min(100, parseInt(100.0 *
          evt.loaded / evt.total));
@@ -136,6 +134,31 @@ angular.module('gsApp.workspaces.datastores', [
     $scope.upload[index].xhr(function(xhr){
     });
 
+  }; // end $scope.start(index)
+
+  var lastTriedValue;
+  $scope.server = {};
+  $scope.crs = {revised: ''};
+
+  $scope.onAddCRS = function(index) {
+    if ($scope.upload[index]) {
+      lastTriedValue = $scope.upload[index];
+    }
+    geoserver.import.update(
+      $scope.workspace, lastTriedValue.rememberId,
+      {
+        'task': lastTriedValue.rememberTask,
+        'proj': $scope.crs.revised.toLowerCase()
+      }).then(function(response) {
+        if (!response.success) {
+          $scope.server.response = response.data.message;
+        } else {
+          $timeout(function() {
+            $scope.uploadComplete[index] = true;
+            $scope.server.response = '';
+          }, 200);
+        }
+      });
   };
 }])
 .directive('popoverHtmlUnsafePopup', function () {
