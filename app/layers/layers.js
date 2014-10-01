@@ -1,6 +1,7 @@
 angular.module('gsApp.layers', [
   'ngGrid',
-  'ui.select'
+  'ui.select',
+  'gsApp.layers.style'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -71,17 +72,19 @@ angular.module('gsApp.layers', [
           name: layer.name
         });
       };
-      $scope.updateEntity = function(column, row) {
-        $log(row.entity);
-        $log(column.field);
-        
-        //TODO: add code for saving to the server here.
-        //row.entity.$update();
-      };
       $scope.$on('ngGridEventEndCellEdit', function(evt){
-        $log(evt.targetScope.row.entity);  // the underlying data bound to row
-        // TODO: Detect changes and send entity to server 
+        var target = evt.targetScope;
+        var field = target.col.field;
+        var layer = target.row.entity;
+
+        var patch = {};
+        patch[field] = layer[field];
+
+        //TODO: report error
+        GeoServer.layer
+          .update({ workspace: layer.workspace, name: layer.name}, patch);
       });
+
       $scope.pagingOptions = {
         pageSizes: [10, 50, 100],
         pageSize: 10,
@@ -120,7 +123,6 @@ angular.module('gsApp.layers', [
                 'title="{{row.entity.description}}"' +
                 'ng-class="\'colt\' + col.index"' +
                 'ng-input="COL_FIELD"' +
-                'ng-blur="updateEntity(col, row)"' +
                 'ng-model="COL_FIELD">' +
                 '{{row.entity.title}}' +
               '</div>',

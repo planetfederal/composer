@@ -28,10 +28,10 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
 
     @Test
     public void testPageLayers() throws Exception {
-        JSONArray arr = (JSONArray) getAsJSON(("/app/backend/layers/sf"));
+        JSONArray arr = (JSONArray) getAsJSON(("/app/api/layers/sf"));
         assertEquals(3, arr.size());
 
-        arr = (JSONArray) getAsJSON(("/app/backend/layers/sf?page=1&pagesize=1"));
+        arr = (JSONArray) getAsJSON(("/app/api/layers/sf?page=1&pagesize=1"));
         assertEquals(1, arr.size());
     }
 
@@ -84,7 +84,7 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         // test upload
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setContextPath("/geoserver");
-        request.setRequestURI("/geoserver/backend/layers/cite/cite:Lakes/style/icons/upload");
+        request.setRequestURI("/geoserver/api/layers/cite/cite:Lakes/style/icons/upload");
         request.setMethod("post");
         MimeMultipart body = new MimeMultipart();
         request.setContentType(body.getContentType());

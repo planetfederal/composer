@@ -101,7 +101,7 @@ public class LayerControllerTest {
             .geoServer().build(geoServer);
 
 
-        MvcResult result = mvc.perform(get("/backend/layers/foo"))
+        MvcResult result = mvc.perform(get("/api/layers/foo"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn();
@@ -131,7 +131,7 @@ public class LayerControllerTest {
                 .featureType().defaults()
             .geoServer().build(geoServer);
 
-        MvcResult result = mvc.perform(get("/backend/layers/foo/one"))
+        MvcResult result = mvc.perform(get("/api/layers/foo/one"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn();
@@ -168,7 +168,7 @@ public class LayerControllerTest {
               .style().point()
           .geoServer().build(geoServer);
 
-        MvcResult result = mvc.perform(get("/backend/layers/foo/one/style"))
+        MvcResult result = mvc.perform(get("/api/layers/foo/one/style"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(YsldMessageConverter.MEDIA_TYPE))
             .andReturn();
@@ -199,7 +199,7 @@ public class LayerControllerTest {
       assertEquals( d.getType(), Type.DIRECTORY );
       assertEquals( 3, d.list().size() );
       
-      MvcResult result = mvc.perform(get("/backend/layers/foo/one/style/icons"))
+      MvcResult result = mvc.perform(get("/api/layers/foo/one/style/icons"))
               .andExpect(status().isOk())
               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
               .andReturn();
@@ -219,7 +219,7 @@ public class LayerControllerTest {
                 .style().ysld("one.yaml")
           .geoServer().build(geoServer);
 
-        MvcResult result = mvc.perform(get("/backend/layers/foo/one/style"))
+        MvcResult result = mvc.perform(get("/api/layers/foo/one/style"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(YsldMessageConverter.MEDIA_TYPE))
                 .andReturn();
@@ -239,7 +239,7 @@ public class LayerControllerTest {
             .geoServer().build(geoServer);
 
 
-        MockHttpServletRequestBuilder req = put("/backend/layers/foo/one/style")
+        MockHttpServletRequestBuilder req = put("/api/layers/foo/one/style")
             .contentType(YsldMessageConverter.MEDIA_TYPE)
             .content("title: raw");
 
@@ -262,7 +262,7 @@ public class LayerControllerTest {
                      .style().ysld("one.yaml")
             .geoServer().build(geoServer);
 
-        MockHttpServletRequestBuilder req = put("/backend/layers/foo/one/style")
+        MockHttpServletRequestBuilder req = put("/api/layers/foo/one/style")
             .contentType(YsldMessageConverter.MEDIA_TYPE)
             .content("title: raw\nbad");
 
@@ -289,7 +289,7 @@ public class LayerControllerTest {
                 .layer("one").info("The layer", "This layer is cool!")
                 .geoServer().build(geoServer);
 
-        mvc.perform(delete("/backend/layers/foo/one"))
+        mvc.perform(delete("/api/layers/foo/one"))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -306,7 +306,7 @@ public class LayerControllerTest {
                 .geoServer().build(geoServer);
 
         JSONObj obj = new JSONObj().put("title", "new title");
-        MockHttpServletRequestBuilder req = put("/backend/layers/foo/one")
+        MockHttpServletRequestBuilder req = put("/api/layers/foo/one")
             .contentType(MediaType.APPLICATION_JSON)
             .content(obj.toString());
 
