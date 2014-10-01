@@ -75,16 +75,14 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
     
 
     @Test
-    public void testGetStyleIconsUpload() throws Exception {
+    public void testIconsUpload() throws Exception {
         Catalog catalog = getCatalog();
-        Importer importer =
-            GeoServerExtensions.bean(Importer.class, applicationContext);
-        LayerController ctrl = new LayerController(getGeoServer(), importer);
+        IconController ctrl = new IconController(getGeoServer());
         
         // test upload
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setContextPath("/geoserver");
-        request.setRequestURI("/geoserver/api/layers/cite/cite:Lakes/style/icons/upload");
+        request.setRequestURI("/geoserver/api/icons");
         request.setMethod("post");
         MimeMultipart body = new MimeMultipart();
         request.setContentType(body.getContentType());
@@ -97,8 +95,8 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         body.writeTo(bout);
         request.setContent(bout.toByteArray());
         
-
-        JSONArr arr = ctrl.iconsUpload("cite","cite:Lakes", request );
+        JSONArr arr = ctrl.icon("cite", request );
+        System.out.println( arr );
         assertEquals( 1, arr.size() );
         
         Resource r = catalog.getResourceLoader().get("workspaces/cite/styles/STYLE.PROPERTIES");
