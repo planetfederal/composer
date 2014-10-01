@@ -49,26 +49,30 @@
             </div>
             <div class="file-prog-2">
               <span class="fileinfo">
-                {{ f.name }}  &nbsp; &nbsp; &nbsp; &nbsp; Size: {{ f.bytes }} &nbsp; &nbsp; &nbsp; &nbsp;
+                {{ f.name }}  &nbsp; &nbsp; &nbsp; &nbsp; Size: {{ f.bytes }}
               </span>
             </div>
             <div class="file-prog-3">
               <div class="result" ng-repeat="result in uploadResult">
-                <div class="no_crs" ng-show="result=='NO_CRS'">
+                <div class="no_crs" ng-show="result=='NO_CRS' &&!uploadComplete[$index]">
                   <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click">
                     <i class="fa fa-warning"></i>
                     <small>Missing CRS</small>
                   </div>
                   <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" placeholder="Add CRS">
+                    <input type="text" class="form-control" placeholder="Add CRS" ng-model="crs.revised">
                     <span class="input-group-btn">
-                      <button class="btn btn-default" type="button">Add</button>
+                      <button class="btn btn-default" type="button" ng-click="onAddCRS($index);">Add</button>
                     </span>
                   </div>
+                </div>
+                <div class="success" ng-show="uploadComplete[$index]">
+                  <i class="fa fa-check"></i> Upload Successful
                 </div>
               </div>
             </div>
           </div>
+          <div ng-if="server.response && !uploadComplete[$index]" class="server_response">GeoServer Message: {{ server.response }}</div>
         </div>
       </div>
       <div ng-show="!addfile">Database</div>
