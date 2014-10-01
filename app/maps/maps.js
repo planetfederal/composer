@@ -35,10 +35,24 @@ angular.module('gsApp.maps', [
         });
       };
 
+      $scope.$on('ngGridEventEndCellEdit', function(evt){
+        var target = evt.targetScope;
+        var field = target.col.field;
+        var map = target.row.entity;
+
+        var patch = {};
+        patch[field] = map[field];
+
+        //TODO: report error
+        GeoServer.map
+          .update({ workspace: map.workspace, name: map.name}, patch);
+      });
+
       $scope.pagingOptions = {
         pageSizes: [25, 50, 100],
         pageSize: 25
       };
+      $scope.gridSelections = [];
       $scope.gridOptions = {
         data: 'mapData',
         enableCellSelection: false,
