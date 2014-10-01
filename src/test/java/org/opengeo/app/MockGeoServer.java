@@ -13,12 +13,14 @@ import com.vividsolutions.jts.geom.Envelope;
 
 
 
+
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerGroupInfo.Mode;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
@@ -383,6 +385,7 @@ public class MockGeoServer {
             String wsName = workspaceBuilder.workspace.getName();
             map = mock(LayerGroupInfo.class);
             when(map.getName()).thenReturn(name);
+            when(map.getMode()).thenReturn(Mode.SINGLE);
             when(map.prefixedName()).thenReturn(wsName + ":" + name);
             when(map.layers()).thenAnswer(new Answer<List<LayerInfo>>() {
                 @Override

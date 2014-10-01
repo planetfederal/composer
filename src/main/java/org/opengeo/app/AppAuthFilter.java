@@ -43,8 +43,8 @@ import static org.geoserver.security.GeoServerSecurityFilterChain.WEB_LOGOUT_CHA
 @Component
 public class AppAuthFilter implements GeoServerFilter {
 
-    static final Pattern LOGIN_RE = Pattern.compile("/backend/login/?");
-    static final Pattern LOGOUT_RE = Pattern.compile("/backend/logout/?");
+    static final Pattern LOGIN_RE = Pattern.compile("/api/login/?");
+    static final Pattern LOGOUT_RE = Pattern.compile("/api/logout/?");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -56,7 +56,7 @@ public class AppAuthFilter implements GeoServerFilter {
         HttpServletResponse res = (HttpServletResponse) servletResponse;
         String path = req.getPathInfo();
 
-        if (req.getServletPath().startsWith("/app") && path.startsWith("/backend")) {
+        if (req.getServletPath().startsWith("/app") && path.startsWith("/api")) {
 
             if ("POST".equalsIgnoreCase(req.getMethod()) && LOGIN_RE.matcher(path).matches()) {
                 // hack: we have to jump through a few hoops to piggy back on the geoserver web auth:

@@ -73,13 +73,13 @@ public class MapControllerTest {
               .layer("four").featureType().defaults()
           .geoServer().build(geoServer);
 
-        MvcResult result = mvc.perform(get("/backend/maps/foo"))
+        MvcResult result = mvc.perform(get("/api/maps/foo"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
         JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
-        assertEquals(arr.size(), 2);
+        assertEquals(2,arr.size());
 
         Iterables.find(arr, new Predicate<Object>() {
             @Override
@@ -106,7 +106,7 @@ public class MapControllerTest {
               .layer("two").featureType().defaults()
          .geoServer().build(geoServer);
 
-        MvcResult result = mvc.perform(get("/backend/maps/foo/map"))
+        MvcResult result = mvc.perform(get("/api/maps/foo/map"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
@@ -150,7 +150,7 @@ public class MapControllerTest {
                     .layer("two").featureType().defaults()
             .geoServer().build(geoServer);
 
-        MvcResult result = mvc.perform(get("/backend/maps/foo/map/layers"))
+        MvcResult result = mvc.perform(get("/api/maps/foo/map/layers"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn();
@@ -183,7 +183,7 @@ public class MapControllerTest {
         arr.addObject().put("name", "two");
         arr.addObject().put("name", "one");
 
-        MockHttpServletRequestBuilder req = put("/backend/maps/foo/map/layers")
+        MockHttpServletRequestBuilder req = put("/api/maps/foo/map/layers")
             .contentType(MediaType.APPLICATION_JSON)
             .content(arr.toString());
 
