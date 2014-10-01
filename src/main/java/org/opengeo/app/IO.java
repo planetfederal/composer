@@ -3,9 +3,11 @@ package org.opengeo.app;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -184,6 +186,13 @@ public class IO {
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Error looking up schema", e);
             return "Unknown";
+        }
+    }
+
+    static void metadata(JSONObj obj, MetadataMap metadata, String key) {
+        if( metadata != null && metadata.containsKey(key) ){
+            Object value = metadata.get(key);
+            obj.put(key, value);
         }
     }
 }

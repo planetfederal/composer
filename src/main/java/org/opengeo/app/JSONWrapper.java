@@ -42,7 +42,7 @@ public abstract class JSONWrapper<T extends JSONStreamAware> {
     }
 
     /**
-     * Wraps the specified object, returning the original object if it is not one of the spported types.
+     * Wraps the specified object, returning the original object if it is not one of the supported types.
      */
     public static Object wrapOrSelf(Object obj) {
         if (obj instanceof JSONObject) {
