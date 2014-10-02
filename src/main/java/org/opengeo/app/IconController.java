@@ -214,23 +214,43 @@ public class IconController extends AppController {
             @Override
             public void visit(WorkspaceInfo workspace) {
                 for( StoreInfo store : cat.getStoresByWorkspace(workspace,StoreInfo.class)){
-                    store.accept(this);
+                    try {
+                        store.accept(this);
+                    }
+                    catch( Throwable t){
+                        LOG.log(Level.FINE,String.format("Trouble checking store %s for icon use:%s", store.getName(),t));
+                    }
                 }
                 for( LayerGroupInfo map : cat.getLayerGroupsByWorkspace(workspace)){
-                    map.accept(this);
+                    try {
+                        map.accept(this);
+                    }
+                    catch( Throwable t){
+                        LOG.log(Level.FINE,String.format("Trouble checking map %s for icon use:%s", map.getName(),t));
+                    }    
                 }
             }
             @Override
             public void visit(LayerGroupInfo layerGroup) {
                 for( PublishedInfo child : layerGroup.getLayers() ){
-                    child.accept(this);
+                    try {
+                        child.accept(this);
+                    }
+                    catch( Throwable t){
+                        LOG.log(Level.FINE,String.format("Trouble checking layer %s for icon use:%s", child.getName(),t));
+                    }
                 }
             }
             @Override
             public void visit(LayerInfo layer) {
                 StyleInfo style = layer.getDefaultStyle();
                 if( style != null ){
-                    style.accept(this);
+                    try {
+                        style.accept(this);
+                    }
+                    catch( Throwable t ){
+                        LOG.log(Level.FINE,String.format("Trouble checking layer %s for icon use:%s", layer.getName(),t));
+                    }
                 }
                 else {
                     LOG.fine(String.format("Layer %s has no default style", layer.getName()));
@@ -247,12 +267,20 @@ public class IconController extends AppController {
                 if( style != null ){
                     style.accept(new StyleAdaptor() {
                         public Object visit(OnLineResource resource, Object data) {
-                            URI uri = resource.getLinkage();
-                            if (uri != null) {
-                                String filename = Files.filename(uri.getPath());
-                                if (filename != null) {
-                                    ((Set<String>) data).add(filename);
+                            try {
+                                URI uri = resource.getLinkage();
+                                if (uri != null) {
+                                    String path = uri.toString();
+                                    if( path != null ){
+                                        if( path.lastIndexOf('/') != -1 ){
+                                            path = path.substring(path.lastIndexOf('/')+1);
+                                        }
+                                        ((Set<String>) data).add(path);
+                                    }
                                 }
+                            }
+                            catch( Throwable t){
+                                LOG.log(Level.FINE,String.format("Trouble OnLineResource %s for icon use:%s", resource,t));
                             }
                             return data;
                         }
