@@ -1,0 +1,21 @@
+<div>
+    <div class="modal-header">
+        <h4 class="modal-title">Icons in workspace {{workspace}}</h4>
+    </div>
+    <div class="modal-body">
+        <div>
+          <div class="row" ng-repeat="row in icons | orderBy: 'name' | partition:3 ">
+            <div class="col-xs-4" ng-repeat="item in row">
+                <a href ng-click="chooseIcon(item, $event);" ng-class="{'selectedIcon': item.selected}">
+                    <span class="icon-img"><img ng-src="{{ item.url }}"/></span>
+                    <span class="icon-title">{{item.name}}</span>
+                </a>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+        <button id="copyIcon" class="btn btn-primary btn-sm" ng-click="ok()">Copy Selected to Clipboard</button>
+    </div>
+</div>

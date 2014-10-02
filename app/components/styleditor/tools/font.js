@@ -16,7 +16,7 @@ angular.module('gsApp.styleditor.font', [])
                 '<a href ng-click="chooseFont(f)">{{f}}</a>'+
               '</li>'+
             '</ul>'+
-          '</l>',
+          '</li>',
         replace: true,
         controller: function($scope, $element) {
           $scope.fonts = {

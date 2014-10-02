@@ -139,6 +139,10 @@ angular.module('gsApp.olmap', [])
         });
       }
 
+      OLMap.prototype.getNumLayers = function() {
+        return this.mapOpts.layers.length;
+      };
+
       OLMap.prototype.visibleLayerNames = function() {
         return this.mapOpts.layers.filter(function(l) {
           return l.visible == true;

@@ -7,7 +7,8 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.layers',
   'gsApp.styleditor.font',
   'gsApp.styleditor.size',
-  'gsApp.styleditor.color'
+  'gsApp.styleditor.color',
+  'gsApp.styleditor.icons'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
     function($compile, $sanitize, $timeout, $log) {

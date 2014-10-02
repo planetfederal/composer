@@ -223,6 +223,19 @@ angular.module('gsApp.core.backend',[])
               return url;
             }
           }
+        },
+
+        icons: {
+          get: function(workspace) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/icons/'+workspace
+            });
+          },
+          getIconURL: function(workspace, iconfile) {
+            var url = gsRoot+'/'+workspace+'/styles/'+iconfile;
+            return url;
+          }
         }
       };
     }]);

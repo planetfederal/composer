@@ -1,7 +1,7 @@
 <div id="sidebar-wrapper">
   <ul class="sidebar-nav" ng-show="session.active">
     <li class="sidebar-toggle">
-      <a href="" ng-click="toggleSide=!toggleSide" id="menu-toggle"
+      <a href="" ng-click="toggleSide=!toggleSide;onResize();" id="menu-toggle"
         ng-class="{'f-right': !toggleSide}"
         alt="{{toggleSide ? 'Open' : 'Close'}} sidebar"
         title="{{toggleSide ? 'Open' : 'Close'}} sidebar">
