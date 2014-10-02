@@ -32,7 +32,9 @@ angular.module('gsApp.maps.compose', [
             return l;
           })
         });
+        $scope.numLayers = map.layers.length;
       });
+
 
       $scope.toggle = true;
       $scope.toggleLayers = function() {
