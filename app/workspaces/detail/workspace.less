@@ -1,3 +1,5 @@
+/* workspace.less */
+
 @import "../../variables.less";
 
 .data-table {
@@ -183,5 +185,46 @@
       }
     }
   }
+}
 
+form.settings {
+  margin-top: 20px;
+
+  .form-group {
+    margin-bottom: 20px;
+    label {
+      font-weight: bold;
+    }
+    small {
+      color: @gray;
+    }
+  }
+  .input-sm {
+    height: 28px;
+    padding: 3px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+  }
+
+  #workspaceName {
+    width: 200px;
+  }
+
+  button.delete {
+    margin-top: 20px;
+    padding: 5px 16px !important
+  }
+  button.save {
+    margin-top: 20px;
+    padding: 5px 24px !important;
+  }
+  .saved {
+    color: @green;
+    margin-right: -125px;
+    padding-left: 20px;
+    margin-top: 15px;
+    display: inline-block;
+    vertical-align: middle;
+  }
 }
