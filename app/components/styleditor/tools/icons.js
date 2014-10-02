@@ -83,7 +83,7 @@ angular.module('gsApp.styleditor.icons', [])
     $scope.workspace = workspace;
     $scope.geoserver = geoserver;
     $scope.icons = icons;
-    $scope.selectedIcon = null;
+    $scope.selectedIconName = null;
 
     $scope.ok = function () {
       $modalInstance.close($scope.icon);
@@ -92,20 +92,16 @@ angular.module('gsApp.styleditor.icons', [])
       $modalInstance.dismiss('cancel');
     };
     $scope.chooseIcon = function(i) {
-      if ($scope.selectedIcon) {
-        $scope.selectedIcon = false;
-      }
-      $scope.selectedIcon = i;
-      $scope.selectedIcon = true;
+      $scope.selectedIconName = i.name;
     };
 
     $timeout(function() {
       new ZeroClipboard($('#copyIcon')).on('copy',
       function(event) {
         var clipboard = event.clipboardData;
-        if ($scope.selectedIcon) {
+        if ($scope.selectedIconName) {
           clipboard.setData('text/plain',
-            $scope.selectedIcon.name
+            $scope.selectedIconName
           );
         }
       });

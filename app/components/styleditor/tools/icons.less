@@ -1,16 +1,29 @@
 @import "../../../variables.less";
 
+button.copyIcon {
+  margin-left: 20px;
+}
+button.cancel {
+  margin-right: 20px;
+}
+.icon-modal {
+  max-height: 400px;
+  overflow-y: scroll;
 
-.icon-img {
-  display: inline-block;
-}
-.icon-title {
-  font-size: 10px;
-  margin-left: 4px;
-  display: inline-block;
-}
-a.selectedIcon {
+  .icon-img {
+    display: inline-block;
+  }
   .icon-title {
-    background-color: @light-gray;
+    font-size: 11px;
+    margin-left: 4px;
+    display: inline-block;
+
+    &.selectedIcon {
+      font-weight: bold;
+      color: @nectarine;
+    }
+  }
+  .icon-row {
+    margin: 4px 0;
   }
 }
