@@ -1,21 +1,27 @@
 <div>
     <div class="modal-header">
-        <h4 class="modal-title">Icons in workspace {{workspace}}</h4>
+        <div class="row">
+            <div class="col-xs-6">
+                <h4 class="modal-title">Icons in workspace {{workspace}}</h4>
+            </div>
+            <div class="col-xs-6">
+                <button id="copyIcon" class="btn btn-primary btn-sm pull-right" ng-click="ok()">Copy Selected to Clipboard</button>
+                <button class="btn btn-default btn-sm cancel pull-right" ng-click="cancel()">Cancel</button>
+            </div>
+        </div>
     </div>
-    <div class="modal-body">
+    <div class="modal-body icon-modal">
         <div>
-          <div class="row" ng-repeat="row in icons | orderBy: 'name' | partition:3 ">
+          <div class="row icon-row" ng-repeat="row in icons | orderBy: 'name' | partition:3 ">
             <div class="col-xs-4" ng-repeat="item in row">
-                <a href ng-click="chooseIcon(item, $event);" ng-class="{'selectedIcon': item.selected}">
+                <a href ng-click="chooseIcon(item, $event);">
                     <span class="icon-img"><img ng-src="{{ item.url }}"/></span>
-                    <span class="icon-title">{{item.name}}</span>
+                    <span class="icon-title" ng-class="{selectedIcon: item.name==selectedIconName}">{{item.name}}</span>
                 </a>
             </div>
           </div>
         </div>
     </div>
     <div class="modal-footer">
-        <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-        <button id="copyIcon" class="btn btn-primary btn-sm" ng-click="ok()">Copy Selected to Clipboard</button>
     </div>
 </div>
