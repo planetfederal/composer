@@ -85,6 +85,35 @@ angular.module('gsApp.core.backend',[])
           }
         }),
 
+        workspace: {
+          get: function(workspace) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/workspaces/'+workspace
+            });
+          },
+          create: function(workspace, content) {
+            return http({
+              method: 'POST',
+              url: apiRoot+'/workspaces',
+              data: content
+            });
+          },
+          update: function(workspace, patch) {
+            return http({
+              method: 'PUT',
+              url: apiRoot+'/workspaces/'+workspace,
+              data: patch
+            });
+          },
+          delete: function(workspace) {
+            return http({
+              method: 'DELETE',
+              url: apiRoot+'/workspaces/'+workspace
+            });
+          }
+        },
+
         // Stubbing in for now
         datastores: {
           get: function() {

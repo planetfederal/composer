@@ -1,6 +1,6 @@
 <div>
   <div class="container-fluid">
-    <h3 class="section-title"><i class="icon-lg icon-folder-open"></i> {{ title }}</h3>
+    <h3 class="section-title"><i class="icon-lg icon-folder-open"></i> {{ title }} workspace</h3>
     <tabset class="maps-data-tabs">
       <tab heading="Maps" active="tabs.maps">
         <h3>Maps</h3>
@@ -86,6 +86,36 @@
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      </tab>
+      <tab heading="Settings" active="tabs.settings">
+        <h3>Settings</h3>
+        <div class="row">
+          <div class="col-sm-6">
+            <form name="form.settings" role="form" class="settings">
+              <div class="form-group">
+                <label for="workspaceName">Workspace Name</label>
+                <input type="text" class="form-control input-sm" id="workspaceName" placeholder="Workspace Name" ng-model="wsSettings.name">
+                <small>(max 10 characters, no spaces)</small>
+              </div>
+              <div class="form-group">
+                <label for="workspaceUri">Namespace URI</label>
+                <input type="url" class="form-control input-sm" id="workspaceURI" placeholder="Workspace URI" ng-model="wsSettings.uri" ng-bind-html>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="wsSettings.default"> Default Workspace?
+                </label>
+              </div>
+              <div class="form-group pull-left">
+                <button ng-click="deleteWorkspace()" class="btn btn-danger btn-sm delete">Delete Workspace</button>
+              </div>
+              <div class="form-group pull-right">
+                <button ng-click="saveChanges()" class="btn btn-success btn-sm save">Save Changes</button>
+                <div ng-show="wsSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
+              </div>
+            </form>
           </div>
         </div>
       </tab>

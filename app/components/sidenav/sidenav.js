@@ -38,5 +38,14 @@ angular.module('gsApp.sidenav', [
         });
       }
     };
+
+    $rootScope.$on(AppEvent.WorkspaceNameChanged, function(scope, names) {
+      $scope.workspaces.forEach(function(workspace) {
+        if (workspace.name ===  names.original) {
+          workspace.name = names.new;
+          return;
+        }
+      });
+    });
   }]);
 
