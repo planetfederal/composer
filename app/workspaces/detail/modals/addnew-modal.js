@@ -22,7 +22,7 @@ angular.module('gsApp.workspaces.datastores', [
     $modalInstance.dismiss('cancel');
   };
 
-  // File Upload - https://github.com/danialfarid/angular-file-upload/blob/master/demo/war/js/angular-file-upload.js
+  // File Upload - http://goo.gl/9EwrEq
 
   $scope.usingFlash = false;
   $scope.uploadRightAway = false;
@@ -74,7 +74,13 @@ angular.module('gsApp.workspaces.datastores', [
     }
   };
 
-  $scope.crsTooltip = '<h5>Add a projection in EPSG</h5><p>CRS lookup from a .prj file is available at <a href="http://prj2epsg.org/search" target="_blank">http://prj2epsg.org</a></p>';
+  $scope.crsTooltip =
+    '<h5>Add a projection in EPSG</h5>' +
+    '<p>CRS lookup from a .prj file is available at ' +
+      '<a href="http://prj2epsg.org/search" target="_blank">' +
+        'http://prj2epsg.org' +
+      '</a>' +
+    '</p>';
 
   $scope.start = function(index) {
     $scope.progress[index] = 0;

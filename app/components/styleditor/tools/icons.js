@@ -8,7 +8,8 @@ angular.module('gsApp.styleditor.icons', [])
           click: '='
         },
         template:
-          '<li class="dropdown dropdown-toggle icons-dropdown" ng-click="selectIcon();">'+
+          '<li class="dropdown dropdown-toggle icons-dropdown" ' +
+            'ng-click="selectIcon();">'+
             '<i class="icon-flag"></i>'+
             '<span>Icons</span>'+
           '</li>',
