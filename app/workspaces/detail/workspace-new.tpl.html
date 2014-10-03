@@ -7,13 +7,16 @@
         <form name="createform.settings" role="form" class="settings">
           <div class="form-group">
             <label for="workspaceName">Workspace Name</label>
-            <input type="text" class="form-control input-sm" name="name" placeholder="Workspace Name" ng-model="createSettings.name" required ng-blur="updateUri(this)">
-            <small>(max 10 characters, no spaces)</small>
+            <input type="text" class="form-control input-sm" name="name" ng-model="createSettings.name" ng-maxlength="10" ng-minlength="1" required ng-blur="updateUri(this)" ng-pattern="/^[^\s]+$/">
+            <span ng-show="createform.settings.name.$error.pattern" class="error">No spaces allowed.</span>
+            <span ng-show="createform.settings.name.$error.maxlength" class="error">Max 10 characters.</span>
+            <small>(Max 10 characters, no spaces.)</small>
           </div>
           <div class="form-group" name="createWorkspace">
             <label for="workspaceUri">Namespace URI</label>
-            <input type="url" class="form-control input-sm" name="uri" ng-model="createSettings.uri" http-prefix>
-            <small>(a unique resource identifier internal to GeoServer)</small>
+            <input type="url" class="form-control input-sm" name="uri" ng-model="createSettings.uri" ng-minlength="1" http-prefix>
+            <span ng-show="createform.settings.uri.$error.required" class"error">Required</span>
+            <small>(A unique resource identifier internal to GeoServer)</small>
           </div>
           <div class="checkbox">
             <label>
@@ -26,7 +29,7 @@
         <div class="pull-right" style="margin-top: 20px;">
           <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
           <button class="btn btn-primary btn-sm" ng-click="create()" style="margin-left:20px;" ng-disabled="!createform.settings.$valid">Create</button>
-          <button class="btn btn-success btn-sm" ng-click="addData()" style="margin-left:20px;">Add Data &rarr;</button>
+          <button class="btn btn-success btn-sm" ng-click="addData()" style="margin-left:20px;" ng-disabled="!createform.settings.$valid">Add Data &rarr;</button>
         </div>
       </div>
     </div>
