@@ -1,4 +1,4 @@
-angular.module('gsApp.workspaces.home', [
+angular.module('gsApp.workspaces.workspace', [
   'gsApp.workspaces.datastores',
   'ngSanitize'
 ])
@@ -6,9 +6,21 @@ angular.module('gsApp.workspaces.home', [
     function($stateProvider) {
       $stateProvider.state('workspace.home', {
         url: '/home',
-        templateUrl: '/workspaces/detail/home.tpl.html',
+        templateUrl: '/workspaces/detail/workspace-home.tpl.html',
         controller: 'WorkspaceHomeCtrl'
-      });
+      })
+      .state('workspace.home.data', {
+          url: '#data',
+          templateUrl: '/workspaces/detail/workspace-home.tpl.html',
+        })
+      .state('workspace.home.maps', {
+          url: '#maps',
+          templateUrl: '/workspaces/detail/workspace-home.tpl.html',
+        })
+      .state('workspace.home.settings', {
+          url: '#settings',
+          templateUrl: '/workspaces/detail/workspace-home.tpl.html',
+        });
     }])
 .controller('WorkspaceHomeCtrl', ['$scope', '$stateParams', 'GeoServer',
   '$log', '$sce', 'baseUrl', '$window', '$state', '$location', '$modal',
