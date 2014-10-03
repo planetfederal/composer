@@ -295,7 +295,7 @@ module.exports = function(grunt) {
       },
       test: {
         files: sources.test,
-        //tasks: ['jshint:spec', 'karma:dev:run']
+        tasks: ['protractor']
       }
     },
     replace: {
@@ -311,6 +311,18 @@ module.exports = function(grunt) {
     clean: {
       build: {
         src: 'build/'
+      }
+    },
+    protractor: {
+      options: {
+        configFile: 'protractor.js'
+      },
+      chrome: {
+        options: {
+          args: {
+            browser: "chrome"
+          }
+        }
       }
     }
   });
@@ -328,11 +340,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-ngmin');
   grunt.loadNpmTasks('grunt-html2js');
   grunt.loadNpmTasks('grunt-text-replace');
+  grunt.loadNpmTasks('grunt-protractor-runner');
 
   // tasks
-  grunt.registerTask('build', [
-    'copy', 'less', 'ngmin', 'html2js', 'concat', 'uglify']);
-  grunt.registerTask('start', [
-    'less', 'configureProxies:server','connect', 'watch']);
+  grunt.registerTask('build',
+    ['copy', 'less', 'ngmin', 'html2js', 'concat', 'uglify']);
+  grunt.registerTask('start',
+    ['configureProxies:server','connect', 'watch']);
+  grunt.registerTask('test',
+    ['configureProxies:server','connect','protractor', 'watch:test']);
   grunt.registerTask('dist', ['replace']);
 };
