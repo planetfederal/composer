@@ -130,16 +130,24 @@ angular.module('gsApp.maps', [
       $scope.workspace = {};
       $scope.workspaces = [];
 
-      GeoServer.workspaces.get().$promise.then(function(workspaces) {
-        workspaces.filter(function(ws) {
-          return ws['default'];
-        }).forEach(function(ws) {
-          $scope.workspace.selected = ws;
-          $scope.workspaceChanged(ws);
+      GeoServer.workspaces.get().then(
+        function(result) {
+          if (result.success) {
+            var workspaces = result.data;
+            workspaces.forEach(function(ws) {
+              $scope.workspace.selected = ws;
+              $scope.workspaceChanged(ws);
+            });
+            $scope.workspaces = workspaces;
+          } else {
+            // TODO move alerts to top of header nav
+            $scope.alerts = [{
+              type: 'warning',
+              message: 'Workspace update failed.',
+              fadeout: true
+            }];
+          }
         });
-
-        $scope.workspaces = workspaces;
-      });
 
     }]);
 

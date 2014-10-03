@@ -3,8 +3,8 @@
     <h3 class="page-title"><i class="icon-lg icon-stack"></i> {{title}}</h3>
 
     <div class="workspace-choice">
-      <span>Project Workspace:</span>
-      <div>
+      <div class="workspace-label">Project Workspace:</div>
+      <div class="workspace-picker">
         <ui-select ng-model="workspace.selected"  ng-disabled="disabled"
           ng-change="workspaceChanged($select.selected)" theme="bootstrap"
           reset-search-input="false">
@@ -16,12 +16,10 @@
           </ui-select-choices>
         </ui-select>
       </div>
-      <span>
-        <button type="button" class="btn btn-default" ng-click="onNewLayer()" 
+        <button type="button" class="btn btn-success btn-sm pull-right" style="display:inline-block;" ng-click="onNewLayer()"
           alt="Add New Layer" title="Add New Layer">
           + New Layer
         </button>
-      </span>
     </div>
     <div ng-grid="gridOptions"></div>
     <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
