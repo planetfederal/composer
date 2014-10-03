@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/api/workspaces")
@@ -146,11 +147,13 @@ public class WorkspaceController extends AppController {
     }
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.DELETE)
-    public void delete(@PathVariable String wsName) {
+    public void delete(@PathVariable String wsName, HttpServletResponse response) {
         Catalog cat = geoServer.getCatalog();
 
         WorkspaceInfo ws = findWorkspace(wsName, cat);
         new CascadeDeleteVisitor(cat).visit(ws);
+
+        response.setStatus(HttpStatus.OK.value());
     }
 
 }
