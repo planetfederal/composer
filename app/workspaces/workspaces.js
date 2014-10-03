@@ -10,6 +10,11 @@ angular.module('gsApp.workspaces', [
           templateUrl: '/workspaces/workspaces.tpl.html',
           controller: 'WorkspacesCtrl'
         })
+        .state('workspace.new', {
+          url: '/new',
+          templateUrl: '/workspaces/detail/workspace-new.tpl.html',
+          controller: 'NewWorkspaceCtrl'
+        })
         .state('workspace', {
           abstract: true,
           url: '/workspaces/:workspace',
@@ -63,4 +68,16 @@ angular.module('gsApp.workspaces', [
         $scope.workspaceData = workspaces;
       });
 
-    }]);
+    }])
+.controller('NewWorkspaceCtrl', ['$scope', 'GeoServer', '$state', '$log',
+    function($scope, GeoServer, $state, $log) {
+
+      $scope.title = 'Create New Workspace';
+
+      $scope.cancel = function() {
+        $state.go('workspaces');
+
+      };
+
+
+  }]);

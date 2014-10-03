@@ -186,9 +186,49 @@ angular.module('gsApp.workspaces.workspace', [
             });
         }
       };
-
       $scope.deleteWorkspace = function() {
-        // TODO
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/delete-modal.tpl.html',
+          controller: 'DeleteModalControl',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            geoserver: function() {
+              return GeoServer;
+            }
+          }
+        });
       };
 
-    }]);
+    }])
+.controller('DeleteModalControl', ['$scope', '$modalInstance', 'workspace',
+  'geoserver', function ($scope, $modalInstance, workspace, geoserver) {
+
+    $scope.workspace = workspace;
+    $scope.geoserver = geoserver;
+    $scope.workspaceDeleted = false;
+
+    $scope.deleteForever = function () {
+      $scope.geoserver.workspace.delete($scope.workspace).then(
+        function(result) {
+          if (result.success) {
+            $scope.workspaceDeleted = true;
+          } else {
+            // TODO move alerts to top of header nav
+            $scope.alerts = [{
+              type: 'warning',
+              message: 'Workspace deletion failed.',
+              fadeout: true
+            }];
+          }
+
+      });
+      $modalInstance.close($scope.workspace);
+    };
+
+    $scope.cancel = function () {
+      $modalInstance.dismiss('cancel');
+    };
+}]);
