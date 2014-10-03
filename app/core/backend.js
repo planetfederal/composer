@@ -77,13 +77,14 @@ angular.module('gsApp.core.backend',[])
           }
         }),
 
-        workspaces: $resource(apiRoot+'/workspaces', {}, {
-          get: {
-            method: 'GET',
-            responseType: 'json',
-            isArray: true
+        workspaces: {
+          get: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/workspaces'
+            });
           }
-        }),
+        },
 
         workspace: {
           get: function(workspace) {
@@ -92,7 +93,7 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot+'/workspaces/'+workspace
             });
           },
-          create: function(workspace, content) {
+          create: function(content) {
             return http({
               method: 'POST',
               url: apiRoot+'/workspaces',

@@ -204,31 +204,35 @@ angular.module('gsApp.workspaces.workspace', [
 
     }])
 .controller('DeleteModalControl', ['$scope', '$modalInstance', 'workspace',
-  'geoserver', function ($scope, $modalInstance, workspace, geoserver) {
+  'geoserver', '$state', '$rootScope', 'AppEvent',
+  function ($scope, $modalInstance, workspace, geoserver, $state,
+      $rootScope, AppEvent) {
 
-    $scope.workspace = workspace;
-    $scope.geoserver = geoserver;
-    $scope.workspaceDeleted = false;
+      $scope.workspace = workspace;
+      $scope.geoserver = geoserver;
+      $scope.workspaceDeleted = false;
 
-    $scope.deleteForever = function () {
-      $scope.geoserver.workspace.delete($scope.workspace).then(
-        function(result) {
-          if (result.success) {
-            $scope.workspaceDeleted = true;
-          } else {
-            // TODO move alerts to top of header nav
-            $scope.alerts = [{
-              type: 'warning',
-              message: 'Workspace deletion failed.',
-              fadeout: true
-            }];
-          }
+      $scope.deleteForever = function () {
+        $scope.geoserver.workspace.delete($scope.workspace).then(
+          function(result) {
+            if (result.success || result) {
+              $scope.workspaceDeleted = true;
+              $rootScope.$broadcast(AppEvent.WorkspaceDeleted,
+                $scope.workspace);
+              $state.go('workspaces');
+            } else {
+              // TODO move alerts to top of header nav
+              $scope.alerts = [{
+                type: 'warning',
+                message: 'Workspace deletion failed.',
+                fadeout: true
+              }];
+            }
+          });
+        $modalInstance.close($scope.workspace);
+      };
 
-      });
-      $modalInstance.close($scope.workspace);
-    };
-
-    $scope.cancel = function () {
-      $modalInstance.dismiss('cancel');
-    };
-}]);
+      $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+      };
+    }]);

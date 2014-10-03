@@ -61,23 +61,53 @@ angular.module('gsApp.workspaces', [
         }
       };
 
-      GeoServer.workspaces.get().$promise.then(function(workspaces) {
-        workspaces.filter(function(ws) {
-          return workspaces;
+      GeoServer.workspaces.get().then(
+        function(result) {
+          if (result.success) {
+            $scope.workspaceData = result.data;
+          } else {
+            $scope.alerts = [{
+                type: 'warning',
+                message: 'Could not get workspaces.',
+                fadeout: true
+              }];
+          }
         });
-        $scope.workspaceData = workspaces;
-      });
 
     }])
 .controller('NewWorkspaceCtrl', ['$scope', 'GeoServer', '$state', '$log',
-    function($scope, GeoServer, $state, $log) {
+  '$rootScope', 'AppEvent',
+    function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
 
       $scope.title = 'Create New Workspace';
+      $scope.wsSettings = {};
+      $scope.workspaceCreated = false;
 
       $scope.cancel = function() {
         $state.go('workspaces');
-
       };
 
-
-  }]);
+      $scope.create = function() {
+        var newWorkspace = {
+          'name': $scope.wsSettings.name,
+          'uri': $scope.wsSettings.uri,
+          'default': $scope.wsSettings.default
+        };
+        GeoServer.workspace.create(newWorkspace).then(
+          function(result) {
+            if (result.success || result.status===201) {
+              $scope.workspaceCreated = true;
+              $scope.workspaces.push(newWorkspace);
+            } else {
+              // TODO move alerts to top of header nav
+              var msg = result.data.message?
+                result.data.message : result.data;
+              $scope.alerts = [{
+                type: 'warning',
+                message: msg,
+                fadeout: true
+              }];
+            }
+          });
+      };
+    }]);
