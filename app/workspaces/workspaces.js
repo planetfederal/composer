@@ -13,12 +13,7 @@ angular.module('gsApp.workspaces', [
         .state('workspace', {
           abstract: true,
           url: '/workspaces/:workspace',
-          templateUrl: '/workspaces/detail/workspace.tpl.html',
-          controller: function($scope, $stateParams) {
-            // setup some scope properties for children
-            $scope.workspace = $stateParams.workspace;
-            $scope.title = $stateParams.workspace;
-          }
+          templateUrl: '/workspaces/detail/workspace.tpl.html'
         });
     }])
 
