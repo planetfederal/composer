@@ -1,6 +1,6 @@
 angular.module('gsApp.workspaces', [
   'ngGrid',
-  'gsApp.workspaces.home'
+  'gsApp.workspaces.workspace'
 ])
 .config(['$stateProvider',
     function($stateProvider) {

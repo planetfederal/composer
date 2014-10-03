@@ -1,5 +1,7 @@
 angular.module('gsApp.sidenav', [
-  'ui.bootstrap'
+  'gsApp.workspaces.workspace',
+  'ui.bootstrap',
+  'gsApp.olmap'
 ])
 .directive('sidenav', function() {
     return {
