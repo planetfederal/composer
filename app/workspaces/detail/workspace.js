@@ -44,7 +44,9 @@ angular.module('gsApp.workspaces.workspace', [
           }
         });
 
-      var wsName = $scope.workspace;
+      var wsName = $stateParams.workspace;
+      $scope.workspace = wsName;
+      $scope.title = wsName;
       $scope.thumbnails = {};
       $scope.olmaps = {};
 
