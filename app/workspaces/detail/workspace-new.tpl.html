@@ -1,0 +1,32 @@
+<div>
+  <div class="container-fluid">
+    <h3 class="page-title">{{title}}</h3>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <form name="form.settings" role="form" class="settings">
+          <div class="form-group">
+            <label for="workspaceName">Workspace Name</label>
+            <input type="text" class="form-control input-sm" id="workspaceName" placeholder="Workspace Name" ng-model="wsSettings.name">
+            <small>(max 10 characters, no spaces)</small>
+          </div>
+          <div class="form-group">
+            <label for="workspaceUri">Namespace URI</label>
+            <input type="url" class="form-control input-sm" id="workspaceURI" placeholder="http://" ng-model="wsSettings.uri" ng-bind-html>
+            <small>(a unique identifier as a url)</small>
+          </div>
+          <div class="checkbox">
+            <label>
+              <input type="checkbox" ng-model="wsSettings.default"> Default Workspace?
+            </label>
+          </div>
+        </form>
+        <div class="pull-right">
+          <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+          <button class="btn btn-primary btn-sm" ng-click="deleteForever()" style="margin-left:20px;">Create</button>
+          <button class="btn btn-success btn-sm" ng-click="deleteForever()" style="margin-left:20px;">Add Data &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

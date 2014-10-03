@@ -22,5 +22,9 @@ angular.module('gsApp.core.event', [])
     /**
    * Fired when a workspace name is changed.
    */
-  WorkspaceNameChanged: 'workspace-name-changed'
+  WorkspaceNameChanged: 'workspace-name-changed',
+      /**
+   * Fired when a new workspace is requested
+   */
+  CreateNewWorkspace: 'create-new-workspace'
 });

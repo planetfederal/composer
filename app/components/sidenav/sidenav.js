@@ -39,6 +39,10 @@ angular.module('gsApp.sidenav', [
       }
     };
 
+    $scope.newWorkspace = function() {
+      $state.go('workspace.new');
+    };
+
     $rootScope.$on(AppEvent.WorkspaceNameChanged, function(scope, names) {
       $scope.workspaces.forEach(function(workspace) {
         if (workspace.name ===  names.original) {
