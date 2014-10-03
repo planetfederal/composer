@@ -19,12 +19,20 @@ angular.module('gsApp.core.event', [])
    * Fired when sidenav resized.
    */
   SidenavResized: 'app-sidenav-resized',
-    /**
+  /**
    * Fired when a workspace name is changed.
    */
   WorkspaceNameChanged: 'workspace-name-changed',
-      /**
+  /**
    * Fired when a new workspace is requested
    */
-  CreateNewWorkspace: 'create-new-workspace'
+  CreateNewWorkspace: 'create-new-workspace',
+  /**
+   * Fired when a new workspace is created
+   */
+  WorkspaceCreated: 'workspace-created',
+  /**
+   * Fired when a new workspace is requested
+   */
+  WorkspaceDeleted: 'workspace-deleted'
 });

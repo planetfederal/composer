@@ -12,16 +12,21 @@ angular.module('gsApp.sidenav', [
     };
   })
 .controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer',
-  'AppEvent','$state', '$log',
+  'AppEvent', '$state', '$log',
   function($scope, $rootScope, GeoServer, AppEvent, $state, $log) {
 
-    GeoServer.workspaces.get().$promise.then(function(workspaces) {
-      workspaces.filter(function(ws) {
-        return ws['default'];
+    GeoServer.workspaces.get().then(
+      function(result) {
+        if (result.success) {
+          $scope.workspaces = result.data;
+        } else {
+          $scope.alerts = [{
+              type: 'warning',
+              message: 'Could not get workspaces.',
+              fadeout: true
+            }];
+        }
       });
-
-      $scope.workspaces = workspaces;
-    });
 
     $scope.onResize = function() {
       $rootScope.$broadcast(AppEvent.SidenavResized);
@@ -43,13 +48,23 @@ angular.module('gsApp.sidenav', [
       $state.go('workspace.new');
     };
 
-    $rootScope.$on(AppEvent.WorkspaceNameChanged, function(scope, names) {
-      $scope.workspaces.forEach(function(workspace) {
-        if (workspace.name ===  names.original) {
-          workspace.name = names.new;
-          return;
+    $rootScope.$on(AppEvent.WorkspaceNameChanged,
+      function(scope, names) {
+        $scope.workspaces.forEach(function(workspace) {
+          if (workspace.name ===  names.original) {
+            workspace.name = names.new;
+            return;
+          }
+        });
+      });
+
+    $rootScope.$on(AppEvent.WorkspaceDeleted,
+      function(scope, deletedSpaceName) {
+        for (var p=0; p < $scope.workspaces.length; p++) {
+          if ($scope.workspaces[p].name === deletedSpaceName) {
+            $scope.workspaces.splice(p,1);
+          }
         }
       });
-    });
   }]);
 
