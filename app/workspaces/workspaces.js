@@ -1,6 +1,7 @@
 angular.module('gsApp.workspaces', [
   'ngGrid',
-  'gsApp.workspaces.workspace'
+  'gsApp.workspaces.workspace',
+  'gsApp.core.utilities'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -80,18 +81,22 @@ angular.module('gsApp.workspaces', [
     function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
 
       $scope.title = 'Create New Workspace';
-      $scope.wsSettings = {};
+      $scope.createSettings = {'uri': 'http://', 'default': false};
       $scope.workspaceCreated = false;
 
       $scope.cancel = function() {
         $state.go('workspaces');
       };
 
+      $scope.updateUri = function() {
+        $scope.createSettings.uri = 'http://' + $scope.createSettings.name;
+      }
+
       $scope.create = function() {
         var newWorkspace = {
-          'name': $scope.wsSettings.name,
-          'uri': $scope.wsSettings.uri,
-          'default': $scope.wsSettings.default
+          'name': $scope.createSettings.name,
+          'uri': $scope.createSettings.uri,
+          'default': $scope.createSettings.default
         };
         GeoServer.workspace.create(newWorkspace).then(
           function(result) {
