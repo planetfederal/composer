@@ -145,13 +145,11 @@ angular.module('gsApp.core.backend',[])
           }
         },
 
-        layers: $resource(apiRoot+'/layers/:workspace', {workspace:'default'}, {
-          get: {
-            method: 'GET',
-            responseType: 'json',
-            isArray: true
-          }
-        }),
+        layers: $resource(
+          apiRoot+'/layers/:workspace?page=:page&pagesize=:pagesize',
+          {workspace:'default', page:0, pagesize:25 },
+          {get: {method: 'GET',responseType: 'json'}}
+        ),
 
         layer: $resource(apiRoot+'/layers/:workspace/:name', {}, {
           get: {

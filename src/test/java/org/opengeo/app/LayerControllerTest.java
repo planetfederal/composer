@@ -106,7 +106,12 @@ public class LayerControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
-        JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
+        JSONObj obj = JSONWrapper.read(result.getResponse().getContentAsString()).toObject();
+        assertEquals(2, obj.integer("total").intValue());
+        assertEquals(2, obj.integer("count").intValue());
+        assertEquals(0, obj.integer("page").intValue());
+
+        JSONArr arr = obj.array("layers");
         assertEquals(arr.size(), 2);
 
         Iterables.find(arr, new Predicate<Object>() {

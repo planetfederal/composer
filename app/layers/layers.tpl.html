@@ -6,8 +6,7 @@
       <div class="workspace-label">Project Workspace:</div>
       <div class="workspace-picker">
         <ui-select ng-model="workspace.selected"  ng-disabled="disabled"
-          ng-change="workspaceChanged($select.selected)" theme="bootstrap"
-          reset-search-input="false">
+          theme="bootstrap" reset-search-input="false">
           <ui-select-match placeholder="Select a workspace...">
             {{$select.selected.name}}
           </ui-select-match>
