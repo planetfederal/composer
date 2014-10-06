@@ -86,6 +86,7 @@ angular.module('gsApp.workspaces.datastores', [
     $scope.progress[index] = 0;
     $scope.uploadComplete[index] = false;
     $scope.errorMsg = null;
+    $scope.loadStarted = false;
 
     //$upload.upload()
     $scope.upload[index] = $upload.upload({
@@ -99,40 +100,60 @@ angular.module('gsApp.workspaces.datastores', [
       fileFormDataName: 'myFile'
     });
 
+    $scope.loadStarted = true;
+    $scope.uploadResult[index] = [];
+
     $scope.upload[index].then(function(response) {
+
       var r = response.data;
       $scope.upload[index].rememberId = r.id;
+      $scope.loadStarted = false;
 
       if (r.imported && r.imported.length > 0) {
         var upFilename = $scope.selectedFiles[index].name;
         r.imported.forEach(function(item) {
-          if (upFilename.indexOf(item.file) > -1) {
-            $scope.uploadResult.push(response.statusText);
-            $timeout(function() {
-              $scope.uploadComplete[index] = true;
-            }, 200);
-          }
+          $scope.selectedFiles[index].name = item.name;
+          // ** Sometimes names will be different from zip
+          // e.g. uploaded allpoints.zip but got points.shp
+          $scope.uploadResult[index].push({'result': response.statusText});
+          $timeout(function() {
+            $scope.uploadComplete[index] = true;
+          }, 200);
         });
       } else if (r.pending && r.pending.length > 0) {
         r.pending.forEach(function(item) {
           $scope.upload[index].rememberTask = item.task;
-          $scope.uploadResult.push(item.problem);
+          $scope.uploadResult[index].push({'result': item.problem});
+        });
+      } else if (r.ignored && r.ignored.length > 0) {
+        r.ignored.forEach(function(item) {
+          $scope.selectedFiles[index].name = item.name;
+          $scope.uploadResult[index].push({
+            'result': 'IGNORED',
+            'msg': 'File ignored: incomplete.'
+          });
+        });
+      } else if (r.failed && r.failed.length > 0) {
+        r.failed.forEach(function(item) {
+          $scope.selectedFiles[index].name = item.name;
+          var rMsg = r.failed.problem? (': ' +  r.failed.problem) : '.';
+          $scope.uploadResult[index].push({
+            'result': 'FAILED',
+            'msg': 'Upload failed: ' + rMsg
+          });
+        });
+      } else if (response.statusText) {
+        $scope.uploadResult[index].push({
+          'result': 'ERROR',
+          'msg': response.statusText
         });
       }
 
-      /*
-      $timeout(function() {
-        $scope.uploadResult.push(response.statusText);
-      });*/
     }, function(response) {
-      if (response.status > 0) {
-        //console.log("Error Msg");
-        $scope.errorMsg = response.status + ': ' + response.data;
-        //console.log($scope.errorMsg);
-      }
+     // if (response.status > 0) {
+      //  $scope.errorMsg = response.status + ': ' + response.data;
+      //}
     }, function(evt) {
-        //console.log(evt);
-        //console.log("why is this here");
         // Math.min is to fix IE which reports 200% sometimes
         $scope.progress[index] = Math.min(100, parseInt(100.0 *
          evt.loaded / evt.total));

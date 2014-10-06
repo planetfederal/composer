@@ -90,7 +90,7 @@ angular.module('gsApp.workspaces', [
 
       $scope.updateUri = function() {
         $scope.createSettings.uri = 'http://' + $scope.createSettings.name;
-      }
+      };
 
       $scope.create = function() {
         var newWorkspace = {
