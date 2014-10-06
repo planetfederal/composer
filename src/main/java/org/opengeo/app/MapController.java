@@ -292,18 +292,21 @@ public class MapController extends AppController {
         IO.proj(obj.putObject("proj"), bounds.getCoordinateReferenceSystem(), null);
         IO.bounds(obj.putObject("bbox"), bounds);
         
-        // metadata describing last edit
-        IO.metadata( obj, map.getMetadata(), "author");
-        IO.metadata( obj, map.getMetadata(), "created");
-        IO.metadata( obj, map.getMetadata(), "modified");
-        IO.metadata( obj, map.getMetadata(), "change");
-        
-        JSONArr layers = obj.putArray("layers");
-
-        for (LayerInfo l : layers(map)) {
-            layers.addObject().put("name", l.getName()).put("workspace", wsName);
+        if( details ){
+            // metadata describing last edit
+            IO.metadata( obj, map.getMetadata(), "author");
+            IO.metadata( obj, map.getMetadata(), "created");
+            IO.metadata( obj, map.getMetadata(), "modified");
+            IO.metadata( obj, map.getMetadata(), "change");
         }
-
+        
+        if( details ){
+            JSONArr layers = obj.putArray("layers");
+    
+            for (LayerInfo l : layers(map)) {
+                layers.addObject().put("name", l.getName()).put("workspace", wsName);
+            }
+        }
         return obj;
     }
     
