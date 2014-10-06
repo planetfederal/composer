@@ -53,8 +53,11 @@
               </span>
             </div>
             <div class="file-prog-3">
-              <div class="result" ng-repeat="result in uploadResult">
-                <div class="no_crs" ng-show="result=='NO_CRS' &&!uploadComplete[$index]">
+              <div ng-show="loadStarted"><img src="/images/loading.gif"/>  Loading...</div>
+              <div class="result" ng-repeat="result in uploadResult[$index]">
+                <div class="ignored_or_failed" ng-show="result.result=='FAILED' || result.result=='IGNORED'">{{ result.msg }}</div>
+                <div class="error" ng-show="result.result=='ERROR'">{{ result.msg }}</div>
+                <div class="no_crs" ng-show="result.result=='NO_CRS' &&!uploadComplete[$index]">
                   <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click">
                     <i class="fa fa-warning"></i>
                     <small>Missing CRS</small>
