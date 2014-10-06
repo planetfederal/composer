@@ -78,11 +78,13 @@ angular.module('gsApp.layers', [
           .update({ workspace: layer.workspace, name: layer.name}, patch);
       });
 
+      $scope.workspace = {};
+      $scope.workspaces = [];
+
       $scope.pagingOptions = {
-        pageSizes: [10, 50, 100],
-        pageSize: 10,
-        currentPage: 1,
-        totalServerItems: 0
+        pageSizes: [25, 50, 100],
+        pageSize: 25,
+        currentPage: 1
       };
       $scope.filterOptions = {
           filterText: '',
@@ -218,33 +220,51 @@ angular.module('gsApp.layers', [
         enablePaging: true,
         enableColumnResize: false,
         showFooter: true,
+        totalServerItems: 'totalServerItems',
         pagingOptions: $scope.pagingOptions
       };
 
-      $scope.workspace = {};
-      $scope.workspaces = [];
-
-      $scope.workspaceChanged = function(ws) {
-        GeoServer.layers.get({workspace: ws.name}).$promise
-          .then(function(layers) {
-            $scope.layerData = layers;
-          });
+      $scope.refreshLayers = function(ws) {
+        GeoServer.layers.get({
+          workspace: ws.name,
+          page: $scope.pagingOptions.currentPage-1,
+          pagesize: $scope.pagingOptions.pageSize
+        }).$promise.then(function(result) {
+          $scope.layerData = result.layers;
+          $scope.totalServerItems = result.total;
+        });
       };
+
+      $scope.$watch('pagingOptions', function (newVal, oldVal) {
+        if (newVal != null) {
+          var ws = $scope.workspace.selected;
+          if (ws != null) {
+            $scope.refreshLayers(ws);
+          }
+        }
+      }, true);
+
+      $scope.$watch('workspace.selected', function(newVal) {
+        if (newVal != null) {
+          $scope.refreshLayers(newVal);
+        }
+      });
 
       GeoServer.workspaces.get().then(
         function(result) {
           if (result.success) {
             var workspaces = result.data;
-            workspaces.forEach(function(ws) {
+            workspaces.filter(function(ws) {
+              return ws.default == true;
+            }).forEach(function(ws) {
               $scope.workspace.selected = ws;
-              $scope.workspaceChanged(ws);
             });
             $scope.workspaces = workspaces;
           } else {
             // TODO move alerts to top of header nav
             $scope.alerts = [{
               type: 'warning',
-              message: 'Workspace update failed.',
+              message: 'Failed to get workspace list.',
               fadeout: true
             }];
           }
