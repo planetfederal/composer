@@ -324,7 +324,7 @@ module.exports = function(grunt) {
       chrome: {
         options: {
           args: {
-            browser: "chrome"
+            browser: 'chrome'
           }
         }
       }
