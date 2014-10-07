@@ -22,7 +22,6 @@ angular.module('gsApp.workspaces', [
           templateUrl: '/workspaces/detail/workspace.tpl.html'
         });
     }])
-
 .controller('WorkspacesCtrl', ['$scope', 'GeoServer', '$state', '$log',
   '$rootScope', 'AppEvent',
     function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
