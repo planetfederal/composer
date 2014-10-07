@@ -2,6 +2,7 @@ package org.opengeo.app;
 
 import static org.geoserver.catalog.Predicates.equal;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,16 +12,21 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.httpclient.util.DateUtil;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
+import org.geoserver.platform.resource.Paths;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -62,7 +68,7 @@ public class MapController extends AppController {
                                         @RequestBody JSONObj obj) {
         String name = obj.str("name");
         String title = obj.str("title");
-        String description = obj.str("description");
+        String description = obj.str("abstract");
         
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         Date created = new Date();
@@ -94,7 +100,7 @@ public class MapController extends AppController {
         map.getMetadata().put("change", change );
         
         cat.add( map );
-        return map(new JSONObj(), map, wsName, true);
+        return mapDetails(new JSONObj(), map, wsName );
     }
     
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.DELETE)
@@ -110,7 +116,7 @@ public class MapController extends AppController {
     public @ResponseBody JSONObj get(@PathVariable String wsName,
                                      @PathVariable String name) {
         LayerGroupInfo map = findMap(wsName, name);
-        return map(new JSONObj(), map, wsName, true);
+        return mapDetails(new JSONObj(), map, wsName);
     }
 
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.PATCH)
@@ -160,7 +166,7 @@ public class MapController extends AppController {
         else {
             map.getMetadata().put("change", "modified "+obj.keys() );
         }
-        return map(new JSONObj(), map, wsName, true);
+        return mapDetails(new JSONObj(), map, wsName);
     }
     
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
@@ -181,7 +187,8 @@ public class MapController extends AppController {
             while (it.hasNext()) {
                 LayerGroupInfo map = it.next();
                 if( checkMap( map ) ){
-                    map(arr.addObject(), map, wsName, false);
+                    JSONObj obj = arr.addObject();
+                    map(obj, map, wsName);
                 }
             }
         }
@@ -273,31 +280,72 @@ public class MapController extends AppController {
         return true;
     }
 
-    List<LayerInfo> layers(LayerGroupInfo map) {
-        return Lists.reverse(map.layers());
+    List<PublishedInfo> layers(LayerGroupInfo map) {
+        List<PublishedInfo> layers = map.getLayers();
+        return Lists.reverse(layers);
     }
 
-    JSONObj map(JSONObj obj, LayerGroupInfo map, String wsName, boolean details) {
-
+    JSONObj map(JSONObj obj, LayerGroupInfo map, String wsName) {
         obj.put("name", map.getName())
            .put("workspace", wsName)
            .put("title", map.getTitle())
-           .put("description", map.getAbstract());
-
+           .put("abstract", map.getAbstract());
+        
         ReferencedEnvelope bounds = map.getBounds();
         IO.proj(obj.putObject("proj"), bounds.getCoordinateReferenceSystem(), null);
         IO.bounds(obj.putObject("bbox"), bounds);
         
-        if( details ){
-            IO.metadata( obj, map.getMetadata() );
+        if( !obj.has("modified")){
+            String path = Paths.path( "workspaces", wsName, "layergroups", String.format("%s.xml", map.getName()));
+            Resource r = geoServer.getCatalog().getResourceLoader().get( path );
+            if( r.getType() == Type.RESOURCE ){
+                long modified = r.lastmodified();
+                String time = DateUtil.formatDate( new Date(modified));
+                obj.put("modified", time );
+            }
         }
         
-        if( details ){
-            JSONArr layers = obj.putArray("layers");
-    
-            for (LayerInfo l : layers(map)) {
-                layers.addObject().put("name", l.getName()).put("workspace", wsName);
+        obj.put("layer_count", map.getLayers().size() );
+
+        return obj;
+    }
+    JSONObj mapDetails(JSONObj obj, LayerGroupInfo map, String wsName) {
+        map(obj,map,wsName);
+        
+        JSONObj metadata = IO.metadataHistory( new JSONObj(), map.getMetadata() );
+        if( metadata.size() != 0 ){
+            obj.put("metadata", metadata );
+        }
+
+        List<PublishedInfo> published = layers(map);
+        JSONArr layers = obj.putArray("layers");
+        for (PublishedInfo l : published) {
+            JSONObj item = layers.addObject();
+            item.put("name", l.getName());
+            if( l.getTitle() != null ){
+                item.put("title", l.getTitle());
             }
+            if( l.getAbstract() != null ){
+                item.put("abstract", l.getAbstract() );
+            }
+            if( l instanceof LayerInfo ){
+                LayerInfo info = (LayerInfo) l;
+                item.put("resource",info.getResource().getName() );
+                
+                StoreInfo store = info.getResource().getStore();
+                if( store != null ){
+                    WorkspaceInfo workspace = store.getWorkspace();
+                    String name = workspace.getName();
+                    item.put("workspace",name );
+                }
+            }
+            else if( l instanceof LayerGroupInfo){
+                LayerGroupInfo group = (LayerGroupInfo) l;
+                item.put("group", group.getMode().name() );
+                item.put("workspace", group.getWorkspace().getName() );
+                item.put("layer_count", group.getLayers().size() );
+            }
+            
         }
         return obj;
     }

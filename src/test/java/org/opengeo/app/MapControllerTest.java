@@ -2,6 +2,7 @@ package org.opengeo.app;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.PublishedInfo;
@@ -62,6 +63,11 @@ public class MapControllerTest {
     @Test
     public void testList() throws Exception {
         MockGeoServer.get().catalog()
+          .resources()
+            .resource("workspaces/foo/layergroups/map1.xml", "layergroup placeholder")
+            .resource("workspaces/foo/layergroups/map2.xml", "layergroup placeholder")
+          .geoServer()
+            .catalog()
           .workspace("foo", "http://scratch.org", true)
             .map("map1")
               .defaults()
@@ -98,14 +104,18 @@ public class MapControllerTest {
     @Test
     public void testGet() throws Exception {
         GeoServer gs = MockGeoServer.get().catalog()
-          .workspace("foo", "http://scratch.org", true)
-            .map("map")
-              .defaults()
-              .info("The map", "This map is cool!")
-              .layer("one").featureType().defaults().map()
-              .layer("two").featureType().defaults()
-         .geoServer().build(geoServer);
-
+          .resources()
+            .resource("workspaces/foo/layergroups/map.xml", "layergroup placeholder")
+          .geoServer()
+            .catalog()
+              .workspace("foo", "http://scratch.org", true)
+                .map("map")
+                  .defaults()
+                  .info("The map", "This map is cool!")
+                  .layer("one").featureType().defaults().map()
+                  .layer("two").featureType().defaults()
+          .geoServer().build(geoServer);
+        
         MvcResult result = mvc.perform(get("/api/maps/foo/map"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -115,8 +125,8 @@ public class MapControllerTest {
         assertEquals("map", obj.str("name"));
         assertEquals("foo", obj.str("workspace"));
         assertEquals("The map", obj.str("title"));
-        assertEquals("This map is cool!", obj.str("description"));
-
+        assertEquals("This map is cool!", obj.str("abstract"));
+        
         assertEquals(-180d, obj.object("bbox").doub("west"), 0.1);
         assertEquals(-90d, obj.object("bbox").doub("south"), 0.1);
         assertEquals(180d, obj.object("bbox").doub("east"), 0.1);
@@ -167,6 +177,7 @@ public class MapControllerTest {
         assertEquals("vector", obj.str("type"));
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     public void testPutLayers() throws Exception {
         GeoServer gs = MockGeoServer.get().catalog()
@@ -193,29 +204,12 @@ public class MapControllerTest {
 
         LayerGroupInfo m = geoServer.getCatalog().getLayerGroupByName("map");
         assertNotNull(m);
+        
+        assertEquals( "one", m.getLayers().get(0).getName() );
+        assertEquals( "two", m.getLayers().get(1).getName() );
 
-        verify(m.getLayers()).clear();
-        verify(m.getLayers()).addAll(argThat(new ArgumentMatcher<Collection>() {
-            @Override
-            public boolean matches(Object argument) {
-                List l = (List) argument;
-                return "one".equals(((LayerInfo)l.get(0)).getName()) &&
-                       "two".equals(((LayerInfo)l.get(1)).getName());
-            }
-        }));
-
-        verify(m.getStyles()).clear();
-        verify(m.getStyles()).addAll(argThat(new ArgumentMatcher<Collection>() {
-            @Override
-            public boolean matches(Object argument) {
-                List l = (List) argument;
-                return "one.ysld".equals(((StyleInfo)l.get(0)).getFilename()) &&
-                        "two.ysld".equals(((StyleInfo)l.get(1)).getFilename());
-            }
-        }));
-
-
-        //assertEquals(2, map.getLayers().size());
+        assertEquals( "one.ysld", m.getStyles().get(0).getFilename() );
+        assertEquals( "two.ysld", m.getStyles().get(1).getFilename() );
     }
 
 }
