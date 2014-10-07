@@ -130,9 +130,27 @@ angular.module('gsApp.workspaces.workspace', [
         });
 
       $scope.selectStore = function(store) {
-        $scope.selectedStore = store;
-        $scope.selectedStore.imported = store.layers_imported.length;
-        $scope.selectedStore.unimported = store.layers_unimported.length;
+        GeoServer.datastores.getDetails($scope.workspace, store.name).then(
+        function(result) {
+          if (result.success) {
+            $scope.selectedStore = store;
+
+            $rootScope.alerts = [{
+              type: 'warning',
+              message: 'The Store details API is under construction.',
+              fadeout: true
+            }];
+
+            //$scope.selectedStore.imported = store.layers_imported.length;
+            //$scope.selectedStore.unimported = store.layers_unimported.length;
+          } else {
+            $rootScope.alerts = [{
+              type: 'warning',
+              message: 'Store details could not be loaded.',
+              fadeout: true
+            }];
+          }
+        });
       };
 
       $scope.addNewStore = function() {
