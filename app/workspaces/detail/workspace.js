@@ -54,26 +54,34 @@ angular.module('gsApp.workspaces.workspace', [
 
       // Maps
 
-      GeoServer.maps.get({workspace: wsName}).$promise
-        .then(function(maps) {
-          $scope.maps = maps;
-          // load all map thumbnails & metadata
-          for (var i=0; i < $scope.maps.length; i++) {
-            var map = $scope.maps[i];
-            var layers = '';
+      GeoServer.maps.get(wsName).then(
+        function(result) {
+          if (result.success) {
+            $scope.maps = result.data;
+            // load all map thumbnails & metadata
+            for (var i=0; i < $scope.maps.length; i++) {
+              var map = $scope.maps[i];
+              var layers = '';
 
-            $scope.maps[i].workspace = wsName;
-            $scope.maps[i].layergroupname = wsName + ':' + map.name;
-            var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west +
-             ',' + map.bbox.south + ',' + map.bbox.east + ',' +
-             map.bbox.north;
+              $scope.maps[i].workspace = wsName;
+              $scope.maps[i].layergroupname = wsName + ':' + map.name;
+              var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west +
+               ',' + map.bbox.south + ',' + map.bbox.east + ',' +
+               map.bbox.north;
 
-            var url = GeoServer.map.thumbnail.get(map.workspace, map,
-              map.layergroupname, 250, 250);
-            var srs = '&srs=' + map.proj.srs;
+              var url = GeoServer.map.thumbnail.get(map.workspace, map,
+                map.layergroupname, 250, 250);
+              var srs = '&srs=' + map.proj.srs;
 
-            $scope.thumbnails[map.name] = url + bbox +
-              '&format=image/png' + srs;
+              $scope.thumbnails[map.name] = url + bbox +
+                '&format=image/png' + srs;
+            }
+          } else {
+            $scope.alerts = [{
+              type: 'warning',
+              message: 'Unable to load workspace maps.',
+              fadeout: true
+            }];
           }
         });
 

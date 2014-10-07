@@ -23,7 +23,7 @@
     <li role="presentation" class="divider"></li>
     <li id="projects" ng-show="!toggleSide">
       <a class="all-workspaces" ng-init="toggleProjs=false"
-        ng-click="toggleProjs=!toggleProjs" ui-sref="workspaces"
+        ng-click="toggleProjs=!toggleProjs; openWorkspaces();" ui-sref="workspaces"
         alt="Project Workspaces" title="Project Workspaces">
         <i ng-class="{'icon-folder-open': toggleProjs,
           'icon-folder': !toggleProjs}"></i> <span class="txt">

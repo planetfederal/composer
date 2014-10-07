@@ -169,13 +169,20 @@ angular.module('gsApp.core.backend',[])
           }
         },
 
-        maps: $resource(apiRoot+'/maps/:workspace', {workspace:'default'}, {
-          get: {
-            method: 'GET',
-            responseType: 'json',
-            isArray: true
-          }
-        }),
+        maps: {
+          get: function(workspace) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/maps/'+workspace
+            });
+          },
+          post: function(workspace, name) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/maps/'+workspace+'/'+name
+            });
+          },
+        },
 
         map: {
           get: function(workspace, name) {

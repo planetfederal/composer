@@ -12,21 +12,9 @@ angular.module('gsApp.sidenav', [
     };
   })
 .controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer',
-  'AppEvent', '$state', '$log',
-  function($scope, $rootScope, GeoServer, AppEvent, $state, $log) {
-
-    GeoServer.workspaces.get().then(
-      function(result) {
-        if (result.success) {
-          $scope.workspaces = result.data;
-        } else {
-          $scope.alerts = [{
-              type: 'warning',
-              message: 'Could not get workspaces.',
-              fadeout: true
-            }];
-        }
-      });
+  'AppEvent', '$state', '$log', '$timeout',
+  function($scope, $rootScope, GeoServer, AppEvent, $state, $log,
+    $timeout) {
 
     $scope.onResize = function() {
       $rootScope.$broadcast(AppEvent.SidenavResized);
@@ -48,6 +36,11 @@ angular.module('gsApp.sidenav', [
       $state.go('workspace.new');
     };
 
+    $rootScope.$on(AppEvent.WorkspacesFetched,
+      function(scope, workspaces) {
+        $scope.workspaces = workspaces;
+      });
+
     $rootScope.$on(AppEvent.WorkspaceNameChanged,
       function(scope, names) {
         $scope.workspaces.forEach(function(workspace) {
@@ -64,6 +57,16 @@ angular.module('gsApp.sidenav', [
           if ($scope.workspaces[p].name === deletedSpaceName) {
             $scope.workspaces.splice(p,1);
           }
+        }
+      });
+
+    $rootScope.$on(AppEvent.ToggleSidenav,
+      function(scope) {
+        if (!$scope.toggleSide) {
+          $scope.toggleSide = true;
+          $timeout(function() {
+            $scope.onResize();
+          },450);
         }
       });
   }]);

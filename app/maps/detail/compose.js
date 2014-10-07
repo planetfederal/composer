@@ -14,10 +14,13 @@ angular.module('gsApp.maps.compose', [
     }])
 .controller('MapComposeCtrl',
     ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log',
-    function($scope, $stateParams, GeoServer, $timeout, $log) {
+    'AppEvent', '$rootScope',
+    function($scope, $stateParams, GeoServer, $timeout, $log, AppEvent,
+      $rootScope) {
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;
+      $rootScope.$broadcast(AppEvent.ToggleSidenav);
 
       GeoServer.map.get(wsName, name).then(function(result) {
         var map = result.data;
@@ -34,7 +37,6 @@ angular.module('gsApp.maps.compose', [
         });
         $scope.numLayers = map.layers.length;
       });
-
 
       $scope.toggle = true;
       $scope.toggleLayers = function() {
