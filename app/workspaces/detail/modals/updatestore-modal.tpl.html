@@ -1,0 +1,21 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ title }}</h4>
+  </div>
+  <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
+    <div ng-show="storeUndefined">
+      <p>Please select a store to update.</p>
+    </div>
+    <div ng-show="!storeUndefined && !store.updated">
+      <p>Are there any store settings that can be updated?</p>
+      <p>Is this window even necessary? Please let us know.</p>
+    </div>
+    <div ng-show="!storeUndefined && store.updated">
+      Store <strong>{{ store.name }}</strong> updated.
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
+    <button ng-hide="storeUndefined" class="btn btn-danger btn-sm" ng-click="save()" style="margin-left:20px; margin-right:20px;">Save Changes</button>
+  </div>
+</div>

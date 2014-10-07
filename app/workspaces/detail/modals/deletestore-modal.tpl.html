@@ -1,0 +1,24 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ title }}</h4>
+  </div>
+  <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
+    <div ng-show="storeUndefined">
+      <p>Please select a store to delete.</p>
+    </div>
+    <div ng-show="!storeUndefined && !store.deleted">
+      <p>Delete store <strong>{{ store.name }}</strong>?</p>
+      <p><strong>All store data will be removed.</strong></p>
+      <p>Are you sure?</p>
+      <br/><br/>
+      <p><small>If you're just poking around and this is horizon.boundlessgeo.com,<br/>please <strong>do not delete any stores other than ones you have created!</strong></small></p>
+    </div>
+    <div ng-show="!storeUndefined && store.deleted">
+      Store <strong>{{ store.name }}</strong> deleted.
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
+    <button ng-hide="storeUndefined" class="btn btn-danger btn-sm" ng-click="deleteForever()" style="margin-left:20px; margin-right:20px;">Yes, Delete Permanently</button>
+  </div>
+</div>
