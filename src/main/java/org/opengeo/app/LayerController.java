@@ -38,6 +38,7 @@ import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
+import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -68,8 +69,8 @@ public class LayerController extends AppController {
     }
 
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
-    public @ResponseBody JSONArr list(@PathVariable String wsName, HttpServletRequest req) {
-        JSONArr arr = new JSONArr();
+    public @ResponseBody JSONObj list(@PathVariable String wsName, HttpServletRequest req) {
+        JSONObj obj = new JSONObj();
 
         Catalog cat = geoServer.getCatalog();
 
@@ -80,18 +81,25 @@ public class LayerController extends AppController {
             }
         }
 
-        CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, equal("resource.namespace.prefix", wsName),
-            offset(req), count(req), null);
-        try {
+        Filter filter = equal("resource.namespace.prefix", wsName);
+        Integer total = cat.count(LayerInfo.class, filter);
+        Integer page = page(req);
+        Integer count = count(req);
+
+        obj.put("total", total);
+        obj.put("page", page != null ? page : 0);
+        obj.put("count", Math.min(total, count != null ? count : total));
+
+        JSONArr arr = obj.putArray("layers");
+        try (
+            CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, filter, offset(req), count, null);
+        ) {
             while (it.hasNext()) {
                 IO.layer(arr.addObject(), it.next());
             }
         }
-        finally {
-            it.close();
-        }
 
-        return arr;
+        return obj;
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)

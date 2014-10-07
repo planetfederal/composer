@@ -2,6 +2,7 @@ package org.opengeo.app;
 
 import net.sf.json.JSONArray;
 
+import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.importer.Importer;
@@ -28,10 +29,12 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
 
     @Test
     public void testPageLayers() throws Exception {
-        JSONArray arr = (JSONArray) getAsJSON(("/app/api/layers/sf"));
+        JSONObject obj = (JSONObject) getAsJSON(("/app/api/layers/sf"));
+        JSONArray arr = obj.getJSONArray("layers");
         assertEquals(3, arr.size());
 
-        arr = (JSONArray) getAsJSON(("/app/api/layers/sf?page=1&pagesize=1"));
+        obj = (JSONObject) getAsJSON(("/app/api/layers/sf?page=1&pagesize=1"));
+        arr = obj.getJSONArray("layers");
         assertEquals(1, arr.size());
     }
 

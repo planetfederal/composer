@@ -195,4 +195,15 @@ public class IO {
             obj.put(key, value);
         }
     }
+
+    //static PrettyTime PRETTY_TIME = new PrettyTime();
+
+    /** Read metadata describing the last edit */
+    static void metadata(JSONObj obj, MetadataMap metadata) {
+        IO.metadata( obj, metadata, "author");
+        IO.metadata( obj, metadata, "created");
+        IO.metadata( obj, metadata, "modified");
+        IO.metadata( obj, metadata, "change");
+    }
+    
 }
