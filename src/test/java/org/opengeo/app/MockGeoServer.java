@@ -14,6 +14,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 
 
+
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
@@ -148,6 +149,7 @@ public class MockGeoServer {
             when(r.path()).thenReturn(path);
             when(r.name()).thenReturn(path.substring(path.lastIndexOf('/')+1));
             when(r.getType()).thenReturn(Type.RESOURCE);
+            when(r.lastmodified()).thenReturn( System.currentTimeMillis() );
             when(r.in()).thenReturn(content);
             when(r.out()).thenReturn(new ByteArrayOutputStream());
             
