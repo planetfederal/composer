@@ -29,7 +29,9 @@
              <span>{{ session.user }}</span> <span class="caret"></span>
            </a>
            <ul id="dropdown-user" class="dropdown-menu" role="menu">
-             <li ng-if="session.active"><a ui-sref="#" ng-click="logout()">Logout</a></li>
+            <li><a ng-href="{{adminLink}}/index.html" target="_blank">GeoServer Admin</a></li>
+            <li class="divider"></li>
+            <li ng-if="session.active"><a ui-sref="#" ng-click="logout()">Logout</a></li>
            </ul>
          </li>
       </ul>

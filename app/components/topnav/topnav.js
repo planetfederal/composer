@@ -14,5 +14,6 @@ angular.module('gsApp.topnav', [])
             $rootScope.$broadcast(AppEvent.Logout);
           });
       };
+      $scope.adminLink = GeoServer.baseUrl();
     }]);
 
