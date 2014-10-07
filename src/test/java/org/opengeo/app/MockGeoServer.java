@@ -15,6 +15,9 @@ import com.vividsolutions.jts.geom.Envelope;
 
 
 
+
+
+
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
@@ -66,6 +69,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import static org.geoserver.catalog.Predicates.equal;
 import static org.mockito.Mockito.*;
@@ -391,46 +395,48 @@ public class MockGeoServer {
             when(map.getName()).thenReturn(name);
             when(map.getMode()).thenReturn(Mode.SINGLE);
             when(map.prefixedName()).thenReturn(wsName + ":" + name);
+            
             when(map.layers()).thenAnswer(new Answer<List<LayerInfo>>() {
                 @Override
                 public List<LayerInfo> answer(InvocationOnMock invocation) throws Throwable {
-                    return Lists.transform(layers, new Function<LayerBuilder, LayerInfo>() {
+                    return new ArrayList<LayerInfo>(
+                            Lists.transform(layers, new Function<LayerBuilder, LayerInfo>() {
                         @Nullable
                         @Override
                         public LayerInfo apply(@Nullable LayerBuilder input) {
                             return input.layer;
                         }
-                    });
+                    }));
                 }
             });
 
-            List<PublishedInfo> layerList = mock(List.class);
-            when(layerList.iterator()).thenAnswer(new Answer<Object>() {
+            when(map.getLayers()).thenAnswer(new Answer<List<PublishedInfo>>() {
                 @Override
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    return Iterables.transform(layers, new Function<LayerBuilder, Object>() {
-                        @Nullable @Override
-                        public Object apply(@Nullable LayerBuilder input) {
+                public List<PublishedInfo> answer(InvocationOnMock invocation) throws Throwable {
+                    return new ArrayList<PublishedInfo>(
+                            Lists.transform(layers, new Function<LayerBuilder, PublishedInfo>() {
+                        @Nullable
+                        @Override
+                        public LayerInfo apply(@Nullable LayerBuilder input) {
                             return input.layer;
                         }
-                    });
+                    }));
                 }
             });
-            when(map.getLayers()).thenReturn(layerList);
-
-            List<StyleInfo> styleList = mock(List.class);
-            when(styleList.iterator()).thenAnswer(new Answer<Object>() {
+            
+            when(map.getStyles()).thenAnswer(new Answer<List<StyleInfo>>() {
                 @Override
-                public Object answer(InvocationOnMock invocation) throws Throwable {
-                    return Iterables.transform(layers, new Function<LayerBuilder, Object>() {
-                        @Nullable @Override
-                        public Object apply(@Nullable LayerBuilder input) {
-                            return input.layer.getDefaultStyle();
-                        }
-                    });
+                public List<StyleInfo> answer(InvocationOnMock invocation) throws Throwable {
+                    return new ArrayList<StyleInfo>(
+                            Lists.transform(layers, new Function<LayerBuilder, StyleInfo>() {
+                                @Nullable @Override
+                                public StyleInfo apply(@Nullable LayerBuilder input) {
+                                    return input.layer.getDefaultStyle();
+                                }
+                            }
+                    ));
                 }
             });
-            when(map.getStyles()).thenReturn(styleList);
 
             Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
             when(catalog.getLayerGroupByName(name)).thenReturn(map);
