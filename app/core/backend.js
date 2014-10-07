@@ -115,33 +115,18 @@ angular.module('gsApp.core.backend',[])
           }
         },
 
-        // Stubbing in for now
         datastores: {
-          get: function() {
-            return {
-              'datastores': [{
-                'workspace': 'i_am_a_stub',
-                'name': 'med_shp',
-                'type': 'shp',
-                'layers_imported': ['schools', 'police'],
-                'layers_unimported': ['municipal'],
-                'source':  '72.45.34.23/mnt/vol2/dataset1/ne/',
-                'description':
-                'directory of spatial files (shp)',
-                'srs': 'EPSG:4326'
-              },
-              {
-                'workspace': 'i_too_am_a_stub',
-                'name': 'med_postgis',
-                'type': 'postgis',
-                'layers_imported': ['schools', 'police', 'churches'],
-                'layers_unimported': ['municipal'],
-                'source':  '72.45.34.23/postgis/med:54321',
-                'description':
-                'backup postgis database for medford',
-                'srs': 'EPSG:4326'
-              }]
-            };
+          get: function(workspace) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/stores/'+workspace
+            });
+          },
+          getDetails: function(workspace, store) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/stores/'+workspace+'/'+store
+            });
           }
         },
 

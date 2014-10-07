@@ -187,19 +187,4 @@ angular.module('gsApp.workspaces.datastores', [
         }
       });
   };
-}])
-.directive('popoverHtmlUnsafePopup', function () {
-    return {
-      restrict: 'EA',
-      replace: true,
-      scope: { title: '@',
-      content: '@',
-      placement: '@',
-      animation: '&',
-      isOpen: '&' },
-      templateUrl: '/workspaces/detail/modals/popover-html-unsafe.tpl.html',
-    };
-  })
-.directive('popoverHtmlUnsafe', [ '$tooltip', function ($tooltip) {
-  return $tooltip('popoverHtmlUnsafe', 'popover', 'click');
 }]);

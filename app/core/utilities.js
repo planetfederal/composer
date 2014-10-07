@@ -23,4 +23,20 @@ angular.module('gsApp.core.utilities', [])
         controller.$parsers.splice(0, 0, ensureHttpPrefix);
       }
   };
-});
+})
+.directive('popoverHtmlUnsafePopup', function () {
+    return {
+      restrict: 'EA',
+      replace: true,
+      scope: { title: '@',
+      content: '@',
+      placement: '@',
+      animation: '&',
+      isOpen: '&' },
+      templateUrl: '/core/modals/popover-html-unsafe.tpl.html',
+    };
+  })
+.directive('popoverHtmlUnsafe', [ '$tooltip', function ($tooltip) {
+  return $tooltip('popoverHtmlUnsafe', 'popover', 'click');
+}]);
+
