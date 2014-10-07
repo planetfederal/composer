@@ -4,6 +4,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
+import org.apache.commons.httpclient.util.DateUtil;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -21,6 +22,9 @@ import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -189,21 +193,43 @@ public class IO {
         }
     }
 
-    static void metadata(JSONObj obj, MetadataMap metadata, String key) {
+    static JSONObj metadata(JSONObj obj, MetadataMap metadata, String key) {
         if( metadata != null && metadata.containsKey(key) ){
             Object value = metadata.get(key);
-            obj.put(key, value);
+            if( value instanceof Date){
+                String time = DateUtil.formatDate( (Date) value );
+                obj.put(key, time);
+            }
+            else {
+                obj.put(key, value);
+            }
         }
+        return obj;
     }
 
     //static PrettyTime PRETTY_TIME = new PrettyTime();
 
     /** Read metadata describing the last edit */
-    static void metadata(JSONObj obj, MetadataMap metadata) {
+    static JSONObj metadataHistory(JSONObj obj, MetadataMap metadata ) {
         IO.metadata( obj, metadata, "author");
         IO.metadata( obj, metadata, "created");
         IO.metadata( obj, metadata, "modified");
         IO.metadata( obj, metadata, "change");
+        
+        return obj;
     }
-    
+    /** Read metadata describing the last edit */
+    static JSONObj metadata(JSONObj obj, MetadataMap metadata, boolean ignoreHistory) {
+        for( Entry<String, Serializable> meta : metadata.entrySet() ){
+            if( ignoreHistory &&
+                    ("author".equalsIgnoreCase(meta.getKey()) ||
+                    "created".equalsIgnoreCase(meta.getKey()) ||
+                    "modified".equalsIgnoreCase(meta.getKey()) || 
+                    "change".equalsIgnoreCase(meta.getKey()))){
+                continue;
+            }
+            obj.put(meta.getKey(),meta.getValue());
+        }
+        return obj;
+    }    
 }
