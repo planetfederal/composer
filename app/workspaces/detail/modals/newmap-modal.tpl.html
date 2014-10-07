@@ -1,0 +1,41 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">New Map in <strong>{{ workspace }}</strong> workspace</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-xs-10 col-xs-offset-1">
+        <form name="newMap" role="form" class="newMapForm">
+          <div class="form-group" name="newMapName">
+            <label for="name">Map Name*</label>
+            <input type="text" class="form-control input-sm" name="name" ng-model="mapSettings.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
+            <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
+            <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
+            <small>(No spaces.)</small>
+          </div>
+          <div class="form-group" name="newMapCrs">
+            <label for="mapSettings.crs">
+              Projection* <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
+            </label>
+            <input type="text" class="form-control input-sm" name="crs" ng-model="mapSettings.crs" required ng-pattern="/^(epsg|EPSG):[0-9]+$/" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}">
+            <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
+            <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
+            <small>(e.g. EPSG:4326)</small>
+          </div>
+          <div class="form-group" name="newMapAbstract">
+            <label for="abstract">Abstract</label>
+            <textarea rows="4" cols="40" class="form-control abstract" name="abstract" ng-model="mapSettings.abstract" ng-minlength="1">Description for map</textarea>
+          </div>
+        </form>
+        <div ng-hide="mapCreated" style="margin-top:15px;"></div>
+        <div ng-show="mapCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Map Created.</div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <small class="pull-left">* = Required</small>
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-primary btn-sm" ng-click="createMap()" style="margin-left:20px;" ng-disabled="!newMap.$valid">Create</button>
+    <button class="btn btn-success btn-sm" ng-click="addLayers()" style="margin-left: 20px;margin-right: 20px;" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
+  </div>
+</div>

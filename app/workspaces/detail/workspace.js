@@ -1,5 +1,7 @@
 angular.module('gsApp.workspaces.workspace', [
   'gsApp.workspaces.datastores',
+  'gsApp.workspaces.maps',
+  'gsApp.alertpanel',
   'ngSanitize'
 ])
 .config(['$stateProvider',
@@ -62,6 +64,14 @@ angular.module('gsApp.workspaces.workspace', [
             var map = $scope.maps[i];
             var layers = '';
 
+            if (map.layers===undefined) {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'REST API refactoring in progress... this page is under construction!',
+                fadeout: true
+              }];
+            }
+
             $scope.maps[i].workspace = wsName;
             $scope.maps[i].layergroupname = wsName + ':' + map.name;
             $scope.maps[i].layerCount = map.layers.length;
@@ -95,12 +105,48 @@ angular.module('gsApp.workspaces.workspace', [
         });
       };
 
+      $scope.addNewMap = function() {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/newmap-modal.tpl.html',
+          controller: 'NewMapModalCtrl',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            geoserver: function() {
+              return GeoServer;
+            },
+            maps: function() {
+              return $scope.maps;
+            }
+          }
+        });
+      };
+
       // Data
 
-      /*GeoServer.alldata.get().$promise.then(function(data) {
-        $scope.data = data;
-      });*/
-      $scope.datastores = GeoServer.datastores.get().datastores;
+      GeoServer.datastores.get($scope.workspace).then(
+        function(res) {
+          $scope.datastores = res.data;
+          $scope.datastores.forEach(function(ds) {
+
+            GeoServer.datastores.getDetails($scope.workspace,ds.name).then(
+              function(result) {
+             // console.log(result);
+                //ds.source = result.data
+            });
+
+           // console.log(ds);
+            if (ds.format === 'Shapefile') {
+              ds.sourcetype = 'shp';
+            } else if (ds.kind === 'raster') {
+              ds.sourcetype = 'raster';
+            } else if (ds.type === 'DATABASE') {
+              ds.sourcetype = 'postgis';
+            }
+          });
+        });
 
       $scope.selectStore = function(store) {
         $scope.selectedStore = store;
