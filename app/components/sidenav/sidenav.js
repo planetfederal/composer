@@ -69,5 +69,15 @@ angular.module('gsApp.sidenav', [
           },450);
         }
       });
+
+    $rootScope.$on(AppEvent.ServerError,
+      function(scope, error) {
+        $scope.alerts.push({
+          type: 'error',
+          message: 'Server not responding ' + error.status + ': ' +
+           error.data,
+          fadeout: true
+        });
+      });
   }]);
 
