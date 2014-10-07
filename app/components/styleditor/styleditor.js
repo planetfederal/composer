@@ -37,9 +37,20 @@ angular.module('gsApp.styleditor', [
             lineNumbers: true,
             styleActiveLine: true,
             mode: 'yaml',
-            gutters: ['markers'],
+            foldGutter: true,
+            gutters: ['markers', 'CodeMirror-foldgutter'],
             extraKeys: {
               'Ctrl-Space': 'autocomplete',
+              'Ctrl-F': function(cm) {
+                  var pos = cm.getCursor();
+                  while(pos.line > 0 && cm.isFolded(pos)) {
+                    pos = {line: pos.line-1, ch:0};
+                  }
+                  cm.foldCode(pos, {
+                    rangeFinder: CodeMirror.fold.indent,
+                    scanUp: true
+                  });
+              },
               'Tab': function(cm) {
                 // replace tabs with spaces
                 var spaces =
