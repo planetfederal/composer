@@ -1,4 +1,5 @@
 angular.module('gsApp.layers', [
+  'gsApp.workspaces.datastores',
   'ngGrid',
   'ui.select',
   'gsApp.layers.style'
@@ -55,9 +56,15 @@ angular.module('gsApp.layers', [
       '</div>'
   };
 })
-.controller('LayersCtrl', ['$scope', 'GeoServer', '$state', '$log',
-    function($scope, GeoServer, $state, $log) {
+.controller('LayersCtrl', ['$scope', '$stateParams', 'GeoServer', '$state',
+    '$log', '$modal', '$window',
+    function($scope, $stateParams, GeoServer, $state, $log, $modal, $window) {
       $scope.title = 'All Layers';
+      $scope.thumbnail = '';
+
+      //TODO: Grab the thumbnail if it exists.
+      //$scope.thumbnail = GeoServer.map.thumbnail.get(workspace, map,
+        //layer.name, 250, 250);
 
       $scope.onStyleEdit = function(layer) {
         $state.go('layer.style', {
@@ -69,6 +76,7 @@ angular.module('gsApp.layers', [
         var target = evt.targetScope;
         var field = target.col.field;
         var layer = target.row.entity;
+        var ws;
 
         var patch = {};
         patch[field] = layer[field];
@@ -80,6 +88,80 @@ angular.module('gsApp.layers', [
 
       $scope.workspace = {};
       $scope.workspaces = [];
+
+      $scope.addLayer = function(ws) {
+        var modalInstance = $modal.open({
+          templateUrl: '/layers/addnewlayer-modal.tpl.html',
+          controller: ['$scope', '$window', '$modalInstance',
+            function($scope, $window, $modalInstance) {
+              $scope.datastores = GeoServer.datastores.get('ws');
+              $scope.ws = ws;
+
+              // Get all of the data stores
+              GeoServer.datastores.get(ws).then(
+                function(result) {
+                  if (result.success) {
+                    $scope.datastores = result.data;
+                  } else {
+                    $scope.alerts = [{
+                      type: 'warning',
+                      message: 'Workspace could not be loaded.',
+                      fadeout: true
+                    }];
+                  }
+                });
+
+              $scope.ok = function() {
+                $window.alert('TODO: add the new layer.');
+                //GeoServer.layers.put({workspace: $scope.ws}, 
+                  //$scope.form.layer);
+                $modalInstance.dismiss('cancel');
+              };
+
+              $scope.cancel = function() {
+                $modalInstance.dismiss('cancel');
+              };
+            }],
+          size: 'lg'
+        });
+      };
+
+      $scope.deleteLayer = function(layer) {
+        var modalInstance = $modal.open({
+          templateUrl: '/layers/deletelayer-modal.tpl.html',
+          controller: ['$scope', '$window', '$modalInstance',
+            function($scope, $window, $modalInstance) {
+              $scope.layer = layer.name;
+
+              $scope.ok = function() {
+                $window.alert('TODO: remove the layer "' + layer.name + '".');
+                //GeoServer.layer.remove(layer.name);
+                $modalInstance.dismiss('cancel');
+              };
+
+              $scope.cancel = function() {
+                $modalInstance.dismiss('cancel');
+              };
+            }],
+          size: 'med'
+        });
+      };
+
+      $scope.addDataSource = function() {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/addnew-modal.tpl.html',
+          controller: 'AddNewModalCtrl',
+          size: 'lg',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            geoserver: function() {
+              return GeoServer;
+            }
+          }
+        });
+      };
 
       $scope.pagingOptions = {
         pageSizes: [25, 50, 100],
@@ -114,7 +196,7 @@ angular.module('gsApp.layers', [
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onDeleteStyle(row.entity)">' +
+                '<a ng-click="deleteLayer(row.entity)">' +
                   '<img ng-src="images/delete.png" alt="Remove Layer"' +
                     'title="Remove Layer" />' +
                 '</a>' +
