@@ -1,17 +1,22 @@
 package org.opengeo.app;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.vividsolutions.jts.geom.Envelope;
+import static org.geoserver.catalog.Predicates.equal;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
 
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.PublishedInfo;
-import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
@@ -19,7 +24,6 @@ import org.geoserver.config.GeoServer;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
-import org.geotools.referencing.crs.DefaultGeocentricCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
 import org.opengis.referencing.FactoryException;
@@ -27,7 +31,6 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,17 +40,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static org.geoserver.catalog.Predicates.equal;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.vividsolutions.jts.geom.Envelope;
 
 @Controller
 @RequestMapping("/api/maps")
@@ -293,11 +289,7 @@ public class MapController extends AppController {
         IO.bounds(obj.putObject("bbox"), bounds);
         
         if( details ){
-            // metadata describing last edit
-            IO.metadata( obj, map.getMetadata(), "author");
-            IO.metadata( obj, map.getMetadata(), "created");
-            IO.metadata( obj, map.getMetadata(), "modified");
-            IO.metadata( obj, map.getMetadata(), "change");
+            IO.metadata( obj, map.getMetadata() );
         }
         
         if( details ){

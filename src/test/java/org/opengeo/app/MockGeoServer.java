@@ -278,6 +278,8 @@ public class MockGeoServer {
                     wsBuilder.workspace.getName()))).thenAnswer(a);
                 when(catalog.list(LayerInfo.class, Predicates.equal("resource.namespace.prefix",
                     wsBuilder.workspace.getName()), null, DEFAULT_PAGESIZE, null)).thenAnswer(a);
+                when(catalog.count(LayerInfo.class, Predicates.equal("resource.namespace.prefix",
+                    wsBuilder.workspace.getName()))).thenReturn(wsBuilder.layers.size());
 
                 final List<LayerGroupInfo> maps = Lists.transform(wsBuilder.maps, new Function<MapBuilder, LayerGroupInfo>() {
                     @Nullable
