@@ -20,11 +20,11 @@
               </a>
               <div class="map-summary-detail">
                 <h4>{{ map.title }}</h4>
-                <p>{{ map.layerCount }} Layers</p>
+                <p>{{ map.layer_count }} Layers</p>
                 <p>{{ map.proj.srs }}</p>
                 <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p>
               </div>
-              <p class="abstract"><strong>Abtract:</strong> {{sanitizeHTML(map.description)}}</p>
+              <p class="abstract"><strong>Abstract:</strong> {{sanitizeHTML(map.abstract)}}</p>
             </div>
             <div class="col-sm-6" ng-if="$index % 2 == 1">
               <a href="" ng-click="onEdit(map)">
@@ -56,12 +56,12 @@
             <ul class="list-unstyled stores-list">
               <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
                 <div class="icon-column">
-                  <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.sourcetype=='shp', 'fa fa-database fa-md': ds.sourcetype=='postgis', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
+                  <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.sourcetype=='shp', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
                   <p class="datastore-label">{{ ds.sourcetype }}</p>
                 </div>
                 <div class="info-column">
                   <p><strong>Store:</strong> {{ ds.name }}</p>
-                  <p><strong>Source:</strong> {{ ds.source }}</p>
+                  <p class="trim-info"><strong>Source:</strong> {{ ds.source }}</p>
                   <p><strong>Description:</strong> {{ ds.description }}</p>
                 </div>
               </li>

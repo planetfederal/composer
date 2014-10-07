@@ -100,8 +100,8 @@
     width: 100%;
   }
   .store-row {
-    padding: 14px 12px 4px 8px;
-    width: 90%;
+    padding: 14px 12px 4px 0;
+    width: 100%;
 
     &.selected {
       background-color: @very-lt-gray;
@@ -120,7 +120,17 @@
   }
   .info-column {
     display: inline-block;
-    margin-left: 15px;
+    margin-left: 5px;
+    max-width: 80%;
+    overflow-x: scroll;
+  }
+  .trim-info {
+    max-width: 90%;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 15px;
+    position: relative;
   }
   .datastore-icons {
     color: @gray;
@@ -185,7 +195,8 @@
       }
     }
   }
-}
+
+} /* end datastores */
 
 form.settings {
   margin-top: 20px;

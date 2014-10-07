@@ -56,25 +56,14 @@ angular.module('gsApp.workspaces.workspace', [
 
       GeoServer.maps.get({workspace: wsName}).$promise
         .then(function(maps) {
-
           $scope.maps = maps;
-
           // load all map thumbnails & metadata
           for (var i=0; i < $scope.maps.length; i++) {
             var map = $scope.maps[i];
             var layers = '';
 
-            if (map.layers===undefined) {
-              $rootScope.alerts = [{
-                type: 'warning',
-                message: 'REST API refactoring in progress... this page is under construction!',
-                fadeout: true
-              }];
-            }
-
             $scope.maps[i].workspace = wsName;
             $scope.maps[i].layergroupname = wsName + ':' + map.name;
-            $scope.maps[i].layerCount = map.layers.length;
             var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west +
              ',' + map.bbox.south + ',' + map.bbox.east + ',' +
              map.bbox.north;
@@ -127,23 +116,15 @@ angular.module('gsApp.workspaces.workspace', [
       // Data
 
       GeoServer.datastores.get($scope.workspace).then(
-        function(res) {
-          $scope.datastores = res.data;
+        function(result) {
+          $scope.datastores = result.data;
           $scope.datastores.forEach(function(ds) {
-
-            GeoServer.datastores.getDetails($scope.workspace,ds.name).then(
-              function(result) {
-             // console.log(result);
-                //ds.source = result.data
-            });
-
-           // console.log(ds);
-            if (ds.format === 'Shapefile') {
+            if (ds.format.toLowerCase() === 'shapefile') {
               ds.sourcetype = 'shp';
-            } else if (ds.kind === 'raster') {
+            } else if (ds.kind.toLowerCase() === 'raster') {
               ds.sourcetype = 'raster';
-            } else if (ds.type === 'DATABASE') {
-              ds.sourcetype = 'postgis';
+            } else if (ds.type.toLowerCase() === 'database') {
+              ds.sourcetype = 'database';
             }
           });
         });
