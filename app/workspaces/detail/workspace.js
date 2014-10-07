@@ -162,9 +162,9 @@ angular.module('gsApp.workspaces.workspace', [
 
       $scope.addNewStore = function() {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/addnew-modal.tpl.html',
-          controller: 'AddNewModalCtrl',
-          size: 'lg',
+          templateUrl: '/workspaces/detail/modals/addstore-modal.tpl.html',
+          controller: 'AddStoreModalCtrl',
+          size: 'md',
           resolve: {
             workspace: function() {
               return $scope.workspace;

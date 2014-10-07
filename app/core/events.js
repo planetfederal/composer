@@ -15,6 +15,10 @@ angular.module('gsApp.core.event', [])
    * Fired on logout.
    */
   Logout: 'app-logout',
+   /**
+   * Fired when GeoServer is not responding.
+   */
+  ServerError: 'server-error',
   /**
    * Fired when sidenav resized.
    */

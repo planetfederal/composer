@@ -1,10 +1,10 @@
 angular.module('gsApp.workspaces.datastores.addnew', [
   'ngSanitize', 'angularFileUpload'
 ])
-.controller('AddNewModalCtrl', ['$scope', '$modalInstance', 'workspace',
-  'geoserver', '$upload', '$timeout', '$sce', '$http', '$window',
+.controller('AddStoreModalCtrl', ['$scope', '$modalInstance', 'workspace',
+  'geoserver', '$upload', '$timeout', '$sce',
   function ($scope, $modalInstance, workspace, geoserver, $upload, $timeout,
-   $sce, $http, $window) {
+   $sce) {
 
     $scope.title = 'New Data Store';
 

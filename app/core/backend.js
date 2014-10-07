@@ -4,7 +4,8 @@
  */
 angular.module('gsApp.core.backend',[])
 .factory('GeoServer', ['$http', '$resource', '$q', '$log',
-    function($http, $resource, $q, $log) {
+  'AppEvent', '$rootScope',
+    function($http, $resource, $q, $log, AppEvent, $rootScope) {
       var gsRoot = '/geoserver';
       var apiRoot = gsRoot + '/app/api';
       var importRoot = apiRoot + '/imports/';
@@ -23,6 +24,8 @@ angular.module('gsApp.core.backend',[])
             });
           })
           .error(function(data, status, headers, config) {
+            $rootScope.$broadcast(AppEvent.ServerError,
+              {status: status, data: data});
             d.reject({status: status, data: data});
           });
         return d.promise;
