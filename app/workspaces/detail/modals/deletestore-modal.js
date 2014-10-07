@@ -1,4 +1,4 @@
-angular.module('gsApp.workspaces.datastores.delete', [])
+angular.module('gsApp.workspaces.workspace.data.delete', [])
 .controller('DeleteStoreModalCtrl', ['$scope', '$modalInstance',
   'workspace', 'geoserver', 'store', '$rootScope',
   function ($scope, $modalInstance, workspace, geoserver, store,

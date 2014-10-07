@@ -1,4 +1,4 @@
-angular.module('gsApp.workspaces.datastores.addnew', [
+angular.module('gsApp.workspaces.workspace.data.create', [
   'ngSanitize', 'angularFileUpload'
 ])
 .controller('AddStoreModalCtrl', ['$scope', '$modalInstance', 'workspace',

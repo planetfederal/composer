@@ -1,4 +1,4 @@
-angular.module('gsApp.workspaces.datastores.update', [])
+angular.module('gsApp.workspaces.workspace.data.update', [])
 .controller('UpdateStoreModalCtrl', ['$scope', '$modalInstance',
   'workspace', 'geoserver', 'store', '$rootScope',
   function ($scope, $modalInstance, workspace, geoserver, store,
