@@ -1,4 +1,4 @@
-angular.module('gsApp.workspaces.maps', [
+angular.module('gsApp.workspaces.workspace.maps.create', [
   'ngSanitize',
   'gsApp.alertpanel'
 ])
