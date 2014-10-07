@@ -24,7 +24,8 @@ angular.module('gsApp.workspaces', [
     }])
 
 .controller('WorkspacesCtrl', ['$scope', 'GeoServer', '$state', '$log',
-    function($scope, GeoServer, $state, $log) {
+  '$rootScope', 'AppEvent',
+    function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
       $scope.title = 'All Workspaces';
 
       $scope.onWorkspaceClick = function(ws) {
@@ -66,6 +67,8 @@ angular.module('gsApp.workspaces', [
         function(result) {
           if (result.success) {
             $scope.workspaceData = result.data;
+            $rootScope.$broadcast(AppEvent.WorkspacesFetched,
+              $scope.workspaceData);
           } else {
             $scope.alerts = [{
                 type: 'warning',
@@ -77,8 +80,7 @@ angular.module('gsApp.workspaces', [
 
     }])
 .controller('NewWorkspaceCtrl', ['$scope', 'GeoServer', '$state', '$log',
-  '$rootScope', 'AppEvent',
-    function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
+    function($scope, GeoServer, $state, $log) {
 
       $scope.title = 'Create New Workspace';
       $scope.createSettings = {'uri': 'http://', 'default': false};
@@ -104,7 +106,6 @@ angular.module('gsApp.workspaces', [
               $scope.workspaceCreated = true;
               $scope.workspaces.push(newWorkspace);
             } else {
-              // TODO move alerts to top of header nav
               var msg = result.data.message?
                 result.data.message : result.data;
               $scope.alerts = [{

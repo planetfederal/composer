@@ -20,6 +20,14 @@ angular.module('gsApp.core.event', [])
    */
   SidenavResized: 'app-sidenav-resized',
   /**
+   * Fired when sidenav resize is requested.
+   */
+  ToggleSidenav: 'toggle-sidenav',
+    /**
+   * Fired when a workspaces are fetched.
+   */
+  WorkspacesFetched: 'workspaces-fetched',
+  /**
    * Fired when a workspace name is changed.
    */
   WorkspaceNameChanged: 'workspace-name-changed',
