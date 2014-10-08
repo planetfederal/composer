@@ -312,11 +312,9 @@ public class MapController extends AppController {
     JSONObj mapDetails(JSONObj obj, LayerGroupInfo map, String wsName) {
         map(obj,map,wsName);
         
-        JSONObj metadata = IO.metadataHistory( new JSONObj(), map.getMetadata() );
-        if( metadata.size() != 0 ){
-            obj.put("metadata", metadata );
-        }
-
+        JSONObj metadata = IO.metadata( new JSONObj(), map.getMetadata() );
+        obj.put("metadata", metadata );
+        
         List<PublishedInfo> published = layers(map);
         JSONArr layers = obj.putArray("layers");
         for (PublishedInfo l : published) {

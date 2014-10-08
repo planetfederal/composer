@@ -84,8 +84,16 @@ public class JSONObj extends JSONWrapper<JSONObject> {
      * @return This object.
      */
     public JSONObj put(String key, Object val) {
-        raw.put(key, val);
+        if( !isEmpty(val)){
+            raw.put(key, val);
+        }
         return this;
+    }
+    
+    private boolean isEmpty( Object val ){
+        return val == null ||
+                (val instanceof JSONObj && ((JSONObj)val).size() == 0) ||
+                (val instanceof JSONArr && ((JSONArr)val).size() == 0);
     }
 
     /**

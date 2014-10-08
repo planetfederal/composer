@@ -4,17 +4,21 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
+import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
+import org.ocpsoft.pretty.time.PrettyTime;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -150,21 +154,11 @@ public class IO {
         }
 
         proj(obj.putObject("proj"), r.getCRS(), r.getSRS());
-
-        JSONObj bbox = obj.putObject("bbox");
-
-        if (r.getNativeBoundingBox() != null) {
-            bounds(bbox.putObject("native"), r.getNativeBoundingBox());
-        }
-        else {
-            // check if the crs is geographic, if so use lat lon
-            if (r.getCRS() instanceof GeographicCRS) {
-                bounds(bbox.putObject("native"), r.getLatLonBoundingBox());
-            }
-        }
-
-        bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
-
+        bbox( obj.putObject("bbox"), r );
+        
+        JSONObj metadata = metadata( new JSONObj(), layer.getMetadata());
+        obj.put( "metadata", metadata );
+        
         return obj;
     }
 
@@ -172,8 +166,14 @@ public class IO {
         if (r instanceof CoverageInfo) {
             return "raster";
         }
-        else {
+        else if (r instanceof DataStoreInfo){
             return "vector";
+        }
+        else if (r instanceof WMSStoreInfo){
+            return "wms";
+        }
+        else {
+            return "resource";
         }
     }
 
@@ -184,7 +184,7 @@ public class IO {
             if (gd == null) {
                 return "Vector";
             }
-
+            @SuppressWarnings("unchecked")
             Geometries geomType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
             return geomType.getName();
         } catch (IOException e) {
@@ -192,43 +192,72 @@ public class IO {
             return "Unknown";
         }
     }
+    public static JSONObj resource(JSONObj obj, ResourceInfo r ){
+        obj.put("name", r.getName());
+        obj.put("title", r.getTitle());
+        obj.put("abstract", r.getAbstract());
+        obj.put("description", r.getDescription());
+        obj.put("keywords", r.getKeywords());
 
-    static JSONObj metadata(JSONObj obj, MetadataMap metadata, String key) {
-        if( metadata != null && metadata.containsKey(key) ){
-            Object value = metadata.get(key);
-            if( value instanceof Date){
-                String time = DateUtil.formatDate( (Date) value );
+        proj(obj.putObject("proj"), r.getCRS(), r.getSRS());
+        bbox(obj.putObject("bbox"), r);
+        
+        JSONObj metadata = metadata( new JSONObj(), r.getMetadata());
+        obj.put( "metadata", metadata );
+        
+        return obj;
+    }
+    
+    public static JSONObj bbox( JSONObj bbox, ResourceInfo r ){
+        if (r.getNativeBoundingBox() != null) {
+            bounds(bbox.putObject("native"), r.getNativeBoundingBox());
+        }
+        else {
+            // check if the crs is geographic, if so use lat lon
+            if (r.getCRS() instanceof GeographicCRS) {
+                bounds(bbox.putObject("native"), r.getLatLonBoundingBox());
+            }
+        }
+        bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());       
+        return bbox;
+    }
+
+    static PrettyTime PRETTY_TIME = new PrettyTime();
+    
+    
+    static JSONObj metadata(JSONObj obj, String key, Date date ) {
+        String time = DateUtil.formatDate( date );        
+        obj.put(key, time);
+        obj.put(key+"-pretty", PRETTY_TIME.format(date) );
+        
+        return obj;
+    }
+
+    static JSONObj metadata(JSONObj obj, String key, Object value) {
+        if (key.equals("created") || key.equals("changed")) {
+            if (value instanceof Date) {
+                Date date = (Date) value;
+                metadata(obj, key, date);
+            }
+            if (value instanceof String) {
+                String time = (String) value;
                 obj.put(key, time);
+                try {
+                    Date date = DateUtil.parseDate(time);
+                    obj.put(key + "-pretty", PRETTY_TIME.format(date));
+                } catch (DateParseException e) {
+                    LOG.finest("PRETTY_TIME date for " + key + ":" + time + ":" + e);
+                }
             }
-            else {
-                obj.put(key, value);
-            }
+        } else {
+            obj.put(key, value);
         }
         return obj;
     }
 
-    //static PrettyTime PRETTY_TIME = new PrettyTime();
-
-    /** Read metadata describing the last edit */
-    static JSONObj metadataHistory(JSONObj obj, MetadataMap metadata ) {
-        IO.metadata( obj, metadata, "author");
-        IO.metadata( obj, metadata, "created");
-        IO.metadata( obj, metadata, "modified");
-        IO.metadata( obj, metadata, "change");
-        
-        return obj;
-    }
-    /** Read metadata describing the last edit */
-    static JSONObj metadata(JSONObj obj, MetadataMap metadata, boolean ignoreHistory) {
+    static JSONObj metadata(JSONObj obj, MetadataMap metadata) {
         for( Entry<String, Serializable> meta : metadata.entrySet() ){
-            if( ignoreHistory &&
-                    ("author".equalsIgnoreCase(meta.getKey()) ||
-                    "created".equalsIgnoreCase(meta.getKey()) ||
-                    "modified".equalsIgnoreCase(meta.getKey()) || 
-                    "change".equalsIgnoreCase(meta.getKey()))){
-                continue;
-            }
-            obj.put(meta.getKey(),meta.getValue());
+            metadata( obj, meta.getKey(), meta.getKey() );
         }
         return obj;
     }    
