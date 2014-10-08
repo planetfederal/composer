@@ -24,8 +24,8 @@
           </div>
         </form>
         <div ng-hide="workspaceCreated" style="margin-top:15px;"></div>
-        <div ng-show="workspaceCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Workspace Created.</div>
-        <div class="pull-right" style="margin-top: 20px;">
+        <div ng-show="workspaceCreated" class="saved pull-right" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Workspace Created.</div>
+        <div class="pull-right" style="margin-top: 20px;clear:both;">
           <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
           <button class="btn btn-primary btn-sm" ng-click="create()" style="margin-left:20px;" ng-disabled="!createform.settings.$valid">Create</button>
           <button class="btn btn-success btn-sm" ng-click="addData()" style="margin-left:20px;" ng-disabled="!createform.settings.$valid">Add Data &rarr;</button>
