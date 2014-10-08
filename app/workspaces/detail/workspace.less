@@ -110,9 +110,15 @@
   }
 
   .stores-list {
+    overflow-y: scroll;
     margin-top: 5px;
     display: inline-block;
     width: 100%;
+  }
+  .popover {
+    max-width: 600px;
+    font-size: .9em;
+    color: @monacoblue;
   }
   .store-row {
     padding: 14px 12px 4px 0;
@@ -137,7 +143,6 @@
     display: inline-block;
     margin-left: 5px;
     max-width: 80%;
-    overflow-x: scroll;
   }
   .trim-info {
     max-width: 90%;
@@ -146,6 +151,9 @@
     white-space: nowrap;
     line-height: 15px;
     position: relative;
+    .source-info {
+      color: @monacoblue;
+    }
   }
   .datastore-icons {
     color: @gray;
