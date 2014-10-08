@@ -39,7 +39,7 @@
               <button class="button ng-hide" ng-click="start($index)" ng-show="progress[$index] < 0">Start</button>
               <div class="progress" ng-show="progress[$index] >= 0">
                 <div ng-show="uploadComplete[$index]" style="width:{{progress[$index]}}%">{{ progress[$index] }} <span ng-show="progress[$index] > 0">%</span></div>
-                <div ng-show="!uploadComplete[$index]" class="prog_error">Upload Error</div>
+                <div ng-show="!uploadComplete[$index] && progress[$index]==100" class="prog_error">Uploading...</div>
               </div>
               <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) && progress[$index] < 100 && uploadResult.length == 0">Cancel</button>
             </div>
