@@ -2,6 +2,7 @@ angular.module('gsApp.workspaces.workspace.data', [
   'gsApp.workspaces.workspace.data.create',
   'gsApp.workspaces.workspace.data.update',
   'gsApp.workspaces.workspace.data.delete',
+  'gsApp.core.utilities',
   'gsApp.alertpanel',
   'ngSanitize'
 ])

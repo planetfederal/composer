@@ -57,7 +57,7 @@
         </p>
         <div class="row datastores">
           <div class="col-sm-6">
-            <ul class="list-unstyled stores-list">
+            <ul class="list-unstyled stores-list" ng-style="storesListHeight">
               <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
                 <div class="icon-column">
                   <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.sourcetype=='shp', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="info-column">
                   <p><strong>Store:</strong> {{ ds.name }}</p>
-                  <p class="trim-info"><strong>Source:</strong> {{ ds.source }}</p>
+                  <p class="trim-info" popover-html-unsafe="{{ds.source}}" popover-trigger="click"><strong>Source:</strong><span class="source-info"> {{ ds.source | truncate:false:19:true }}</span></p>
                   <p><strong>Description:</strong> {{ ds.description }}</p>
                 </div>
               </li>

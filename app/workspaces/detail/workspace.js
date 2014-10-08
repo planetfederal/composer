@@ -57,6 +57,8 @@ angular.module('gsApp.workspaces.workspace', [
       $scope.title = wsName;
       $scope.thumbnails = {};
       $scope.olmaps = {};
+      // Set stores list to window height
+      $scope.storesListHeight = {'height': $window.innerHeight};
 
       // Settings
 
