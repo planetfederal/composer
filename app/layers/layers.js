@@ -1,5 +1,5 @@
 angular.module('gsApp.layers', [
-  'gsApp.workspaces.datastores',
+  'gsApp.workspaces.workspace.data',
   'ngGrid',
   'ui.select',
   'gsApp.layers.style'
@@ -113,7 +113,7 @@ angular.module('gsApp.layers', [
 
               $scope.ok = function() {
                 $window.alert('TODO: add the new layer.');
-                //GeoServer.layers.put({workspace: $scope.ws}, 
+                //GeoServer.layers.put({workspace: $scope.ws},
                   //$scope.form.layer);
                 $modalInstance.dismiss('cancel');
               };
