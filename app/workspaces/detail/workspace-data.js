@@ -28,6 +28,20 @@ angular.module('gsApp.workspaces.workspace.data', [
           });
         });
 
+      // See utilities.js pop directive - 1 popover open at a time
+      var openPopoverStore;
+      $scope.closePopovers = function(store) {
+        if (openPopoverStore) {
+          openPopoverStore.showSourcePopover = false;
+        }
+        if (openPopoverStore===store) {
+          openPopoverStore.showSourcePopover = false;
+        } else {
+          store.showSourcePopover = true;
+          openPopoverStore = store;
+        }
+      };
+
       $scope.selectStore = function(store) {
         $scope.selectedStore = store;
         GeoServer.datastores.getDetails($scope.workspace, store.name).then(
