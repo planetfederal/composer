@@ -82,12 +82,16 @@ angular.module('gsApp.workspaces.workspace', [
           function(result) {
             if (result.success || result) {
               $scope.workspaceDeleted = true;
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'Workspace '+ workspace +' deleted.',
+                fadeout: true
+              }];
               $rootScope.$broadcast(AppEvent.WorkspaceDeleted,
                 $scope.workspace);
               $state.go('workspaces');
             } else {
-              // TODO move alerts to top of header nav
-              $scope.alerts = [{
+              $rootScope.alerts = [{
                 type: 'warning',
                 message: 'Workspace deletion failed.',
                 fadeout: true

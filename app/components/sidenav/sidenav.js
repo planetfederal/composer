@@ -33,7 +33,7 @@ angular.module('gsApp.sidenav', [
     };
 
     $scope.newWorkspace = function() {
-      $state.go('workspace.new');
+      $state.go('workspace.new', {'workspaces': $scope.workspaces});
     };
 
     $rootScope.$on(AppEvent.WorkspacesFetched,

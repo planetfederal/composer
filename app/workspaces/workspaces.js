@@ -12,7 +12,7 @@ angular.module('gsApp.workspaces', [
           controller: 'WorkspacesCtrl'
         })
         .state('workspace.new', {
-          url: '/new',
+          url: '/new?workspaces',
           templateUrl: '/workspaces/detail/workspace-new.tpl.html',
           controller: 'NewWorkspaceCtrl'
         })
@@ -78,9 +78,10 @@ angular.module('gsApp.workspaces', [
         });
 
     }])
-.controller('NewWorkspaceCtrl', ['$scope', 'GeoServer', '$state', '$log',
-    function($scope, GeoServer, $state, $log) {
-
+.controller('NewWorkspaceCtrl', ['$scope', '$stateParams', 'GeoServer',
+  '$state', '$log', '$rootScope',
+    function($scope, $stateParams, GeoServer, $state, $log, $rootScope) {
+      $scope.workspaces = $stateParams.workspaces;
       $scope.title = 'Create New Workspace';
       $scope.createSettings = {'uri': 'http://', 'default': false};
       $scope.workspaceCreated = false;
@@ -103,11 +104,18 @@ angular.module('gsApp.workspaces', [
           function(result) {
             if (result.success || result.status===201) {
               $scope.workspaceCreated = true;
-              $scope.workspaces.push(newWorkspace);
+              if ($scope.workspaces) {
+                $scope.workspaces.push(newWorkspace);
+              }
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'Workspace '+ newWorkspace.name +' created.',
+                fadeout: true
+              }];
             } else {
               var msg = result.data.message?
                 result.data.message : result.data;
-              $scope.alerts = [{
+              $rootScope.alerts = [{
                 type: 'warning',
                 message: msg,
                 fadeout: true

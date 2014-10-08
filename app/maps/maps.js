@@ -18,13 +18,22 @@ angular.module('gsApp.maps', [
         });
     }])
 .controller('MapsCtrl', ['$scope', 'GeoServer', '$state', '$log',
-    function($scope, GeoServer, $state, $log) {
+  '$rootScope',
+    function($scope, GeoServer, $state, $log, $rootScope) {
       $scope.title = 'All Maps';
 
       $scope.workspaceChanged = function(ws) {
-        GeoServer.maps.get({workspace: ws.name}).$promise
-          .then(function(maps) {
-            $scope.mapData = maps;
+        GeoServer.maps.get(ws.name).then(
+          function(result) {
+            if (result.success) {
+              $scope.mapData = result.data;
+            } else {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Could not retrieve maps.',
+                fadeout: true
+              }];
+            }
           });
       };
 
