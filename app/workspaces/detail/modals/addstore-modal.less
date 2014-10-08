@@ -37,6 +37,15 @@
     .file-prog-1 {
       width: 23%;
       display: inline-block;
+
+      .progress {
+        &.success > .progress-bar {
+          background-color: @green;
+        }
+        &.warning > .progress-bar {
+          background-color: @orange;
+        }
+      }
     }
     .file-prog-2 {
       width: 37%;
@@ -79,27 +88,7 @@
       }
     }
 
-    .progress {
-      display: inline-block;
-      width: 90px;
-      border: 1px groove #CCC;
-      border-radius: 1px;
-      margin-bottom: 0;
 
-      .prog_error {
-        background: transparent;
-        width: 100%;
-      }
-
-      div {
-        font-size: smaller;
-        background: orange;
-        display: inline-block;
-        padding-top: 2px;
-        text-align: center;
-        height: 100%;
-      }
-    }
     .fileinfo {
       margin-left: 10px;
       display: inline-block;

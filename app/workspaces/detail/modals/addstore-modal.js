@@ -10,10 +10,18 @@ angular.module('gsApp.workspaces.workspace.data.create', [
 
     $scope.workspace = workspace;
     $scope.geoserver = geoserver;
-
     $scope.selected = {
       item: $scope.workspace
     };
+
+    var Complete = Object.freeze({
+      'no': 0,
+      'yes': 1,
+      'pending': 2,
+      'error': 3,
+      'ignored': 4
+    });
+    $scope.Complete = Complete;
 
     $scope.ok = function () {
       $modalInstance.close($scope.selected.item);
@@ -64,7 +72,7 @@ angular.module('gsApp.workspaces.workspace.data.create', [
       $scope.abortAll();
       $scope.upload = [];
       $scope.uploadResult = [];
-      $scope.uploadComplete = [];
+      $scope.status = [];
       $scope.selectedFiles = $files;
       $scope.dataUrls = [];
       for (var i = 0; i < $files.length; i++) {
@@ -86,27 +94,20 @@ angular.module('gsApp.workspaces.workspace.data.create', [
 
     $scope.start = function(index) {
       $scope.progress[index] = 0;
-      $scope.uploadComplete[index] = false;
+      $scope.status[index] = Complete.no;
       $scope.errorMsg = null;
       $scope.loadStarted = false;
 
-      //$upload.upload()
       $scope.upload[index] = $upload.upload({
         url: geoserver.import.getImportUrl($scope.workspace),
         method: 'POST',
-        //headers: {'my-header': 'my-header-value'},
-        data : {
-          myModel : $scope.myModel
-        },
-        file: $scope.selectedFiles[index],
-        fileFormDataName: 'myFile'
+        file: $scope.selectedFiles[index]
       });
 
       $scope.loadStarted = true;
       $scope.uploadResult[index] = [];
 
       $scope.upload[index].then(function(response) {
-
         var r = response.data;
         $scope.upload[index].rememberId = r.id;
         $scope.loadStarted = false;
@@ -119,17 +120,19 @@ angular.module('gsApp.workspaces.workspace.data.create', [
             // e.g. uploaded allpoints.zip but got points.shp
             $scope.uploadResult[index].push({'result': response.statusText});
             $timeout(function() {
-              $scope.uploadComplete[index] = true;
+              $scope.status[index] = Complete.yes;
             }, 200);
           });
         } else if (r.pending && r.pending.length > 0) {
           r.pending.forEach(function(item) {
             $scope.upload[index].rememberTask = item.task;
             $scope.uploadResult[index].push({'result': item.problem});
+            $scope.status[index] = Complete.pending;
           });
         } else if (r.ignored && r.ignored.length > 0) {
           r.ignored.forEach(function(item) {
             $scope.selectedFiles[index].name = item.name;
+            $scope.status[index] = Complete.ignored;
             $scope.uploadResult[index].push({
               'result': 'IGNORED',
               'msg': 'File ignored: incomplete.'
@@ -139,12 +142,14 @@ angular.module('gsApp.workspaces.workspace.data.create', [
           r.failed.forEach(function(item) {
             $scope.selectedFiles[index].name = item.name;
             var rMsg = r.failed.problem? (': ' +  r.failed.problem) : '.';
+            $scope.status[index] = Complete.error;
             $scope.uploadResult[index].push({
               'result': 'FAILED',
               'msg': 'Upload failed: ' + rMsg
             });
           });
         } else if (response.statusText) {
+          $scope.status[index] = Complete.error;
           $scope.uploadResult[index].push({
             'result': 'ERROR',
             'msg': response.statusText
@@ -157,10 +162,16 @@ angular.module('gsApp.workspaces.workspace.data.create', [
         //}
       }, function(evt) {
           // Math.min is to fix IE which reports 200% sometimes
-          $scope.progress[index] = Math.min(100, parseInt(100.0 *
-           evt.loaded / evt.total));
+          if (evt.loaded) {
+            $scope.progress[index] = Math.min(100, parseInt(100.0 *
+             evt.loaded / evt.total));
+          }
         });
       $scope.upload[index].xhr(function(xhr){
+        if (xhr.loaded) {
+          $scope.progress[index] = Math.min(100, parseInt(100.0 *
+           xhr.loaded / xhr.total));
+        }
       });
 
     }; // end $scope.start(index)
@@ -183,7 +194,7 @@ angular.module('gsApp.workspaces.workspace.data.create', [
             $scope.server.response = response.data.message;
           } else {
             $timeout(function() {
-              $scope.uploadComplete[index] = true;
+              $scope.status[index] = Complete.yes;
               $scope.server.response = '';
             }, 200);
           }

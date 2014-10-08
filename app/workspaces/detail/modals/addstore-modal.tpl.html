@@ -23,6 +23,7 @@
           <small style="margin-top: 5px;margin-left: 10px;">Upload a .zip or a complete set of .shp, .prj, .dbf, .shx files</small>
         </p>
         <p style="text-align:center">or</p>
+        {{ Complete.pending }}
         <p>
           <div class="drop-box" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="optional-css-class-name-or-function"
                 ng-show="dropSupported">Drop files here</div>
@@ -37,11 +38,12 @@
               {{($index + 1) + '.'}}
               <img ng-show="dataUrls[$index]" ng-src="{{dataUrls[$index]}}">
               <button class="button ng-hide" ng-click="start($index)" ng-show="progress[$index] < 0">Start</button>
-              <div class="progress" ng-show="progress[$index] >= 0">
-                <div ng-show="uploadComplete[$index]" style="width:{{progress[$index]}}%">{{ progress[$index] }} <span ng-show="progress[$index] > 0">%</span></div>
-                <div ng-show="!uploadComplete[$index] && progress[$index]==100" class="prog_error">Uploading...</div>
-              </div>
-              <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) && progress[$index] < 100 && uploadResult.length == 0">Cancel</button>
+              <progressbar ng-class="{'progress-striped active': status[index]==Complete.no, 'success': status[$index]==Complete.yes, 'warning': status[$index]==Complete.pending}" value="progress[$index]" ng-show="progress[$index]>=0">
+                <span ng-show="status[$index]==Complete.no && progress[$index] > 10" style="text-align:center;">{{ progress[$index] }} %</span>
+                <span ng-show="status[$index]==Complete.pending">Pending</span>
+                <span ng-show="status[$index]==Complete.yes">100%</span>
+              </progressbar>
+              <button class="button ng-hide" ng-click="abort($index)" ng-show="hasUploader($index) && status[index]==Complete.no && uploadResult.length == 0">Cancel</button>
             </div>
             <div class="file-prog-2">
               <span class="fileinfo">
@@ -51,12 +53,12 @@
             <div class="file-prog-3">
               <div ng-show="loadStarted"><img src="/images/loading.gif"/>  Loading...</div>
               <div class="result" ng-repeat="result in uploadResult[$index]">
-                <div class="ignored_or_failed" ng-show="result.result=='FAILED' || result.result=='IGNORED'">{{ result.msg }}</div>
+                <div class="ignored_or_failed" ng-show="status[$index]==Complete.error || status[$index]==Complete.ignored">{{ result.msg }}</div>
                 <div class="error" ng-show="result.result=='ERROR'">{{ result.msg }}</div>
-                <div class="no_crs" ng-show="result.result=='NO_CRS' &&!uploadComplete[$index]">
+                <div class="no_crs" ng-show="status[$index]==Complete.pending">
                   <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click">
                     <i class="fa fa-warning"></i>
-                    <small>Missing CRS</small>
+                    <small>Missing Projection</small>
                   </div>
                   <div class="input-group input-group-sm">
                     <input type="text" class="form-control" placeholder="Add CRS" ng-model="crs.revised">
@@ -65,13 +67,13 @@
                     </span>
                   </div>
                 </div>
-                <div class="success" ng-show="uploadComplete[$index]">
+                <div class="success" ng-show="status[$index]==Complete.yes">
                   <i class="fa fa-check"></i> Upload Successful
                 </div>
               </div>
             </div>
           </div>
-          <div ng-if="server.response && !uploadComplete[$index]" class="server_response">GeoServer Message: {{ server.response }}</div>
+          <div ng-if="server.response && !status[$index]==Complete.error" class="server_response">GeoServer Message: {{ server.response }}</div>
         </div>
       </div>
       <div ng-show="!addfile">Database</div>
