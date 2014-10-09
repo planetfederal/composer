@@ -18,7 +18,7 @@
       ng-class="{toggled: toggleSide, fullWidth: !session.active}"
       ng-init="toggleSide=false">
       <div sidenav></div>
-      <div ui-view id="page-content-wrapper"></div>
+      <div ui-view id="page-content-wrapper" ng-style="pageHeight"></div>
     </div>
     <script type="text/javascript" src="ol.js"></script>
     <script type="text/javascript" src="codemirror.min.js"></script>
