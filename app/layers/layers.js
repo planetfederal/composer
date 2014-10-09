@@ -95,6 +95,17 @@ angular.module('gsApp.layers', [
           controller: ['$scope', '$window', '$modalInstance',
             function($scope, $window, $modalInstance) {
               $scope.datastores = GeoServer.datastores.get('ws');
+              $scope.projections = [{name: 'EPSG: 4326'}, {name: 'EPSG: 9999'}];
+              $scope.types = [
+                {name: 'line'},
+                {name: 'multi-line'},
+                {name: 'multi-point'},
+                {name: 'multi-polygon'},
+                {name: 'point'},
+                {name: 'polygon'},
+                {name: 'raster'}
+              ];
+              $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
               $scope.ws = ws;
 
               // Get all of the data stores

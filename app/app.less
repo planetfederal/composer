@@ -340,14 +340,6 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
 .ngCell {
   overflow: visible;
 }
-.ngGrid input[type="checkbox"] {
-  margin: -3px 5px 0px 0px;
-  padding: 0px;
-}
-.ngGrid img {
-  margin: 7px 0px 0px 0px;
-  padding: 0px;
-}
 .ngVerticalBarVisible {
   width: 0px;
 }
@@ -446,10 +438,11 @@ a {
   }
 }
 label {
-  font-weight: normal !important;
+  font-weight: normal;
   float: left;
   margin-top: 5px;
   padding: 0px 15px 0px 0px;
+  white-space: nowrap;
 }
 .input-xs {
   height: 28px;
@@ -458,7 +451,6 @@ label {
   line-height: 1.5;
   border-radius: 3px;
   width: 200px;
-  float: left;
 }
 fieldset {
   margin: -5px 0px -5px 0px;
@@ -475,9 +467,6 @@ legend {
   font-size: 13px;
   font-weight: bold;
 }
-.formSelect {
-  width: 300px !important;
-}
 .alert-danger {
   margin: 0px 0px 0px 10px !important;
   padding: 3px 10px 3px 10px !important;
@@ -486,36 +475,21 @@ legend {
   margin: 0px 0px 0px 10px !important;
   padding: 3px 10px 3px 10px !important;
 }
-.tableRow {
-  display: table-row;
-}
-.tableCellFixedWidth {
-  display: table-cell;
-  vertical-align: middle;
-  width: 350px;
-}
-.tableCellExtraPadding {
-  padding: 8px 15px 0px 15px;
-}
-.tableCell {
-  display: table-cell;
-  vertical-align: middle;
-  padding: 5px 0px 0px 0px;
-}
-.innerCell {
-  padding: 0px !important;
-}
-.modal-body {
-  padding-top: 0px !important;
-}
 .thumbnail {
   height: 200px;
   width: 400px;
 }
-.customExtentTypeWarning {
+.custom-extent-type-warning {
   float: left;
   width: auto !important;
   background-color: #fcf8e3;
   color: #c2863b;
   padding: 3px 10px 3px 10px;
+}
+.center-column {
+  text-align: center;
+  padding-top: 7px;
+}
+.label-padding {
+  margin-bottom: 5px;
 }
