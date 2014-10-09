@@ -12,9 +12,31 @@ angular.module('gsApp.sidenav', [
     };
   })
 .controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer',
-  'AppEvent', '$state', '$log', '$timeout',
+  'AppEvent', '$state', '$log', '$timeout', '$window',
   function($scope, $rootScope, GeoServer, AppEvent, $state, $log,
-    $timeout) {
+    $timeout, $window) {
+
+    // Hug partial menu to sidebar bottom if height's enough
+    $scope.onWindowResize = function() {
+      var windowHeight = $window.innerHeight - 150;
+      if (windowHeight < 300) {
+        $scope.sideStyle = {'position': 'relative'};
+        $scope.sideBottom = {'position': 'relative'};
+      } else {
+        $scope.sideStyle = {'position': 'absolute'};
+        $scope.sideBottom = {'top': (windowHeight-40) + 'px'};
+      }
+    };
+    $scope.onWindowResize();
+    var timer = null;
+    $(window).resize(function() { // angular $window checked too often
+      if (timer===null) {
+        timer = $timeout(function() {
+          $scope.onWindowResize();
+          timer = null;
+        }, 700);
+      }
+    });
 
     $scope.onResize = function() {
       $rootScope.$broadcast(AppEvent.SidenavResized);
