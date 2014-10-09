@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -12,30 +11,29 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
-import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSStoreInfo;
-import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
-import org.geoserver.platform.resource.Resources;
+import org.geoserver.wms.WMSInfo;
 import org.geotools.data.DataAccess;
+import org.geotools.data.FeatureSource;
+import org.geotools.data.ServiceInfo;
 import org.geotools.data.ows.Layer;
 import org.geotools.data.wms.WebMapServer;
-import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.util.Converters;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.GridCoverageReader;
-import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -170,10 +168,9 @@ import com.google.common.base.Throwables;
                 .put("format", store.getType());
         
         String source = source(store);
-        obj.putObject("display")
-               .put("source", source )
-               .put("type", Type.of(store).name())
-               .put("kind", Kind.of(store).name());   
+        obj.put("source", source )
+           .put("type", Type.of(store).name())
+           .put("kind", Kind.of(store).name());   
 
         JSONObj metadata = IO.metadata( new JSONObj(), store.getMetadata() );
         obj.put("metadata",metadata);
@@ -195,10 +192,6 @@ import com.google.common.base.Throwables;
      */
     JSONObj storeDetails(JSONObj json, StoreInfo store) {
         store(json, store);
-        
-        json.putObject("internal")
-               .put("store_id", store.getId() )
-               .put("workspace_id", store.getWorkspace().getId() );
 
         JSONObj connection = new JSONObj();
         Map<String, Serializable> params = store.getConnectionParameters();
@@ -233,7 +226,7 @@ import com.google.common.base.Throwables;
                 LOG.log(Level.FINEST, e.getMessage(), e );
             }
         }
-        json.put("resources", resources( store ));
+        json.put("layers", resources( store ));
         
         return json;
     }
@@ -250,78 +243,108 @@ import com.google.common.base.Throwables;
         }
         return null;
     }
-    private JSONArr contents(DataStoreInfo data) throws IOException {
-        JSONArr contents= new JSONArr();
-        @SuppressWarnings("rawtypes")
-        DataAccess dataStore = data.getDataStore(new NullProgressListener());
-        @SuppressWarnings("unchecked")
-        List<Name> names = dataStore.getNames();
-        for( Name name : names ){
-            contents.add(name.toString());
+    @SuppressWarnings({"rawtypes","unchecked"})
+    private JSONArr contents(DataStoreInfo data) {
+        JSONArr l = new JSONArr();
+        List<Name> names;
+        DataAccess dataStore;
+        try {
+            dataStore = data.getDataStore(new NullProgressListener());
+            names = dataStore.getNames();
+        } catch (IOException e) {
+            LOG.log(Level.FINE,data.getId()+" unable list contents:"+e,e);
+            return l; 
         }
-        return contents;
+        for( Name n : names){
+            JSONObj r = l.addObject()
+                .put("name", n.getLocalPart() );
+            
+            try {
+                FeatureType schema = dataStore.getSchema(n);
+                r.put("geometry", IO.geometry(schema));
+            } catch (IOException e) {
+                LOG.log(Level.FINER,n+" unable to determine FeatureType:"+e);
+            }
+            
+            try {
+                FeatureSource fs = dataStore.getFeatureSource(n);
+                org.geotools.data.ResourceInfo info = fs.getInfo();
+                
+                r.put("title",info.getTitle() )
+                 .put("description",info.getDescription() );
+                
+                //r.put("keywords",IO.arr(info.getKeywords()) );
+            } catch (IOException e) {
+                LOG.log(Level.FINER,n+" unable to access Features:"+e);
+            }
+        }
+        return l;
     }
-    private JSONArr contents(CoverageStoreInfo raster) throws IOException {
-        JSONArr contents = new JSONArr();
-        GridCoverageReader reader = raster.getGridCoverageReader(new NullProgressListener(), null);
-        for(String name : reader.getGridCoverageNames() ){
-            contents.add(name);
+
+    private JSONArr contents(CoverageStoreInfo raster) {
+        JSONArr l = new JSONArr();
+        GridCoverageReader reader;
+        String[] coverageNames;
+        try {
+            reader = raster.getGridCoverageReader(new NullProgressListener(), null);
+            coverageNames = reader.getGridCoverageNames();
+        } catch (IOException e) {
+            LOG.log(Level.FINE,raster.getId()+" unable list contents:"+e,e);
+            return l; 
         }
-        return contents;
+        if (coverageNames.length != 0) {
+            for (String n : coverageNames) {
+                l.addObject()
+                        .put("name", n)
+                        .put("geometry","raster");
+            }
+        }
+        else {
+            l.addObject()
+                .put("name", "GridCoverage") // See FeatureUtilities.wrapGridCoverage
+                .put("geometry","raster");
+        }
+        return l;
     }
-    private JSONArr contents(WMSStoreInfo wms) throws IOException {
-        JSONArr contents = new JSONArr();
-        WebMapServer service = wms.getWebMapServer(new NullProgressListener());
-        
-        for(Layer layer : service.getCapabilities().getLayerList() ){
-            contents.add(layer.getName());
+    private JSONArr contents(WMSStoreInfo wms) {
+        JSONArr l = new JSONArr();
+        WebMapServer service;
+        List<Layer> layers;
+        try {
+            service = wms.getWebMapServer(new NullProgressListener());
+            layers = service.getCapabilities().getLayerList();
+        } catch (IOException e) {
+            LOG.log(Level.FINE,wms.getId()+" unable list contents:"+e,e);
+            return l; 
         }
-        return contents;
+        for (Layer layer : layers) {
+            l.addObject()
+                .put("name", layer.getName())
+                .put("geometry","layer");
+        }
+        return l;
     }
     
     private JSONArr resources(StoreInfo store) {
         JSONArr arr = new JSONArr();
         Catalog cat = geoServer.getCatalog();
-        List<ResourceInfo> resources = cat.getResourcesByStore(store,  ResourceInfo.class );
+        List<ResourceInfo> resources = cat.getResourcesByStore(store, ResourceInfo.class );
         for( ResourceInfo r : resources ){
-            JSONObj info = IO.resource( arr.addObject(), r );
-            info.putObject("internal")
-                    .put("resource_id",r.getId())
-                    .put("name",r.getName())
-                    .put("native",r.getNativeName())
-                    .put("advertised",r.isAdvertised())
-                    .put("enabled",r.isEnabled());
-                    
-            info.put("layers", layers( r ) );
-            if (r instanceof FeatureTypeInfo) {
-                FeatureTypeInfo ft = (FeatureTypeInfo) r;
-                info.put("geometry", IO.geometry(ft));
+            for (LayerInfo l : cat.getLayers(r)) {
+                JSONObj layer = arr.addObject();                
+                
+                layer.put("name", l.getName())
+                        .put("title", l.getTitle() != null ? l.getTitle() : r.getTitle())
+                        .put("description", l.getAbstract() != null ? l.getAbstract() : r.getAbstract())
+                        .put("type", IO.type(r));
+                JSONObj metadata = IO.metadata( new JSONObj(), l.getMetadata());
+                layer.put( "metadata", metadata );                
+                layer.put("content", r.getNativeName() );
             }
         }        
         return arr;
     }
     
-    private JSONArr layers(ResourceInfo r) {
-        JSONArr arr = new JSONArr();
-        Catalog cat = geoServer.getCatalog();
-        
-        for (LayerInfo l : cat.getLayers(r)) {
-            JSONObj layer = arr.addObject();
-
-            layer
-                .put("name", l.getName())
-                .put("title", l.getTitle())
-                .put("abstract", l.getAbstract());
-
-            layer.putObject("internal")
-                    .put("layer_id", l.getId());
-
-            JSONObj metadata = IO.metadata(new JSONObj(), l.getMetadata());
-            layer.put("metadata", metadata);
-        }
-        return arr;
-    }
-
     /** 
      * Storage source.
      * <p>
@@ -394,8 +417,7 @@ import com.google.common.base.Throwables;
     
     String source( File file ){
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
-        
-        return file.isAbsolute() ? file.toString() : "data directory > " + Paths.convert(baseDirectory,file);
+        return file.isAbsolute() ? file.toString() : Paths.convert(baseDirectory,file);
     }
     String source( URL url ){
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
@@ -403,7 +425,7 @@ import com.google.common.base.Throwables;
         if( url.getProtocol().equals("file")){
             File file = Files.url(baseDirectory,url.toExternalForm());
             if( file != null && !file.isAbsolute() ){
-                return "data directory > " + Paths.convert(baseDirectory, file); 
+                return Paths.convert(baseDirectory, file); 
             }
         }
         return url.toExternalForm();
@@ -413,7 +435,7 @@ import com.google.common.base.Throwables;
 
         File file = Files.url(baseDirectory,url);
         if( file != null ){
-            return "data directory > " + Paths.convert(baseDirectory, file); 
+            return Paths.convert(baseDirectory, file); 
         }
         return url;
     }
@@ -421,6 +443,6 @@ import com.google.common.base.Throwables;
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
 
         File f = new File( file );
-        return f.isAbsolute() ? file : "data directory > " + Paths.convert(baseDirectory,f);
+        return f.isAbsolute() ? file : Paths.convert(baseDirectory,f);
     }
 }

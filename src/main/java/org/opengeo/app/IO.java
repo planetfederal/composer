@@ -13,8 +13,10 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.wms.WMSInfo;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.referencing.CRS;
 import org.geotools.util.logging.Logging;
@@ -27,6 +29,7 @@ import org.opengis.referencing.crs.ProjectedCRS;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map.Entry;
 import java.util.logging.Level;
@@ -113,6 +116,14 @@ public class IO {
     public static Envelope bounds(JSONObj obj) {
         return new Envelope(obj.doub("west"), obj.doub("east"), obj.doub("south"), obj.doub("north"));
     }
+    
+    public static JSONArr arr( Collection<String> strings ){
+        JSONArr l = new JSONArr();
+        for( String s : strings ){
+            l.add(s);
+        }
+        return l;
+    }
 
     /**
      * Encodes a workspace within the specified object.
@@ -150,7 +161,19 @@ public class IO {
 
         if (r instanceof FeatureTypeInfo) {
             FeatureTypeInfo ft = (FeatureTypeInfo) r;
-            obj.put("geometry", geometry(ft));
+            FeatureType schema;
+            try {
+                schema = ft.getFeatureType();
+                obj.put("geometry", geometry(schema));
+            } catch (IOException e) {
+                LOG.log(Level.WARNING, "Error looking up schema "+ft.getNativeName(), e);
+            }
+        }
+        else if( r instanceof CoverageInfo) {
+            obj.put("geometry", "raster");
+        }
+        else if( r instanceof WMSInfo) {
+            obj.put("geometry", "layer");
         }
 
         proj(obj.putObject("proj"), r.getCRS(), r.getSRS());
@@ -166,10 +189,10 @@ public class IO {
         if (r instanceof CoverageInfo) {
             return "raster";
         }
-        else if (r instanceof DataStoreInfo){
+        else if (r instanceof FeatureTypeInfo){
             return "vector";
         }
-        else if (r instanceof WMSStoreInfo){
+        else if (r instanceof WMSLayerInfo){
             return "wms";
         }
         else {
@@ -177,35 +200,14 @@ public class IO {
         }
     }
 
-    static String geometry(FeatureTypeInfo ft) {
-        try {
-            FeatureType schema = ft.getFeatureType();
-            GeometryDescriptor gd = schema.getGeometryDescriptor();
-            if (gd == null) {
-                return "Vector";
-            }
-            @SuppressWarnings("unchecked")
-            Geometries geomType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
-            return geomType.getName();
-        } catch (IOException e) {
-            LOG.log(Level.WARNING, "Error looking up schema", e);
-            return "Unknown";
+    static String geometry(FeatureType ft) {
+        GeometryDescriptor gd = ft.getGeometryDescriptor();
+        if (gd == null) {
+            return "Vector";
         }
-    }
-    public static JSONObj resource(JSONObj obj, ResourceInfo r ){
-        obj.put("name", r.getName());
-        obj.put("title", r.getTitle());
-        obj.put("abstract", r.getAbstract());
-        obj.put("description", r.getDescription());
-        obj.put("keywords", r.getKeywords());
-
-        proj(obj.putObject("proj"), r.getCRS(), r.getSRS());
-        bbox(obj.putObject("bbox"), r);
-        
-        JSONObj metadata = metadata( new JSONObj(), r.getMetadata());
-        obj.put( "metadata", metadata );
-        
-        return obj;
+        @SuppressWarnings("unchecked")
+        Geometries geomType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
+        return geomType.getName();
     }
     
     public static JSONObj bbox( JSONObj bbox, ResourceInfo r ){
@@ -222,10 +224,9 @@ public class IO {
         return bbox;
     }
 
-    static PrettyTime PRETTY_TIME = new PrettyTime();
+    private static PrettyTime PRETTY_TIME = new PrettyTime();
     
-    
-    static JSONObj metadata(JSONObj obj, String key, Date date ) {
+    private static JSONObj metadata(JSONObj obj, String key, Date date ) {
         String time = DateUtil.formatDate( date );        
         obj.put(key, time);
         obj.put(key+"-pretty", PRETTY_TIME.format(date) );
@@ -256,8 +257,10 @@ public class IO {
     }
 
     static JSONObj metadata(JSONObj obj, MetadataMap metadata) {
-        for( Entry<String, Serializable> meta : metadata.entrySet() ){
-            metadata( obj, meta.getKey(), meta.getKey() );
+        if( metadata != null){
+            for( Entry<String, Serializable> meta : metadata.entrySet() ){
+                metadata( obj, meta.getKey(), meta.getKey() );
+            }
         }
         return obj;
     }    
