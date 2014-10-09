@@ -55,7 +55,7 @@ import java.util.List;
 
 import static org.geoserver.catalog.Predicates.equal;
 import static org.mockito.Mockito.*;
-import static com.boundlessgeo.geoserver.api.controllers.AppController.DEFAULT_PAGESIZE;
+import static com.boundlessgeo.geoserver.api.controllers.ApiController.DEFAULT_PAGESIZE;
 
 /**
  * Helper to mock up GeoServer configuration.

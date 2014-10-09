@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 @RequestMapping("/api/serverInfo")
-public class ServerInfoController extends AppController {
+public class ServerInfoController extends ApiController {
 
     @Autowired
     public ServerInfoController(GeoServer geoServer) {

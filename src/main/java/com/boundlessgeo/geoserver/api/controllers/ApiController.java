@@ -15,15 +15,15 @@ import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Base class for app controllers.
+ * Base class for api controllers.
  */
-public abstract class AppController {
+public abstract class ApiController {
 
     public static final int DEFAULT_PAGESIZE = 25;
 
     protected GeoServer geoServer;
 
-    public AppController(GeoServer geoServer) {
+    public ApiController(GeoServer geoServer) {
         this.geoServer = geoServer;
     }
 

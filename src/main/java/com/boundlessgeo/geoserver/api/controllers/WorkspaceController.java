@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @Controller
 @RequestMapping("/api/workspaces")
-public class WorkspaceController extends AppController {
+public class WorkspaceController extends ApiController {
 
     @Autowired
     public WorkspaceController(GeoServer geoServer) {

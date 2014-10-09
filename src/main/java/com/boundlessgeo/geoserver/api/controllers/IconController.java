@@ -58,7 +58,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @Controller
 @RequestMapping("/api/icons")
-public class IconController extends AppController {
+public class IconController extends ApiController {
 
     static Logger LOG = Logging.getLogger(IconController.class);
 
