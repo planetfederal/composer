@@ -44,9 +44,6 @@ angular.module('gsApp.workspaces.workspace', [
             case 'data':
               $scope.tabs.data = true;
               break;
-            case 'settings':
-              $scope.tabs.settings = true;
-              break;
             default:
               $scope.tabs.maps = true;
           }
