@@ -15,9 +15,12 @@ angular.module('gsApp', [
   'gsApp.maps',
   'gsApp.data'
 ])
-.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$log',
-    function($scope, $state, AppEvent, AppSession, $log) {
+.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$log', '$window',
+    function($scope, $state, AppEvent, AppSession, $log, $window) {
       $scope.session = AppSession;
+
+      var height = $window.innerHeight - 65;
+      $scope.pageHeight = {'height': height};
 
       // handle an un-authorized event and forward to the login page
       $scope.$on(AppEvent.Unauthorized, function(e) {
