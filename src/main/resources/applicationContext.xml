@@ -12,7 +12,7 @@
     http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
 
     <bean id="opengeoTheme" class="org.geoserver.web.HeaderContribution">
-        <property name="scope" value="org.opengeo.OpenGeoTheme"/>
+        <property name="scope" value="com.boundlessgeo.geoserver.web.OpenGeoTheme"/>
         <property name="CSSFilename" value="css/opengeo.css"/>
         <property name="faviconFilename" value="favicon/favicon.ico"/>
     </bean>
@@ -31,12 +31,12 @@
         <property name="beanId" value="layerListDemo2"/>
     </bean>
 
-    <context:component-scan base-package="org.opengeo.app"/>
+    <context:component-scan base-package="com.boundlessgeo.geoserver"/>
     <mvc:annotation-driven>
         <mvc:message-converters register-defaults="true">
-            <bean class="org.opengeo.app.JSONMessageConverter"/>
-            <bean class="org.opengeo.app.YsldMessageConverter"/>
-            <bean class="org.opengeo.app.ResourceMessageConverter"/>
+            <bean class="com.boundlessgeo.geoserver.api.converters.JSONMessageConverter"/>
+            <bean class="com.boundlessgeo.geoserver.api.converters.YsldMessageConverter"/>
+            <bean class="com.boundlessgeo.geoserver.api.converters.ResourceMessageConverter"/>
         </mvc:message-converters>
     </mvc:annotation-driven>
 </beans>
