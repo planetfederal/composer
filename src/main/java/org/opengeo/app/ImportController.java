@@ -19,6 +19,7 @@ import org.geoserver.importer.ImportTask;
 import org.geoserver.importer.Importer;
 import org.geotools.referencing.CRS;
 import org.h2.store.DiskFile;
+import org.opengeo.app.util.Hasher;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -39,11 +40,13 @@ import java.util.Iterator;
 public class ImportController extends AppController {
 
     Importer importer;
+    Hasher hasher;
 
     @Autowired
     public ImportController(GeoServer geoServer, Importer importer) {
         super(geoServer);
         this.importer = importer;
+        this.hasher = new Hasher(7);
     }
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -53,9 +56,6 @@ public class ImportController extends AppController {
         // grab the workspace
         Catalog catalog = geoServer.getCatalog();
         WorkspaceInfo ws = findWorkspace(wsName, catalog);
-
-        // get the directory for uploaded files, relative to the workspace
-        File uploadsDir = dataDir().get(ws).get("uploads").dir();
 
         // create an uploader to handle the form upload
         DiskFileItemFactory diskFactory = new DiskFileItemFactory();
@@ -76,10 +76,9 @@ public class ImportController extends AppController {
         }
 
         // create a new temp directory for the uploaded file
-        File uploadDir = File.createTempFile("upload", "tmp", uploadsDir);
-        uploadDir.delete();
-        if (!uploadDir.mkdir()) {
-            throw new RuntimeException("Unable to create temporary directory for file upload");
+        File uploadDir = dataDir().get(ws, "data", hasher.get()).dir();
+        if (!uploadDir.exists()) {
+            throw new RuntimeException("Unable to create directory for file upload");
         }
 
         // pass off the uploaded file to the importer
