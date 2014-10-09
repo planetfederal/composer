@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.util.Date;
 import java.util.Iterator;
 
 @Controller
@@ -97,6 +98,11 @@ public class ImportController extends ApiController {
         ImportContext imp = importer.createContext(dir, ws);
         importer.run(imp);
 
+        for (ImportTask t : imp.getTasks()) {
+            if (t.getState() == ImportTask.State.COMPLETE) {
+                touch(t);
+            }
+        }
         return get(wsName, imp.getId());
     }
 
@@ -204,12 +210,25 @@ public class ImportController extends ApiController {
         return imp;
     }
 
+    void touch(ImportTask task) {
+        LayerInfo l = task.getLayer();
+        l = catalog().getLayer(l.getId());
+        if (l != null) {
+            Date now = new Date();
+            Metadata.created(l, now);
+            Metadata.modified(l, now);
+            geoServer.getCatalog().save(l);
+        }
+    }
+
     JSONObj task(ImportTask task) {
         return new JSONObj().put("task", task.getId())
             .put("file", filename(task));
     }
 
     JSONObj complete(ImportTask task) {
+        touch(task);
+
         LayerInfo layer = task.getLayer();
         JSONObj obj = task(task);
         IO.layer(obj.putObject("layer"), layer);

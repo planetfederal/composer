@@ -3,41 +3,29 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+import com.google.common.base.Function;
+import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
-import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
-import org.geotools.data.DataAccess;
-import org.geotools.data.FeatureSource;
-import org.geotools.data.ServiceInfo;
 import org.geotools.data.ows.Layer;
-import org.geotools.data.wms.WebMapServer;
 import org.geotools.util.Converters;
-import org.geotools.util.NullProgressListener;
 import org.geotools.util.logging.Logging;
-import org.opengis.coverage.grid.GridCoverageReader;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,7 +33,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.google.common.base.Throwables;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Logger;
+
+import static org.geoserver.catalog.Predicates.and;
+import static org.geoserver.catalog.Predicates.equal;
 
 /**
  * Used to connect to data storage (file, database, or service).
@@ -77,19 +76,18 @@ import com.google.common.base.Throwables;
     
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody
-    JSONObj get(@PathVariable String wsName,
-                @PathVariable String name){
-        if (name == null) {
-            throw new IllegalArgumentException("Store name required");
-        }
-        Catalog cat = geoServer.getCatalog();
-        StoreInfo store = cat.getStoreByName(wsName, name, StoreInfo.class);
+    JSONObj get(@PathVariable String wsName, @PathVariable String name) {
+        StoreInfo store = findStore(wsName, name, geoServer.getCatalog());
         if( store == null ){
             throw new IllegalArgumentException("Store "+wsName+":"+name+" not found");
         }
-        JSONObj obj = storeDetails(new JSONObj(), store);
 
-        return obj;
+        try {
+            return storeDetails(new JSONObj(), store);
+        }
+        catch(IOException e) {
+            throw new RuntimeException(String.format("Error occured accessing store: %s,%s", wsName, name), e);
+        }
     }
 
     public enum Type {FILE,DATABASE,WEB,GENERIC;
@@ -150,50 +148,25 @@ import com.google.common.base.Throwables;
             return Kind.UNKNOWN;
         }
     }
-    /**
-     * Complete store details.
-     * <ul>
-     * <li>name,workspace,description,format</li>
-     * <li>display: source, type, kind, workspace</li>
-     * <li>metadata: author, created, changed</li>
-     * </ul>
-     * 
-     * @param json json
-     * @param store store
-     * @return store details including connection parameters, errors and id
-     */
+
     JSONObj store(JSONObj obj, StoreInfo store) {       
         String name = store.getName();
 
         obj.put("name", name)
-                .put("workspace", store.getWorkspace().getName())
-                .put("description", store.getDescription()).put("enabled", store.isEnabled())
-                .put("format", store.getType());
+            .put("workspace", store.getWorkspace().getName())
+            .put("enabled", store.isEnabled())
+            .put("description", store.getDescription())
+            .put("format", store.getType());
         
         String source = source(store);
         obj.put("source", source )
            .put("type", Type.of(store).name())
            .put("kind", Kind.of(store).name());   
 
-        JSONObj metadata = IO.metadata( new JSONObj(), store.getMetadata() );
-        obj.put("metadata",metadata);
-        
-        
-        return obj;
+        return IO.metadata(obj, store);
     }
-    /**
-     * Complete store details.
-     * <ul>
-     * <li>id</li>
-     * <li>connection: connection parameters (includes raster url or wms url)</li>
-     * <li>error: message and trace</li>
-     * </ul>
-     * 
-     * @param json json
-     * @param store store
-     * @return store details including connection parameters, errors and id
-     */
-    JSONObj storeDetails(JSONObj json, StoreInfo store) {
+
+    JSONObj storeDetails(JSONObj json, StoreInfo store) throws IOException {
         store(json, store);
 
         JSONObj connection = new JSONObj();
@@ -218,145 +191,88 @@ import com.google.common.base.Throwables;
         Throwable error = store.getError();
         if (error != null) {
             json.putObject("error")
-                    .put("message", error.getMessage())
-                    .put("trace", Throwables.getStackTraceAsString(error));
+                .put("message", error.getMessage())
+                .put("trace", Throwables.getStackTraceAsString(error));
         }
-        if( store.isEnabled()){
-            try {
-                JSONArr content = contents( store );
-                json.put("contents", content );
-            } catch (IOException e) {
-                LOG.log(Level.FINEST, e.getMessage(), e );
-            }
+
+        layers(store, json.putArray("layers"));
+
+        if(store.isEnabled()){
+            resources(store, json.putArray("resources"));
         }
-        json.put("layers", resources( store ));
-        
+
         return json;
     }
-    
-    private JSONArr contents(StoreInfo store) throws IOException {
-        if (store instanceof DataStoreInfo) {
-            return contents((DataStoreInfo) store);
-        }
-        if (store instanceof CoverageStoreInfo) {
-            return contents((CoverageStoreInfo) store);
-        }
-        if (store instanceof WMSStoreInfo) {
-            return contents((WMSStoreInfo) store);
-        }
-        return null;
-    }
-    @SuppressWarnings({"rawtypes","unchecked"})
-    private JSONArr contents(DataStoreInfo data) {
-        JSONArr l = new JSONArr();
-        List<Name> names;
-        DataAccess dataStore;
-        try {
-            dataStore = data.getDataStore(new NullProgressListener());
-            names = dataStore.getNames();
-        } catch (IOException e) {
-            LOG.log(Level.FINE,data.getId()+" unable list contents:"+e,e);
-            return l; 
-        }
-        for( Name n : names){
-            JSONObj r = l.addObject()
-                .put("name", n.getLocalPart() );
-            
-            try {
-                FeatureType schema = dataStore.getSchema(n);
-                r.put("geometry", IO.geometry(schema));
-            } catch (IOException e) {
-                LOG.log(Level.FINER,n+" unable to determine FeatureType:"+e);
-            }
-            
-            try {
-                FeatureSource fs = dataStore.getFeatureSource(n);
-                org.geotools.data.ResourceInfo info = fs.getInfo();
-                
-                r.put("title",info.getTitle() )
-                 .put("description",info.getDescription() );
-                
-                //r.put("keywords",IO.arr(info.getKeywords()) );
-            } catch (IOException e) {
-                LOG.log(Level.FINER,n+" unable to access Features:"+e);
+
+    JSONArr layers(StoreInfo store, JSONArr list) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = store.getWorkspace();
+
+        Filter filter = and(equal("store", store), equal("namespace.prefix", ws.getName()));
+        try (
+            CloseableIterator<ResourceInfo> layers = cat.list(ResourceInfo.class, filter);
+        ) {
+            while(layers.hasNext()) {
+                ResourceInfo r = layers.next();
+                list.addObject().put("name", r.getName()).put("workspace", ws.getName());
             }
         }
-        return l;
+
+        return list;
     }
 
-    private JSONArr contents(CoverageStoreInfo raster) {
-        JSONArr l = new JSONArr();
-        GridCoverageReader reader;
-        String[] coverageNames;
-        try {
-            reader = raster.getGridCoverageReader(new NullProgressListener(), null);
-            coverageNames = reader.getGridCoverageNames();
-        } catch (IOException e) {
-            LOG.log(Level.FINE,raster.getId()+" unable list contents:"+e,e);
-            return l; 
-        }
-        if (coverageNames.length != 0) {
-            for (String n : coverageNames) {
-                l.addObject()
-                        .put("name", n)
-                        .put("geometry","raster");
-            }
-        }
-        else {
-            l.addObject()
-                .put("name", "GridCoverage") // See FeatureUtilities.wrapGridCoverage
-                .put("geometry","raster");
-        }
-        return l;
-    }
-    private JSONArr contents(WMSStoreInfo wms) {
-        JSONArr l = new JSONArr();
-        WebMapServer service;
-        List<Layer> layers;
-        try {
-            service = wms.getWebMapServer(new NullProgressListener());
-            layers = service.getCapabilities().getLayerList();
-        } catch (IOException e) {
-            LOG.log(Level.FINE,wms.getId()+" unable list contents:"+e,e);
-            return l; 
-        }
-        for (Layer layer : layers) {
-            l.addObject()
-                .put("name", layer.getName())
-                .put("geometry","layer");
-        }
-        return l;
-    }
-    
-    private JSONArr resources(StoreInfo store) {
-        JSONArr arr = new JSONArr();
+    JSONArr resources(StoreInfo store, JSONArr list) throws IOException {
         Catalog cat = geoServer.getCatalog();
-        List<ResourceInfo> resources = cat.getResourcesByStore(store, ResourceInfo.class );
-        for( ResourceInfo r : resources ){
-            for (LayerInfo l : cat.getLayers(r)) {
-                JSONObj layer = arr.addObject();                
-                
-                layer.put("name", l.getName())
-                        .put("title", l.getTitle() != null ? l.getTitle() : r.getTitle())
-                        .put("description", l.getAbstract() != null ? l.getAbstract() : r.getAbstract())
-                        .put("type", IO.type(r));
-                JSONObj metadata = IO.metadata( new JSONObj(), l.getMetadata());
-                layer.put( "metadata", metadata );                
-                layer.put("content", r.getNativeName() );
+        WorkspaceInfo ws = store.getWorkspace();
+
+        for (String resource : listResources(store)) {
+            JSONObj obj = list.addObject();
+            obj.put("name", resource);
+
+            Filter filter = and(equal("namespace.prefix", ws.getName()), equal("nativeName", resource));
+            try (
+                CloseableIterator<ResourceInfo> published = cat.list(ResourceInfo.class, filter);
+            ) {
+                JSONArr layers = obj.putArray("layers");
+                while(published.hasNext()) {
+                    ResourceInfo r = published.next();
+                    layers.addObject().put("name", r.getName()).put("workspace", ws.getName());
+                }
             }
-        }        
-        return arr;
+        }
+
+        return list;
     }
-    
-    /** 
-     * Storage source.
-     * <p>
-     * This method is based on a revise engineering of {@link ServiceInfo#location}.
-     *  
-     * @param store
-     * @return
-     */
-    private String source(StoreInfo store) {        
+
+    Iterable<String> listResources(StoreInfo store) throws IOException {
+        if (store instanceof DataStoreInfo) {
+            return Iterables.transform(((DataStoreInfo) store).getDataStore(null).getNames(),
+                new Function<Name, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable Name input) {
+                        return input.getLocalPart();
+                    }
+                });
+        }
+        else if (store instanceof CoverageStoreInfo) {
+            return Arrays.asList(((CoverageStoreInfo) store).getGridCoverageReader(null, null).getGridCoverageNames());
+        }
+        else if (store instanceof WMSStoreInfo) {
+            return Iterables.transform(((WMSStoreInfo) store).getWebMapServer(null).getCapabilities().getLayerList(),
+                new Function<Layer, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable Layer input) {
+                        return input.getName();
+                    }
+                });
+        }
+
+        throw new IllegalStateException("Unrecognized store type");
+    }
+
+    private String source(StoreInfo store) {
         if( store instanceof CoverageStoreInfo ){
             CoverageStoreInfo coverage = (CoverageStoreInfo) store;
             return sourceURL( coverage.getURL() );

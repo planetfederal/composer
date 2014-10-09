@@ -13,6 +13,7 @@ import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.PublishedInfo;
@@ -51,6 +52,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static org.geoserver.catalog.Predicates.equal;
@@ -420,6 +422,11 @@ public class MockGeoServer {
                 }
             });
 
+            MetadataMap meta = new MetadataMap();
+            meta.put(Metadata.CREATED, new Date());
+            meta.put(Metadata.MODIFIED, new Date());
+            when(map.getMetadata()).thenReturn(meta);
+
             Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
             when(catalog.getLayerGroupByName(name)).thenReturn(map);
             when(catalog.getLayerGroupByName(wsName, name)).thenReturn(map);
@@ -478,6 +485,11 @@ public class MockGeoServer {
             layer = mock(LayerInfo.class);
             when(layer.getName()).thenReturn(name);
             when(layer.prefixedName()).thenReturn(wsName+":"+name);
+
+            MetadataMap meta = new MetadataMap();
+            meta.put(Metadata.CREATED, new Date());
+            meta.put(Metadata.MODIFIED, new Date());
+            when(layer.getMetadata()).thenReturn(meta);
 
             Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
             when(catalog.getLayerByName(name)).thenReturn(layer);

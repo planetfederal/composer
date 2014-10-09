@@ -4,8 +4,10 @@
 package com.boundlessgeo.geoserver.api.controllers;
 
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
@@ -25,6 +27,10 @@ public abstract class ApiController {
 
     public ApiController(GeoServer geoServer) {
         this.geoServer = geoServer;
+    }
+
+    public Catalog catalog() {
+        return geoServer.getCatalog();
     }
 
     protected GeoServerDataDirectory dataDir() {
@@ -64,6 +70,14 @@ public abstract class ApiController {
             throw new NotFoundException(String.format("No such layer %s:%s", wsName, name));
         }
         return l;
+    }
+
+    protected StoreInfo findStore(String wsName, String name, Catalog cat) {
+        StoreInfo s = cat.getStoreByName(wsName, name, StoreInfo.class);
+        if (s == null) {
+            throw new NotFoundException(String.format("No such store %s:%s", wsName, name));
+        }
+        return s;
     }
 
     /**

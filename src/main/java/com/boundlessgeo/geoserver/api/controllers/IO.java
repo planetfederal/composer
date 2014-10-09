@@ -13,6 +13,7 @@ import org.apache.commons.httpclient.util.DateParseException;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.MetadataMap;
 import org.geoserver.catalog.NamespaceInfo;
@@ -181,11 +182,8 @@ public class IO {
 
         proj(obj.putObject("proj"), r.getCRS(), r.getSRS());
         bbox( obj.putObject("bbox"), r );
-        
-        JSONObj metadata = metadata( new JSONObj(), layer.getMetadata());
-        obj.put( "metadata", metadata );
-        
-        return obj;
+
+        return metadata(obj, layer);
     }
 
     static String type(ResourceInfo r)  {
@@ -228,43 +226,23 @@ public class IO {
     }
 
     private static PrettyTime PRETTY_TIME = new PrettyTime();
-    
-    private static JSONObj metadata(JSONObj obj, String key, Date date ) {
-        String time = DateUtil.formatDate( date );        
-        obj.put(key, time);
-        obj.put(key+"-pretty", PRETTY_TIME.format(date) );
-        
-        return obj;
+
+    static JSONObj date(JSONObj obj, Date date) {
+        String timestamp = DateUtil.formatDate( date );
+        return obj.put("timestamp", timestamp).put("pretty", PRETTY_TIME.format(date));
     }
 
-    static JSONObj metadata(JSONObj obj, String key, Object value) {
-        if (key.equals("created") || key.equals("changed")) {
-            if (value instanceof Date) {
-                Date date = (Date) value;
-                metadata(obj, key, date);
-            }
-            if (value instanceof String) {
-                String time = (String) value;
-                obj.put(key, time);
-                try {
-                    Date date = DateUtil.parseDate(time);
-                    obj.put(key + "-pretty", PRETTY_TIME.format(date));
-                } catch (DateParseException e) {
-                    LOG.finest("PRETTY_TIME date for " + key + ":" + time + ":" + e);
-                }
-            }
-        } else {
-            obj.put(key, value);
+    static JSONObj metadata(JSONObj obj, Info i) {
+        Date date = Metadata.created(i);
+        if (date != null) {
+            date(obj.putObject("created"), date);
         }
+
+        date = Metadata.modified(i);
+        if (date != null) {
+            date(obj.putObject("modified"), date);
+        }
+
         return obj;
     }
-
-    static JSONObj metadata(JSONObj obj, MetadataMap metadata) {
-        if( metadata != null){
-            for( Entry<String, Serializable> meta : metadata.entrySet() ){
-                metadata( obj, meta.getKey(), meta.getKey() );
-            }
-        }
-        return obj;
-    }    
 }
