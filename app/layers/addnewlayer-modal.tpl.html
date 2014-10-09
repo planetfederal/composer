@@ -4,92 +4,93 @@
   </div>
   <div class="modal-body">
     <form name="form.layer" role="form" class="settings">
-      <div class="tableRow">
-        <div class="tableCell"><label for="layerName">Layer Name: </label></div>
-        <div class="tableCell">
+      <div class="container">
+        <div class="col-xs-1"><label for="layerName">Layer Name: </label></div>
+        <div class="col-xs-3">
           <input type="text" class="form-control input-xs" id="layerName" placeholder="Layer Name" ng-model="Layer.name" required>
         </div>
-        <div class="tableCell">
+        <div class="col-xs-5">
           <div ng-show="layer.saved && !layer.name.error" class="saved"><i class="fa fa-check"></i> Layer '{{Layer.name}}' has been added.</div>
           <div ng-show="layer.saved && layer.name.error" class="alert-danger">Another layer already has the name '{{Layer.name}}'.</div>
         </div>
       </div>
-
-      <fieldset><legend>Data Source</legend></fieldset>
-      <div class="tableRow">
-        <div class="tableCell"><label for="dataSource">Select an Existing Data Source:</label></div>
-        <div class="tableCell">
-          <ui-select class="formSelect" ng-model="datastores.selected" 
-            ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
+      <div class="container">
+        <div class="col-xs-9"><fieldset><legend>Data Source</legend></fieldset></div>
+      </div>
+      <div class="container">
+        <div class="col-xs-2"><label for="dataSource">Select an Existing Data Source:</label></div>
+        <div class="col-xs-3">
+          <ui-select ng-model="datastores.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
             <ui-select-match placeholder="Select a data store...">
               {{$select.selected.name}}
             </ui-select-match>
-            <ui-select-choices repeat="ds in datastores">
-              <span ng-bind-html="ds.name | highlight: $select.search"></span>
+            <ui-select-choices repeat="datastore in datastores">
+              <span ng-bind-html="datastore.name | highlight: $select.search"></span>
             </ui-select-choices>
           </ui-select>
         </div>
-        <div class="tableCellExtraPadding">OR</div>
-        <div class="tableCell">
+        <div class="col-xs-1 center-column">OR</div>
+        <div class="col-xs-3">
           <button type="button" class="btn btn-default" ng-click="addDataSource()" 
             alt="Add New Data Source" title="Add New Data Source">
             + New Data Source
           </button>
         </div>
       </div>
-
-      <fieldset><legend>Properties</legend></fieldset>
-      <div class="tableRow">
-        <div class="tableCell"><label for="layerTitle">Title: </label></div>
-        <div class="tableCellFixedWidth">
-          <input type="text" class="form-control input-xs" id="layerTitle" placeholder="(Display Title)" ng-model="Layer.title" required>
+      <div class="container">
+        <div class="col-xs-9"><fieldset><legend>Properties</legend></fieldset></div>
+      </div>
+      <div class="container">
+        <div class="col-xs-1 label-padding"><label for="layerTitle">Title: </label></div>
+        <div class="col-xs-3 label-padding">
+          <input type="text" class="form-control input-xs label-padding" id="layerTitle" placeholder="(Display Title)" ng-model="Layer.title" required>
         </div>
-        <div class="tableCell innerCell">
-          <div class="tableRow">
-            <div class="tableCell"><label for="projection">Projection SRS:</label></div>
-            <div class="tableCell">
-              <select ng-model="workspace.projection" ng-disabled="disabled" theme="bootstrap" required>
-                <option value="">Select a projection...</option>
-                <option value="4326">EPSG: 4326</option>
-                <option value="9999">EPSG: 9999</option>
-              </select>
-            </div>
-          </div>
+        <div class="col-xs-1 label-padding"><label for="projection">Projection SRS:</label></div>
+        <div class="col-xs-3 label-padding">
+          <ui-select ng-model="projections.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
+            <ui-select-match placeholder="Select a projection...">
+              {{$select.selected.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="projection in projections">
+              <span ng-bind-html="projection.name | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
         </div>
       </div>
-
-      <div class="tableRow">
-        <div class="tableCell"><label for="type">Type:</label></div>
-        <div class="tableCell">
-          <select ng-model="layer.type"  ng-disabled="disabled" theme="bootstrap" required>
-            <option value="">Select a layer type...</option>
-            <option value="line">Line</option>
-            <option value="point">Point</option>
-            <option value="multiline">Multi-line</option>
-            <option value="multipoint">Multi-point</option>
-            <option value="multipolygon">Multi-polygon</option>
-            <option value="polygon">Polygon</option>
-            <option value="raster">Raster</option>
-          </select>
+      <div class="container">
+        <div class="col-xs-1 label-padding"><label for="type">Type:</label></div>
+        <div class="col-xs-3 label-padding">
+          <ui-select ng-model="types.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
+            <ui-select-match placeholder="Select a layer type...">
+              {{$select.selected.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="type in types">
+              <span ng-bind-html="type.name | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
         </div>
-        <div class="tableCell">
+        <div class="col-xs-5 label-padding">
           <button class="btn btn-default btn-sm" ng-click="editOtherSettings()"><img src="images/settings.png" alt="Edit Other Settings" title="Edit Other Settings" /> Edit Other Settings</button>
           <i>Default settings will be applied.</i>
         </div>
       </div>
-
-      <div class="tableRow">
-        <div class="tableCell"><label for="projection">Extent:</label></div>
-        <div class="tableCell">
+      <div class="container">
+        <div class="col-xs-1"><label for="projection">Extent:</label></div>
+        <div class="col-xs-3">
           <input type="text" class="form-control input-xs" id="layerExtent" placeholder="[lower corner, upper corner]" ng-model="Layer.extent" ng-bind-html required>
-          <select ng-model="layer.extent.type"  ng-disabled="disabled" theme="bootstrap" required>
-            <option value="autocalc" selected>Autocalc</option>
-            <option value="custom">Custom</option>
-          </select>
-          <div class="customExtentTypeWarning" ng-if="layer.extent.type=='custom'" class="alert-warning">'Custom' enables a region on the map to be selected or direct entry.</div>
+          <ui-select ng-model="extents.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
+            <ui-select-match placeholder="Select an extent...">
+              {{$select.selected.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="extent in extents">
+              <span ng-bind-html="extent.name | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+
+          <div class="custom-extent-type-warning" ng-if="extents.selected.name=='Custom'" class="alert-warning">'Custom' enables a region on the map to be selected or direct entry.</div>
         </div>
         <!--TODO: grab a thumbnail if it exists-->
-        <div class="tableCell">
+        <div class="col-xs-5">
           <img ng-hide="thumbnail == ''" class="thumbnail" ng-model="thumbnail" ng-src="{{thumbnail}}" alt="Thumbnail View" title="Thumbnail View" />
         </div>
       </div>
@@ -99,6 +100,4 @@
     <button class="btn btn-success btn-sm" ng-click="ok()">Save</button>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
   </div>
-
-  <!--<i class="fa fa-plus circular-icon" ng-click="addNewStore();"></i>-->
 </div>
