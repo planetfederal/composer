@@ -65,6 +65,7 @@ angular.module('gsApp.styleditor', [
             $scope.style = newVal;
           });
           $scope.$watch('markers', function(newVal) {
+            $scope.editor.clearGutter('markers');
             if (newVal != null) {
               newVal.forEach(function(mark) {
                 var html = '<i class="icon-warning" ' +
@@ -75,9 +76,6 @@ angular.module('gsApp.styleditor', [
                 var marker = $compile(html)($scope)[0];
                 $scope.editor.setGutterMarker(mark.line, 'markers', marker);
               });
-            }
-            else {
-              $scope.editor.clearGutter('markers');
             }
           });
         }
