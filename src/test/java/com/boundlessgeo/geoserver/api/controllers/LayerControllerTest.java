@@ -131,6 +131,7 @@ public class LayerControllerTest {
             .andReturn();
 
         JSONObj obj = JSONWrapper.read(result.getResponse().getContentAsString()).toObject();
+
         assertEquals("one", obj.str("name"));
         assertEquals("foo", obj.str("workspace"));
         assertEquals("vector", obj.str("type"));
@@ -152,6 +153,9 @@ public class LayerControllerTest {
         assertEquals(90d, obj.object("bbox").object("lonlat").doub("north"), 0.1);
         assertEquals(0d, obj.object("bbox").object("lonlat").array("center").doub(0), 0.1);
         assertEquals(0d, obj.object("bbox").object("lonlat").array("center").doub(1), 0.1);
+
+        assertNotNull(obj.get("modified"));
+        assertNotNull(obj.get("created"));
     }
 
     @Test

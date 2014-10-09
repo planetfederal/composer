@@ -141,6 +141,9 @@ public class MapControllerTest {
                 return "two".equals(JSONWrapper.wrap(o).toObject().str("name"));
             }
         });
+
+        assertNotNull(obj.get("created"));
+        assertNotNull(obj.get("modified"));
     }
 
     @Test

@@ -77,8 +77,7 @@ public class MapController extends ApiController {
         
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         Date created = new Date();
-        String change = "Initial creation";
-        
+
         CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
         if( obj.has("proj")){
             String srs = obj.str("proj");
@@ -99,11 +98,10 @@ public class MapController extends ApiController {
         map.setMode( Mode.SINGLE );
         map.setWorkspace( findWorkspace(wsName) );
         map.setBounds( bounds );
-        
-        map.getMetadata().put("user", user );
-        map.getMetadata().put("created", created );
-        map.getMetadata().put("change", change );
-        
+
+        Metadata.created(map, created);
+        Metadata.modified(map, created);
+
         cat.add( map );
         return mapDetails(new JSONObj(), map, wsName );
     }
@@ -318,9 +316,6 @@ public class MapController extends ApiController {
     JSONObj mapDetails(JSONObj obj, LayerGroupInfo map, String wsName) {
         map(obj,map,wsName);
         
-        JSONObj metadata = IO.metadata(new JSONObj(), map.getMetadata());
-        obj.put("metadata", metadata );
-        
         List<PublishedInfo> published = layers(map);
         JSONArr layers = obj.putArray("layers");
         for (PublishedInfo l : published) {
@@ -351,7 +346,8 @@ public class MapController extends ApiController {
             }
             
         }
-        return obj;
+
+        return IO.metadata(obj, map);
     }
     
     WorkspaceInfo findWorkspace(String wsName) {
