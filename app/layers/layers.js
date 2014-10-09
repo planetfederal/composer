@@ -190,19 +190,6 @@ angular.module('gsApp.layers', [
         selectedItems: $scope.gridSelections,
         multiSelect: true,
         columnDefs: [
-          {field: '',
-            displayName: '',
-            cellClass: 'text-center',
-            sortable: false,
-            cellTemplate:
-              '<div ng-class="col.colIndex()">' +
-                '<a ng-click="deleteLayer(row.entity)">' +
-                  '<img ng-src="images/delete.png" alt="Remove Layer"' +
-                    'title="Remove Layer" />' +
-                '</a>' +
-              '</div>',
-            width: '2%'
-          },
           {field: 'name', displayName: 'Layer', width: '20%'},
           {field: 'title',
             displayName: 'Title',
@@ -240,8 +227,9 @@ angular.module('gsApp.layers', [
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
                 '<a ng-click="onStyleEdit(row.entity)">' +
-                  '<img ng-src="images/settings.png"' +
-                    'alt="Edit Layer Settings" title="Edit Layer Settings" />' +
+                  '<i class="fa fa-gear grid-icons" ' +
+                    'alt="Edit Layer Settings" ' +
+                    'title="Edit Layer Settings"></i>' +
                 '</a>' +
               '</div>',
             width: '10%'
@@ -282,8 +270,8 @@ angular.module('gsApp.layers', [
             cellTemplate:
               '<li class="list-unstyled dropdown">' +
                 '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
-                  '<img ng-src="images/download.png" alt="Download Layer"' +
-                    'title="Download Layer" />' +
+                  '<i class="fa fa-download grid-icons" alt="Download Layer"' +
+                    'title="Download Layer"></i>' +
                 '</a>' +
                 '<ul id="download-dropdown" class="dropdown-menu">' +
                   '<li><a href="#">Shapefile</a></li>' +
@@ -296,6 +284,19 @@ angular.module('gsApp.layers', [
           {field: 'lastEdited',
             displayName: 'Last Edited',
             cellTemplate: '<div ng-class="col.colIndex()"></div>',
+            width: '10%'
+          },
+          {field: '',
+            displayName: '',
+            cellClass: 'text-center',
+            sortable: false,
+            cellTemplate:
+              '<div ng-class="col.colIndex()">' +
+                '<a ng-click="deleteLayer(row.entity)">' +
+                  '<img ng-src="images/delete.png" alt="Remove Layer"' +
+                    'title="Remove Layer" />' +
+                '</a>' +
+              '</div>',
             width: '*'
           }
         ],
