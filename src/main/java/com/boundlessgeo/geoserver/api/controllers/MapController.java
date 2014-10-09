@@ -57,7 +57,7 @@ import com.vividsolutions.jts.geom.Envelope;
 
 @Controller
 @RequestMapping("/api/maps")
-public class MapController extends AppController {
+public class MapController extends ApiController {
 
     static Logger LOG = Logging.getLogger(LayerController.class);
 

@@ -44,7 +44,7 @@ import java.util.Iterator;
 
 @Controller
 @RequestMapping("/api/imports")
-public class ImportController extends AppController {
+public class ImportController extends ApiController {
 
     Importer importer;
     Hasher hasher;

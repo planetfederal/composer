@@ -65,7 +65,7 @@ import com.google.common.io.ByteSource;
 
 @Controller
 @RequestMapping("/api/layers")
-public class LayerController extends AppController {
+public class LayerController extends ApiController {
 
     static Logger LOG = Logging.getLogger(LayerController.class);
 

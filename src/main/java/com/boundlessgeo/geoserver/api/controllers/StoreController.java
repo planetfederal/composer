@@ -56,7 +56,7 @@ import com.google.common.base.Throwables;
  */
  @Controller
  @RequestMapping("/api/stores")
- public class StoreController extends AppController {
+ public class StoreController extends ApiController {
      static Logger LOG = Logging.getLogger(StoreController.class);
 
     @Autowired
