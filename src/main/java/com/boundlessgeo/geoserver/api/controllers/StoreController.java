@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -36,16 +37,18 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
-import org.geoserver.platform.resource.ResourceStore;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.data.DataAccess;
+import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStore;
 import org.geotools.data.ows.Layer;
+import org.geotools.data.wms.WebMapServer;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.Converters;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.logging.Logging;
+import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
@@ -146,7 +149,84 @@ import com.google.common.collect.Iterables;
         return json;
     }
     
-
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.PUT)
+    public @ResponseBody
+    JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        CatalogFactory factory = cat.getFactory();
+        
+        WorkspaceInfo workspace = findWorkspace(wsName);
+        StoreInfo store = null;
+        
+        JSONObj params = obj.object("connection");
+        if( params == null ){
+            throw new IllegalArgumentException("connection parameters required");
+        }
+        if( params.has("raster")){
+            String url = params.str("raster");            
+            CoverageStoreInfo info = factory.createCoverageStore();
+            info.setWorkspace(workspace);
+            info.setType(name);
+            
+            // connect and defaults
+            info.setURL(url);
+            info.setType(obj.str("type"));
+            try {
+                GridCoverageReader reader = info.getGridCoverageReader(null, null);
+                Format format = reader.getFormat();
+                info.setDescription( format.getDescription() );
+                info.setEnabled(true);
+            } catch (IOException e) {
+                info.setError(e);
+                info.setEnabled(false);
+            }
+            store = info;
+        }
+        else if ( params.has("url") &&
+                params.str("url").toLowerCase().contains("Service=WMS") &&
+                params.str("url").startsWith("http")){
+            WMSStoreInfo info = factory.createWebMapServer();
+            info.setWorkspace(workspace);
+            info.setType(name);
+            
+            // connect and defaults
+            info.setCapabilitiesURL(params.str("url"));
+            try {
+                WebMapServer service = info.getWebMapServer(new NullProgressListener());
+                info.setDescription( service.getInfo().getDescription() );
+                info.setEnabled(true);
+            } catch (Throwable e) {
+                info.setError(e);
+                info.setEnabled(false);
+            }
+            store = info;
+        }
+        else {
+            HashMap map = new HashMap(params.raw());
+            Map resolved = ResourcePool.getParams(map, cat.getResourceLoader() );
+            DataAccess dataStore = DataAccessFinder.getDataStore(resolved);            
+            if( dataStore == null ){
+                throw new IllegalArgumentException("Connection parameters incomplete (does not match an available data store, coverage store or wms store).");
+            }
+            DataStoreInfo info = factory.createDataStore();
+            info.setWorkspace(workspace);
+            info.setType(name);
+            info.getConnectionParameters().putAll(map);
+            try {
+                info.setDescription( dataStore.getInfo().getDescription());
+                info.setEnabled(true);
+            } catch (Throwable e) {
+                info.setError(e);
+                info.setEnabled(false);
+            }
+            store = info;
+        }
+        cat.add(store);
+        
+        return storeDetails(new JSONObj(), store);
+    }
+    
     public enum Type {FILE,DATABASE,WEB,GENERIC;
         static Type of( StoreInfo store ){
             if( store instanceof CoverageStoreInfo){
@@ -472,4 +552,18 @@ import com.google.common.collect.Iterables;
         File f = new File( file );
         return f.isAbsolute() ? file : Paths.convert(baseDirectory, f);
     }
-}
+
+    private WorkspaceInfo findWorkspace(String wsName) {
+        Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws;
+        if ("default".equals(wsName)) {
+            ws = cat.getDefaultWorkspace();
+        } else {
+            ws = cat.getWorkspaceByName(wsName);
+        }
+        if (ws == null) {
+            throw new RuntimeException("Unable to find workspace " + wsName);
+        }
+        return ws;
+    }
+ }
