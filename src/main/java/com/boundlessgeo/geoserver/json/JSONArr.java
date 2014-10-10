@@ -5,9 +5,15 @@ package com.boundlessgeo.geoserver.json;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterators;
+
 import org.json.simple.JSONArray;
+import org.json.simple.JSONValue;
 
 import javax.annotation.Nullable;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 import java.util.Iterator;
 
 /**
@@ -75,7 +81,7 @@ public class JSONArr extends JSONWrapper<JSONArray> implements Iterable<Object> 
      */
     public JSONObj addObject() {
         JSONObj obj = new JSONObj();
-        raw.add(obj.raw);
+        raw.add(obj);
         return obj;
     }
 
@@ -114,5 +120,33 @@ public class JSONArr extends JSONWrapper<JSONArray> implements Iterable<Object> 
                 });
             }
         };
+    }
+    
+    @Override
+    void write(Writer out) throws IOException {
+        if (raw == null) {
+            out.write("null");
+        } else {
+            boolean first = true;
+            Iterator iter = iterator();
+            out.write('[');
+            while (iter.hasNext()) {
+                if (first)
+                    first = false;
+                else
+                    out.write(',');
+
+                Object value = iter.next();
+                if (value == null) {
+                    out.write("null");
+                    continue;
+                }
+                value = wrapOrSelf(value);
+                JSONWrapper.write(value, out);
+            }
+            out.write(']');
+
+        }
+        out.flush();
     }
 }

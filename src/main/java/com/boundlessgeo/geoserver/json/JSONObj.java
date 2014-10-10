@@ -3,15 +3,24 @@
  */
 package com.boundlessgeo.geoserver.json;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  * Wrapper object for {@link org.json.simple.JSONObject}.
  */
 public class JSONObj extends JSONWrapper<JSONObject> {
-
+    List<String> order;
     public JSONObj() {
         this(new JSONObject());
+        order = new ArrayList<String>();
     }
 
     public JSONObj(JSONObject obj) {
@@ -22,6 +31,9 @@ public class JSONObj extends JSONWrapper<JSONObject> {
      * Keys for the object.
      */
     public Iterable<String> keys() {
+        if( order != null ){
+            return order;
+        }
         return raw.keySet();
     }
 
@@ -88,6 +100,9 @@ public class JSONObj extends JSONWrapper<JSONObject> {
      */
     public JSONObj put(String key, Object val) {
         if( !isEmpty(val)){
+            if( order != null && !raw.containsKey(key)){
+                order.add(key);
+            }
             raw.put(key, val);
         }
         return this;
@@ -106,6 +121,9 @@ public class JSONObj extends JSONWrapper<JSONObject> {
      */
     public JSONObj putObject(String key) {
         JSONObj obj = new JSONObj();
+        if( order != null && !raw.containsKey(key)){
+            order.add(key);
+        }
         raw.put(key, obj.raw);
         return obj;
     }
@@ -117,12 +135,48 @@ public class JSONObj extends JSONWrapper<JSONObject> {
      */
     public JSONArr putArray(String key) {
         JSONArr arr = new JSONArr();
-        raw.put(key, arr.raw);
+        if( order != null && !raw.containsKey(key)){
+            order.add(key);
+        }
+        raw.put(key, arr);
         return arr;
     }
 
     @Override
     public int size() {
         return raw.size();
+    }
+    @Override
+    void write(Writer out) throws IOException {
+        //this.raw().writeJSONString(out);
+        if(raw == null){
+            out.write("null");
+        }
+        else {
+            boolean first = true;
+            Iterable<String> keys = keys();
+            Iterator<String> iter = keys.iterator();
+    
+            out.write('{');
+            while (iter.hasNext()) {
+                if (first){
+                    first = false;
+                }
+                else{
+                    out.write(',');
+                }
+                String key = iter.next();
+                Object value = raw.get(key);
+                
+                
+                out.write('\"');
+                out.write(JSONObject.escape(key));
+                out.write('\"');
+                out.write(':');
+                JSONWrapper.write(value, out);
+            }
+            out.write('}');
+        }
+        out.flush();
     }
 }
