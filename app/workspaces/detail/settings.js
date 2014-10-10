@@ -1,12 +1,19 @@
-angular.module('gsApp.workspaces.workspace.settings', [
+angular.module('gsApp.workspaces.settings', [
   'gsApp.alertpanel',
   'ngSanitize'
 ])
-.controller('WorkspaceSettingsCtrl', ['$scope', '$stateParams', 'GeoServer',
-  '$log', '$sce', 'baseUrl', '$window', '$state', '$location', '$modal',
-  '$rootScope', 'AppEvent',
-    function($scope, $stateParams, GeoServer, $log, $sce, baseUrl,
-      $window, $state, $location, $modal, $rootScope, AppEvent) {
+.config(['$stateProvider',
+    function($stateProvider) {
+      $stateProvider.state('workspace.settings', {
+        url: '/settings',
+        templateUrl: '/workspaces/detail/settings.tpl.html',
+        controller: 'WorkspaceSettingsCtrl'
+      });
+    }])
+.controller('WorkspaceSettingsCtrl', ['$scope', '$rootScope', '$state',
+    '$stateParams', '$modal', '$log', 'GeoServer', 'AppEvent',
+    function($scope, $rootScope, $state, $stateParams, $modal, $log, GeoServer,
+      AppEvent) {
 
       $scope.wsSettings = {};
       $scope.form = {};
@@ -71,15 +78,12 @@ angular.module('gsApp.workspaces.workspace.settings', [
       };
       $scope.deleteWorkspace = function() {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/delete-modal.tpl.html',
-          controller: 'DeleteModalControl',
+          templateUrl: '/workspaces/detail/modals/delete.tpl.html',
+          controller: 'WorkspaceDeleteCtrl',
           size: 'md',
           resolve: {
             workspace: function() {
               return $scope.workspace;
-            },
-            geoserver: function() {
-              return GeoServer;
             }
           }
         });

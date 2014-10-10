@@ -3,7 +3,10 @@
  */
 package com.boundlessgeo.geoserver.api.exceptions;
 
+import com.boundlessgeo.geoserver.api.controllers.IO;
 import com.boundlessgeo.geoserver.json.JSONObj;
+import com.google.common.base.Throwables;
+
 import org.geotools.util.logging.Logging;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Level;
@@ -22,12 +26,6 @@ public class AppExceptionHandler {
 
     static Logger LOG = Logging.getLogger(AppExceptionHandler.class);
 
-    public static String trace(Exception e) {
-        StringWriter stack = new StringWriter();
-        e.printStackTrace(new PrintWriter(stack));
-        return stack.toString();
-    }
-
     @ExceptionHandler(Exception.class)
     public @ResponseBody
     JSONObj error(Exception e, HttpServletResponse response) {
@@ -37,10 +35,7 @@ public class AppExceptionHandler {
 
         // log at warning if 500, else debug
         LOG.log(status == HttpStatus.INTERNAL_SERVER_ERROR ? Level.WARNING : Level.FINE, e.getMessage(), e);
-
-        return new JSONObj()
-            .put("message", e.getMessage())
-            .put("trace", trace(e));
+        return IO.error(new JSONObj(), e );
     }
 
     HttpStatus status(Exception e) {

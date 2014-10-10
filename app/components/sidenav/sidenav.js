@@ -1,5 +1,6 @@
+/*global $, window*/
 angular.module('gsApp.sidenav', [
-  'gsApp.workspaces.workspace',
+  'gsApp.workspaces.home',
   'ui.bootstrap',
   'gsApp.olmap'
 ])
@@ -43,19 +44,16 @@ angular.module('gsApp.sidenav', [
     };
 
     $scope.onWorkspaceClick = function(workspace, detail) {
+      var params = {workspace: workspace.name};
+      var state = 'workspace';
       if (detail) {
-        $state.go('workspace.home.' + detail, {
-          workspace: workspace.name
-        });
-      } else {
-        $state.go('workspace.home', {
-          workspace: workspace.name
-        });
+        state += '.' + detail;
       }
+      $state.go(state, params);
     };
 
     $scope.newWorkspace = function() {
-      $state.go('workspace.new', {'workspaces': $scope.workspaces});
+      $state.go('workspaces.new');
     };
 
     $rootScope.$on(AppEvent.WorkspacesFetched,

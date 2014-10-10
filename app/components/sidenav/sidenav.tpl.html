@@ -16,18 +16,18 @@
         <span class="txt">New <span class="caret"></span></span>
       </a>
       <ul id="dropdown-new" class="dropdown-menu" role="menu">
-        <li><a ng-click="newWorkspace();">New Project Workspace</a></li>
+        <li><a ng-click="newWorkspace();">New Workspace</a></li>
         <li><a href="#">New Map</a></li>
       </ul>
     </li>
     <li role="presentation" class="divider"></li>
     <li id="projects" ng-show="!toggleSide">
       <a class="all-workspaces" ng-init="toggleProjs=false"
-        ng-click="toggleProjs=!toggleProjs; openWorkspaces();" ui-sref="workspaces"
+        ng-click="toggleProjs=!toggleProjs; openWorkspaces();" ui-sref="workspaces.list"
         alt="Project Workspaces" title="Project Workspaces">
         <i ng-class="{'icon-folder-open': toggleProjs,
           'icon-folder': !toggleProjs}"></i> <span class="txt">
-          Project Workspaces</span>
+          Workspaces</span>
       </a>
       <ul class="workspaces" collapse="!toggleProjs" role="menu">
         <li class="single-workspace" ng-repeat="workspace in workspaces |

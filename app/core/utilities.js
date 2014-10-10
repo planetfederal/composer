@@ -1,7 +1,7 @@
 /**
  * Module for reusable utitlies.
  */
- // http://stackoverflow.com/questions/19482000/angularjs-add-http-prefix-to-url-input-field
+ // http://goo.gl/huaMt1
 angular.module('gsApp.core.utilities', [])
 .directive('httpPrefix', function() {
   return {
@@ -41,7 +41,7 @@ angular.module('gsApp.core.utilities', [])
 }])
 /*
  * Filter below trims a long line
- * Adapted from http://stackoverflow.com/questions/18095727/limit-the-length-of-a-string-with-angularjs
+ * Adapted from http://goo.gl/GHr4ZN
  */
 .filter('truncate', function () {
   return function (value, byword, max, tailEnd, tail) {
