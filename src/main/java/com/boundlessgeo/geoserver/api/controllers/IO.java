@@ -178,12 +178,14 @@ public class IO {
             try {
                 schema = ft.getFeatureType();
                 obj.put("geometry", geometry(schema));
+                IO.schema(obj.putObject("schema"), schema, true );
             } catch (IOException e) {
                 LOG.log(Level.WARNING, "Error looking up schema "+ft.getNativeName(), e);
             }
         }
         else if( r instanceof CoverageInfo) {
             obj.put("geometry", "raster");
+            IO.schemaGrid(obj.putObject("schema"), ((CoverageInfo)r), true );
         }
         else if( r instanceof WMSInfo) {
             obj.put("geometry", "layer");
