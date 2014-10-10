@@ -32,19 +32,16 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
-import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataStore;
 import org.geotools.data.ows.Layer;
-import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.Converters;
 import org.geotools.util.NullProgressListener;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.GridCoverageReader;
-import org.opengis.feature.Feature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -220,7 +217,7 @@ import com.google.common.collect.Iterables;
         ) {
             while(layers.hasNext()) {
                 ResourceInfo r = layers.next();
-                layer( list.addObject(), r, true );
+                layer( list.addObject(), r, false );
             }
         }
 
@@ -237,13 +234,15 @@ import com.google.common.collect.Iterables;
             
             if(store instanceof DataStoreInfo){
                 DataStoreInfo data = (DataStoreInfo) store;
+                
+                @SuppressWarnings("rawtypes")
                 DataAccess dataStore = data.getDataStore(new NullProgressListener());
                 
                 FeatureType schema = dataStore instanceof DataStore
                         ? ((DataStore)dataStore).getSchema(resource)
                         : dataStore.getSchema( new NameImpl(resource) );
                 
-                IO.schema( obj.putObject("schema"), schema );
+                IO.schema( obj.putObject("schema"), schema, false );
             }
             if(store instanceof CoverageStoreInfo){
                 CoverageStoreInfo data = (CoverageStoreInfo) store;
@@ -251,10 +250,10 @@ import com.google.common.collect.Iterables;
                 if( r instanceof GridCoverage2DReader){
                     GridCoverage2DReader reader = (GridCoverage2DReader) r;
                     CoordinateReferenceSystem crs = reader.getCoordinateReferenceSystem(resource);
-                    IO.schemaGrid( obj.putObject("schema"), crs );
+                    IO.schemaGrid( obj.putObject("schema"), crs, false );
                 }
                 else {
-                    IO.schemaGrid( obj.putObject("schema"), AbstractGridFormat.getDefaultCRS());
+                    IO.schemaGrid( obj.putObject("schema"), AbstractGridFormat.getDefaultCRS(), false);
                 }
             }
             
@@ -291,13 +290,13 @@ import com.google.common.collect.Iterables;
             if (info instanceof FeatureTypeInfo) {
                 FeatureTypeInfo data = (FeatureTypeInfo) info;
                 try {
-                    IO.schema(json.putObject("schema"), data.getFeatureType());
+                    IO.schema(json.putObject("schema"), data.getFeatureType(),false);
                 } catch (IOException e) {
                 }
             }
            else if (info instanceof CoverageInfo ){
                CoverageInfo data = (CoverageInfo) info;
-               IO.schemaGrid(json.putObject("schema"),data); 
+               IO.schemaGrid(json.putObject("schema"),data,false); 
            }
        }
        return json;
