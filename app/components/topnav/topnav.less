@@ -14,14 +14,20 @@
   background-color: @monacoblue !important;
   border-color: @monacoblue !important;
   color: #eee;
+
+  .navbar-header {
+    margin-left: -20px;
+
+    .navbar-brand {
+      background: url(images/geoserver_white_32.png) no-repeat left center;
+      padding-left: 40px;
+      margin-top: 0;
+      color: #fff;
+      z-index: 100;
+    }
+  }
 }
-.navbar-inverse .navbar-brand {
-  background: url(images/geoserver_white_32.png) no-repeat left center;
-  padding-left: 40px;
-  margin-top: 0;
-  color: #fff;
-  z-index: 100;
-}
+
 .navbar > .container-fluid .navbar-brand {
   margin-left: 5px;
 }
