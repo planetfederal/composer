@@ -1,5 +1,5 @@
-<div id="sidebar-wrapper">
-  <ul class="sidebar-nav" ng-show="session.active" ng-style="sideStyle">
+<div id="sidebar-wrapper" ng-show="session.active">
+  <ul class="sidebar-nav" ng-style="sideStyle">
     <li class="sidebar-toggle">
       <a href="" ng-click="toggleSide=!toggleSide;onResize();" id="menu-toggle"
         ng-class="{'f-right': !toggleSide}"
