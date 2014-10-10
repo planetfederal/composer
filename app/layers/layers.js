@@ -1,5 +1,5 @@
 angular.module('gsApp.layers', [
-  'gsApp.workspaces.workspace.data',
+  'gsApp.workspaces.data',
   'ngGrid',
   'ui.select',
   'gsApp.layers.style'

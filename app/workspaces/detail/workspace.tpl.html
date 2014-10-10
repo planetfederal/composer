@@ -1,3 +1,19 @@
 <div>
-  <div ui-view></div>
+  <div class="container-fluid">
+    <h3 class="section-title">
+      <a ng-click="go('workspace.maps')">
+        <i class="icon-lg icon-folder-open"></i> 
+        {{ title }}
+      </a>
+      <span class="pull-right"><a ng-click="go('workspace.settings')">
+        <i class="fa fa-gear"></i></a>
+      </span>
+    </h3>
+    <tabset class="maps-data-tabs" ng-show="!showSettings">
+      <tab ng-repeat="t in tabs" heading="{{t.heading}}" 
+        select="selectTab(t)" active="t.active">
+       </tab>
+     </tabset>
+     <div ui-view></div>
+  </div>
 </div>

@@ -1,0 +1,51 @@
+<p>
+  <strong>{{ datastores.length }}</strong> data store<span ng-if="datastores.length > 1">s</span> in <strong>{{ workspace }}</strong>
+  <span class="data-store-crud">
+    <i class="fa fa-plus circular-icon" ng-click="addNewStore();"></i>
+    <i class="fa fa-minus circular-icon" ng-click="deleteStore();"></i>
+    <i class="fa fa-gear circular-icon" ng-click="updateStore();"></i>
+  </span>
+</p>
+<div class="row datastores">
+  <div class="col-sm-6">
+    <ul class="list-unstyled stores-list" ng-style="storesListHeight">
+      <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
+        <div class="icon-column">
+          <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.sourcetype=='shp', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
+          <p class="datastore-label">{{ ds.sourcetype }}</p>
+        </div>
+        <div class="info-column">
+          <p><strong>Store:</strong> {{ ds.name }}</p>
+          <p class="trim-info" pop="{{ds.source}}" pop-show="{{ ds.showSourcePopover }}" ng-click="closePopovers(ds);" pop-title="Store: {{ds.name}}"><strong>Source:</strong><span class="source-info"> {{ ds.source | truncate:false:19:true }}</span></p>
+          <p><strong>Description:</strong> {{ ds.description }}</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-sm-6">
+    <div>
+      <p class="x-imported">
+        <span style="float:left;" ng-if="selectedStore"><strong>Imported:</strong> {{ selectedStore.imported}} Layers</span>
+        <span style="float:right;" ng-if="selectedStore">{{ selectedStore.unimported }} more available</span>
+      </p>
+      <div class="imports">
+        <ul class="list-unstyled">
+          <li class="layer_imported" ng-repeat="imported_layer in selectedStore.layers_imported">
+            <div class="img_placeholder"></div>
+            <div class="layer_info">
+              <div class="info"><strong>Name:</strong> {{ imported_layer }}</div>
+              <div class="info"><strong>Title:</strong>  {{ imported_layer }}</div>
+              <div class="info"><strong>Type:</strong>  {{ imported_layer }}</div>
+            </div>
+            <div class="srs_info">
+              <div class="label">SRS</div>
+              <div class="label">EPSG:4326</div>
+              <div class="attr_info">
+                <i class="fa fa-list-alt fa-lg"></i> <span class="label">View Attributes</span>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>

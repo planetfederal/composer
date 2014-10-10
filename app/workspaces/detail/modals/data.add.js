@@ -1,15 +1,13 @@
-angular.module('gsApp.workspaces.workspace.data.create', [
+angular.module('gsApp.workspaces.data.add', [
   'ngSanitize', 'angularFileUpload'
 ])
-.controller('AddStoreModalCtrl', ['$scope', '$modalInstance', 'workspace',
-  'geoserver', '$upload', '$timeout', '$sce',
-  function ($scope, $modalInstance, workspace, geoserver, $upload, $timeout,
-   $sce) {
+.controller('WorkspaceAddDataCtrl', ['workspace', '$scope', '$modalInstance',
+  '$upload', '$timeout', 'GeoServer',
+  function (workspace, $scope, $modalInstance, $upload, $timeout, GeoServer) {
 
     $scope.title = 'New Data Store';
 
     $scope.workspace = workspace;
-    $scope.geoserver = geoserver;
     $scope.selected = {
       item: $scope.workspace
     };
@@ -99,7 +97,7 @@ angular.module('gsApp.workspaces.workspace.data.create', [
       $scope.loadStarted = false;
 
       $scope.upload[index] = $upload.upload({
-        url: geoserver.import.getImportUrl($scope.workspace),
+        url: GeoServer.import.getImportUrl($scope.workspace),
         method: 'POST',
         file: $scope.selectedFiles[index]
       });
@@ -184,7 +182,7 @@ angular.module('gsApp.workspaces.workspace.data.create', [
       if ($scope.upload[index]) {
         lastTriedValue = $scope.upload[index];
       }
-      geoserver.import.update(
+      GeoServer.import.update(
         $scope.workspace, lastTriedValue.rememberId,
         {
           'task': lastTriedValue.rememberTask,
