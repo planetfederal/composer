@@ -11,12 +11,16 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
+import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
@@ -32,6 +36,7 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
+import org.geoserver.platform.resource.ResourceStore;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.data.DataAccess;
@@ -49,6 +54,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -88,7 +94,7 @@ import com.google.common.collect.Iterables;
     
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody
- JSONObj get(@PathVariable String wsName, @PathVariable String name) {
+    JSONObj get(@PathVariable String wsName, @PathVariable String name) {
         StoreInfo store = findStore(wsName, name, geoServer.getCatalog());
         if (store == null) {
             throw new IllegalArgumentException("Store " + wsName + ":" + name + " not found");
@@ -99,6 +105,47 @@ import com.google.common.collect.Iterables;
             throw new RuntimeException(String.format("Error occured accessing store: %s,%s",wsName, name), e);
         }
     }
+    
+    @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.DELETE)
+    public @ResponseBody
+    JSONObj delete(@PathVariable String wsName, @PathVariable String name, HttpServletRequest req) {
+        boolean recurse = "true".equals(req.getParameter("recurse"));
+        StoreInfo store = findStore(wsName, name, geoServer.getCatalog());
+        Catalog cat = geoServer.getCatalog();
+        
+        List<ResourceInfo> layers = cat.getResourcesByStore(store, ResourceInfo.class );
+        if( layers.isEmpty() ){
+            cat.remove(store);
+        }
+        else if (recurse){
+            CascadeDeleteVisitor delete = new CascadeDeleteVisitor(cat);
+            if( store instanceof DataStoreInfo){
+                delete.visit((DataStoreInfo)store);
+            }
+            else if( store instanceof CoverageStoreInfo){
+                delete.visit((CoverageStoreInfo)store);
+            }
+            else if( store instanceof WMSStoreInfo){
+                delete.visit((WMSStoreInfo)store);
+            }
+            else {
+                throw new IllegalStateException( "Unable to delete "+name+" - expected data store, coverage store or wms store" );
+            }
+        }
+        else {
+            StringBuilder message = new StringBuilder();
+            message.append("Use recurse=true to remove ").append(name).append(" along with layers:");
+            for( ResourceInfo l : layers ){
+                message.append(' ').append(l.getName());
+            }
+            throw new IllegalStateException( message.toString() );
+        }
+        JSONObj json = new JSONObj();
+        json.put("name", name  )
+            .put("workspace", wsName  );
+        return json;
+    }
+    
 
     public enum Type {FILE,DATABASE,WEB,GENERIC;
         static Type of( StoreInfo store ){
