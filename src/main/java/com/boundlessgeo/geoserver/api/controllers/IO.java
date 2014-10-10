@@ -5,6 +5,7 @@ package com.boundlessgeo.geoserver.api.controllers;
 
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+import com.google.common.base.Throwables;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -244,5 +245,21 @@ public class IO {
         }
 
         return obj;
+    }
+
+    public static Object error(JSONObj json, Throwable error) {
+        if (error != null) {
+            String message = null;
+            JSONArr trace = new JSONArr();
+            for (Throwable t : Throwables.getCausalChain(error)) {
+                if (message == null && t.getMessage() != null) {
+                    message = t.getMessage();
+                }
+                trace.add(t.toString());
+            }
+            json.put("message", message != null ? message : error.toString())
+                .put("trace", trace);
+        }
+        return json;
     }
 }
