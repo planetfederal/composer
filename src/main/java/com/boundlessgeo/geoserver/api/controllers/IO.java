@@ -29,6 +29,7 @@ import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.util.logging.Logging;
 import org.ocpsoft.pretty.time.PrettyTime;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AssociationDescriptor;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
@@ -233,7 +234,7 @@ public class IO {
         return bbox;
     }
     
-    public static JSONObj schema( JSONObj schema, FeatureType type ){
+    public static JSONObj schema( JSONObj schema, FeatureType type, boolean details){
         if( type != null ){
             schema.put("name", type.getName().getLocalPart() );
             schema.put("namespace", type.getName().getNamespaceURI() );
@@ -242,49 +243,68 @@ public class IO {
             for( PropertyDescriptor d : type.getDescriptors() ){
                 PropertyType t = d.getType();
                 final String NAME = d.getName().getLocalPart();
+                String kind;
+                if (d instanceof GeometryDescriptor){
+                    kind = "geometry";
+                }
+                else if( d instanceof AttributeDescriptor){
+                    kind = "attribute";
+                }
+                else if (d instanceof AssociationDescriptor){
+                    kind = "association";
+                }
+                else {
+                    kind = "property";
+                }
                 JSONObj property = attributes.addObject()
                     .put("name", NAME )
-                    .put("namespace", d.getName().getNamespaceURI() )
-                    .put("description", t.getDescription() )
-                    .put("type", t.getBinding().getSimpleName() )
-                    .put("min-occurs",d.getMinOccurs() )
-                    .put("max-occurs",d.getMaxOccurs() )
-                    .put("nillable",d.isNillable());
+                    .put("property", kind )
+                    .put("type", t.getBinding().getSimpleName() );
                 
-                int length = FeatureTypes.getFieldLength(d);
-                if( length != FeatureTypes.ANY_LENGTH ){
-                    property.put("length", length );
-                }
-                
-                if( d instanceof AttributeDescriptor){
-                    AttributeDescriptor a = (AttributeDescriptor) d;
-                    property.put("default-value", a.getDefaultValue() );
-                }
                 if( d instanceof GeometryDescriptor){
                     GeometryDescriptor g = (GeometryDescriptor) d;                    
                     proj( property.putObject("proj"), g.getCoordinateReferenceSystem(), null );
                 }
-                if( !t.getRestrictions().isEmpty() ){
-                    JSONArr validate = property.putArray("validate");
-                    for( Filter f : t.getRestrictions() ){
-                        String cql;
-                        try {
-                            Filter clean = (Filter) f.accept( new DuplicatingFilterVisitor(){
-                                public PropertyName visit(PropertyName e, Object extraData ){
-                                    String n = e.getPropertyName();
-                                    return getFactory(extraData).property(
-                                            ".".equals(n) ? NAME : n,
-                                            e.getNamespaceContext());
-                                }
-                            }, null );
-                            cql = ECQL.toCQL(clean);
-                        }
-                        catch (Throwable ignore ){
-                            ignore.printStackTrace();
-                            cql = f.toString();
-                        }
-                        validate.add( cql );
-                    }                    
+
+                if( details){
+                    property
+                        .put("namespace", d.getName().getNamespaceURI() )
+                        .put("description", t.getDescription() )
+                        .put("min-occurs",d.getMinOccurs() )
+                        .put("max-occurs",d.getMaxOccurs() )
+                        .put("nillable",d.isNillable());
+                
+                    int length = FeatureTypes.getFieldLength(d);
+                    if( length != FeatureTypes.ANY_LENGTH ){
+                        property.put("length", length );
+                    }
+                    
+                    if( d instanceof AttributeDescriptor){
+                        AttributeDescriptor a = (AttributeDescriptor) d;
+                        property.put("default-value", a.getDefaultValue() );
+                    }
+                    if( !t.getRestrictions().isEmpty() ){
+                        JSONArr validate = property.putArray("validate");
+                        for( Filter f : t.getRestrictions() ){
+                            String cql;
+                            try {
+                                Filter clean = (Filter) f.accept( new DuplicatingFilterVisitor(){
+                                    public PropertyName visit(PropertyName e, Object extraData ){
+                                        String n = e.getPropertyName();
+                                        return getFactory(extraData).property(
+                                                ".".equals(n) ? NAME : n,
+                                                e.getNamespaceContext());
+                                    }
+                                }, null );
+                                cql = ECQL.toCQL(clean);
+                            }
+                            catch (Throwable ignore ){
+                                ignore.printStackTrace();
+                                cql = f.toString();
+                            }
+                            validate.add( cql );
+                        }                    
+                    }
                 }
             }
         }
@@ -294,38 +314,49 @@ public class IO {
     /**
      * Generate schema for GridCoverageSchema (see {@link FeatureUtilities#wrapGridCoverage}).
      */
-    public static JSONObj schemaGrid( JSONObj schema, CoverageInfo info ){
+    public static JSONObj schemaGrid( JSONObj schema, CoverageInfo info, boolean details ){
         if( info != null ){
             CoordinateReferenceSystem crs = info.getCRS() != null
                     ? info.getCRS()
                     : info.getNativeCRS();
-            schemaGrid( schema, crs );
+            schemaGrid( schema, crs, details );
         }
         return schema;
     }
-    public static JSONObj schemaGrid( JSONObj schema, CoordinateReferenceSystem crs ){
+    public static JSONObj schemaGrid( JSONObj schema, CoordinateReferenceSystem crs, boolean details){
         schema.put("name", "GridCoverage" );
         schema.put("simple", true );
         JSONArr attributes = schema.putArray("attributes");
         JSONObj geom = attributes.addObject()
             .put("name", "geom" )
-            .put("type", "Polygon" )
-            .put("min-occurs",0)
-            .put("max-occurs",1)
-            .put("nillable",true)
-            .put("default-value",null);   
-        
+            .put("property", "geometry" )
+            .put("type", "Polygon" );
+
         if( crs != null ){
             proj( geom.putObject("proj"), crs, null );
-        }            
-        attributes.addObject()
+        }
+        
+        if( details ){
+            geom
+                .put("min-occurs",0)
+                .put("max-occurs",1)
+                .put("nillable",true)
+                .put("default-value",null);   
+        
+        }
+        JSONObj grid = attributes.addObject()
             .put("name", "grid" )
-            .put("type", "grid" )
-            .put("binding", "GridCoverage" )
-            .put("min-occurs",0)
-            .put("max-occurs",1)
-            .put("nillable",true)
-            .put("default-value",null);
+            .put("property", "attribute" )
+            .put("type", "grid" );
+        
+        if( details ){
+            grid
+                .put("binding", "GridCoverage" )
+                .put("min-occurs",0)
+                .put("max-occurs",1)
+                .put("nillable",true)
+                .put("default-value",null);
+        }
         return schema;
     }
     
