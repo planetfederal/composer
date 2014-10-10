@@ -1,16 +1,12 @@
-angular.module('gsApp.workspaces.workspace.maps.create', [
+angular.module('gsApp.workspaces.maps.new', [
   'ngSanitize',
   'gsApp.alertpanel'
 ])
-.controller('NewMapModalCtrl', ['$scope', '$modalInstance', 'workspace',
-  'geoserver', 'maps', '$timeout', '$sce', '$http',
-  function ($scope, $modalInstance, workspace, geoserver, maps, $timeout,
-   $sce, $http) {
+.controller('WorkspaceNewMapCtrl', ['workspace', '$scope', '$modalInstance',
+  function (workspace, $scope, $modalInstance, GeoServer) {
 
     $scope.workspace = workspace;
-    $scope.geoserver = geoserver;
-    $scope.maps = maps;
-    $scope.mapSettings = {};
+    $scope.map = {};
 
     $scope.ok = function () {
       $modalInstance.close();

@@ -1,18 +1,28 @@
-angular.module('gsApp.workspaces.workspace.data', [
-  'gsApp.workspaces.workspace.data.create',
-  'gsApp.workspaces.workspace.data.update',
-  'gsApp.workspaces.workspace.data.delete',
+angular.module('gsApp.workspaces.data', [
+  'gsApp.workspaces.data.add',
+  'gsApp.workspaces.data.delete',
+  'gsApp.workspaces.data.update',
   'gsApp.core.utilities',
   'gsApp.alertpanel',
   'ngSanitize'
 ])
-.controller('WorkspaceDataCtrl', ['$scope', '$stateParams', 'GeoServer',
-  '$log', '$sce', 'baseUrl', '$window', '$state', '$location', '$modal',
-  '$rootScope', 'AppEvent',
-    function($scope, $stateParams, GeoServer, $log, $sce, baseUrl,
-      $window, $state, $location, $modal, $rootScope, AppEvent) {
+.config(['$stateProvider',
+    function($stateProvider) {
+      $stateProvider.state('workspace.data', {
+        url: '/data',
+        templateUrl: '/workspaces/detail/data.tpl.html',
+        controller: 'WorkspaceDataCtrl'
+      });
+    }])
+.controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
+  '$stateParams', '$modal', '$window', '$log', 'GeoServer',
+    function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
+      GeoServer) {
 
       var workspace = $scope.workspace;
+
+      // Set stores list to window height
+      $scope.storesListHeight = {'height': $window.innerHeight-250};
 
       GeoServer.datastores.get($scope.workspace).then(
         function(result) {
@@ -67,15 +77,12 @@ angular.module('gsApp.workspaces.workspace.data', [
 
       $scope.addNewStore = function() {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/addstore-modal.tpl.html',
-          controller: 'AddStoreModalCtrl',
+          templateUrl: '/workspaces/detail/modals/data.add.tpl.html',
+          controller: 'WorkspaceAddDataCtrl',
           size: 'lg',
           resolve: {
             workspace: function() {
               return $scope.workspace;
-            },
-            geoserver: function() {
-              return GeoServer;
             }
           }
         });
@@ -83,15 +90,12 @@ angular.module('gsApp.workspaces.workspace.data', [
 
       $scope.deleteStore = function() {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/deletestore-modal.tpl.html',
-          controller: 'DeleteStoreModalCtrl',
+          templateUrl: '/workspaces/detail/modals/data.delete.tpl.html',
+          controller: 'WorkspaceDeleteDataCtrl',
           size: 'md',
           resolve: {
             workspace: function() {
               return $scope.workspace;
-            },
-            geoserver: function() {
-              return GeoServer;
             },
             store: function() {
               return $scope.selectedStore;
@@ -102,15 +106,12 @@ angular.module('gsApp.workspaces.workspace.data', [
 
       $scope.updateStore = function() {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/updatestore-modal.tpl.html',
-          controller: 'UpdateStoreModalCtrl',
+          templateUrl: '/workspaces/detail/modals/data.update.tpl.html',
+          controller: 'WorkspaceUpdateDataCtrl',
           size: 'md',
           resolve: {
             workspace: function() {
               return $scope.workspace;
-            },
-            geoserver: function() {
-              return GeoServer;
             },
             store: function() {
               return $scope.selectedStore;

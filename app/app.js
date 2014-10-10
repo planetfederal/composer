@@ -15,8 +15,8 @@ angular.module('gsApp', [
   'gsApp.maps',
   'gsApp.data'
 ])
-.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$log', '$window',
-    function($scope, $state, AppEvent, AppSession, $log, $window) {
+.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window',
+    function($scope, $state, AppEvent, AppSession, $window) {
       $scope.session = AppSession;
 
       var height = $window.innerHeight - 65;
