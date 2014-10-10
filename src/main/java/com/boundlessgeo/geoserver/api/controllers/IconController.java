@@ -190,18 +190,12 @@ public class IconController extends ApiController {
     @ExceptionHandler(FileUploadException.class)
     public @ResponseBody JSONObj error(FileUploadException e, HttpServletResponse response) {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
-        JSONObj obj = new JSONObj()
-            .put("message", e.getMessage())
-            .put("trace", AppExceptionHandler.trace(e));
-        return obj;
+        return IO.error(new JSONObj(), e );
     }
     @ExceptionHandler(IllegalArgumentException.class)
     public @ResponseBody JSONObj error(IllegalArgumentException e, HttpServletResponse response) {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
-        JSONObj obj = new JSONObj()
-            .put("message", e.getMessage())
-            .put("trace", AppExceptionHandler.trace(e));
-        return obj;
+        return IO.error(new JSONObj(), e );
     }
     
 

@@ -247,18 +247,22 @@ public class IO {
         return obj;
     }
 
-    public static Object error(JSONObj json, Throwable error) {
+    public static JSONObj error(JSONObj json, Throwable error) {
         if (error != null) {
             String message = null;
-            JSONArr trace = new JSONArr();
+            JSONArr cause = new JSONArr();
             for (Throwable t : Throwables.getCausalChain(error)) {
                 if (message == null && t.getMessage() != null) {
                     message = t.getMessage();
                 }
-                trace.add(t.toString());
+                cause.add(t.toString());
             }
             json.put("message", message != null ? message : error.toString())
-                .put("trace", trace);
+                .put("cause", cause)
+                .put("trace", Throwables.getStackTraceAsString(error));
+        }
+        else {
+            json.put("message", "Unknown error");
         }
         return json;
     }

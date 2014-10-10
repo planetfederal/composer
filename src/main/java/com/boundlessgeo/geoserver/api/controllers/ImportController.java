@@ -241,16 +241,7 @@ public class ImportController extends ApiController {
 
     JSONObj failed(ImportTask task) {
         JSONObj err = task(task);
-
-        if (task.getError() != null) {
-            Exception e = task.getError();
-            err.put("message", e.getMessage())
-                    .put("trace", AppExceptionHandler.trace(e));
-        }
-        else {
-            err.put("message", "Unknown error");
-        }
-
+        IO.error(err, task.getError() );
         return err;
     }
 
