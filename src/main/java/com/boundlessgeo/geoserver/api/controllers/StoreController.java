@@ -8,7 +8,9 @@ import com.boundlessgeo.geoserver.json.JSONObj;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
+
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.ResourceInfo;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Nullable;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -76,17 +79,15 @@ import static org.geoserver.catalog.Predicates.equal;
     
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody
-    JSONObj get(@PathVariable String wsName, @PathVariable String name) {
+ JSONObj get(@PathVariable String wsName, @PathVariable String name) {
         StoreInfo store = findStore(wsName, name, geoServer.getCatalog());
-        if( store == null ){
-            throw new IllegalArgumentException("Store "+wsName+":"+name+" not found");
+        if (store == null) {
+            throw new IllegalArgumentException("Store " + wsName + ":" + name + " not found");
         }
-
         try {
             return storeDetails(new JSONObj(), store);
-        }
-        catch(IOException e) {
-            throw new RuntimeException(String.format("Error occured accessing store: %s,%s", wsName, name), e);
+        } catch (IOException e) {
+            throw new RuntimeException(String.format("Error occured accessing store: %s,%s",wsName, name), e);
         }
     }
 
@@ -187,14 +188,7 @@ import static org.geoserver.catalog.Predicates.equal;
             json.put("wms", info.getCapabilitiesURL());
         }
         json.put("connection", connection );
-        
-        Throwable error = store.getError();
-        if (error != null) {
-            json.putObject("error")
-                .put("message", error.getMessage())
-                .put("trace", Throwables.getStackTraceAsString(error));
-        }
-
+        json.put("error", IO.error( new JSONObj(), store.getError()));
         layers(store, json.putArray("layers"));
 
         if(store.isEnabled()){
@@ -228,19 +222,28 @@ import static org.geoserver.catalog.Predicates.equal;
         for (String resource : listResources(store)) {
             JSONObj obj = list.addObject();
             obj.put("name", resource);
-
-            Filter filter = and(equal("namespace.prefix", ws.getName()), equal("nativeName", resource));
-            try (
-                CloseableIterator<ResourceInfo> published = cat.list(ResourceInfo.class, filter);
-            ) {
-                JSONArr layers = obj.putArray("layers");
-                while(published.hasNext()) {
-                    ResourceInfo r = published.next();
+            JSONArr layers = obj.putArray("layers");
+            if (store instanceof CoverageStoreInfo) {
+                // coverage store does not respect native name so we search by id
+                for (CoverageInfo r : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {
                     layers.addObject().put("name", r.getName()).put("workspace", ws.getName());
                 }
             }
+            else {
+                Filter filter = and(equal("namespace.prefix", ws.getName()),equal("nativeName", resource));
+                try (
+                    CloseableIterator<ResourceInfo> published = cat.list(ResourceInfo.class, filter);
+                ) {
+                    while (published.hasNext()) {
+                        ResourceInfo r = published.next();
+                        if (r.getStore().getId().equals(store.getId())) {
+                            // native name is not enough, double check store id
+                            layers.addObject().put("name", r.getName()).put("workspace", ws.getName());
+                        }
+                    }
+                }                
+            }
         }
-
         return list;
     }
 
@@ -334,34 +337,37 @@ import static org.geoserver.catalog.Predicates.equal;
         return "undertermined";
     }
     
-    String source( File file ){
+    String source(File file) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
         return file.isAbsolute() ? file.toString() : Paths.convert(baseDirectory,file);
     }
-    String source( URL url ){
+
+    String source(URL url) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
         
-        if( url.getProtocol().equals("file")){
-            File file = Files.url(baseDirectory,url.toExternalForm());
-            if( file != null && !file.isAbsolute() ){
+        if (url.getProtocol().equals("file")) {
+            File file = Files.url(baseDirectory, url.toExternalForm());
+            if (file != null && !file.isAbsolute()) {
                 return Paths.convert(baseDirectory, file); 
             }
         }
         return url.toExternalForm();
     }
-    String sourceURL( String  url ){
+
+    String sourceURL(String url) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
 
-        File file = Files.url(baseDirectory,url);
+        File file = Files.url(baseDirectory, url);
         if( file != null ){
             return Paths.convert(baseDirectory, file); 
         }
         return url;
     }
-    String sourceFile( String file ){
+
+    String sourceFile(String file) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
 
         File f = new File( file );
-        return f.isAbsolute() ? file : Paths.convert(baseDirectory,f);
+        return f.isAbsolute() ? file : Paths.convert(baseDirectory, f);
     }
 }
