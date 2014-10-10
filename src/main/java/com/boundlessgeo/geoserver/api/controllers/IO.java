@@ -3,42 +3,49 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.apache.commons.httpclient.util.DateUtil;
+import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.Info;
+import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.wms.WMSInfo;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.feature.FeatureTypes;
+import org.geotools.filter.text.ecql.ECQL;
+import org.geotools.filter.visitor.DuplicatingFilterVisitor;
+import org.geotools.geometry.jts.Geometries;
+import org.geotools.referencing.CRS;
+import org.geotools.resources.coverage.FeatureUtilities;
+import org.geotools.util.logging.Logging;
+import org.ocpsoft.pretty.time.PrettyTime;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.feature.type.PropertyType;
+import org.opengis.filter.Filter;
+import org.opengis.filter.expression.PropertyName;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.crs.GeographicCRS;
+import org.opengis.referencing.crs.ProjectedCRS;
+
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.google.common.base.Throwables;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-
-import org.apache.commons.httpclient.util.DateParseException;
-import org.apache.commons.httpclient.util.DateUtil;
-import org.geoserver.catalog.CoverageInfo;
-import org.geoserver.catalog.FeatureTypeInfo;
-import org.geoserver.catalog.Info;
-import org.geoserver.catalog.LayerInfo;
-import org.geoserver.catalog.MetadataMap;
-import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.wms.WMSInfo;
-import org.geotools.geometry.jts.Geometries;
-import org.geotools.referencing.CRS;
-import org.geotools.util.logging.Logging;
-import org.ocpsoft.pretty.time.PrettyTime;
-import org.opengis.feature.type.FeatureType;
-import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.GeographicCRS;
-import org.opengis.referencing.crs.ProjectedCRS;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Helper for encoding/decoding objects to/from JSON.
@@ -225,7 +232,103 @@ public class IO {
         bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());       
         return bbox;
     }
-
+    
+    public static JSONObj schema( JSONObj schema, FeatureType type ){
+        if( type != null ){
+            schema.put("name", type.getName().getLocalPart() );
+            schema.put("namespace", type.getName().getNamespaceURI() );
+            schema.put("simple", type instanceof SimpleFeatureType );
+            JSONArr attributes = schema.putArray("attributes");
+            for( PropertyDescriptor d : type.getDescriptors() ){
+                PropertyType t = d.getType();
+                final String NAME = d.getName().getLocalPart();
+                JSONObj property = attributes.addObject()
+                    .put("name", NAME )
+                    .put("namespace", d.getName().getNamespaceURI() )
+                    .put("description", t.getDescription() )
+                    .put("type", t.getBinding().getSimpleName() )
+                    .put("min-occurs",d.getMinOccurs() )
+                    .put("max-occurs",d.getMaxOccurs() )
+                    .put("nillable",d.isNillable());
+                
+                int length = FeatureTypes.getFieldLength(d);
+                if( length != FeatureTypes.ANY_LENGTH ){
+                    property.put("length", length );
+                }
+                
+                if( d instanceof AttributeDescriptor){
+                    AttributeDescriptor a = (AttributeDescriptor) d;
+                    property.put("default-value", a.getDefaultValue() );
+                }
+                if( d instanceof GeometryDescriptor){
+                    GeometryDescriptor g = (GeometryDescriptor) d;                    
+                    proj( property.putObject("proj"), g.getCoordinateReferenceSystem(), null );
+                }
+                if( !t.getRestrictions().isEmpty() ){
+                    JSONArr validate = property.putArray("validate");
+                    for( Filter f : t.getRestrictions() ){
+                        String cql;
+                        try {
+                            Filter clean = (Filter) f.accept( new DuplicatingFilterVisitor(){
+                                public PropertyName visit(PropertyName e, Object extraData ){
+                                    String n = e.getPropertyName();
+                                    return getFactory(extraData).property(
+                                            ".".equals(n) ? NAME : n,
+                                            e.getNamespaceContext());
+                                }
+                            }, null );
+                            cql = ECQL.toCQL(clean);
+                        }
+                        catch (Throwable ignore ){
+                            ignore.printStackTrace();
+                            cql = f.toString();
+                        }
+                        validate.add( cql );
+                    }                    
+                }
+            }
+        }
+        return schema;
+    }
+    
+    /**
+     * Generate schema for GridCoverageSchema (see {@link FeatureUtilities#wrapGridCoverage}).
+     */
+    public static JSONObj schemaGrid( JSONObj schema, CoverageInfo info ){
+        if( info != null ){
+            CoordinateReferenceSystem crs = info.getCRS() != null
+                    ? info.getCRS()
+                    : info.getNativeCRS();
+            schemaGrid( schema, crs );
+        }
+        return schema;
+    }
+    public static JSONObj schemaGrid( JSONObj schema, CoordinateReferenceSystem crs ){
+        schema.put("name", "GridCoverage" );
+        schema.put("simple", true );
+        JSONArr attributes = schema.putArray("attributes");
+        JSONObj geom = attributes.addObject()
+            .put("name", "geom" )
+            .put("type", "Polygon" )
+            .put("min-occurs",0)
+            .put("max-occurs",1)
+            .put("nillable",true)
+            .put("default-value",null);   
+        
+        if( crs != null ){
+            proj( geom.putObject("proj"), crs, null );
+        }            
+        attributes.addObject()
+            .put("name", "grid" )
+            .put("type", "grid" )
+            .put("binding", "GridCoverage" )
+            .put("min-occurs",0)
+            .put("max-occurs",1)
+            .put("nillable",true)
+            .put("default-value",null);
+        return schema;
+    }
+    
     private static PrettyTime PRETTY_TIME = new PrettyTime();
 
     static JSONObj date(JSONObj obj, Date date) {

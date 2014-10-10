@@ -3,39 +3,8 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-import com.google.common.base.Function;
-import com.google.common.base.Throwables;
-import com.google.common.collect.Iterables;
-
-import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.CoverageInfo;
-import org.geoserver.catalog.CoverageStoreInfo;
-import org.geoserver.catalog.DataStoreInfo;
-import org.geoserver.catalog.ResourceInfo;
-import org.geoserver.catalog.ResourcePool;
-import org.geoserver.catalog.StoreInfo;
-import org.geoserver.catalog.WMSStoreInfo;
-import org.geoserver.catalog.WorkspaceInfo;
-import org.geoserver.catalog.util.CloseableIterator;
-import org.geoserver.config.GeoServer;
-import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.Files;
-import org.geoserver.platform.resource.Paths;
-import org.geotools.data.ows.Layer;
-import org.geotools.util.Converters;
-import org.geotools.util.logging.Logging;
-import org.opengis.feature.type.Name;
-import org.opengis.filter.Filter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.annotation.Nullable;
+import static org.geoserver.catalog.Predicates.and;
+import static org.geoserver.catalog.Predicates.equal;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +15,51 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
-import static org.geoserver.catalog.Predicates.and;
-import static org.geoserver.catalog.Predicates.equal;
+import javax.annotation.Nullable;
+
+import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.CoverageStoreInfo;
+import org.geoserver.catalog.DataStoreInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.ResourcePool;
+import org.geoserver.catalog.StoreInfo;
+import org.geoserver.catalog.WMSStoreInfo;
+import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.util.CloseableIterator;
+import org.geoserver.config.GeoServer;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Files;
+import org.geoserver.platform.resource.Paths;
+import org.geotools.coverage.grid.io.AbstractGridCoverage2DReader;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridCoverage2DReader;
+import org.geotools.data.DataAccess;
+import org.geotools.data.DataStore;
+import org.geotools.data.ows.Layer;
+import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.feature.NameImpl;
+import org.geotools.util.Converters;
+import org.geotools.util.NullProgressListener;
+import org.geotools.util.logging.Logging;
+import org.opengis.coverage.grid.GridCoverageReader;
+import org.opengis.feature.Feature;
+import org.opengis.feature.type.FeatureType;
+import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
 
 /**
  * Used to connect to data storage (file, database, or service).
@@ -208,7 +220,7 @@ import static org.geoserver.catalog.Predicates.equal;
         ) {
             while(layers.hasNext()) {
                 ResourceInfo r = layers.next();
-                list.addObject().put("name", r.getName()).put("workspace", ws.getName());
+                layer( list.addObject(), r, true );
             }
         }
 
@@ -222,11 +234,35 @@ import static org.geoserver.catalog.Predicates.equal;
         for (String resource : listResources(store)) {
             JSONObj obj = list.addObject();
             obj.put("name", resource);
+            
+            if(store instanceof DataStoreInfo){
+                DataStoreInfo data = (DataStoreInfo) store;
+                DataAccess dataStore = data.getDataStore(new NullProgressListener());
+                
+                FeatureType schema = dataStore instanceof DataStore
+                        ? ((DataStore)dataStore).getSchema(resource)
+                        : dataStore.getSchema( new NameImpl(resource) );
+                
+                IO.schema( obj.putObject("schema"), schema );
+            }
+            if(store instanceof CoverageStoreInfo){
+                CoverageStoreInfo data = (CoverageStoreInfo) store;
+                GridCoverageReader r = data.getGridCoverageReader(null, null);
+                if( r instanceof GridCoverage2DReader){
+                    GridCoverage2DReader reader = (GridCoverage2DReader) r;
+                    CoordinateReferenceSystem crs = reader.getCoordinateReferenceSystem(resource);
+                    IO.schemaGrid( obj.putObject("schema"), crs );
+                }
+                else {
+                    IO.schemaGrid( obj.putObject("schema"), AbstractGridFormat.getDefaultCRS());
+                }
+            }
+            
             JSONArr layers = obj.putArray("layers");
             if (store instanceof CoverageStoreInfo) {
                 // coverage store does not respect native name so we search by id
-                for (CoverageInfo r : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {
-                    layers.addObject().put("name", r.getName()).put("workspace", ws.getName());
+                for (CoverageInfo info : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {               
+                    layer( layers.addObject(), info, false );
                 }
             }
             else {
@@ -235,16 +271,36 @@ import static org.geoserver.catalog.Predicates.equal;
                     CloseableIterator<ResourceInfo> published = cat.list(ResourceInfo.class, filter);
                 ) {
                     while (published.hasNext()) {
-                        ResourceInfo r = published.next();
-                        if (r.getStore().getId().equals(store.getId())) {
-                            // native name is not enough, double check store id
-                            layers.addObject().put("name", r.getName()).put("workspace", ws.getName());
+                        ResourceInfo info = published.next();
+                        if (!info.getStore().getId().equals(store.getId())) {
+                            continue; // native name is not enough, double check store id
                         }
+                        layer( layers.addObject(), info, false );
                     }
-                }                
+                }
             }
         }
         return list;
+    }
+    
+    JSONObj layer( JSONObj json, ResourceInfo info, boolean details ){
+        json.put("name", info.getName())
+            .put("workspace", info.getStore().getWorkspace().getName() );
+        
+        if( details ){
+            if (info instanceof FeatureTypeInfo) {
+                FeatureTypeInfo data = (FeatureTypeInfo) info;
+                try {
+                    IO.schema(json.putObject("schema"), data.getFeatureType());
+                } catch (IOException e) {
+                }
+            }
+           else if (info instanceof CoverageInfo ){
+               CoverageInfo data = (CoverageInfo) info;
+               IO.schemaGrid(json.putObject("schema"),data); 
+           }
+       }
+       return json;
     }
 
     Iterable<String> listResources(StoreInfo store) throws IOException {
