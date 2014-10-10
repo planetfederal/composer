@@ -6,20 +6,20 @@
         <form name="createform.settings" role="form" class="settings">
           <div class="form-group">
             <label for="workspaceName">Workspace Name</label>
-            <input type="text" class="form-control input-sm" name="name" ng-model="createSettings.name" ng-maxlength="10" ng-minlength="1" required ng-blur="updateUri(this)" ng-pattern="/^[^\s]+$/">
+            <input type="text" class="form-control input-sm" name="name" ng-model="workspace.name" ng-maxlength="10" ng-minlength="1" required ng-blur="updateUri(this)" ng-pattern="/^[^\s]+$/">
             <span ng-show="createform.settings.name.$error.pattern" class="error">No spaces allowed.</span>
             <span ng-show="createform.settings.name.$error.maxlength" class="error">Max 10 characters.</span>
             <small>(Max 10 characters, no spaces.)</small>
           </div>
           <div class="form-group" name="createWorkspace">
             <label for="workspaceUri">Namespace URI</label>
-            <input type="url" class="form-control input-sm" name="uri" ng-model="createSettings.uri" ng-minlength="1" http-prefix>
+            <input type="url" class="form-control input-sm" name="uri" ng-model="workspace.uri" ng-minlength="1" http-prefix>
             <span ng-show="createform.settings.uri.$error.required" class="error">Required</span>
             <small>(A unique resource identifier internal to GeoServer)</small>
           </div>
           <div class="checkbox">
             <label>
-              <input type="checkbox" ng-model="createSettings.default" name="default"> Default Workspace?
+              <input type="checkbox" ng-model="workspace.default" name="default"> Default Workspace?
             </label>
           </div>
         </form>

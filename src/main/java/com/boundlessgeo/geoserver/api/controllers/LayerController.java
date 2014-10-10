@@ -286,11 +286,8 @@ public class LayerController extends ApiController {
     @ExceptionHandler(InvalidYsldException.class)
     public @ResponseBody JSONObj error(InvalidYsldException e, HttpServletResponse response) {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
-
-        JSONObj obj = new JSONObj()
-            .put("message", e.getMessage())
-            .put("trace", AppExceptionHandler.trace(e));
-
+        
+        JSONObj obj = IO.error(new JSONObj(), e);
         JSONArr errors = obj.putArray("errors");
         for (MarkedYAMLException error : e.errors()) {
             JSONObj err = errors.addObject()

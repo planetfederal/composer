@@ -1,15 +1,24 @@
-angular.module('gsApp.workspaces.workspace.maps', [
-  'gsApp.workspaces.workspace.maps.create',
+angular.module('gsApp.workspaces.maps', [
+  'gsApp.workspaces.maps.new',
   'gsApp.alertpanel',
   'ngSanitize'
 ])
-.controller('WorkspaceMapsCtrl', ['$scope', '$stateParams', 'GeoServer',
-  '$log', '$sce', 'baseUrl', '$window', '$state', '$location', '$modal',
-  '$rootScope', 'AppEvent',
-    function($scope, $stateParams, GeoServer, $log, $sce, baseUrl,
-      $window, $state, $location, $modal, $rootScope, AppEvent) {
+.config(['$stateProvider',
+    function($stateProvider) {
+      $stateProvider.state('workspace.maps', {
+        url: '/maps',
+        templateUrl: '/workspaces/detail/maps.tpl.html',
+        controller: 'WorkspaceMapsCtrl'
+      });
+    }])
+.controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
+  '$sce', '$window', '$modal', '$log', 'GeoServer',
+    function($scope, $state, $stateParams, $sce, $window, $modal, $log,
+      GeoServer) {
 
       var workspace = $scope.workspace;
+      $scope.thumbnails = {};
+      $scope.olmaps = {};
 
       GeoServer.maps.get(workspace).then(
         function(result) {
@@ -61,15 +70,12 @@ angular.module('gsApp.workspaces.workspace.maps', [
 
       $scope.addNewMap = function() {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/newmap-modal.tpl.html',
-          controller: 'NewMapModalCtrl',
+          templateUrl: '/workspaces/detail/modals/map.new.tpl.html',
+          controller: 'WorkspaceNewMapCtrl',
           size: 'md',
           resolve: {
             workspace: function() {
               return $scope.workspace;
-            },
-            geoserver: function() {
-              return GeoServer;
             },
             maps: function() {
               return $scope.maps;

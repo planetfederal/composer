@@ -1,0 +1,24 @@
+<p>
+  <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length > 1">s</span> in <strong>{{ workspace }}</strong>
+  <span class="maps-crud pull-right">
+    <i class="fa fa-plus circular-icon" ng-click="addNewMap();"></i>
+    <i class="fa fa-minus circular-icon"></i>
+    <i class="fa fa-gear circular-icon"></i>
+  </span>
+</p>
+<div ng-repeat="map in maps" class="map-summary">
+  <div class="row" ng-if="$index % 2 == 0">
+    <div class="col-sm-6">
+      <a href="" ng-click="onEdit(map)">
+        <img ng-src="{{ thumbnails[map.name] }}" height="250" width="250" title="Edit Map" />
+      </a>
+      <div class="map-summary-detail">
+        <h4>{{ map.title }}</h4>
+        <p>{{ map.layer_count }} Layers</p>
+        <p>{{ map.proj.srs }}</p>
+        <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
+      </div>
+      <p class="abstract">{{sanitizeHTML(map.abstract)}}</p>
+    </div>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import org.geotools.util.Converters;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
@@ -19,6 +20,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Abstract base class for JSON object wrappers.
@@ -74,12 +77,22 @@ public abstract class JSONWrapper<T extends JSONStreamAware> {
      * Encodes a wrapper as JSON.
      *
      * @param obj The wrapper.
-     * @param output Target writer.
+     * @param out Target writer.
      *
      */
-    public static void write(JSONWrapper<? extends JSONStreamAware> obj, Writer output) throws IOException {
-        obj.raw().writeJSONString(output);
-        output.flush();
+    public static void write(Object value, Writer out)
+            throws IOException {
+        value = wrapOrSelf(value);
+        if (value == null ) {
+            out.write("null");
+            out.flush();
+        }
+        else if( value instanceof JSONWrapper){
+            ((JSONWrapper<?>)value).write(out);
+        }
+        else {
+            JSONValue.writeJSONString(value, out);
+        }
     }
 
     /**
@@ -158,11 +171,9 @@ public abstract class JSONWrapper<T extends JSONStreamAware> {
     }
 
     /**
-     * Encodes the wrapper to the specified output stream.
+     * Encodes the wrapper to the specified writer.
      */
-    public void write(OutputStream output) throws IOException {
-        write(this, output);
-    }
+    abstract void write(Writer out) throws IOException;
 
     /**
      * Conversion helper.
