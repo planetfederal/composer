@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -55,6 +56,7 @@ import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -152,7 +154,7 @@ import com.google.common.collect.Iterables;
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.PUT)
     public @ResponseBody
-    JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+    JSONObj create(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
         Catalog cat = geoServer.getCatalog();
         CatalogFactory factory = cat.getFactory();
         
@@ -221,10 +223,98 @@ import com.google.common.collect.Iterables;
                 info.setEnabled(false);
             }
             store = info;
+        }        
+        boolean refresh = define( store, obj );
+        if( refresh ){
+            LOG.log( Level.FINE, "Inconsistent: default connection used for store creation required refresh");
         }
         cat.add(store);
         
         return storeDetails(new JSONObj(), store);
+    }
+    @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PATCH)
+    public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        StoreInfo store = cat.getStoreByName(wsName, name, StoreInfo.class );
+        
+        boolean refresh = define( store, obj );
+        cat.save( store );
+        return storeDetails(new JSONObj(), store);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        StoreInfo store = cat.getStoreByName(wsName, name, StoreInfo.class );
+        
+        // pending: clear store to defaults
+        boolean refresh = define( store, obj );
+        cat.save( store );
+        return storeDetails(new JSONObj(), store);
+    }
+    
+    boolean define( StoreInfo store, JSONObj obj ){
+        Catalog cat = geoServer.getCatalog();
+        boolean reconnect = false;
+        for( String prop : obj.keys()){
+            if("description".equals(prop)){
+                store.setDescription(obj.str(prop));
+            }
+            else if("enabled".equals(prop)){
+                store.setEnabled(obj.bool(prop));
+            }
+            else if("name".equals(prop)){
+                store.setName(obj.str(prop));
+            }
+            else if("workspace".equals(prop)){
+                WorkspaceInfo newWorkspace = findWorkspace(obj.str(prop));
+                store.setWorkspace( newWorkspace );
+            }
+            else if( store instanceof CoverageStoreInfo){
+                CoverageStoreInfo info = (CoverageStoreInfo) store;
+                if("connection".equals(prop)){
+                    JSONObj connection = obj.object(prop);
+                    if(!connection.has("raster") && connection.str("raster") != null){
+                        throw new IllegalArgumentException("Property connection.raster required for coverage store");
+                    }
+                    for( String param : connection.keys()){
+                        if("raster".equals(param)){
+                            String url = connection.str(param);
+                            reconnect = reconnect || url == null || !url.equals(info.getURL());
+                            info.setURL(url);
+                        }
+                    }
+                }
+            }
+            else if( store instanceof WMSStoreInfo){
+                WMSStoreInfo info = (WMSStoreInfo) store;
+                if("connection".equals(prop)){
+                    JSONObj connection = obj.object(prop);
+                    if(!connection.has("url") && connection.str("url") != null){
+                        throw new IllegalArgumentException("Property connection.url required for wms store");
+                    }
+                    for( String param : connection.keys()){
+                        if("url".equals(param)){
+                            String url = connection.str(param);
+                            reconnect = reconnect || url == null || !url.equals(info.getCapabilitiesURL()); 
+                            info.setCapabilitiesURL(url);
+                        }
+                    }
+                }
+            }
+            if( store instanceof DataStoreInfo){
+                DataStoreInfo info = (DataStoreInfo) store;
+                if("connection".equals(prop)){
+                    JSONObj connection = obj.object(prop);
+                    info.getConnectionParameters().clear();
+                    info.getConnectionParameters().putAll( connection.raw() );
+                    reconnect = true;
+                }
+            }
+        }
+        
+        return reconnect;
     }
     
     public enum Type {FILE,DATABASE,WEB,GENERIC;
