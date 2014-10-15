@@ -38,6 +38,17 @@ angular.module('gsApp.workspaces.data', [
           });
         });
 
+      $scope.storeRemoved = function(storeToRemove) {
+        var index = $scope.datastores.indexOf(storeToRemove);
+        if (index > -1) {
+          $scope.datastores.splice(index, 1);
+        }
+      };
+
+      $scope.storeAdded = function(storeToAdd) {
+        $scope.datastores.push(storeToAdd);
+      };
+
       // See utilities.js pop directive - 1 popover open at a time
       var openPopoverStore;
       $scope.closePopovers = function(store) {
@@ -83,6 +94,9 @@ angular.module('gsApp.workspaces.data', [
           resolve: {
             workspace: function() {
               return $scope.workspace;
+            },
+            storeAdded: function() {
+              return $scope.storeAdded;
             }
           }
         });
@@ -99,6 +113,9 @@ angular.module('gsApp.workspaces.data', [
             },
             store: function() {
               return $scope.selectedStore;
+            },
+            storeRemoved: function() {
+              return $scope.storeRemoved;
             }
           }
         });

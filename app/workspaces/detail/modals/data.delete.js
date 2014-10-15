@@ -1,14 +1,17 @@
 angular.module('gsApp.workspaces.data.delete', [])
-.controller('WorkspaceDeleteDataCtrl', ['workspace', 'store', '$scope',
-    '$rootScope', '$modalInstance',
-    function (workspace, store, $scope, $rootScope, $modalInstance) {
+.controller('WorkspaceDeleteDataCtrl', ['workspace', 'store',
+  'storeRemoved', '$scope', '$rootScope', '$modalInstance',
+  'GeoServer',
+    function (workspace, store, storeRemoved, $scope, $rootScope,
+      $modalInstance, GeoServer) {
 
       $scope.title = 'Delete Data Store';
       $scope.storeUndefined = false;
 
       $scope.workspace = workspace;
       $scope.store = store;
-
+      $scope.storeRemoved = storeRemoved;
+      
       if (!store) {
         $scope.storeUndefined = true;
       }
@@ -17,13 +20,28 @@ angular.module('gsApp.workspaces.data.delete', [])
         $modalInstance.dismiss('close');
       };
 
-      $scope.deleteForever = function() {
+      $scope.delete = function() {
+        GeoServer.datastores.delete($scope.workspace, $scope.store.name)
+        .then(
+          function(result) {
+            if (result.success || result) {
+              $scope.storeRemoved($scope.store);
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'Store '+ $scope.store.name +
+                  ' successfully deleted.',
+                fadeout: true
+              }];
+
+            } else {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Store deletion failed.',
+                fadeout: true
+              }];
+            }
+          });
         $modalInstance.dismiss('delete');
-        $rootScope.alerts = [{
-          type: 'warning',
-          message: 'Store update API is still in progress...',
-          fadeout: true
-        }];
       };
 
     }]);

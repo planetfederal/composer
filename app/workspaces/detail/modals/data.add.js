@@ -1,13 +1,15 @@
 angular.module('gsApp.workspaces.data.add', [
   'ngSanitize', 'angularFileUpload'
 ])
-.controller('WorkspaceAddDataCtrl', ['workspace', '$scope', '$modalInstance',
-  '$upload', '$timeout', 'GeoServer',
-  function (workspace, $scope, $modalInstance, $upload, $timeout, GeoServer) {
+.controller('WorkspaceAddDataCtrl', ['workspace', '$scope',
+  '$modalInstance','$upload', '$timeout', 'GeoServer', 'storeAdded',
+  function (workspace, $scope, $modalInstance, $upload, $timeout,
+    GeoServer, storeAdded) {
 
     $scope.title = 'New Data Store';
 
     $scope.workspace = workspace;
+    $scope.storeAdded = storeAdded;
     $scope.selected = {
       item: $scope.workspace
     };
