@@ -92,6 +92,7 @@ angular.module('gsApp.layers', [
       $scope.addLayer = function(ws) {
         var modalInstance = $modal.open({
           templateUrl: '/layers/addnewlayer-modal.tpl.html',
+          backdrop: 'static',
           controller: ['$scope', '$window', '$modalInstance',
             function($scope, $window, $modalInstance) {
               $scope.datastores = GeoServer.datastores.get('ws');
