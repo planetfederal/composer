@@ -221,7 +221,7 @@ angular.module('gsApp.core.backend',[])
           },
 
           thumbnail: {
-            get: function(workspace, name, layers, width, height) {
+            get: function(workspace, layers, width, height) {
               var url = gsRoot + '/wms/reflect?&layers=' + layers;
               if (width) {
                 url = url + '&width=' + width;

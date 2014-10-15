@@ -30,20 +30,23 @@
       </p>
       <div class="imports">
         <ul class="list-unstyled">
-          <li class="layer_imported" ng-repeat="imported_layer in selectedStore.layers_imported">
-            <div class="img_placeholder"></div>
+          <li class="layer_imported" ng-repeat="layer in selectedStore.layers">
+            <img class="img_placeholder" ng-src="{{layer.thumbnail}}" />
             <div class="layer_info">
-              <div class="info"><strong>Name:</strong> {{ imported_layer }}</div>
-              <div class="info"><strong>Title:</strong>  {{ imported_layer }}</div>
-              <div class="info"><strong>Type:</strong>  {{ imported_layer }}</div>
+              <div class="info"><strong>Name:</strong> {{ layer.name | truncate:false:35:false }}</div>
+              <div class="info"><strong>Title:</strong>  {{ layer.name | truncate:false:35:false }}</div>
+              <div class="info"><strong>Type:</strong>  {{ layer.name | truncate:false:35:false }}</div>
             </div>
             <div class="srs_info">
               <div class="label">SRS</div>
               <div class="label">EPSG:4326</div>
               <div class="attr_info">
-                <i class="fa fa-list-alt fa-lg"></i> <span class="label">View Attributes</span>
+                <i class="fa fa-list-alt fa-lg"></i> <span class="label"> Attributes</span>
               </div>
             </div>
+          </li>
+          <li class="resources" ng-repeat="resource in selectedStore.resources.layers">
+            {{ resource.name }}
           </li>
         </ul>
       </div>

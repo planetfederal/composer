@@ -35,7 +35,7 @@ angular.module('gsApp.workspaces.maps', [
                ',' + map.bbox.south + ',' + map.bbox.east + ',' +
                map.bbox.north;
 
-              var url = GeoServer.map.thumbnail.get(map.workspace, map,
+              var url = GeoServer.map.thumbnail.get(map.workspace,
                 map.layergroupname, 250, 250);
               var srs = '&srs=' + map.proj.srs;
 

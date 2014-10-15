@@ -39,6 +39,25 @@ angular.module('gsApp.sidenav', [
       }
     });
 
+    $scope.openWorkspaces = function() {
+      if (!$scope.workspaces) {
+        GeoServer.workspaces.get().then(
+        function(result) {
+          if (result.success) {
+            $scope.workspaceData = result.data;
+            $rootScope.$broadcast(AppEvent.WorkspacesFetched,
+              $scope.workspaceData);
+          } else {
+            $scope.alerts = [{
+                type: 'warning',
+                message: 'Could not get workspaces.',
+                fadeout: true
+              }];
+          }
+        });
+      }
+    };
+
     $scope.onResize = function() {
       $rootScope.$broadcast(AppEvent.SidenavResized);
     };
