@@ -57,14 +57,14 @@ angular.module('gsApp.workspaces.data', [
         GeoServer.datastores.getDetails($scope.workspace, store.name).then(
         function(result) {
           if (result.success) {
-            $rootScope.alerts = [{
-              type: 'warning',
-              message: 'The Store details API is under construction.',
-              fadeout: true
-            }];
-
-            //$scope.selectedStore.imported = store.layers_imported.length;
-            //$scope.selectedStore.unimported = store.layers_unimported.length;
+            var storeData = result.data;
+            $scope.selectedStore.resources = storeData.resources;
+            $scope.selectedStore.layers = storeData.layers;
+            $scope.selectedStore.layers.forEach(function(lyr) {
+              var url = GeoServer.map.thumbnail.get($scope.workspace,
+                lyr.name, 60, 60);
+              lyr.thumbnail = url + '&format=image/png';
+            });
           } else {
             $rootScope.alerts = [{
               type: 'warning',

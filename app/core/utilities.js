@@ -68,6 +68,9 @@ angular.module('gsApp.core.utilities', [])
         tail = value.substring(lastSlash);
       }
     }
+    if (!tail) {
+      tail = '';
+    }
     return newValue + ' … ' + tail;
   };
 })

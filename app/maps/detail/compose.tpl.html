@@ -4,7 +4,7 @@
       <nav class="navbar navbar-default map-name" role="navigation">
         <a class="navbar-brand" href=""><i class="icon-lg icon-folder-open"></i>{{ workspace }} <i class="fa fa-angle-right" style="padding: 0 5px;"></i> {{ map.title }}</a>
         <ul class="nav navbar-nav" style="margin-left: 30px;margin-top:5px;">
-          <li><a href="">{{ numLayers }} Layers</a></li>
+          <li><a ng-click="toggleLayers()">{{ numLayers }} Layers</a></li>
         </ul>
       </nav>
     </div>
@@ -14,7 +14,6 @@
       <div ol-map class="map" map-opts="mapOpts"></div>
     </div>
     <div class="col-md-6">
-      <alert-panel alerts="alerts"></alert-panel>
       <div class="editor-background">
         <div class="map-layers" ng-class="{show: toggle == true}">
           <h6 class="title">Map Layers:</h6>

@@ -21,7 +21,7 @@
       </ul>
     </li>
     <li role="presentation" class="divider"></li>
-    <li id="projects" ng-show="!toggleSide">
+    <li id="projects_t" ng-show="!toggleSide">
       <a class="all-workspaces" ng-init="toggleProjs=false"
         ng-click="toggleProjs=!toggleProjs; openWorkspaces();" ui-sref="workspaces.list"
         alt="Project Workspaces" title="Project Workspaces">
@@ -63,7 +63,7 @@
       </ul>
     </li>
     <li id="projects" ng-show="toggleSide" class="dropdown">
-      <a ng-show="toggleSide" class="dropdown-toggle"
+      <a ng-click="openWorkspaces();" ng-show="toggleSide" class="dropdown-toggle"
         data-toggle="tgdropdown" alt="Project Workspaces"
         title="Project Workspaces">
         <i ng-class="{'icon-folder-open': toggleProjs, 'icon-folder':
