@@ -130,6 +130,12 @@ angular.module('gsApp.core.backend',[])
               method: 'GET',
               url: apiRoot+'/stores/'+workspace+'/'+store
             });
+          },
+          delete: function(workspace, store) {
+            return http({
+              method: 'DELETE',
+              url: apiRoot+'/stores/'+workspace+'/'+store + '?recurse=true'
+            });
           }
         },
 
@@ -192,6 +198,14 @@ angular.module('gsApp.core.backend',[])
             return http({
               method: 'GET',
               url: apiRoot+'/maps/'+workspace+'/'+name
+            });
+          },
+
+          create: function(workspace, mapInfo) {
+            return http({
+              method: 'POST',
+              url: apiRoot+'/maps/'+workspace+'/map',
+              data: mapInfo
             });
           },
 

@@ -2,11 +2,12 @@ angular.module('gsApp.workspaces.maps.new', [
   'ngSanitize',
   'gsApp.alertpanel'
 ])
-.controller('WorkspaceNewMapCtrl', ['workspace', '$scope', '$modalInstance',
+.controller('WorkspaceNewMapCtrl', ['workspace', '$scope',
+  '$modalInstance', 'GeoServer',
   function (workspace, $scope, $modalInstance, GeoServer) {
 
     $scope.workspace = workspace;
-    $scope.map = {};
+    $scope.mapInfo = {};
 
     $scope.ok = function () {
       $modalInstance.close();
@@ -25,11 +26,21 @@ angular.module('gsApp.workspaces.maps.new', [
       '</p>';
 
     $scope.createMap = function() {
-      $scope.$parent.alerts = [{
-          type: 'warning',
-          message: 'Feature yet to be implemented.',
-          fadeout: true
-        }];
+      if ($scope.newMap.$dirty) {
+       
+        GeoServer.map.create(workspace, $scope.mapInfo).then(
+          function(result) {
+            if (result.success) {
+              //console.log(result.data)
+            } else {
+              $scope.alerts = [{
+                type: 'warning',
+                message: 'Feature yet to be implemented.',
+                fadeout: true
+              }];
+            }
+          });
+      }
       $modalInstance.close();
     };
   }]);
