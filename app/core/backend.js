@@ -201,11 +201,11 @@ angular.module('gsApp.core.backend',[])
             });
           },
 
-          create: function(workspace, mapInfo) {
+          create: function(workspace, map) {
             return http({
               method: 'POST',
-              url: apiRoot+'/maps/'+workspace+'/map',
-              data: mapInfo
+              url: apiRoot+'/maps/'+workspace,
+              data: map
             });
           },
 
