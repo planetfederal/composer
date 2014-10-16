@@ -152,7 +152,7 @@ import com.google.common.collect.Iterables;
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.POST)
     public @ResponseBody
     JSONObj create(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
         Catalog cat = geoServer.getCatalog();
