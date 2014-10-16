@@ -7,7 +7,7 @@ angular.module('gsApp.workspaces.maps.new', [
   function (workspace, $scope, $modalInstance, GeoServer) {
 
     $scope.workspace = workspace;
-    $scope.mapInfo = {};
+    $scope.map = {};
 
     $scope.ok = function () {
       $modalInstance.close();
@@ -27,8 +27,8 @@ angular.module('gsApp.workspaces.maps.new', [
 
     $scope.createMap = function() {
       if ($scope.newMap.$dirty) {
-       
-        GeoServer.map.create(workspace, $scope.mapInfo).then(
+
+        GeoServer.map.create(workspace, $scope.map).then(
           function(result) {
             if (result.success) {
               //console.log(result.data)

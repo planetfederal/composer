@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import org.apache.commons.httpclient.util.DateUtil;
@@ -79,17 +80,27 @@ public class MapController extends ApiController {
         Date created = new Date();
 
         CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
-        if( obj.has("proj")){
+        if(obj.has("proj")){
             String srs = obj.str("proj");
             try {
                 crs = CRS.decode(srs);
-            } catch (FactoryException e) {
-                LOG.log(Level.FINE, wsName+"."+name+" unrecorgnized proj:"+srs,e);
+            } catch (Exception e) {
+                throw new BadRequestException("Unrecognized projection: " + srs);
             }
         }
-        Envelope envelope = IO.bounds(obj.object("bbox"));
-        ReferencedEnvelope bounds = new ReferencedEnvelope( envelope, crs );
-        
+        else {
+            throw new BadRequestException("Map object requires projection");
+        }
+
+        ReferencedEnvelope bounds = null;
+        if (obj.has("bbox")) {
+            Envelope envelope = IO.bounds(obj.object("bbox"));
+            bounds = new ReferencedEnvelope( envelope, crs );
+        }
+        else {
+            bounds = new ReferencedEnvelope(crs);
+        }
+
         Catalog cat = geoServer.getCatalog();
         LayerGroupInfo map = cat.getFactory().createLayerGroup();
         map.setName( name );
