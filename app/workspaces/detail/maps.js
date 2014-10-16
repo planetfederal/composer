@@ -72,6 +72,7 @@ angular.module('gsApp.workspaces.maps', [
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/map.new.tpl.html',
           controller: 'WorkspaceNewMapCtrl',
+          backdrop: 'static',
           size: 'md',
           resolve: {
             workspace: function() {
