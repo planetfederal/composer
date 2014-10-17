@@ -6,6 +6,7 @@ package com.boundlessgeo.geoserver.api.controllers;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,7 +20,7 @@ import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.wms.WMSInfo;
-import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
@@ -399,6 +400,34 @@ public class IO {
         }
         else {
             json.put("message", "Unknown error");
+        }
+        return json;
+    }
+    
+    public static JSONObj param(JSONObj json, Parameter<?> p) {
+        if (p != null) {
+            String title = p.getTitle() != null ? p.getTitle().toString() : p.getName();
+            String description = p.getDescription() != null ? p.getDescription().toString() : null;
+            json.put("name", p.getName())
+                .put("title", title)
+                .put("description",  description)
+                .put("type", p.getType().getSimpleName())
+                .put("default", p.getDefaultValue())
+                .put("min", p.getMinOccurs())
+                .put("max", p.getMaxOccurs());
+            
+            json.put("level", p.getLevel())
+                .put("required", p.isRequired())
+                .put("password", p.isPassword());
+            
+            if (p.metadata != null) {
+                for (String key : p.metadata.keySet()) {
+                    if (Parameter.LEVEL.equals(key) || Parameter.IS_PASSWORD.equals(key)) {
+                        continue;
+                    }
+                    json.put(key, p.metadata.get(key));
+                }
+            }
         }
         return json;
     }
