@@ -92,6 +92,7 @@ angular.module('gsApp.workspaces.data', [
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/data.add.tpl.html',
           controller: 'WorkspaceAddDataCtrl',
+          backdrop: 'static',
           size: 'lg',
           resolve: {
             workspace: function() {
@@ -108,6 +109,7 @@ angular.module('gsApp.workspaces.data', [
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/data.delete.tpl.html',
           controller: 'WorkspaceDeleteDataCtrl',
+          backdrop: 'static',
           size: 'md',
           resolve: {
             workspace: function() {
@@ -127,6 +129,7 @@ angular.module('gsApp.workspaces.data', [
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/data.update.tpl.html',
           controller: 'WorkspaceUpdateDataCtrl',
+          backdrop: 'static',
           size: 'md',
           resolve: {
             workspace: function() {
