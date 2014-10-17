@@ -27,13 +27,21 @@ angular.module('gsApp.workspaces.data', [
       GeoServer.datastores.get($scope.workspace).then(
         function(result) {
           $scope.datastores = result.data;
+
           $scope.datastores.forEach(function(ds) {
-            if (ds.format.toLowerCase() === 'shapefile') {
+            var format = ds.format.toLowerCase();
+            if (format === 'shapefile') {
               ds.sourcetype = 'shp';
+              ds.sourcetitle = 'shp';
+            } else if (format === 'directory of spatial files') {
+              ds.sourcetype = 'shp_dir';
+              ds.sourcetitle = 'shp dir';
             } else if (ds.kind.toLowerCase() === 'raster') {
               ds.sourcetype = 'raster';
+              ds.sourcetitle = ds.format;
             } else if (ds.type.toLowerCase() === 'database') {
               ds.sourcetype = 'database';
+              ds.sourcetitle = ds.format;
             }
           });
         });
@@ -69,13 +77,7 @@ angular.module('gsApp.workspaces.data', [
         function(result) {
           if (result.success) {
             var storeData = result.data;
-            $scope.selectedStore.resources = storeData.resources;
-            $scope.selectedStore.layers = storeData.layers;
-            $scope.selectedStore.layers.forEach(function(lyr) {
-              var url = GeoServer.map.thumbnail.get($scope.workspace,
-                lyr.name, 60, 60);
-              lyr.thumbnail = url + '&format=image/png';
-            });
+            $scope.selectedStore = storeData;
           } else {
             $rootScope.alerts = [{
               type: 'warning',
@@ -136,4 +138,9 @@ angular.module('gsApp.workspaces.data', [
           }
         });
       };
+
+      $scope.showLayer = function(layer) {
+        $state.go('workspace.layers', { 'layer': layer });
+      };
+
     }]);

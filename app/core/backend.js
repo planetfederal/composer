@@ -139,25 +139,47 @@ angular.module('gsApp.core.backend',[])
           }
         },
 
-        layers: $resource(
-          apiRoot+'/layers/:workspace?page=:page&pagesize=:pagesize',
-          {workspace:'default', page:0, pagesize:25 },
-          {get: {method: 'GET',responseType: 'json'}}
-        ),
-
-        layer: $resource(apiRoot+'/layers/:workspace/:name', {}, {
-          get: {
-            method: 'GET',
-            responseType: 'json'
-          },
-          update: {
-            method: 'PATCH',
-            responseType: 'json'
-          },
-          remove: {
-            method: 'DELETE'
+        layers: {
+          get: function(workspace, page, pagesize) {
+            workspace = workspace? workspace : 'default';
+            page = page? page : 0;
+            pagesize = pagesize? pagesize : 25;
+            return http({
+              method: 'GET',
+              url: apiRoot+'/layers/'+workspace+'?page='+page+
+                '&pagesize='+pagesize
+            });
           }
-        }),
+        },
+
+        layer: {
+          get: function(workspace, layer) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/layers/'+workspace+'/'+layer
+            });
+          },
+          create: function(workspace, layerInfo) {
+            return http({
+              method: 'POST',
+              url: apiRoot+'/layers/'+workspace,
+              data: layerInfo
+            });
+          },
+          update: function(workspace, layer, patch) {
+            return http({
+              method: 'PUT',
+              url: apiRoot+'/layers/'+workspace+'/'+layer,
+              data: patch
+            });
+          },
+          delete: function(workspace, layer) {
+            return http({
+              method: 'DELETE',
+              url: apiRoot+'/layers/'+workspace+'/'+layer
+            });
+          }
+        },
 
         style: {
           get: function(workspace, layer) {
