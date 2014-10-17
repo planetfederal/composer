@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -412,7 +413,7 @@ public class IO {
                 .put("title", title)
                 .put("description",  description)
                 .put("type", p.getType().getSimpleName())
-                .put("default", p.getDefaultValue())
+                .put("default", safeValue(p.getDefaultValue()))
                 .put("min", p.getMinOccurs())
                 .put("max", p.getMaxOccurs());
             
@@ -430,5 +431,19 @@ public class IO {
             }
         }
         return json;
+    }
+
+    static private Object safeValue(Object value) {
+        if(value == null){
+            return null;
+        }
+        if (value instanceof String || value instanceof Number || value instanceof Boolean) {
+            return value;
+        }
+        if (value instanceof java.util.TimeZone) {
+            TimeZone zone = (TimeZone) value;
+            return zone.getDisplayName();
+        }
+        return value.toString();
     }
 }
