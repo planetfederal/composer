@@ -32,16 +32,12 @@ angular.module('gsApp.workspaces.data', [
             var format = ds.format.toLowerCase();
             if (format === 'shapefile') {
               ds.sourcetype = 'shp';
-              ds.sourcetitle = 'shp';
             } else if (format === 'directory of spatial files') {
-              ds.sourcetype = 'shp_dir';
-              ds.sourcetitle = 'shp dir';
+              ds.sourcetype = 'shp dir';
             } else if (ds.kind.toLowerCase() === 'raster') {
               ds.sourcetype = 'raster';
-              ds.sourcetitle = ds.format;
             } else if (ds.type.toLowerCase() === 'database') {
               ds.sourcetype = 'database';
-              ds.sourcetitle = ds.format;
             }
           });
         });
@@ -71,6 +67,8 @@ angular.module('gsApp.workspaces.data', [
         }
       };
 
+      $scope.allRetrievedLayers = [];
+
       $scope.selectStore = function(store) {
         $scope.selectedStore = store;
         GeoServer.datastores.getDetails($scope.workspace, store.name).then(
@@ -78,10 +76,33 @@ angular.module('gsApp.workspaces.data', [
           if (result.success) {
             var storeData = result.data;
             $scope.selectedStore = storeData;
+
+            for (var i=0; i < storeData.resources.length; i++) {
+              for (var k=0; k < storeData.resources[i].layers.length; k++) {
+                var layer = storeData.resources[i].layers[k];
+                var rsrc = $scope.selectedStore.resources[i];
+
+                GeoServer.layer.get($scope.workspace, layer.name).then(
+                  function(result) {
+                    if (result.success) {
+                      $scope.allRetrievedLayers.push(result.data);
+                    } else {
+                      $rootScope.alerts = [{
+                        type: 'warning',
+                        message: 'Details for ' + layer.name +
+                          ' could not be loaded.',
+                        fadeout: true
+                      }];
+                    }
+                  });
+              }
+            }
+
           } else {
             $rootScope.alerts = [{
               type: 'warning',
-              message: 'Store details could not be loaded.',
+              message: 'Details for store ' + $scope.selectedStore.name +
+                ' could not be loaded.',
               fadeout: true
             }];
           }

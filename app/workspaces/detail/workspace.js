@@ -1,7 +1,6 @@
 angular.module('gsApp.workspaces.home', [
   'gsApp.workspaces.maps',
   'gsApp.workspaces.data',
-  'gsApp.workspaces.layers',
   'gsApp.workspaces.settings',
   'gsApp.workspaces.data.attributes',
   'gsApp.alertpanel',
@@ -28,7 +27,6 @@ angular.module('gsApp.workspaces.home', [
 
         $scope.tabs = [
           { heading: 'Maps', route: 'workspace.maps', active: true},
-          { heading: 'Layers', route: 'workspace.layers', active: false},
           { heading: 'Data', route: 'workspace.data', active: false}
         ];
 
