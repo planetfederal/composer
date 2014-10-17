@@ -80,7 +80,7 @@ import com.boundlessgeo.geoserver.json.JSONObj;
             for (Iterator<DataAccessFactory> i = DataAccessFinder.getAllDataStores(); i.hasNext();) {
                 DataAccessFactory f = i.next();
                 String format = format(f.getDisplayName());
-                if(name.equals(format.equals(name))){
+                if(format.equals(name)){
                     return f;
                 }
             }
@@ -89,9 +89,6 @@ import com.boundlessgeo.geoserver.json.JSONObj;
     }
     
     String format(String displayName){
-        if("Directory of spatial files (shapefiles)".equals(displayName)){
-            return "directory";
-        }
         if("Directory of spatial files (shapefiles)".equals(displayName)){
             return "directory";
         }
