@@ -1,5 +1,5 @@
 <p>
-  <strong>{{ datastores.length }}</strong> data store<span ng-if="datastores.length > 1">s</span> in <strong>{{ workspace }}</strong>
+  <strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in <strong>{{ workspace }}</strong>
   <span class="data-store-crud">
     <i class="fa fa-plus circular-icon" ng-click="addNewStore();"></i>
     <i class="fa fa-minus circular-icon" ng-click="deleteStore();"></i>
@@ -11,12 +11,11 @@
     <ul class="list-unstyled stores-list" ng-style="storesListHeight">
       <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
         <div class="icon-column">
-          <h3 class="datastore-icons"><i ng-class="{'icon-folder-open': ds.sourcetype=='shp', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
-          <p class="datastore-label">{{ ds.sourcetype }}</p>
+          <h3 class="datastore-icons"><i ng-class="{'icon-file': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
+          <p class="datastore-label">{{ ds.sourcetitle }}</p>
         </div>
         <div class="info-column">
           <p><strong>Store:</strong> {{ ds.name }}</p>
-          <p class="trim-info" pop="{{ds.source}}" pop-show="{{ ds.showSourcePopover }}" ng-click="closePopovers(ds);" pop-title="Store: {{ds.name}}"><strong>Source:</strong><span class="source-info"> {{ ds.source | truncate:false:19:true }}</span></p>
           <p><strong>Description:</strong> {{ ds.description }}</p>
         </div>
       </li>
@@ -25,28 +24,29 @@
   <div class="col-sm-6">
     <div>
       <p class="x-imported">
-        <span style="float:left;" ng-if="selectedStore"><strong>Imported:</strong> {{ selectedStore.imported}} Layers</span>
-        <span style="float:right;" ng-if="selectedStore">{{ selectedStore.unimported }} more available</span>
+        <span style="float:left;" ng-if="selectedStore"><strong>Resources:</strong> {{ selectedStore.resources.length }} available</span>
+        <span style="float:right;" ng-if="selectedStore">{{ selectedStore.layers.length }} used as layers</span>
       </p>
       <div class="imports">
         <ul class="list-unstyled">
-          <li class="layer_imported" ng-repeat="layer in selectedStore.layers">
-            <img class="img_placeholder" ng-src="{{layer.thumbnail}}" />
+          <li class="layer_imported" ng-repeat="rsrc in selectedStore.resources">
             <div class="layer_info">
-              <div class="info"><strong>Name:</strong> {{ layer.name | truncate:false:35:false }}</div>
-              <div class="info"><strong>Title:</strong>  {{ layer.name | truncate:false:35:false }}</div>
-              <div class="info"><strong>Type:</strong>  {{ layer.name | truncate:false:35:false }}</div>
-            </div>
-            <div class="srs_info">
-              <div class="label">SRS</div>
-              <div class="label">EPSG:4326</div>
-              <div class="attr_info">
-                <i class="fa fa-list-alt fa-lg"></i> <span class="label"> Attributes</span>
+              <div class="info"><strong>Name:</strong> {{ rsrc.name | truncate:false:35:false }}</div>
+              <div class="info"><strong>Layers:</strong>
+                <span ng-repeat="l in rsrc.layers">
+                  <a ng-click="showLayer(l);">{{ l.name }}{{$last ? '' : ', '}}</a>
+                </span>
+                <span ng-show="rsrc.layers.length==0">
+                  <a href="">Import Now ></a>
+                </span>
               </div>
+              <div class="info">
+                <div class="attr_info">
+                  <strong>Attributes:</strong> {{ rsrc.schema.attributes.length }} <a style="margin-left: 15px;" ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);"><i class="fa fa-list-alt fa-lg" style="padding-left: 10px;"></i> View Data</a>
+                </div>
+              </div>
+              <div class="info" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Source:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
             </div>
-          </li>
-          <li class="resources" ng-repeat="resource in selectedStore.resources.layers">
-            {{ resource.name }}
           </li>
         </ul>
       </div>

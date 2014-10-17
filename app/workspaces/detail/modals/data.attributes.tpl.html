@@ -1,0 +1,22 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ title }}</h4>
+  </div>
+  <div class="modal-body">
+    <div class="row" ng-if="attributes.length > 20" ng-repeat="row in attributes | partition:3 ">
+      <div class="col-xs-4 attr-cols" ng-repeat="item in row">
+        <span class="attr-name">{{ item.name }}</span>
+        <span class="attr-type pull-right">{{ item.type }}</span>
+      </div>
+    </div>
+    <div class="row" ng-if="attributes.length < 20" ng-repeat="attr in attributes">
+      <div class="col-xs-4 col-xs-offset-4 attr-cols">
+        <span class="attr-name">{{ attr.name }}</span>
+        <span class="attr-type pull-right">{{ attr.type }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+  </div>
+</div>

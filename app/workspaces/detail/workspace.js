@@ -1,7 +1,9 @@
 angular.module('gsApp.workspaces.home', [
   'gsApp.workspaces.maps',
   'gsApp.workspaces.data',
+  'gsApp.workspaces.layers',
   'gsApp.workspaces.settings',
+  'gsApp.workspaces.data.attributes',
   'gsApp.alertpanel',
   'ngSanitize'
 ])
@@ -15,17 +17,18 @@ angular.module('gsApp.workspaces.home', [
         });
     }])
 .controller('WorkspaceHomeCtrl', ['$scope','$state', '$stateParams', '$log',
-    'GeoServer',
-    function($scope, $state, $stateParams, $log, GeoServer) {
+  '$modal', 'GeoServer',
+    function($scope, $state, $stateParams, $log, $modal, GeoServer) {
       var wsName = $stateParams.workspace;
 
       $scope.workspace = wsName;
 
       GeoServer.workspace.get(wsName).then(function(result) {
         $scope.title = wsName;
-        
+
         $scope.tabs = [
           { heading: 'Maps', route: 'workspace.maps', active: true},
+          { heading: 'Layers', route: 'workspace.layers', active: false},
           { heading: 'Data', route: 'workspace.data', active: false}
         ];
 
@@ -33,7 +36,7 @@ angular.module('gsApp.workspaces.home', [
           $state.go(route, {workspace:wsName});
         };
 
-        // hack to deal with strange issue with tabs being selected 
+        // hack to deal with strange issue with tabs being selected
         // when they are destroyed
         // https://github.com/angular-ui/bootstrap/issues/2155
         var destroying = false;
@@ -57,5 +60,21 @@ angular.module('gsApp.workspaces.home', [
             $scope.showSettings = $state.is('workspace.settings');
           });
       });
+
+      $scope.showAttrs = function(layerOrResource, attributes) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/data.attributes.tpl.html',
+          controller: 'WorkspaceAttributesCtrl',
+          size: 'md',
+          resolve: {
+            layerOrResource: function() {
+              return layerOrResource;
+            },
+            attributes: function() {
+              return attributes;
+            }
+          }
+        });
+      };
     }]);
 

@@ -35,7 +35,7 @@
   <div class="modal-footer">
     <small class="pull-left">* = Required</small>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-    <button class="btn btn-primary btn-sm" ng-click="createMap()" style="margin-left:20px;" ng-disabled="!newMap.$valid">Create</button>
+    <button class="btn btn-primary btn-sm" ng-click="createMap(newMap.$valid)" style="margin-left:20px;" ng-disabled="!newMap.$valid">Create</button>
     <button class="btn btn-success btn-sm" ng-click="addLayers()" style="margin-left: 20px;margin-right: 20px;" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
   </div>
 </div>

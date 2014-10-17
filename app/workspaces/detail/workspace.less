@@ -102,7 +102,7 @@
   }
 }
 
-.datastores {
+.datastores, .layers {
   margin-top: 10px;
 
   p.x-imported {
@@ -129,6 +129,7 @@
   }
   .store-row {
     padding: 14px 12px 4px 0;
+    margin: 10px 0;
     width: 100%;
 
     &.selected {
@@ -142,7 +143,6 @@
   }
   .icon-column {
     width: 40px;
-    margin-top: 18px;
     display: inline-block;
     vertical-align: top;
   }
@@ -150,17 +150,6 @@
     display: inline-block;
     margin-left: 5px;
     max-width: 80%;
-  }
-  .trim-info {
-    max-width: 90%;
-    display: inline-block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    line-height: 15px;
-    position: relative;
-    .source-info {
-      color: @monacoblue;
-    }
   }
   .datastore-icons {
     color: @gray;
@@ -170,6 +159,27 @@
   .datastore-label {
     text-align: center;
     font-size: 10px;
+  }
+
+  .detail {
+    line-height: 1.7em;
+    padding: 10px 15px;
+    clear:both;
+    min-height: 60%;
+    max-height: 90%;
+    border: 1px solid @gray;
+    overflow-y:scroll;
+    background-color: @almost-white;
+    box-shadow: 2px 2px 4px #999;
+  }
+
+  .img_placeholder {
+    margin-top: 10px;
+    height: 120px;
+    width: 120px;
+    display: inline-block;
+    vertical-align: middle;
+    box-shadow: 2px 2px 4px #999;
   }
 
   .imports {
@@ -187,46 +197,24 @@
       background-color: @white;
       overflow-x: scroll;
 
-      .img_placeholder {
-        height: 60px;
-        width: 60px;
-        display: inline-block;
-        vertical-align: middle;
-        box-shadow: 2px 2px 4px #999;
-      }
       .layer_info {
         display: inline-block;
         margin-left: 10px;
         vertical-align: middle;
-        .info {
-          margin-bottom: 5px;
-        }
-      }
-      .srs_info {
-        display: inline-block;
-        float: right;
-        text-align: center;
+        line-height: 1.8em;
 
-        .label {
-          font-weight: bold;
-          display: block;
-          color: @black;
-        }
-        .attr_info {
-          text-align: center;
-          margin-top: 8px;
-          cursor: pointer;
-
-          .label {
-            display: block;
-            margin-top: 2px;
-          }
+        .source-info {
+          color: @monacoblue;
         }
       }
     }
   }
 
 } /* end datastores */
+
+
+/* end layers */
+
 
 form.settings {
   margin-top: 20px;

@@ -57,8 +57,9 @@ angular.module('gsApp.layers', [
   };
 })
 .controller('LayersCtrl', ['$scope', '$stateParams', 'GeoServer', '$state',
-    '$log', '$modal', '$window',
-    function($scope, $stateParams, GeoServer, $state, $log, $modal, $window) {
+    '$log', '$modal', '$window', '$rootScope',
+    function($scope, $stateParams, GeoServer, $state, $log, $modal, $window,
+      $rootScope) {
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
 
@@ -319,13 +320,24 @@ angular.module('gsApp.layers', [
       };
 
       $scope.refreshLayers = function(ws) {
-        GeoServer.layers.get({
-          workspace: ws.name,
-          page: $scope.pagingOptions.currentPage-1,
-          pagesize: $scope.pagingOptions.pageSize
-        }).$promise.then(function(result) {
-          $scope.layerData = result.layers;
-          $scope.totalServerItems = result.total;
+        GeoServer.layers.get(
+          ws.name,
+          $scope.pagingOptions.currentPage-1,
+          $scope.pagingOptions.pageSize
+        ).then(function(result) {
+          if (result.success) {
+            $scope.layerData = result.data.layers;
+            $scope.totalServerItems = result.data.total;
+          } else {
+            $rootScope.alerts = [{
+              type: 'warning',
+              message: 'Layers for workspace ' + ws.name +
+                ' could not be loaded.',
+              fadeout: true
+            }];
+          }
+
+
         });
       };
 

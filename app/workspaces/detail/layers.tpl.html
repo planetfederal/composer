@@ -1,0 +1,47 @@
+<p>
+  <strong>{{ layers.length }}</strong> Layer<span ng-if="layers.length > 1">s</span> in <strong>{{ workspace }}</strong>
+  <span class="data-store-crud">
+    <i class="fa fa-plus circular-icon" ng-click="addNewLayer();"></i>
+    <i class="fa fa-minus circular-icon" ng-click="deleteLayer();"></i>
+    <i class="fa fa-gear circular-icon" ng-click="updateLayer();"></i>
+  </span>
+</p>
+<div class="row layers">
+  <div class="col-sm-6">
+    <ul class="list-unstyled stores-list" ng-style="layersListHeight">
+      <li class="store-row" ng-repeat="l in layers" ng-click="selectLayer(l);" ng-class="{'selected': l.name==selectedLayer.name}">
+        <div class="icon-column">
+          <h3 class="datastore-icons"><i ng-class="{'icon-checkbox-unchecked': l.geometry=='MultiPolygon', 'icon-location': l.geometry=='Point', 'icon-share': l.geometry=='MultiLineString', 'fa fa-th fa-md': l.geometry=='raster'}"></i></h3>
+          <p class="datastore-label">{{ l.sourcetitle }}</p>
+        </div>
+        <div class="info-column">
+          <p><strong>Layer:</strong> {{ l.name }}</p>
+          <p class="trim-info"><strong>Title:</strong> {{ l.title }} </p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-sm-6">
+    <div>
+      <div class="detail" ng-if="selectedLayer">
+        <ul class="list-unstyled">
+          <li class="layer_imported">
+            <div class="layer_info">
+              <div class="info"><strong>Name:</strong> {{ selectedLayer.name }}</div>
+              <div class="info"><strong>Title:</strong> {{ selectedLayer.title }}</div>
+              <div class="info"><strong>Description:</strong> {{ selectedLayer.description }}</div>
+              <div class="info"><strong>Type:</strong> {{ selectedLayer.type }}</div>
+              <div class="info"><strong>Geometry:</strong> {{ selectedLayer.geometry }}</div>
+              <div class="info"><strong>SRS:</strong> {{ selectedLayer.proj.srs || "Not specified" }} ({{ selectedLayer.proj.unit }})</div>
+            </div>
+            <div class="layer_info" style="margin-top: 15px;">
+              <div class="info"><strong>Schema</strong></div>
+              <div class="info" style="margin-left: 15px;"><strong>Namespace:</strong> {{ selectedLayer.schema.namespace }} </div>
+              <div class="info" style="margin-left: 15px;"><strong>Attributes:</strong><a ng-click="showAttrs(selectedLayer.name, selectedLayer.schema.attributes);"> {{ selectedLayer.schema.attributes.length }} Attributes <i class="fa fa-list-alt fa-lg" style="padding-left: 10px;"></i></a></div>
+            </div>
+            <img class="img_placeholder" ng-src="{{selectedLayer.thumbnail}}" />
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
