@@ -4,6 +4,7 @@
 package com.boundlessgeo.geoserver.api.controllers;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -12,6 +13,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.util.DateUtil;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
@@ -25,11 +28,13 @@ import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureTypes;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
+import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.geometry.jts.Geometries;
 import org.geotools.referencing.CRS;
 import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.util.logging.Logging;
 import org.ocpsoft.pretty.time.PrettyTime;
+import org.opengis.coverage.grid.Format;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AssociationDescriptor;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -407,23 +412,28 @@ public class IO {
     
     public static JSONObj param(JSONObj json, Parameter<?> p) {
         if (p != null) {
-            String title = p.getTitle() != null ? p.getTitle().toString() : p.getName();
+            String title = p.getTitle() != null ? p.getTitle().toString() : WordUtils.capitalize(p
+                    .getName());
+            
             String description = p.getDescription() != null ? p.getDescription().toString() : null;
             json.put("name", p.getName())
                 .put("title", title)
                 .put("description",  description)
                 .put("type", p.getType().getSimpleName())
                 .put("default", safeValue(p.getDefaultValue()))
-                .put("min", p.getMinOccurs())
-                .put("max", p.getMaxOccurs());
+                .put("level", p.getLevel())
+                .put("required", p.isRequired());
             
-            json.put("level", p.getLevel())
-                .put("required", p.isRequired())
-                .put("password", p.isPassword());
+            if( !(p.getMinOccurs() == 1 && p.getMaxOccurs() == 1)){
+                json.putArray("occurs")
+                    .add( p.getMinOccurs())
+                    .add(p.getMaxOccurs());
+            }
+
             
             if (p.metadata != null) {
                 for (String key : p.metadata.keySet()) {
-                    if (Parameter.LEVEL.equals(key) || Parameter.IS_PASSWORD.equals(key)) {
+                    if (Parameter.LEVEL.equals(key)) {
                         continue;
                     }
                     json.put(key, p.metadata.get(key));
@@ -431,6 +441,15 @@ public class IO {
             }
         }
         return json;
+    }
+    public static void param(JSONObj json, Format g) {
+        json.put("name","raster")
+            .put("title","URL")
+            .put("description",g.getDescription())
+            .put("type",URL.class.getSimpleName())
+            .put("default",null)
+            .put("level","user")
+            .put("required",true);
     }
 
     static private Object safeValue(Object value) {
