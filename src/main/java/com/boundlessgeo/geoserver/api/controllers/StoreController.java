@@ -12,9 +12,11 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -41,6 +43,8 @@ import org.geoserver.platform.resource.Paths;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.data.DataAccess;
+import org.geotools.data.DataAccessFactory;
+import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStore;
 import org.geotools.data.ows.Layer;
@@ -317,7 +321,27 @@ import com.google.common.collect.Iterables;
         return reconnect;
     }
     
-    public enum Type {FILE,DATABASE,WEB,GENERIC;
+    static public enum Type {FILE,DATABASE,WEB,GENERIC;
+        static Type of( DataAccessFactory format){
+            Set<String> params = new HashSet<String>();
+            for (Param info : format.getParametersInfo()) {
+                params.add(info.getName());
+            }
+            if (params.contains("dbtype")) {
+                return Type.DATABASE;
+            }
+            if (params.contains("directory") || params.contains("file")) {
+                return Type.FILE;
+            }
+            if (params.contains("wms")
+                    || params.contains("WFSDataStoreFactory:GET_CAPABILITIES_URL")) {
+                return Type.WEB;
+            }
+            if( params.contains("url") ){
+                return Type.FILE;
+            }
+            return Type.GENERIC;
+        }
         static Type of( StoreInfo store ){
             if( store instanceof CoverageStoreInfo){
                 String url = ((CoverageStoreInfo)store).getURL();
@@ -361,7 +385,7 @@ import com.google.common.collect.Iterables;
             return Type.GENERIC;
         }        
     }
-    public enum Kind {RASTER,VECTOR,SERVICE,UNKNOWN;
+    static public enum Kind {RASTER,VECTOR,SERVICE,UNKNOWN;
         static Kind of( StoreInfo store ){
             if( store instanceof CoverageStoreInfo){
                 return Kind.RASTER;
