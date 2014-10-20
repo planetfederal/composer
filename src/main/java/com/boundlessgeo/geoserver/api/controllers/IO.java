@@ -78,7 +78,7 @@ public class IO {
             }
         }
         
-        if (crs.getName() != null) {
+        if (crs != null && crs.getName() != null) {
             ReferenceIdentifier name = crs.getName();
             if (name instanceof GenericName) {
                 obj.put("title", ((GenericName) name).tip().toString());
