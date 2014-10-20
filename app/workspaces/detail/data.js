@@ -167,4 +167,20 @@ angular.module('gsApp.workspaces.data', [
         $state.go('workspace.layers', { 'layer': layer });
       };
 
+      $scope.showAttrs = function(layerOrResource, attributes) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/data.attributes.tpl.html',
+          controller: 'WorkspaceAttributesCtrl',
+          size: 'md',
+          resolve: {
+            layerOrResource: function() {
+              return layerOrResource;
+            },
+            attributes: function() {
+              return attributes;
+            }
+          }
+        });
+      };
+
     }]);
