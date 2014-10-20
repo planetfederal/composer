@@ -30,6 +30,7 @@ import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
@@ -241,12 +242,25 @@ import com.google.common.collect.Iterables;
         Catalog cat = geoServer.getCatalog();
         StoreInfo store = cat.getStoreByName(wsName, name, StoreInfo.class );
         
-        boolean refresh = define( store, obj );
-        cat.save( store );
+        boolean refresh = define(store, obj);
+        cat.save(store);
+        if (refresh) {
+            resetConnection(store);
+        }
         return storeDetails(new JSONObj(), store);
     }
     
-    @SuppressWarnings("unchecked")
+    void resetConnection(StoreInfo store ){
+        Catalog cat = geoServer.getCatalog();
+        if (store instanceof CoverageStoreInfo) {
+            cat.getResourcePool().clear((CoverageStoreInfo) store);
+        } else if (store instanceof DataStoreInfo) {
+            cat.getResourcePool().clear((DataStoreInfo) store);
+        } else if (store instanceof WMSStoreInfo) {
+            cat.getResourcePool().clear((WMSStoreInfo) store);
+        }
+    }
+    
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
         Catalog cat = geoServer.getCatalog();
@@ -255,11 +269,14 @@ import com.google.common.collect.Iterables;
         // pending: clear store to defaults
         boolean refresh = define( store, obj );
         cat.save( store );
+        if (refresh) {
+            resetConnection(store);
+        }
         return storeDetails(new JSONObj(), store);
     }
     
+    @SuppressWarnings("unchecked")
     boolean define( StoreInfo store, JSONObj obj ){
-        Catalog cat = geoServer.getCatalog();
         boolean reconnect = false;
         for( String prop : obj.keys()){
             if("description".equals(prop)){
@@ -422,7 +439,7 @@ import com.google.common.collect.Iterables;
 
         JSONObj connection = new JSONObj();
         Map<String, Serializable> params = store.getConnectionParameters();
-        for( Entry<String,Serializable> param : params.entrySet() ){
+        for (Entry<String, Serializable> param : params.entrySet()) {
             String key = param.getKey();
             Object value = param.getValue();
             String text = value.toString();
@@ -439,11 +456,12 @@ import com.google.common.collect.Iterables;
         }
         json.put("connection", connection );
         json.put("error", IO.error( new JSONObj(), store.getError()));
-        layers(store, json.putArray("layers"));
 
-        if(store.isEnabled()){
+        if (store.isEnabled()) {
             resources(store, json.putArray("resources"));
         }
+
+        layers(store, json.putArray("layers"));
 
         return json;
     }
@@ -453,12 +471,12 @@ import com.google.common.collect.Iterables;
         WorkspaceInfo ws = store.getWorkspace();
 
         Filter filter = and(equal("store", store), equal("namespace.prefix", ws.getName()));
-        try (
-            CloseableIterator<ResourceInfo> layers = cat.list(ResourceInfo.class, filter);
-        ) {
-            while(layers.hasNext()) {
+        try (CloseableIterator<ResourceInfo> layers = cat.list(ResourceInfo.class, filter);) {
+            while (layers.hasNext()) {
                 ResourceInfo r = layers.next();
-                layer( list.addObject(), r, false );
+                for (LayerInfo l : cat.getLayers(r)) {
+                    layer(list.addObject(), l,true);
+                }
             }
         }
 
@@ -502,7 +520,7 @@ import com.google.common.collect.Iterables;
             if (store instanceof CoverageStoreInfo) {
                 // coverage store does not respect native name so we search by id
                 for (CoverageInfo info : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {               
-                    layer( layers.addObject(), info, false );
+                    resource( layers.addObject(), info, false );
                 }
             }
             else {
@@ -515,7 +533,7 @@ import com.google.common.collect.Iterables;
                         if (!info.getStore().getId().equals(store.getId())) {
                             continue; // native name is not enough, double check store id
                         }
-                        layer( layers.addObject(), info, false );
+                        resource( layers.addObject(), info, false );
                     }
                 }
             }
@@ -523,10 +541,9 @@ import com.google.common.collect.Iterables;
         return list;
     }
     
-    JSONObj layer( JSONObj json, ResourceInfo info, boolean details ){
+    JSONObj resource( JSONObj json, ResourceInfo info, boolean details){
         json.put("name", info.getName())
             .put("workspace", info.getStore().getWorkspace().getName() );
-        
         if( details ){
             if (info instanceof FeatureTypeInfo) {
                 FeatureTypeInfo data = (FeatureTypeInfo) info;
@@ -539,8 +556,18 @@ import com.google.common.collect.Iterables;
                CoverageInfo data = (CoverageInfo) info;
                IO.schemaGrid(json.putObject("schema"),data,false); 
            }
-       }
-       return json;
+        }
+        return json;
+    }
+
+    JSONObj layer(JSONObj json, LayerInfo info, boolean details) {
+        if (details) {
+            IO.layer(json, info);
+        } else {
+            json.put("name", info.getName()).put("workspace",
+                    info.getResource().getStore().getWorkspace().getName());
+        }
+        return json;
     }
 
     Iterable<String> listResources(StoreInfo store) throws IOException {
