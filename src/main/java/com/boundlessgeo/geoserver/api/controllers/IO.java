@@ -44,9 +44,11 @@ import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.PropertyType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.util.GenericName;
 
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
@@ -75,9 +77,21 @@ public class IO {
                 LOG.log(Level.WARNING, "Unable to determine srs from crs: " + crs, e);
             }
         }
-
+        
+        if (crs.getName() != null) {
+            ReferenceIdentifier name = crs.getName();
+            if (name instanceof GenericName) {
+                obj.put("title", ((GenericName) name).tip().toString());
+            } else {
+                obj.put("title", name.toString());
+            }
+        }
+        
         if (srs != null) {
             obj.put("srs", srs);
+        }
+        else {
+            obj.put("srs", "UNKNOWN");
         }
 
         if (crs == null && srs != null) {
