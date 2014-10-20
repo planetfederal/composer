@@ -15,9 +15,6 @@ angular.module('gsApp.data', [
     function($scope, GeoServer, $state, $log) {
       $scope.title = 'All Data';
 
-      /*GeoServer.alldata.get().$promise.then(function(data) {
-        $scope.data = data;
-      });*/
       $scope.datastores = GeoServer.datastores.get().datastores;
 
       $scope.pagingOptions = {

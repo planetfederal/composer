@@ -15,29 +15,45 @@ angular.module('gsApp.layers.style', [
 .controller('LayerStyleCtrl', ['$scope', '$stateParams', 'GeoServer', '$log',
     function($scope, $stateParams, GeoServer, $log) {
       var wsName = $stateParams.workspace;
-      var name = $stateParams.name;
+      var layerName = $stateParams.name;
 
-      GeoServer.layer.get({ name: name, workspace: wsName }).$promise
-        .then(function(layer) {
+      GeoServer.layer.get(wsName, layerName).then(function(result) {
+        if (result.success == true) {
+          $scope.layer = result.data;
+
           $scope.mapOpts = {
             workspace: wsName,
-            layers: [{name: layer.name, visible: true}],
-            proj: layer.proj,
-            bbox: layer.bbox.native,
-            center: layer.bbox.native.center
+            layers: [{name: $scope.layer.name, visible: true}],
+            proj: $scope.layer.proj,
+            bbox: $scope.layer.bbox.native,
+            center: $scope.layer.bbox.native.center
           };
 
-          GeoServer.style.get(wsName, name).then(function(result) {
-            $scope.style = result.data;
+          GeoServer.style.get(wsName, layerName).then(function(result) {
+            if (result.success == true) {
+              $scope.style = result.data;
+            } else {
+              $scope.alerts = [{
+                type: 'danger',
+                message: 'Could not retrieve style for layer: ' + layerName
+              }];
+            }
           });
-        });
+
+        } else {
+          $scope.alerts = [{
+            type: 'danger',
+            message: 'Could not retrieve layer info for : ' + layerName
+          }];
+        }
+      });
 
       $scope.refreshMap = function() {
         $scope.$broadcast('olmap-refresh');
       };
       $scope.saveStyle = function() {
         var content = $scope.editor.getValue();
-        GeoServer.style.put(wsName, name, content).then(function(result) {
+        GeoServer.style.put(wsName, layerName, content).then(function(result) {
           if (result.success == true) {
             $scope.markers = null;
             $scope.alerts = [{
