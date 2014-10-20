@@ -8,7 +8,7 @@ angular.module('gsApp.workspaces.data.attributes', [])
       $scope.layerOrResource = layerOrResource;
       $scope.attributes = attributes;
 
-      $scope.title = 'Attributes for ' + $scope.layerOrResource;
+      $scope.title = layerOrResource;
 
       $scope.close = function () {
         $modalInstance.dismiss('close');
