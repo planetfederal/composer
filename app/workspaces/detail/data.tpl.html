@@ -35,7 +35,7 @@
             <div class="rsrc_info"><strong>Data Attributes:</strong><a ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);"> {{ rsrc.schema.attributes.length }} Attributes <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i></a></div>
             <div ng-if="rsrc.proj.srs" class="rsrc_info"><strong>Projection:</strong> {{ rsrc.proj.srs }}</div>
             <div ng-if="rsrc.layers.length > 0">
-              <div class="info"><strong>Layers:</strong></div>
+              <div class="info"><strong>Layers published from this Resource:</strong></div>
               <accordion ng-repeat="layer in allRetrievedLayers" >
                 <accordion-group ng-repeat="rsrcLayer in rsrc.layers" ng-if="rsrcLayer.name==layer.name" class="layer" is-open="status.open">
                   <accordion-heading class="layer-header">

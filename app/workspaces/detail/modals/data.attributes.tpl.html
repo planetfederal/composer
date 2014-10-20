@@ -1,6 +1,7 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title">{{ title }}</h4>
+  <h4 class="modal-title"><strong>{{ title }}</strong></h4>
+  <small>{{ attributes.length }} Attributes in this Resource</small>
   </div>
   <div class="modal-body">
     <div class="row" ng-if="attributes.length > 20" ng-repeat="row in attributes | partition:3 ">
