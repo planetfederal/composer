@@ -32,12 +32,12 @@ angular.module('gsApp.workspaces.data', [
             var format = ds.format.toLowerCase();
             if (format === 'shapefile') {
               ds.sourcetype = 'shp';
-            } else if (format === 'directory of spatial files') {
-              ds.sourcetype = 'shp dir';
             } else if (ds.kind.toLowerCase() === 'raster') {
               ds.sourcetype = 'raster';
             } else if (ds.type.toLowerCase() === 'database') {
               ds.sourcetype = 'database';
+            } else if (format.indexOf('directory of spatial files')!==-1) {
+              ds.sourcetype = 'shp_dir';
             }
           });
         });
@@ -70,34 +70,17 @@ angular.module('gsApp.workspaces.data', [
       $scope.allRetrievedLayers = [];
 
       $scope.selectStore = function(store) {
+        if ($scope.selectedStore &&
+              $scope.selectedStore.name===store.name) {
+          return;
+        }
         $scope.selectedStore = store;
+
         GeoServer.datastores.getDetails($scope.workspace, store.name).then(
         function(result) {
           if (result.success) {
             var storeData = result.data;
             $scope.selectedStore = storeData;
-
-            for (var i=0; i < storeData.resources.length; i++) {
-              for (var k=0; k < storeData.resources[i].layers.length; k++) {
-                var layer = storeData.resources[i].layers[k];
-                var rsrc = $scope.selectedStore.resources[i];
-
-                GeoServer.layer.get($scope.workspace, layer.name).then(
-                  function(result) {
-                    if (result.success) {
-                      $scope.allRetrievedLayers.push(result.data);
-                    } else {
-                      $rootScope.alerts = [{
-                        type: 'warning',
-                        message: 'Details for ' + layer.name +
-                          ' could not be loaded.',
-                        fadeout: true
-                      }];
-                    }
-                  });
-              }
-            }
-
           } else {
             $rootScope.alerts = [{
               type: 'warning',
@@ -146,23 +129,6 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
-      $scope.updateStore = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/data.update.tpl.html',
-          controller: 'WorkspaceUpdateDataCtrl',
-          backdrop: 'static',
-          size: 'md',
-          resolve: {
-            workspace: function() {
-              return $scope.workspace;
-            },
-            store: function() {
-              return $scope.selectedStore;
-            }
-          }
-        });
-      };
-
       $scope.showLayer = function(layer) {
         $state.go('workspace.layers', { 'layer': layer });
       };
@@ -183,4 +149,20 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
+      $scope.enableDisableStore = function(store) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/data.update.tpl.html',
+          controller: 'UpdateStoreCtrl',
+          size: 'md',
+          resolve: {
+            store: function() {
+              return store;
+            },
+            workspace: function() {
+              return $scope.workspace;
+            }
+          }
+        });
+
+      };
     }]);

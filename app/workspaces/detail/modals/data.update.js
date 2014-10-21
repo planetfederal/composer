@@ -1,28 +1,44 @@
 angular.module('gsApp.workspaces.data.update', [])
-.controller('WorkspaceUpdateDataCtrl', ['workspace', 'store', '$scope',
-    '$rootScope', '$modalInstance',
-    function (workspace, store, $scope, $rootScope, $modalInstance) {
+.controller('UpdateStoreCtrl', ['store', 'workspace',
+  '$scope', '$rootScope', '$state', '$log', '$modalInstance',
+  'GeoServer', 'AppEvent',
+    function(store, workspace, $scope, $rootScope, $state, $log,
+      $modalInstance, GeoServer) {
 
-      $scope.title = 'Update Data Store';
-      $scope.storeUndefined = false;
-
-      $scope.workspace = workspace;
       $scope.store = store;
+      $scope.workspace = workspace;
+      $scope.storeDisabled = false;
 
-      if (!store) {
-        $scope.storeUndefined = true;
-      }
+      var enabled = !$scope.store.enabled;
+      $scope.desiredState = enabled? ' enabled' : ' disabled';
+      $scope.desiredStateTitle = enabled? 'Enable ' : 'Disable ';
 
-      $scope.cancel = function() {
-        $modalInstance.dismiss('close');
+      $scope.disableStore = function () {
+        GeoServer.datastores.getDetails(
+          $scope.workspace, store.name, { 'enabled': enabled })
+        .then(function(result) {
+
+          if (result.success && result.data.enabled===enabled) {
+            $scope.store.enabled = !$scope.store.enabled;
+            $scope.store.resource = {};
+            $rootScope.alerts = [{
+              type: 'danger',
+              message: 'Store ' + $scope.store.name + $scope.desiredState,
+              fadeout: true
+            }];
+          } else {
+            $rootScope.alerts = [{
+              type: 'danger',
+              message: 'Store ' + $scope.store.name +
+                ' could not be' + $scope.desiredState,
+              fadeout: true
+            }];
+          }
+        });
+        $modalInstance.close($scope.store);
       };
 
-      $scope.save = function() {
-        $modalInstance.dismiss('save');
-        $rootScope.alerts = [{
-          type: 'warning',
-          message: 'Store update API is still in progress...',
-          fadeout: true
-        }];
+      $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
       };
     }]);
