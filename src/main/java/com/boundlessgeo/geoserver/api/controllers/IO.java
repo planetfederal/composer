@@ -418,9 +418,6 @@ public class IO {
                 .put("cause", cause)
                 .put("trace", Throwables.getStackTraceAsString(error));
         }
-        else {
-            json.put("message", "Unknown error");
-        }
         return json;
     }
     
