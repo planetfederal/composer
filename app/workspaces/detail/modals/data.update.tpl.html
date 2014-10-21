@@ -1,17 +1,19 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title">{{ desiredStateTitle }} Store?</h4>
+    <h4 class="modal-title">{{ desiredStateTitle }} Store</h4>
   </div>
   <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
-    <p ng-hide="store.disabled">
-      All data and layers from <strong>{{ store.name }}</strong> not be available until you enable the store again.
+    <p ng-show="store.enabled">
+      All data and layers from <strong>{{ store.name }}</strong> not be available until you enable the store again. Are you sure?
     </p>
-    <p>
-      Are you sure?
+
+    <p ng-show="!store.enabled">
+      Enable store <strong>{{ store.name }}</strong>?
     </p>
   </div>
   <div class="modal-footer">
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-    <button class="btn btn-danger btn-sm" ng-click="disableStore();" style="margin-left:20px; margin-right:20px;">Yes, Disable</button>
+    <button ng-show="store.enabled" class="btn btn-danger btn-sm" ng-click="toggleStore();" style="margin-left:20px; margin-right:20px;">Yes, Disable</button>
+    <button ng-show="!store.enabled" class="btn btn-success btn-sm" ng-click="toggleStore();" style="margin-left:20px; margin-right:20px;">Enable</button>
   </div>
 </div>
