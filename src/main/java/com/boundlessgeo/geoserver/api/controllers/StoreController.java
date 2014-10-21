@@ -442,7 +442,7 @@ import com.google.common.collect.Iterables;
         for (Entry<String, Serializable> param : params.entrySet()) {
             String key = param.getKey();
             Object value = param.getValue();
-            String text = value.toString();
+            String text = value == null ? null : value.toString();
             
             connection.put( key, text );
         }
