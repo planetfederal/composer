@@ -56,16 +56,13 @@ angular.module('gsApp.layers', [
       '</div>'
   };
 })
-.controller('LayersCtrl', ['$scope', '$stateParams', 'GeoServer', '$state',
+.controller('LayersCtrl', ['$scope', 'GeoServer', '$state',
     '$log', '$modal', '$window', '$rootScope',
-    function($scope, $stateParams, GeoServer, $state, $log, $modal, $window,
+    function($scope, GeoServer, $state, $log, $modal, $window,
       $rootScope) {
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
-
-      //TODO: Grab the thumbnail if it exists.
-      //$scope.thumbnail = GeoServer.map.thumbnail.get(workspace, map,
-        //layer.name, 250, 250);
+      $scope.dropdownBoxSelected = '';
 
       $scope.onStyleEdit = function(layer) {
         $state.go('layer.style', {
@@ -77,7 +74,6 @@ angular.module('gsApp.layers', [
         var target = evt.targetScope;
         var field = target.col.field;
         var layer = target.row.entity;
-        var ws;
 
         var patch = {};
         patch[field] = layer[field];
@@ -124,19 +120,87 @@ angular.module('gsApp.layers', [
                   }
                 });
 
-              $scope.ok = function() {
-                $window.alert('TODO: add the new layer.');
-                //GeoServer.layers.put({workspace: $scope.ws},
-                  //$scope.form.layer);
+              $scope.ok = function(layerName) {
+                $window.alert('TODO: add the new layer: ' + layerName +
+                  ' to the workspace: ' + $scope.ws + '.');
+                GeoServer.layers.put(
+                  {workspace: $scope.ws},
+                  layerName
+                );
                 $modalInstance.dismiss('cancel');
               };
 
               $scope.cancel = function() {
                 $modalInstance.dismiss('cancel');
               };
+
+              $scope.checkName = function(layerName) {
+                $scope.layerNameCheck = GeoServer.layer.get($scope.ws,
+                  layerName);
+                  
+                //Check to see if the incoming layerName already exists for this
+                //  workspace. If it does, show the error, if not, keep going.
+                GeoServer.layer.get($scope.ws, layerName).then(
+                  function(result) {
+                    if (result.success) {
+                      $scope.layerNameCheck = result.data;
+                    } else {
+                      $scope.alerts = [{
+                        type: 'warning',
+                        message: 'Layers could not be loaded.',
+                        fadeout: true
+                      }];
+                    }
+
+                    if ($scope.layerNameCheck.name) {
+                      $scope.layerNameError = true;
+                    }
+                    else {
+                      $scope.layerNameError = false;
+                    }
+                  });
+              };
+
+              //TODO: Grab the thumbnail if it exists.
+              //      Is this even required here as the user is creating the
+              //      layer for the first time and thus there won't be a
+              //      thumbnail of this layer yet?
+              /*
+              if ($scope.layerForm.Layer.name) {
+                $scope.thumbnail = GeoServer.map.thumbnail.get($scope.ws,
+                  $scope.layer.name, 400, 200);
+
+                GeoServer.map.thumbnail.get($scope.ws,
+                  $scope.layerForm.Layer.name, 400, 200).then(function(result) {
+                    if (result.success) {
+                      $scope.thumbnail = result;
+                    } else {
+                      $scope.alerts = [{
+                        type: 'warning',
+                        message: 'Thumbnail could not be loaded.',
+                        fadeout: true
+                      }];
+                    }
+
+                    if ($scope.thumbnail) {
+                      $scope.thumbnail = result;
+                    }
+                    else {
+                      $scope.thumbnail = '';
+                    }
+                  });
+              }
+              */
             }],
           size: 'lg'
         });
+      };
+
+      $scope.addSelectedLayerToMap = function(ws, map, gridSelections) {
+        $window.alert('TODO: Add selected layers: ' + gridSelections + ' to ' +
+          ' the map: ' + map + ' and workspace: ' + ws);
+        GeoServer.layer
+          .update({ workspace: ws, name: map}, gridSelections);
       };
 
       $scope.deleteLayer = function(layer) {
@@ -156,6 +220,7 @@ angular.module('gsApp.layers', [
                 $modalInstance.dismiss('cancel');
               };
             }],
+          backdrop: 'static',
           size: 'med'
         });
       };
@@ -164,6 +229,7 @@ angular.module('gsApp.layers', [
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/addnew-modal.tpl.html',
           controller: 'AddNewModalCtrl',
+          backdrop: 'static',
           size: 'lg',
           resolve: {
             workspace: function() {
@@ -174,6 +240,23 @@ angular.module('gsApp.layers', [
             }
           }
         });
+      };
+
+      angular.element($window).bind('scroll', function(){
+        if ($scope.dropdownBoxSelected != '') {
+          $scope.setTop($scope.dropdownBoxSelected);
+        }
+      });
+
+      $scope.setTop = function(e) {
+        var winScroll = angular.element($window).scrollTop();
+        var icon = angular.element('#icon-' + e);
+        var iconTop = $window.Number(icon.css('top').replace('px',''));
+        var dropdownBox = angular.element('#download-' + e);
+        var dropdownBoxTop = iconTop - winScroll;
+
+        dropdownBox.css('top', dropdownBoxTop + 'px');
+        $scope.dropdownBoxSelected = e;
       };
 
       $scope.pagingOptions = {
@@ -282,11 +365,14 @@ angular.module('gsApp.layers', [
             sortable: false,
             cellTemplate:
               '<li class="list-unstyled dropdown">' +
-                '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
-                  '<i class="fa fa-download grid-icons" alt="Download Layer"' +
-                    'title="Download Layer"></i>' +
+                '<div id="icon-{{row.entity.name}}" class="icon-fixed"></div>' +
+                '<a ng-click="setTop(row.entity.name)" ' +
+                  'class="dropdown-toggle">' +
+                  '<div class="fa fa-download grid-icons" ' +
+                    'alt="Download Layer" title="Download Layer"></div>' +
                 '</a>' +
-                '<ul id="download-dropdown" class="dropdown-menu">' +
+                '<ul id="download-{{row.entity.name}}" ' +
+                  'class="download-dropdown dropdown-menu">' +
                   '<li><a href="#">Shapefile</a></li>' +
                   '<li><a href="#">GeoJSON</a></li>' +
                   '<li><a href="#">KML</a></li>' +
@@ -337,8 +423,22 @@ angular.module('gsApp.layers', [
               fadeout: true
             }];
           }
+        });
+      };
 
-
+      $scope.refreshMaps = function(ws) {
+        GeoServer.maps.get(ws).then(
+        function(result) {
+          if (result.success) {
+            var maps = result.data;
+            $scope.maps = maps;
+          } else {
+            $scope.alerts = [{
+              type: 'warning',
+              message: 'Failed to get map list.',
+              fadeout: true
+            }];
+          }
         });
       };
 
@@ -354,9 +454,15 @@ angular.module('gsApp.layers', [
       $scope.$watch('workspace.selected', function(newVal) {
         if (newVal != null) {
           $scope.refreshLayers(newVal);
+          $scope.refreshMaps(newVal.name);
         }
       });
 
+      $scope.mapChanged = function(map) {
+        $scope.mapTitle = map;
+        $scope.map.saved = false;
+      };
+      
       GeoServer.workspaces.get().then(
         function(result) {
           if (result.success) {
