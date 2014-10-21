@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.WordUtils;
 import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogFactory;
@@ -49,6 +50,7 @@ import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStore;
 import org.geotools.data.ows.Layer;
+import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.Converters;
@@ -56,6 +58,7 @@ import org.geotools.util.NullProgressListener;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
+import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -250,7 +253,7 @@ import com.google.common.collect.Iterables;
         return storeDetails(new JSONObj(), store);
     }
     
-    void resetConnection(StoreInfo store ){
+    private void resetConnection(StoreInfo store ){
         Catalog cat = geoServer.getCatalog();
         if (store instanceof CoverageStoreInfo) {
             cat.getResourcePool().clear((CoverageStoreInfo) store);
@@ -276,7 +279,7 @@ import com.google.common.collect.Iterables;
     }
     
     @SuppressWarnings("unchecked")
-    boolean define( StoreInfo store, JSONObj obj ){
+    private boolean define( StoreInfo store, JSONObj obj ){
         boolean reconnect = false;
         for( String prop : obj.keys()){
             if("description".equals(prop)){
@@ -417,7 +420,7 @@ import com.google.common.collect.Iterables;
         }
     }
 
-    JSONObj store(JSONObj obj, StoreInfo store) {       
+    private JSONObj store(JSONObj obj, StoreInfo store) {       
         String name = store.getName();
 
         obj.put("name", name)
@@ -434,7 +437,7 @@ import com.google.common.collect.Iterables;
         return IO.metadata(obj, store);
     }
 
-    JSONObj storeDetails(JSONObj json, StoreInfo store) throws IOException {
+    private JSONObj storeDetails(JSONObj json, StoreInfo store) throws IOException {
         store(json, store);
 
         JSONObj connection = new JSONObj();
@@ -460,13 +463,38 @@ import com.google.common.collect.Iterables;
         if (store.isEnabled()) {
             resources(store, json.putArray("resources"));
         }
-
-        layers(store, json.putArray("layers"));
+        json.put("layer-count",layerCount(store));
 
         return json;
     }
+    int layerCount(StoreInfo store) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = store.getWorkspace();
 
-    JSONArr layers(StoreInfo store, JSONArr list) throws IOException {
+        Filter filter = and(equal("store", store), equal("namespace.prefix", ws.getName()));
+        int count=0;
+        try (CloseableIterator<ResourceInfo> layers = cat.list(ResourceInfo.class, filter);) {
+            while (layers.hasNext()) {
+                ResourceInfo r = layers.next();
+                for (LayerInfo l : cat.getLayers(r)) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private JSONArr layers(ResourceInfo r, JSONArr list) throws IOException {
+        if (r != null) {
+            Catalog cat = geoServer.getCatalog();
+            for (LayerInfo l : cat.getLayers(r)) {
+                layer(list.addObject(), l, true);
+            }
+        }
+        return list;
+    }
+    
+    private JSONArr layers(StoreInfo store, JSONArr list) throws IOException {
         Catalog cat = geoServer.getCatalog();
         WorkspaceInfo ws = store.getWorkspace();
 
@@ -483,33 +511,49 @@ import com.google.common.collect.Iterables;
         return list;
     }
 
-    JSONArr resources(StoreInfo store, JSONArr list) throws IOException {
+    private JSONArr resources(StoreInfo store, JSONArr list) throws IOException {
         Catalog cat = geoServer.getCatalog();
         WorkspaceInfo ws = store.getWorkspace();
 
         for (String resource : listResources(store)) {
             JSONObj obj = list.addObject();
             obj.put("name", resource);
-            
             if(store instanceof DataStoreInfo){
                 DataStoreInfo data = (DataStoreInfo) store;
                 
                 @SuppressWarnings("rawtypes")
                 DataAccess dataStore = data.getDataStore(new NullProgressListener());
+                FeatureType schema;
+                org.geotools.data.ResourceInfo info;
+                if (dataStore instanceof DataStore) {
+                    schema = ((DataStore) dataStore).getSchema(resource);
+                    info = ((DataStore) dataStore).getFeatureSource(resource).getInfo();
+                } else {
+                    NameImpl name = new NameImpl(resource);
+                    schema = dataStore.getSchema(name);
+                    info = dataStore.getFeatureSource(name).getInfo();
+                }
+                String title = info.getTitle() == null
+                        ? WordUtils.capitalize(resource)
+                        : info.getTitle();
+                String description = info.getDescription() == null ? "" : info.getDescription();
+                obj.put("title", title);
+                obj.put("description", description);
                 
-                FeatureType schema = dataStore instanceof DataStore
-                        ? ((DataStore)dataStore).getSchema(resource)
-                        : dataStore.getSchema( new NameImpl(resource) );
-                
-                IO.schema( obj.putObject("schema"), schema, false );
+                JSONArr keywords = obj.putArray("keywords");
+                keywords.raw().addAll( info.getKeywords() );
+                IO.bounds(obj.putObject("bounds"),info.getBounds());
+                IO.schema(obj.putObject("schema"), schema, false);
             }
             if(store instanceof CoverageStoreInfo){
                 CoverageStoreInfo data = (CoverageStoreInfo) store;
                 GridCoverageReader r = data.getGridCoverageReader(null, null);
+                obj.put("title", WordUtils.capitalize(resource));
+                obj.put("description", "");
                 if( r instanceof GridCoverage2DReader){
                     GridCoverage2DReader reader = (GridCoverage2DReader) r;
                     CoordinateReferenceSystem crs = reader.getCoordinateReferenceSystem(resource);
-                    IO.schemaGrid( obj.putObject("schema"), crs, false );
+                    IO.schemaGrid(obj.putObject("schema"), crs, false);
                 }
                 else {
                     IO.schemaGrid( obj.putObject("schema"), AbstractGridFormat.getDefaultCRS(), false);
@@ -519,8 +563,8 @@ import com.google.common.collect.Iterables;
             JSONArr layers = obj.putArray("layers");
             if (store instanceof CoverageStoreInfo) {
                 // coverage store does not respect native name so we search by id
-                for (CoverageInfo info : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {               
-                    resource( layers.addObject(), info, false );
+                for (CoverageInfo info : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {
+                    layers( info, layers );
                 }
             }
             else {
@@ -533,7 +577,7 @@ import com.google.common.collect.Iterables;
                         if (!info.getStore().getId().equals(store.getId())) {
                             continue; // native name is not enough, double check store id
                         }
-                        resource( layers.addObject(), info, false );
+                        layers( info, layers );
                     }
                 }
             }
@@ -541,7 +585,7 @@ import com.google.common.collect.Iterables;
         return list;
     }
     
-    JSONObj resource( JSONObj json, ResourceInfo info, boolean details){
+    private JSONObj resource( JSONObj json, ResourceInfo info, boolean details){
         json.put("name", info.getName())
             .put("workspace", info.getStore().getWorkspace().getName() );
         if( details ){
@@ -560,7 +604,7 @@ import com.google.common.collect.Iterables;
         return json;
     }
 
-    JSONObj layer(JSONObj json, LayerInfo info, boolean details) {
+    private JSONObj layer(JSONObj json, LayerInfo info, boolean details) {
         if (details) {
             IO.layer(json, info);
         } else {
@@ -570,7 +614,7 @@ import com.google.common.collect.Iterables;
         return json;
     }
 
-    Iterable<String> listResources(StoreInfo store) throws IOException {
+    private Iterable<String> listResources(StoreInfo store) throws IOException {
         if (store instanceof DataStoreInfo) {
             return Iterables.transform(((DataStoreInfo) store).getDataStore(null).getNames(),
                 new Function<Name, String>() {
@@ -660,12 +704,12 @@ import com.google.common.collect.Iterables;
         return "undertermined";
     }
     
-    String source(File file) {
+    private String source(File file) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
         return file.isAbsolute() ? file.toString() : Paths.convert(baseDirectory,file);
     }
 
-    String source(URL url) {
+    private String source(URL url) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
         
         if (url.getProtocol().equals("file")) {
@@ -677,7 +721,7 @@ import com.google.common.collect.Iterables;
         return url.toExternalForm();
     }
 
-    String sourceURL(String url) {
+    private String sourceURL(String url) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
 
         File file = Files.url(baseDirectory, url);
@@ -687,7 +731,7 @@ import com.google.common.collect.Iterables;
         return url;
     }
 
-    String sourceFile(String file) {
+    private String sourceFile(String file) {
         File baseDirectory = dataDir().getResourceLoader().getBaseDirectory();
 
         File f = new File( file );
