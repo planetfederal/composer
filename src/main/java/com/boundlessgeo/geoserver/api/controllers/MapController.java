@@ -7,6 +7,7 @@ import static org.geoserver.catalog.Predicates.equal;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -17,6 +18,7 @@ import javax.annotation.Nullable;
 import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+
 import org.apache.commons.httpclient.util.DateUtil;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -36,7 +38,9 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
+
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
+
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,8 +104,15 @@ public class MapController extends ApiController {
         else {
             bounds = new ReferencedEnvelope(crs);
         }
-
         Catalog cat = geoServer.getCatalog();
+        List<LayerInfo> layers = new ArrayList<LayerInfo>();
+        for(Iterator<Object> i = obj.array("layers").iterator();i.hasNext();){
+            JSONObj l = (JSONObj) i.next();
+            String n = l.str("workspace")+":"+l.str("name");
+            LayerInfo layer = cat.getLayerByName(n);
+            layers.add(layer);
+        }
+
         LayerGroupInfo map = cat.getFactory().createLayerGroup();
         map.setName( name );
         map.setAbstract( description );
@@ -109,7 +120,8 @@ public class MapController extends ApiController {
         map.setMode( Mode.SINGLE );
         map.setWorkspace( findWorkspace(wsName) );
         map.setBounds( bounds );
-
+        map.layers().addAll(layers);
+        
         Metadata.created(map, created);
         Metadata.modified(map, created);
 
@@ -146,6 +158,7 @@ public class MapController extends ApiController {
                                      @PathVariable String name, 
                                      @RequestBody JSONObj obj) {
         LayerGroupInfo map = findMap(wsName, name);
+        Catalog cat = geoServer.getCatalog();
         
         if(obj.has("name")){
             map.setName( obj.str("name"));
@@ -169,18 +182,29 @@ public class MapController extends ApiController {
             Envelope envelope = IO.bounds(obj.object("bbox"));
             ReferencedEnvelope bounds = new ReferencedEnvelope( envelope, crs );
             map.setBounds(bounds);
-        }        
+        }
+        if(obj.has("layers")){
+            List<LayerInfo> layers = new ArrayList<LayerInfo>();
+            for(Iterator<Object> i = obj.array("layers").iterator();i.hasNext();){
+                JSONObj l = (JSONObj) i.next();
+                String n = l.str("workspace")+":"+l.str("name");
+                LayerInfo layer = cat.getLayerByName(n);
+                layers.add(layer);
+            }
+            map.layers().clear();
+            map.layers().addAll(layers);
+        }
+        // update configuration history        
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         map.getMetadata().put("user", user );
-        
         map.getMetadata().put("modified", new Date() );
-        
         if(obj.has("change")){
             map.getMetadata().put("change", obj.str("change") );
         }
         else {
             map.getMetadata().put("change", "modified "+obj.keys() );
         }
+        
         return mapDetails(new JSONObj(), map, wsName);
     }
     
