@@ -71,7 +71,7 @@ var deps = {
 
   css: [
     'angular-grid/ng-grid.css',
-    'angular-ui-select/dist/select.min.css',
+    'angular-ui-select/dist/select.css',
     'codemirror/lib/codemirror.css',
     'codemirror/addon/hint/show-hint.css',
     'codemirror/addon/fold/foldgutter.css',

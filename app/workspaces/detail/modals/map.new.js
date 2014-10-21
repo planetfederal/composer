@@ -1,18 +1,22 @@
 angular.module('gsApp.workspaces.maps.new', [
   'ngSanitize',
-  'gsApp.alertpanel'
+  'gsApp.alertpanel',
+  'ui.select'
 ])
-.controller('WorkspaceNewMapCtrl', ['workspace', '$scope',
+.controller('WorkspaceNewMapCtrl', ['workspace', '$scope', '$rootScope',
   '$modalInstance', 'GeoServer',
-  function (workspace, $scope, $modalInstance, GeoServer) {
+  function (workspace, $scope, $rootScope, $modalInstance, GeoServer) {
 
     $scope.workspace = workspace;
-    $scope.mapInfo = {};
-    $scope.newMap = {};
-
-    $scope.ok = function () {
-      $modalInstance.close();
+    $scope.mapInfo = {
+      'abstract': ''
     };
+    $scope.layers = [];
+    $scope.selectedLayers = [];
+    $scope.newMap = {};
+    $scope.map = {};
+    $scope.title = 'New Map';
+    $scope.step = 1;
 
     $scope.cancel = function () {
       $modalInstance.dismiss('cancel');
@@ -26,17 +30,47 @@ angular.module('gsApp.workspaces.maps.new', [
         '</a>' +
       '</p>';
 
+    $scope.loadLayers = function() {
+      GeoServer.layers.getAll($scope.workspace).then(
+        function(result) {
+          if (result.success) {
+            $scope.layers = result.data.layers;
+          } else {
+            $scope.alerts = [{
+              type: 'danger',
+              message: 'Unable to load workspace layers.',
+              fadeout: true
+            }];
+          }
+        });
+      };
+    $scope.loadLayers();
+
+    $scope.addLayers = function() {
+      $scope.step = 2;
+
+    };
 
     $scope.createMap = function(isValid) {
       if (isValid) {
+        $scope.mapInfo.layers = [];
+        for (var i=0; i< $scope.map.layers.length; i++) {
+          $scope.mapInfo.layers.push({
+            'name': $scope.map.layers[i],
+            'workspace': $scope.workspace
+          });
+        }
+        $scope.map.layers = [];
+        console.log($scope.mapInfo);
+
         GeoServer.map.create(workspace, $scope.mapInfo).then(
           function(result) {
             if (result.success) {
-              //console.log(result.data)
+              console.log(result.data)
             } else {
-              $scope.alerts = [{
-                type: 'warning',
-                message: 'Feature yet to be implemented.',
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Could not create map.',
                 fadeout: true
               }];
             }

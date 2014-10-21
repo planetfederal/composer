@@ -157,6 +157,20 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot+'/layers/'+workspace+'?page='+page+
                 '&pagesize='+pagesize
             });
+          },
+          getAll: function(workspace) {
+            workspace = workspace? workspace : 'default';
+            return http({
+              method: 'GET',
+              url: apiRoot+'/layers/'+workspace
+            });
+          },
+          put: function(workspace, map, layers) {
+            return http({
+              method: 'PUT',
+              url: apiRoot+'/maps/'+workspace+'/'+map+'/layers',
+              data: JSON.stringify(layers)
+            });
           }
         },
 
@@ -231,11 +245,12 @@ angular.module('gsApp.core.backend',[])
             });
           },
 
-          create: function(workspace, map) {
+          // requires at least one layer
+          create: function(workspace, mapData) {
             return http({
               method: 'POST',
               url: apiRoot+'/maps/'+workspace,
-              data: map
+              data: mapData
             });
           },
 
@@ -252,16 +267,6 @@ angular.module('gsApp.core.backend',[])
               method: 'DELETE',
               url: apiRoot+'/maps/'+workspace+'/'+name
             });
-          },
-
-          layers: {
-            put: function(workspace, map, layers) {
-              return http({
-                method: 'PUT',
-                url: apiRoot+'/maps/'+workspace+'/'+map+'/layers',
-                data: JSON.stringify(layers)
-              });
-            }
           },
 
           thumbnail: {

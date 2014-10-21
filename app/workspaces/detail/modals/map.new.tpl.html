@@ -1,14 +1,18 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title">New Map in <strong>{{ workspace }}</strong> workspace</h4>
+    <h4 class="modal-title">
+      <i class="icon-folder-open"></i> <strong>{{ workspace }}</strong>
+      <i class="fa fa-angle-right" style="padding: 0 5px;"></i> {{ title }}
+    </h4>
   </div>
   <div class="modal-body">
     <div class="row">
       <div class="col-xs-10 col-xs-offset-1">
-        <form name="newMap" role="form" class="newMapForm">
+        <form ng-hide="step==2" name="newMap" role="form" class="newMapForm">
+          <h4>Step 1. Map Info > Next: Step 2. Add Layer</h4>
           <div class="form-group" name="newMapName">
             <label for="name">Map Name*</label>
-            <input type="text" class="form-control input-sm" name="name" ng-model="map.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
+            <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
             <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
             <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
             <small>(No spaces.)</small>
@@ -17,14 +21,29 @@
             <label for="map.crs">
               Projection* <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
             </label>
-            <input type="text" class="form-control input-sm" name="crs" ng-model="map.proj" required ng-pattern="/^(epsg|EPSG):[0-9]+$/" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}">
+            <input type="text" class="form-control input-sm" name="crs" ng-model="mapInfo.projection" required ng-pattern="/^(epsg|EPSG):[0-9]+$/" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}">
             <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
             <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
             <small>(e.g. EPSG:4326)</small>
           </div>
           <div class="form-group" name="newMapAbstract">
             <label for="abstract">Abstract</label>
-            <textarea rows="4" cols="40" class="form-control abstract" name="abstract" ng-model="map.abstract" ng-minlength="1">Description for map</textarea>
+            <textarea rows="4" cols="40" class="form-control abstract" name="abstract" ng-model="mapInfo.abstract" ng-minlength="1">Description for map</textarea>
+          </div>
+        </form>
+        <form ng-show="step==2" name="newMapLayers" role="form" class="newMapForm">
+          <h4>Step 2. Add Layer(s)</h4>
+          <div class="form-group" name="layer">
+            <label for="layers">Available Layers:</label>
+
+            <ui-select multiple ng-model="map.layers" ng-disabled="disabled" theme="bootstrap" style="width:100%;" ng-minlength="1" required>
+              <ui-select-match placeholder="Choose one or more Layers...">
+                {{ $item.name }}
+              </ui-select-match>
+              <ui-select-choices repeat="layer.name as layer in layers">
+                  <div ng-bind-html="layer.name | highlight: $select.search"></div>
+              </ui-select-choices>
+            </ui-select>
           </div>
         </form>
         <div ng-hide="mapCreated" style="margin-top:15px;"></div>
@@ -34,8 +53,9 @@
   </div>
   <div class="modal-footer">
     <small class="pull-left">* = Required</small>
+    <button class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-    <button class="btn btn-primary btn-sm" ng-click="createMap(newMap.$valid)" style="margin-left:20px;" ng-disabled="!newMap.$valid">Create</button>
-    <button class="btn btn-success btn-sm" ng-click="addLayers()" style="margin-left: 20px;margin-right: 20px;" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
+    <button ng-show="step!==1" class="btn btn-primary btn-sm" ng-click="createMap(newMap.$valid)" ng-disabled="!newMap.$valid">Create</button>
+    <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="addLayers();" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
   </div>
 </div>

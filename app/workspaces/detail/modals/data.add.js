@@ -6,7 +6,7 @@ angular.module('gsApp.workspaces.data.add', [
   function (workspace, $scope, $modalInstance, $upload, $timeout,
     GeoServer, storeAdded) {
 
-    $scope.title = 'New Data Store';
+    $scope.title = 'Add Data';
 
     $scope.workspace = workspace;
     $scope.storeAdded = storeAdded;

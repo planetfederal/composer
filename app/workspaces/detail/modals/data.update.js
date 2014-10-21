@@ -13,7 +13,7 @@ angular.module('gsApp.workspaces.data.update', [])
       $scope.desiredState = enabled? ' enabled' : ' disabled';
       $scope.desiredStateTitle = enabled? 'Enable ' : 'Disable ';
 
-      $scope.disableStore = function () {
+      $scope.toggleStore = function () {
         GeoServer.datastores.getDetails(
           $scope.workspace, store.name, { 'enabled': enabled })
         .then(function(result) {
