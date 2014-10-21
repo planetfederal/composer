@@ -287,6 +287,7 @@ import com.google.common.collect.Iterables;
             }
             else if("enabled".equals(prop)){
                 store.setEnabled(obj.bool(prop));
+                reconnect = true;
             }
             else if("name".equals(prop)){
                 store.setName(obj.str(prop));
