@@ -6,9 +6,13 @@ package com.boundlessgeo.geoserver.api.controllers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,10 +22,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogVisitorAdapter;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -41,9 +47,11 @@ import org.geoserver.platform.resource.Resources;
 import org.geotools.styling.Style;
 import org.geotools.util.KVP;
 import org.geotools.util.logging.Logging;
+
 import com.boundlessgeo.geoserver.api.exceptions.AppExceptionHandler;
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import com.boundlessgeo.geoserver.util.StyleAdaptor;
+
 import org.opengis.metadata.citation.OnLineResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -62,14 +70,17 @@ public class IconController extends ApiController {
 
     static Logger LOG = Logging.getLogger(IconController.class);
 
-    public static KVP ICON_FORMATS = new KVP(
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static Map<String,String> ICON_FORMATS = new HashMap<String,String>(
+        (Map)new KVP(
             "png","image/png",
             "jpeg","image/jpeg",
             "jpg","image/jpeg",
             "gif","image/gif",
             "svg","image/svg+xml",
             "ttf","application/font-sfnt",
-            "properties","text/x-java-properties");
+            "properties","text/x-java-properties")
+    );
     
     @Autowired
     public IconController(GeoServer geoServer) {
@@ -113,8 +124,8 @@ public class IconController extends ApiController {
             method = RequestMethod.POST,consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     public @ResponseStatus(value=HttpStatus.CREATED)
            @ResponseBody
-           JSONArr icon(@PathVariable String wsName,
-                        HttpServletRequest request )
+           JSONArr create(@PathVariable String wsName,
+                          HttpServletRequest request )
                                 throws IOException, FileUploadException {
         WorkspaceInfo ws = findWorkspace(wsName );        
         
@@ -154,11 +165,11 @@ public class IconController extends ApiController {
     }
     
 
-    @SuppressWarnings("unchecked")
-    @RequestMapping(value = "/{wsName}/{icon}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{wsName}/{icon:.+}", method = RequestMethod.GET)
     public @ResponseBody
-        JSONObj get(@PathVariable String wsName,
-                    @PathVariable String icon) throws IOException {
+    JSONObj get(@PathVariable String wsName,
+                @PathVariable String icon,
+                HttpServletRequest request) throws IOException {
 
         WorkspaceInfo ws = findWorkspace(wsName);
         Set<String> referenced = externalGraphics(wsName);
@@ -171,22 +182,48 @@ public class IconController extends ApiController {
         }
         JSONObj details = new JSONObj();
         String ext = pathExtension(icon);
-        Object format = ICON_FORMATS.get(ext.toLowerCase());
-        
+        String format = ICON_FORMATS.get(ext.toLowerCase());
+        if(format == null){
+            throw new NotFoundException("Extension "+ext+" is not listed as an icon mime type");
+        }
         details.put("name",icon).
            put("format",ext).
            put("mime",format);
         if( referenced.contains(icon)){
             details.put("used", true );
         }        
-        details.put("lastModifed", new Date( resource.lastmodified() ));
+        IO.date(details.putObject("modified"), new Date( resource.lastmodified() ));
         
-        String url = ResponseUtils.buildURL(geoServer.getSettings().getProxyBaseUrl(),"workspaces/"+ws.getName()+"/styles/"+icon,null,URLType.RESOURCE);
+//        String baseUrl = geoServer.getSettings().getProxyBaseUrl();
+//        String url = ResponseUtils.buildURL(baseUrl,"workspaces/"+ws.getName()+"/styles/"+icon,null,URLType.RESOURCE);
+        String url = request.getRequestURL().append("/raw").toString();
         details.put("url", url );
         
         return details;
     }
     
+    @RequestMapping(value = "/{wsName}/{icon:.*}/raw", method = RequestMethod.GET)
+    public HttpServletResponse raw(@PathVariable String wsName, @PathVariable String icon,
+                                   HttpServletResponse response) throws IOException {    
+        
+        WorkspaceInfo ws = findWorkspace(wsName);
+        
+        GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();
+        Resource resource = rl.get(Paths.path("workspaces",ws.getName(),"styles",icon));
+        
+        if( resource.getType() != Type.RESOURCE ){
+            throw new NotFoundException("Icon "+icon+" not found");
+        }
+        String ext = pathExtension(icon);
+        String mimeType = ICON_FORMATS.get(ext.toLowerCase());
+        
+        response.setContentType(mimeType);        
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setDateHeader("Last-Modified", resource.lastmodified() );
+        IOUtils.copy(resource.in(), response.getOutputStream());
+        
+        return response;
+    }
     @ExceptionHandler(FileUploadException.class)
     public @ResponseBody JSONObj error(FileUploadException e, HttpServletResponse response) {
         response.setStatus(HttpStatus.BAD_REQUEST.value());

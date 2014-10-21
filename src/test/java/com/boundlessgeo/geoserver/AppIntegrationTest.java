@@ -102,7 +102,7 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         body.writeTo(bout);
         request.setContent(bout.toByteArray());
         
-        JSONArr arr = ctrl.icon("cite", request );
+        JSONArr arr = ctrl.create("cite", request );
         System.out.println( arr );
         assertEquals( 1, arr.size() );
         

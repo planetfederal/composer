@@ -73,7 +73,7 @@ public class IconControllerTest {
         .resources()
           .resource("workspaces/foo/styles/one.yaml", "title: raw")
           .directory("workspaces/foo/styles")
-          .resource("workspaces/foo/styles/icon.png", "PNG8")
+          .resource("workspaces/foo/styles/icon.png", "PNG")
           .resource("workspaces/foo/styles/symbols.TTF", "TTF")
         .geoServer().catalog()
           .workspace("foo", "http://scratch.org", true)
