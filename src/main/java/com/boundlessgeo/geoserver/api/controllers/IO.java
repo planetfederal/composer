@@ -183,6 +183,7 @@ public class IO {
      *
      * @return The object passed in.
      */
+    @SuppressWarnings("unchecked")
     public static JSONObj layer(JSONObj obj, LayerInfo layer) {
         String wsName = layer.getResource().getNamespace().getPrefix();
 
@@ -192,7 +193,11 @@ public class IO {
                 .put("title", layer.getTitle() != null ? layer.getTitle() : r.getTitle())
                 .put("description", layer.getAbstract() != null ? layer.getAbstract() : r.getAbstract())
                 .put("type", type(r));
-
+        
+        JSONArr keywords = new JSONArr();
+        keywords.raw().addAll( r.keywordValues() );
+        obj.put("keywords", keywords);
+        
         if (r instanceof FeatureTypeInfo) {
             FeatureTypeInfo ft = (FeatureTypeInfo) r;
             FeatureType schema;
