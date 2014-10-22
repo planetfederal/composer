@@ -21,7 +21,7 @@
             <label for="map.crs">
               Projection* <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
             </label>
-            <input type="text" class="form-control input-sm" name="crs" ng-model="mapInfo.projection" required ng-pattern="/^(epsg|EPSG):[0-9]+$/" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}">
+            <input type="text" class="form-control input-sm" name="crs" ng-model="mapInfo.proj" required ng-pattern="/^(epsg|EPSG):[0-9]+$/" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}">
             <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
             <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
             <small>(e.g. EPSG:4326)</small>
@@ -53,7 +53,7 @@
   </div>
   <div class="modal-footer">
     <small class="pull-left">* = Required</small>
-    <button class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
+    <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
     <button ng-show="step!==1" class="btn btn-primary btn-sm" ng-click="createMap(newMap.$valid)" ng-disabled="!newMap.$valid">Create</button>
     <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="addLayers();" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
