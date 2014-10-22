@@ -1,0 +1,65 @@
+<div class="data-import-file">
+  <div class="text-center">
+    <p class="lead">
+      Upload a spatial file or a .zip file containing any number of spatial files.
+    </p>
+
+    <button class="btn btn-primary btn-sm" type="button"
+      ng-file-select="onFileSelect($files)">
+      Browse
+    </button>
+
+    <p>or</p>
+    <p>
+      <div class="drop-box" ng-file-drop="onFileSelect($files)"
+        ng-file-drag-over-class="optional-css-class-name-or-function"
+        ng-show="dropSupported">Drop files here</div>
+      <div ng-file-drop-available="dropSupported=true"
+            ng-show="!dropSupported">HTML5 Drop File is not supported</div>
+    </p>
+  </div>
+  <div class="file-list" ng-show="file != null">
+    <div class="file-name">
+      <h4>{{ file.name }}</h4>
+      <span>{{ file.size | bytesize }}</span>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <span>
+          <button class="btn btn-primary btn-sm" type="button"
+          ng-click="upload()" ng-disabled="file == null">Upload</button>
+          <button class="btn btn-sm" type="button"
+          ng-click="cancel()" ng-disabled="progress.percent == 0">Cancel</button>
+        </span>
+      </div>
+      <div class="col-sm-6">
+        <progressbar class="progress-stripped" type="info" value="progress.percent">
+        {{ progress.percent }} %
+        </progressbar>
+      </div>
+    </div>
+    <div ng-if="progress.percent == 100 && result == null">
+      <i class="fa fa-spinner fa-spin"></i>
+      Processing upload... please wait.
+    </div>
+  </div>
+  <div class="import-result text-center" ng-show="result != null">
+    <alert ng-if="result.imported.length > 0" type="success">
+    {{ result.imported.length }} layers were successfully imported.
+    </alert>
+    <alert ng-if="result.pending.length > 0" type="warning">
+    {{ result.pending.length }} layers require additional input.
+    </alert>
+    <alert ng-if="result.ignored.length > 0" type="info">
+    {{ result.ignored.length }} files were ignored.
+    </alert>
+    <alert ng-if="result.failed.length > 0" type="danger">
+    {{ result.failed.length }} layers resulted in an error.
+    </alert>
+    <div class="text-right">
+      <button class="btn btn-success btn-sm" type="button" ng-click="next(result)">
+        Details &rarr;
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,7 +1,6 @@
 angular.module('gsApp.data', [
   'ngGrid',
-  'ui.select',
-  'gsApp.data.import'
+  'ui.select'
 ])
 .config(['$stateProvider',
     function($stateProvider) {

@@ -2,7 +2,6 @@ angular.module('gsApp.workspaces.home', [
   'gsApp.workspaces.maps',
   'gsApp.workspaces.data',
   'gsApp.workspaces.settings',
-  'gsApp.workspaces.data.attributes',
   'gsApp.alertpanel',
   'ngSanitize'
 ])
@@ -26,8 +25,14 @@ angular.module('gsApp.workspaces.home', [
         $scope.title = wsName;
 
         $scope.tabs = [
-          { heading: 'Maps', route: 'workspace.maps', active: true},
-          { heading: 'Data', route: 'workspace.data', active: false}
+          { heading: 'Maps',
+            routeCategory: 'workspace.maps',
+            route: 'workspace.maps.main',
+            active: true},
+          { heading: 'Data',
+            routeCategory: 'workspace.data',
+            route: 'workspace.data.main',
+            active: false},
         ];
 
         $scope.go = function(route) {
@@ -50,7 +55,9 @@ angular.module('gsApp.workspaces.home', [
         $scope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {
             $scope.tabs.forEach(function(tab) {
-              tab.active = $state.is(tab.route);
+              if ($state.is(tab.routeCategory)) {
+                tab.active = $state.is(tab.routeCategory);
+              }
             });
             if (to.name == 'workspace') {
               $scope.go($scope.tabs[0].route);

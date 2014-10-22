@@ -1,13 +1,16 @@
 angular.module('gsApp.workspaces.maps.new', [
   'ngSanitize',
   'gsApp.alertpanel',
+  'gsApp.projfield',
+  'gsApp.core.utilities',
   'ui.select'
 ])
-.controller('WorkspaceNewMapCtrl', ['workspace', '$scope', '$rootScope',
-  '$modalInstance', '$log', 'GeoServer',
-  function (workspace, $scope, $rootScope, $modalInstance, $log, GeoServer) {
+.controller('NewMapCtrl', ['$scope', '$state', '$stateParams', '$rootScope',
+  '$log', 'GeoServer',
+  function ($scope, $state, $stateParams, $rootScope, $log,
+    GeoServer) {
 
-    $scope.workspace = workspace;
+    $scope.workspace = $stateParams.workspace;
     $scope.mapInfo = {
       'abstract': ''
     };
@@ -17,10 +20,6 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.map = {};
     $scope.title = 'New Map';
     $scope.step = 1;
-
-    $scope.cancel = function () {
-      $modalInstance.dismiss('cancel');
-    };
 
     $scope.crsTooltip =
       '<h5>Add a projection in EPSG</h5>' +
@@ -48,7 +47,10 @@ angular.module('gsApp.workspaces.maps.new', [
 
     $scope.addLayers = function() {
       $scope.step = 2;
+    };
 
+    $scope.cancel = function() {
+      $state.go('workspace.maps.main', {workspace:$scope.workspace});
     };
 
     $scope.createMap = function(isValid) {
@@ -63,7 +65,7 @@ angular.module('gsApp.workspaces.maps.new', [
         $scope.map.layers = [];
         $log.log($scope.mapInfo);
 
-        GeoServer.map.create(workspace, $scope.mapInfo).then(
+        GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
           function(result) {
             if (result.success) {
               $log.log(result.data);
@@ -76,6 +78,5 @@ angular.module('gsApp.workspaces.maps.new', [
             }
           });
       }
-      $modalInstance.close();
     };
   }]);

@@ -1,7 +1,8 @@
 angular.module('gsApp.workspaces.data', [
-  'gsApp.workspaces.data.add',
   'gsApp.workspaces.data.delete',
   'gsApp.workspaces.data.update',
+  'gsApp.workspaces.data.import',
+  'gsApp.workspaces.data.attributes',
   'gsApp.core.utilities',
   'gsApp.alertpanel',
   'ngSanitize'
@@ -11,7 +12,18 @@ angular.module('gsApp.workspaces.data', [
       $stateProvider.state('workspace.data', {
         url: '/data',
         templateUrl: '/workspaces/detail/data.tpl.html',
-        controller: 'WorkspaceDataCtrl'
+        controller: 'WorkspaceDataCtrl',
+        abstract: true
+      });
+      $stateProvider.state('workspace.data.main', {
+        url: '/',
+        templateUrl: '/workspaces/detail/data/data.main.tpl.html',
+        controller: 'DataMainCtrl'
+      });
+      $stateProvider.state('workspace.data.import', {
+        url: '/import',
+        templateUrl: '/workspaces/detail/data/import/import.tpl.html',
+        controller: 'DataImportCtrl'
       });
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
@@ -41,6 +53,59 @@ angular.module('gsApp.workspaces.data', [
             }
           });
         });
+
+      $scope.storesHome = function() {
+        if (!$state.is('workspace.data.main')) {
+          $state.go('workspace.data.main', {workspace:$scope.workspace});
+        }
+      };
+
+      $scope.addNewStore = function() {
+        $state.go('workspace.data.import.file', {workspace:$scope.workspace});
+        // var modalInstance = $modal.open({
+        //   templateUrl: '/workspaces/detail/modals/data.add.tpl.html',
+        //   controller: 'WorkspaceAddDataCtrl',
+        //   backdrop: 'static',
+        //   size: 'lg',
+        //   resolve: {
+        //     workspace: function() {
+        //       return $scope.workspace;
+        //     },
+        //     storeAdded: function() {
+        //       return $scope.storeAdded;
+        //     }
+        //   }
+        // });
+      };
+
+      $scope.deleteStore = function() {
+        if (!$state.is('workspace.data.main')) {
+          $state.go('workspace.data.main', {workspace:$scope.workspace});
+        }
+
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/data.delete.tpl.html',
+          controller: 'WorkspaceDeleteDataCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            store: function() {
+              return $scope.selectedStore;
+            },
+            storeRemoved: function() {
+              return $scope.storeRemoved;
+            }
+          }
+        });
+      };
+    }])
+.controller('DataMainCtrl', ['$scope', '$rootScope', '$state',
+  '$stateParams', '$modal', '$window', '$log', 'GeoServer',
+    function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
+      GeoServer) {
 
       $scope.storeRemoved = function(storeToRemove) {
         var index = $scope.datastores.indexOf(storeToRemove);
@@ -88,44 +153,6 @@ angular.module('gsApp.workspaces.data', [
                 ' could not be loaded.',
               fadeout: true
             }];
-          }
-        });
-      };
-
-      $scope.addNewStore = function() {
-        $state.go('data.import.file', {workspace:$scope.workspace});
-        // var modalInstance = $modal.open({
-        //   templateUrl: '/workspaces/detail/modals/data.add.tpl.html',
-        //   controller: 'WorkspaceAddDataCtrl',
-        //   backdrop: 'static',
-        //   size: 'lg',
-        //   resolve: {
-        //     workspace: function() {
-        //       return $scope.workspace;
-        //     },
-        //     storeAdded: function() {
-        //       return $scope.storeAdded;
-        //     }
-        //   }
-        // });
-      };
-
-      $scope.deleteStore = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/data.delete.tpl.html',
-          controller: 'WorkspaceDeleteDataCtrl',
-          backdrop: 'static',
-          size: 'md',
-          resolve: {
-            workspace: function() {
-              return $scope.workspace;
-            },
-            store: function() {
-              return $scope.selectedStore;
-            },
-            storeRemoved: function() {
-              return $scope.storeRemoved;
-            }
           }
         });
       };

@@ -1,0 +1,72 @@
+<h3>
+  Data Stores
+</h3>
+<div><strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in <strong>{{ workspace }}</strong></div>
+<div class="row datastores">
+  <div class="col-sm-6">
+    <ul class="list-unstyled stores-list" ng-style="storesListHeight">
+      <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
+        <div class="icon-column">
+          <h3 class="datastore-icons"><i ng-class="{'icon-file': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
+          <p class="datastore-label">{{ ds.sourcetype }}</p>
+        </div>
+        <div class="info-column">
+          <p><strong>Store:</strong> {{ ds.name }}</p>
+          <p><strong>Type:</strong> {{ ds.format }}</p>
+          <p>
+            <div class="btn-group toggle-group">
+              <label class="btn btn-xs" ng-class="{'btn-success': ds.enabled, 'btn-default': !ds.enabled}" ng-click="enableDisableStore(ds)" ng-model="ds.enabled">Enabled</label>
+              <label class="btn btn-xs" ng-class="{'btn-primary': !ds.enabled, 'btn-default': ds.enabled}" ng-click="enableDisableStore(ds)">Disabled</label>
+            </div>
+          </p>
+        </div>
+      </li>
+    </ul>
+  </div>
+  <div class="col-sm-6">
+    <div>
+      <p class="x-imported">
+        <span style="float:left;" ng-show="selectedStore && selectedStore.enabled"><strong>Resources:</strong> {{ selectedStore.layers.length }} / {{ selectedStore.resources.length }} imported as layers</span>
+        <span style="float:left;" ng-show="selectedStore && !selectedStore.enabled">Store is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</span>
+      </p>
+      <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Source:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
+      <div class="resources">
+        <ul class="list-unstyled">
+          <li class="singleResource" ng-repeat="rsrc in selectedStore.resources">
+            <h5>Resource: {{ rsrc.name }}</h5>
+            <div class="rsrc_info"><strong>Data Schema:</strong><a ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);"> {{ rsrc.schema.attributes.length }} Attributes <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i></a></div>
+            <div ng-if="rsrc.proj.srs" class="rsrc_info"><strong>Projection:</strong> {{ rsrc.proj.srs }}</div>
+            <div ng-if="rsrc.layers.length > 0">
+              <div class="info"><strong>Layers:</strong></div>
+              <accordion ng-repeat="layer in rsrc.layers">
+                <accordion-group class="layer" is-open="status.open">
+                  <accordion-heading class="layer-header">
+                    <div class="header-info">
+                      <span><strong>Name:</strong> {{ layer.name }}</span>
+                      <span><strong>Title:</strong> {{ layer.title }}</span>
+                    </div>
+                    <div class="header-info-icon"><i class="pull-right fa" ng-class="{'fa-angle-down': status.open, 'fa-angle-right': !status.open}"></i></div>
+                  </accordion-heading>
+                  <div class="layer-info">
+                    <div class="info"><strong>Type:</strong> {{ layer.type }}</div>
+                    <div class="info"><strong>Geometry:</strong> {{ layer.geometry }}</div>
+                    <div class="info"><strong>SRS:</strong> {{ layer.proj.srs || "Not specified" }} ({{ layer.proj.unit }})</div>
+                    <div class="info"><strong>Description:</strong> {{ layer.description }}</div>
+                    <div class="info"><strong>Schema</strong></div>
+                    <div class="info" style="margin-left: 15px;"><strong>Namespace:</strong> {{ layer.schema.namespace || layer.schema.name }} </div>
+                  </div>
+                </accordion-group>
+              </accordion>
+            </div>
+            <div ng-if="rsrc.layers.length==0">
+              <div class="info">
+                <p>Not yet imported as a layer</p>
+                <p><a href="">Import Now &rarr;</a></p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

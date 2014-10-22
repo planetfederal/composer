@@ -1,0 +1,46 @@
+/* newmap-modal.less */
+
+@import "../../../../variables.less";
+
+.new-map {
+
+  form.new-map-form {
+
+    width: 80%;
+
+    .centered {
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+    }
+
+    .crs-warning {
+      display: inline-block;
+      margin-left: 5px;
+
+      i.fa-info-circle {
+        color: @monacoblue;
+      }
+    }
+
+    .success {
+      display: inline-block;
+      color: @green;
+      float: right;
+      margin-right: -80px;
+      margin-top: -22px;
+    }
+
+    textarea.form-control.abstract {
+      padding-left: 6px;
+      padding-right: 6px;
+      font-size: 12px;
+    }
+  }
+  .form-footer {
+    margin: 20px 0;
+  }
+
+}

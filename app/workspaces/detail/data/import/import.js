@@ -1,4 +1,4 @@
-angular.module('gsApp.data.import', [
+angular.module('gsApp.workspaces.data.import', [
   'ngGrid',
   'angularFileUpload',
   'gsApp.core.utilities',
@@ -6,24 +6,19 @@ angular.module('gsApp.data.import', [
 ])
 .config(['$stateProvider',
     function($stateProvider) {
-      $stateProvider.state('data.import', {
-        url: '/:workspace/import',
-        templateUrl: '/data/import.tpl.html',
-        controller: 'DataImportCtrl'
-      });
-      $stateProvider.state('data.import.file', {
+      $stateProvider.state('workspace.data.import.file', {
         url: '/file',
-        templateUrl: '/data/import.file.tpl.html',
+        templateUrl: '/workspaces/detail/data/import/import.file.tpl.html',
         controller: 'DataImportFileCtrl'
       });
-      $stateProvider.state('data.import.db', {
+      $stateProvider.state('workspace.data.import.db', {
         url: '/db',
-        templateUrl: '/data/import.db.tpl.html',
+        templateUrl: '/workspaces/detail/data/import/import.db.tpl.html',
         controller: 'DataImportDbCtrl'
       });
-      $stateProvider.state('data.import.details', {
+      $stateProvider.state('workspace.data.import.details', {
         url: '/details/:import',
-        templateUrl: '/data/import.details.tpl.html',
+        templateUrl: '/workspaces/detail/data/import/import.details.tpl.html',
         controller: 'DataImportDetailsCtrl'
       });
     }])
@@ -34,15 +29,15 @@ angular.module('gsApp.data.import', [
       var wsName = $stateParams.workspace;
 
       $scope.is = function(route) {
-        return $state.is('data.import'+(route!=null?'.'+route:''));
+        return $state.is('workspace.data.import'+(route!=null?'.'+route:''));
       };
 
       $scope.go = function(route) {
-        $state.go('data.import.'+route);
+        $state.go('workspace.data.import.'+route);
       };
 
       $scope.next = function(imp) {
-        $state.go('data.import.details', {'import': imp.id});
+        $state.go('workspace.data.import.details', {'import': imp.id});
       };
 
       GeoServer.workspace.get(wsName).then(function(result) {
