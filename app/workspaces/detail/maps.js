@@ -1,6 +1,7 @@
 angular.module('gsApp.workspaces.maps', [
   'gsApp.workspaces.maps.new',
   'gsApp.alertpanel',
+  'gsApp.core.utilities',
   'ngSanitize'
 ])
 .config(['$stateProvider',
@@ -8,19 +9,30 @@ angular.module('gsApp.workspaces.maps', [
       $stateProvider.state('workspace.maps', {
         url: '/maps',
         templateUrl: '/workspaces/detail/maps.tpl.html',
-        controller: 'WorkspaceMapsCtrl'
+        controller: 'WorkspaceMapsCtrl',
+        abstract: true
+      });
+      $stateProvider.state('workspace.maps.main', {
+        url: '/',
+        templateUrl: '/workspaces/detail/maps/maps.main.tpl.html',
+        controller: 'MapsMainCtrl'
+      });
+      $stateProvider.state('workspace.maps.new', {
+        url: '/new',
+        templateUrl: '/workspaces/detail/maps/createnew/map.new.tpl.html',
+        controller: 'NewMapCtrl'
       });
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$modal', '$log', 'GeoServer',
-    function($scope, $state, $stateParams, $sce, $window, $modal, $log,
+  '$sce', '$window', '$log', 'GeoServer',
+    function($scope, $state, $stateParams, $sce, $window, $log,
       GeoServer) {
 
-      var workspace = $scope.workspace;
+      $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
       $scope.olmaps = {};
 
-      GeoServer.maps.get(workspace).then(
+      GeoServer.maps.get($scope.workspace).then(
         function(result) {
           if (result.success) {
             $scope.maps = result.data;
@@ -29,8 +41,8 @@ angular.module('gsApp.workspaces.maps', [
               var map = $scope.maps[i];
               var layers = '';
 
-              $scope.maps[i].workspace = workspace;
-              $scope.maps[i].layergroupname = workspace + ':' + map.name;
+              $scope.maps[i].workspace = $scope.workspace;
+              $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
               var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west +
                ',' + map.bbox.south + ',' + map.bbox.east + ',' +
                map.bbox.north;
@@ -51,6 +63,23 @@ angular.module('gsApp.workspaces.maps', [
           }
         });
 
+      $scope.mapsHome = function() {
+        if (!$state.is('workspace.maps.main')) {
+          $state.go('workspace.maps.main', {workspace:$scope.workspace});
+        }
+      };
+
+      $scope.createMap = function() {
+        $state.go('workspace.maps.new', {workspace:$scope.workspace});
+      };
+    }])
+.controller('MapsMainCtrl', ['$scope', '$state', '$stateParams',
+  '$sce', '$window', '$log', 'GeoServer',
+    function($scope, $state, $stateParams, $sce, $window, $log,
+      GeoServer) {
+
+      $scope.workspace = $stateParams.workspace;
+
       $scope.sanitizeHTML = function(description) {
         return $sce.trustAsHtml(description);
       };
@@ -68,20 +97,4 @@ angular.module('gsApp.workspaces.maps', [
         });
       };
 
-      $scope.addNewMap = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/map.new.tpl.html',
-          controller: 'WorkspaceNewMapCtrl',
-          backdrop: 'static',
-          size: 'md',
-          resolve: {
-            workspace: function() {
-              return $scope.workspace;
-            },
-            maps: function() {
-              return $scope.maps;
-            }
-          }
-        });
-      };
     }]);
