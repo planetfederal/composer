@@ -5,6 +5,7 @@ package com.boundlessgeo.geoserver.api.controllers;
 
 import static org.geoserver.catalog.Predicates.equal;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import com.boundlessgeo.geoserver.Proj;
 import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
@@ -25,6 +27,7 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.PublishedInfo;
+import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -80,14 +83,13 @@ public class MapController extends ApiController {
         String title = obj.str("title");
         String description = obj.str("abstract");
         
-        String user = SecurityContextHolder.getContext().getAuthentication().getName();
         Date created = new Date();
 
         CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
         if(obj.has("proj")){
             String srs = obj.str("proj");
             try {
-                crs = CRS.decode(srs);
+                crs = Proj.get().crs(srs);
             } catch (Exception e) {
                 throw new BadRequestException("Unrecognized projection: " + srs);
             }
@@ -97,20 +99,20 @@ public class MapController extends ApiController {
         }
 
         ReferencedEnvelope bounds = null;
+        boolean updateBounds = false;
+
         if (obj.has("bbox")) {
             Envelope envelope = IO.bounds(obj.object("bbox"));
             bounds = new ReferencedEnvelope( envelope, crs );
         }
         else {
             bounds = new ReferencedEnvelope(crs);
+            updateBounds = true;
         }
+
         Catalog cat = geoServer.getCatalog();
-        List<LayerInfo> layers = new ArrayList<LayerInfo>();
-        for(Iterator<Object> i = obj.array("layers").iterator();i.hasNext();){
-            JSONObj l = (JSONObj) i.next();
-            String n = l.str("workspace")+":"+l.str("name");
-            LayerInfo layer = cat.getLayerByName(n);
-            layers.add(layer);
+        if (!obj.has("layers")) {
+            throw new BadRequestException("Map object requires layers array");
         }
 
         LayerGroupInfo map = cat.getFactory().createLayerGroup();
@@ -119,16 +121,43 @@ public class MapController extends ApiController {
         map.setTitle( title );
         map.setMode( Mode.SINGLE );
         map.setWorkspace( findWorkspace(wsName) );
+
+        for (Object o : obj.array("layers")) {
+            JSONObj l = (JSONObj) o;
+
+            LayerInfo layer = findLayer(wsName, l.str("name"), cat);
+            map.getLayers().add(layer);
+            map.getStyles().add(null);
+
+            if (updateBounds) {
+                try {
+                    updateBounds(bounds, layer);
+                } catch (Exception e) {
+                    throw new RuntimeException("Error calculating map bounds ", e);
+                }
+            }
+
+        }
+
         map.setBounds( bounds );
-        map.layers().addAll(layers);
-        
+
         Metadata.created(map, created);
         Metadata.modified(map, created);
 
         cat.add( map );
         return mapDetails(new JSONObj(), map, wsName );
     }
-    
+
+    void updateBounds(ReferencedEnvelope bounds, LayerInfo layer) throws Exception {
+        ResourceInfo r = layer.getResource();
+        if (CRS.equalsIgnoreMetadata(bounds.getCoordinateReferenceSystem(), r.getCRS())) {
+            bounds.include(r.boundingBox());
+        }
+        else {
+            bounds.include(r.getLatLonBoundingBox().transform(bounds.getCoordinateReferenceSystem(), true));
+        }
+    }
+
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.DELETE)
     public @ResponseBody
     JSONArr delete(@PathVariable String wsName,
