@@ -1,0 +1,52 @@
+@import "../variables.less";
+
+.data-import-file {
+  width: 50%;
+  margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+
+  .drop-box {
+    margin-top: 20px;
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    height: 100px;
+    text-align: center;
+    padding-top: 28px;
+    margin: 0 auto;
+    font-size: 24px;
+    font-weight: bold;
+    color: @light-gray;
+  }
+
+  .file-list {
+    margin-top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+
+    .file-name {
+      margin-bottom: 10px;
+      h4 {
+        display: inline-block;
+        margin: 0;
+      }
+      span {
+        float: right;
+      }
+    }
+
+    .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    div[class*="col-"] {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+
+    .progress {
+      margin-top: 5px;
+    }
+  }
+}

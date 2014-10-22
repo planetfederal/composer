@@ -107,7 +107,7 @@ public class ImportController extends ApiController {
     }
 
     @RequestMapping(value = "/{wsName}/{id}", method = RequestMethod.GET)
-    public @ResponseBody JSONObj get(@PathVariable String wsName, Long id) throws Exception {
+    public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable Long id) throws Exception {
         ImportContext imp = findImport(id);
 
         JSONObj result = new JSONObj();
@@ -162,9 +162,14 @@ public class ImportController extends ApiController {
         ResourceInfo resource = task.getLayer().getResource();
 
         if (task.getState() == ImportTask.State.NO_CRS) {
-            String srs = obj.str("proj");
-            if (srs == null) {
+            JSONObj proj = obj.object("proj");
+            if (proj == null) {
                 throw new BadRequestException("Request must contain a 'proj' property");
+            }
+
+            String srs = proj.str("srs");
+            if (srs == null) {
+                throw new BadRequestException("Projection must have an 'srs' property");
             }
 
             CoordinateReferenceSystem crs = null;

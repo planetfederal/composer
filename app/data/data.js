@@ -1,17 +1,23 @@
 angular.module('gsApp.data', [
   'ngGrid',
-  'ui.select'
+  'ui.select',
+  'gsApp.data.import'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
       $stateProvider
         .state('data', {
           url: '/data',
-          templateUrl: '/data/data.tpl.html',
-          controller: 'AllDataCtrl'
+          abstract: true,
+          templateUrl: '/data/data.tpl.html'
+        })
+        .state('data.list', {
+          url: '/list',
+          templateUrl: '/data/list.tpl.html',
+          controller: 'ListDataCtrl'
         });
     }])
-.controller('AllDataCtrl', ['$scope', 'GeoServer', '$state', '$log',
+.controller('ListDataCtrl', ['$scope', 'GeoServer', '$state', '$log',
     function($scope, GeoServer, $state, $log) {
       $scope.title = 'All Data';
 
