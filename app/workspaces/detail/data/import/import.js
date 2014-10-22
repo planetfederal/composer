@@ -40,6 +40,12 @@ angular.module('gsApp.workspaces.data.import', [
         $state.go('workspace.data.import.details', {'import': imp.id});
       };
 
+      $scope.inFileFlow = function() {
+        var test = $scope.is() || $scope.is('file');
+        test = test || $state.includes('workspace.data.import.details');
+        return test;
+      };
+
       GeoServer.workspace.get(wsName).then(function(result) {
         if (result.success) {
           $scope.workspace = result.data;
