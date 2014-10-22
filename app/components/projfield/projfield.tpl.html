@@ -1,0 +1,25 @@
+  <div class="proj-field">
+    <script type="text/ng-template" id="projfield.modal.html">
+        <div class="modal-header">
+            <h3 class="modal-title"></h3>
+        </div>
+        <div class="modal-body">
+        <pre>{{wkt}}</pre>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" ng-click="ok()">OK</button>
+        </div>
+    </script>
+        <input type="text" ng-model="proj.srs" class="form-control" size="10"
+          required ng-pattern="/^(epsg|EPSG):[0-9]+$/"
+          typeahead="p.srs for p in projList | filter:$viewValue"
+          ></input>
+          <span class="success" ng-show="valid === true">
+            <i class="fa fa-check-circle"></i>
+            <a ng-click="showProjWKT()">Valid CRS</a>
+          </span>
+          <span class="warning" ng-show="valid === false">
+            <i class="fa fa-warning"></i>
+            Invalid CRS
+          </span>
+  </div>

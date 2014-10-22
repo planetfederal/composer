@@ -37,8 +37,14 @@ angular.module('gsApp.core.backend',[])
         },
 
         import: {
-          getImportUrl: function(workspace) {
+          url: function(workspace) {
             return importRoot + workspace;
+          },
+          get: function(workspace, id) {
+            return http({
+              method: 'GET',
+              url: importRoot + workspace + '/' + id
+            });
           },
           update: function(workspace, id, content) {
             return http({
@@ -307,6 +313,22 @@ angular.module('gsApp.core.backend',[])
           getIconURL: function(workspace, iconfile) {
             var url = gsRoot+'/'+workspace+'/styles/'+iconfile;
             return url;
+          }
+        },
+
+        proj: {
+          recent: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/projections/recent'
+            });
+          },
+
+          get: function(srs) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/projections/' + srs
+            });
           }
         }
       };

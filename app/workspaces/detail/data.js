@@ -93,20 +93,21 @@ angular.module('gsApp.workspaces.data', [
       };
 
       $scope.addNewStore = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/data.add.tpl.html',
-          controller: 'WorkspaceAddDataCtrl',
-          backdrop: 'static',
-          size: 'lg',
-          resolve: {
-            workspace: function() {
-              return $scope.workspace;
-            },
-            storeAdded: function() {
-              return $scope.storeAdded;
-            }
-          }
-        });
+        $state.go('data.import.file', {workspace:$scope.workspace});
+        // var modalInstance = $modal.open({
+        //   templateUrl: '/workspaces/detail/modals/data.add.tpl.html',
+        //   controller: 'WorkspaceAddDataCtrl',
+        //   backdrop: 'static',
+        //   size: 'lg',
+        //   resolve: {
+        //     workspace: function() {
+        //       return $scope.workspace;
+        //     },
+        //     storeAdded: function() {
+        //       return $scope.storeAdded;
+        //     }
+        //   }
+        // });
       };
 
       $scope.deleteStore = function() {

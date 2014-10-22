@@ -4,8 +4,8 @@ angular.module('gsApp.workspaces.maps.new', [
   'ui.select'
 ])
 .controller('WorkspaceNewMapCtrl', ['workspace', '$scope', '$rootScope',
-  '$modalInstance', 'GeoServer',
-  function (workspace, $scope, $rootScope, $modalInstance, GeoServer) {
+  '$modalInstance', '$log', 'GeoServer',
+  function (workspace, $scope, $rootScope, $modalInstance, $log, GeoServer) {
 
     $scope.workspace = workspace;
     $scope.mapInfo = {
@@ -43,7 +43,7 @@ angular.module('gsApp.workspaces.maps.new', [
             }];
           }
         });
-      };
+    };
     $scope.loadLayers();
 
     $scope.addLayers = function() {
@@ -61,12 +61,12 @@ angular.module('gsApp.workspaces.maps.new', [
           });
         }
         $scope.map.layers = [];
-        console.log($scope.mapInfo);
+        $log.log($scope.mapInfo);
 
         GeoServer.map.create(workspace, $scope.mapInfo).then(
           function(result) {
             if (result.success) {
-              console.log(result.data)
+              $log.log(result.data);
             } else {
               $rootScope.alerts = [{
                 type: 'danger',

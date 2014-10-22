@@ -122,6 +122,7 @@ public class IO {
                 units = crs instanceof ProjectedCRS ? "m" : "degrees";
             }
             obj.put("unit", units);
+            obj.put("wkt", crs.toWKT());
         }
 
         return obj;

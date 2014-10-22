@@ -1,5 +1,7 @@
 angular.module('gsApp.workspaces.data.add', [
-  'ngSanitize', 'angularFileUpload'
+  'ngSanitize',
+  'angularFileUpload',
+  'gsApp.core.utilities'
 ])
 .controller('WorkspaceAddDataCtrl', ['workspace', '$scope',
   '$modalInstance','$upload', '$timeout', 'GeoServer', 'storeAdded',
@@ -56,16 +58,6 @@ angular.module('gsApp.workspaces.data.add', [
       }
     };
 
-    function bytesToSize(bytes) {
-      if (bytes == 0) {
-        return '0 Byte';
-      }
-      var k = 1000;
-      var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-      var i = Math.floor(Math.log(bytes) / Math.log(k));
-      return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
-    }
-
     $scope.onFileSelect = function($files) {
       $scope.selectedFiles = [];
       $scope.progress = [];
@@ -80,7 +72,6 @@ angular.module('gsApp.workspaces.data.add', [
         if ($scope.uploadRightAway) {
           $scope.start(i);
         }
-        $files[i].bytes = bytesToSize($files[i].size);
       }
     };
 
@@ -99,7 +90,7 @@ angular.module('gsApp.workspaces.data.add', [
       $scope.loadStarted = false;
 
       $scope.upload[index] = $upload.upload({
-        url: GeoServer.import.getImportUrl($scope.workspace),
+        url: GeoServer.import.url($scope.workspace),
         method: 'POST',
         file: $scope.selectedFiles[index]
       });
