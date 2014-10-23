@@ -167,21 +167,14 @@ public class ImportController extends ApiController {
                 throw new BadRequestException("Request must contain a 'proj' property");
             }
 
-            String srs = proj.str("srs");
-            if (srs == null) {
-                throw new BadRequestException("Projection must have an 'srs' property");
-            }
-
-            CoordinateReferenceSystem crs = null;
             try {
-                crs = CRS.decode(srs);
-            } catch (Exception e) {
-                throw new BadRequestException("Error decoding projection: " + srs);
+                resource.setSRS(IO.srs(proj));
+                resource.setNativeCRS(IO.crs(proj));
+                importer.changed(task);
             }
-
-            resource.setSRS(srs);
-            resource.setNativeCRS(crs);
-            importer.changed(task);
+            catch(Exception e) {
+                throw new BadRequestException("Unable to parse proj: " + proj.toString());
+            }
         }
 
         importer.run(imp, new ImportFilter() {

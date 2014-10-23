@@ -10,7 +10,10 @@ import com.boundlessgeo.geoserver.json.JSONWrapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +32,12 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,6 +57,32 @@ public class MapControllerTest {
         MockitoAnnotations.initMocks(this);
 
         mvc = MockMvcBuilders.standaloneSetup(ctrl).setMessageConverters(new JSONMessageConverter()).build();
+    }
+
+    @Test
+    public void testCreate() throws Exception {
+        MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true)
+                .layer("one").featureType().defaults()
+            .geoServer().build(geoServer);
+
+        JSONObj obj = new JSONObj();
+        obj.put("name", "foo");
+        obj.put("title", "Foo");
+        obj.putObject("proj").put("srs", "EPSG:4326");
+        obj.putArray("layers").addObject().put("name", "one");
+
+        MockHttpServletRequestBuilder req = post("/api/maps/foo")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+
+        mvc.perform(req)
+            .andExpect(status().isCreated())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        Catalog cat = geoServer.getCatalog();
+        verify(cat, times(1)).add(isA(LayerGroupInfo.class));
     }
 
     @Test

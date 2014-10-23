@@ -12,6 +12,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.boundlessgeo.geoserver.Proj;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
@@ -146,18 +147,39 @@ public class IO {
     /**
      * Decodes a bounding box within the specified object.
      *
-     * @return The object passed in.
+     * The parsed envelope.
      */
     public static Envelope bounds(JSONObj obj) {
         return new Envelope(obj.doub("west"), obj.doub("east"), obj.doub("south"), obj.doub("north"));
     }
-    
-    public static JSONArr arr( Collection<String> strings ){
-        JSONArr l = new JSONArr();
-        for( String s : strings ){
-            l.add(s);
+
+    /**
+     * Decodes a projection within the specified object.
+     *
+     * @return The parsed projection, or null.
+     *
+     * @throws java.lang.IllegalArgumentException If the object has no 'srs' property or there was an error decoding
+     * the srs.
+     */
+    public static CoordinateReferenceSystem crs(JSONObj obj) throws Exception {
+        return Proj.get().crs(srs(obj));
+    }
+
+    /**
+     * Decodes am srs within the specified projection object.
+     *
+     * @param obj JSON object with same structure as produced by {@link #proj(JSONObj,CoordinateReferenceSystem, String)}.
+     *
+     * @return The srs.
+     *
+     * @throws java.lang.IllegalArgumentException If the object has no 'srs' property.
+     */
+    public static String srs(JSONObj obj) throws Exception {
+        String srs = obj.str("srs");
+        if (srs == null) {
+            throw new IllegalArgumentException("Projection must have an 'srs' property");
         }
-        return l;
+        return srs;
     }
 
     /**
