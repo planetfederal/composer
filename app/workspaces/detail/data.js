@@ -28,31 +28,35 @@ angular.module('gsApp.workspaces.data', [
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
   '$stateParams', '$modal', '$window', '$log', 'GeoServer', 'lodash',
+  'AppEvent',
     function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
-      GeoServer, lodash) {
+      GeoServer, lodash, AppEvent) {
 
       var workspace = $scope.workspace;
 
       // Set stores list to window height
       $scope.storesListHeight = {'height': $window.innerHeight-250};
 
-      GeoServer.datastores.get($scope.workspace).then(
-        function(result) {
-          $scope.datastores = result.data;
+      function getDataStores() {
+        GeoServer.datastores.get($scope.workspace).then(
+          function(result) {
+            $scope.datastores = result.data;
 
-          $scope.datastores.forEach(function(ds) {
-            var format = ds.format.toLowerCase();
-            if (format === 'shapefile') {
-              ds.sourcetype = 'shp';
-            } else if (ds.kind.toLowerCase() === 'raster') {
-              ds.sourcetype = 'raster';
-            } else if (ds.type.toLowerCase() === 'database') {
-              ds.sourcetype = 'database';
-            } else if (format.indexOf('directory of spatial files')!==-1) {
-              ds.sourcetype = 'shp_dir';
-            }
+            $scope.datastores.forEach(function(ds) {
+              var format = ds.format.toLowerCase();
+              if (format === 'shapefile') {
+                ds.sourcetype = 'shp';
+              } else if (ds.kind.toLowerCase() === 'raster') {
+                ds.sourcetype = 'raster';
+              } else if (ds.type.toLowerCase() === 'database') {
+                ds.sourcetype = 'database';
+              } else if (format.indexOf('directory of spatial files')!==-1) {
+                ds.sourcetype = 'shp_dir';
+              }
+            });
           });
-        });
+      }
+      getDataStores();
 
       $scope.storesHome = function() {
         if (!$state.is('workspace.data.main')) {
@@ -83,6 +87,13 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
+      $scope.importData = function() {
+        $state.go('workspace.data.import', {workspace:$scope.workspace});
+      };
+      $scope.$on(AppEvent.ImportData, function() {
+        $scope.importData();
+      });
+
       $scope.addNewStore = function() {
         $state.go('workspace.data.import.file', {workspace:$scope.workspace});
       };
@@ -97,8 +108,8 @@ angular.module('gsApp.workspaces.data', [
         $scope.selectedStore = null;
       };
 
-      $scope.storeAdded = function(storeToAdd) {
-        $scope.datastores.push(storeToAdd);
+      $scope.storeAdded = function() {
+        getDataStores();
       };
 
       $scope.deleteStore = function() {

@@ -24,9 +24,9 @@ angular.module('gsApp.workspaces.maps', [
       });
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$log', 'GeoServer',
+  '$sce', '$window', '$log', 'GeoServer', 'AppEvent',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer) {
+      GeoServer, AppEvent) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
@@ -70,8 +70,13 @@ angular.module('gsApp.workspaces.maps', [
       };
 
       $scope.createMap = function() {
+        console.log("got here");
         $state.go('workspace.maps.new', {workspace:$scope.workspace});
       };
+      $scope.$on(AppEvent.CreateNewMap, function() {
+        $scope.createMap();
+      });
+
     }])
 .controller('MapsMainCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer',
