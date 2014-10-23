@@ -3,6 +3,7 @@ angular.module('gsApp', [
   'ngSanitize',
   'ngAnimate',
   'ngClipboard',
+  'ngLodash',
   'ui.router',
   'ui.bootstrap',
   'gsApp.core',

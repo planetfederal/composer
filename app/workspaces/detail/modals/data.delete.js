@@ -11,7 +11,7 @@ angular.module('gsApp.workspaces.data.delete', [])
       $scope.workspace = workspace;
       $scope.store = store;
       $scope.storeRemoved = storeRemoved;
-      
+
       if (!store) {
         $scope.storeUndefined = true;
       }
