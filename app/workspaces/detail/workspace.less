@@ -3,14 +3,42 @@
 @import "../../variables.less";
 
 .section-title {
+  font-size: 24px;
+
   a {
     color: @black;
     &:hover {
       color: @monacoblue;
     }
-    i.fa-gear { /* settings gear */
+  }
+
+  .workspace-buttons {
+    float: right;
+    display: inline-block;
+
+    .divider {
+      border-left: 1px solid @light-gray;
+      margin-right: 10px;
+    }
+
+    a.newmap, a.import, a.settings {
       color: @md-lt-gray;
+      font-size: 16px;
+      margin-right: 10px;
+      text-align: center;
+      display: inline-block;
+
+      i.icon {
+        font-size: 14px;
+
+      }
+      span.text {
+        display: block;
+        margin-top: 5px;
+        font-size: 10px;
+      }
       &:hover {
+        text-decoration: none;
         color: @monacoblue;
       }
     }

@@ -3,7 +3,6 @@
   <div>
     <div class="row">
       <div class="col-sm-8 col-sm-offset-2">
-        <h4 ng-hide="step==2" class="text-center">Step 1. Map Info</h4>
         <form ng-hide="step==2" name="newMap" role="form" class="new-map-form">
           <div class="form-group" name="newMapName">
             <label for="name">Map Name*</label>
@@ -26,7 +25,6 @@
             <textarea rows="4" cols="40" class="form-control abstract" name="abstract" ng-model="mapInfo.abstract" ng-minlength="1">Description for map</textarea>
           </div>
         </form>
-        <h4 ng-show="step==2">Step 2. Add Layer(s)</h4>
         <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form">
           <div class="form-group" name="layer">
             <label for="lyrs">Available Layers:</label>

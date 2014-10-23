@@ -15,8 +15,9 @@ angular.module('gsApp.workspaces.home', [
         });
     }])
 .controller('WorkspaceHomeCtrl', ['$scope','$state', '$stateParams', '$log',
-  '$modal', 'GeoServer',
-    function($scope, $state, $stateParams, $log, $modal, GeoServer) {
+  '$modal', 'GeoServer', 'AppEvent', '$timeout',
+    function($scope, $state, $stateParams, $log, $modal, GeoServer, AppEvent,
+      $timeout) {
       var wsName = $stateParams.workspace;
 
       $scope.workspace = wsName;
@@ -51,6 +52,22 @@ angular.module('gsApp.workspaces.home', [
             $scope.go(t.route);
           }
         };
+
+        $scope.createMap = function() {
+          $scope.selectTab($scope.tabs[0]);
+          $scope.tabs[0].active = true;
+          $timeout(function() {
+            $scope.$broadcast(AppEvent.CreateNewMap);
+          }, 200);
+        }
+
+        $scope.importData = function() {
+          $scope.selectTab($scope.tabs[1]);
+          $scope.tabs[1].active = true;
+          $timeout(function() {
+            $scope.$broadcast(AppEvent.ImportData);
+          }, 100);
+        }
 
         $scope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {

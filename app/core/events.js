@@ -46,5 +46,13 @@ angular.module('gsApp.core.event', [])
   /**
    * Fired when a new workspace is requested
    */
-  WorkspaceDeleted: 'workspace-deleted'
+  WorkspaceDeleted: 'workspace-deleted',
+  /**
+   * Fired when a new map is requested
+   */
+  CreateNewMap: 'create-new-map',
+  /**
+   * Fired when data import is requested
+   */
+  ImportData: 'import-data'
 });

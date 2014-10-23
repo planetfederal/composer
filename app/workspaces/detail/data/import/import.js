@@ -68,6 +68,7 @@ angular.module('gsApp.workspaces.data.import', [
           $scope.progress.percent = parseInt(100.0 * e.loaded / e.total);
         }).success(function(e) {
           $scope.result = e;
+          $scope.storeAdded();
         });
       };
       $scope.progress = {percent: 0};
@@ -238,6 +239,9 @@ angular.module('gsApp.workspaces.data.import', [
           GeoServer.import.update($scope.workspace, $scope.import.id, task)
             .then(function(result) {
               task.success = result.success && result.data.layer != null;
+              if (result.success) {
+                $scope.storeAdded();
+              }
             });
         });
       };
