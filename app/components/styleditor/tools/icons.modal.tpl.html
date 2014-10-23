@@ -1,0 +1,54 @@
+<div>
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-xs-6">
+                <h4 class="modal-title">Icons in workspace {{workspace}}</h4>
+            </div>
+            <div class="col-xs-6">
+                <!--
+                <button id="copyIcon" class="btn btn-primary btn-sm pull-right" ng-click="ok()">Copy Selected to Clipboard</button>
+                -->
+                <button class="btn btn-default btn-sm cancel pull-right" ng-click="close()">Close</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body icon-modal">
+        <div>
+          <div class="row icon-row" ng-repeat="row in icons | orderBy: 'name' | partition:3 ">
+            <div class="col-xs-4" ng-repeat="item in row">
+              <span ng-click="chooseIcon(item);"
+                popover-trigger="mouseenter" popover-placement="bottom"
+                popover-title="{{item.name}}" popover-append-to-body="true"
+                popover-popup-delay="500"
+                popover-html-unsafe="
+                  <ul class='list-unstyled'>
+                    <li><img src='{{item.url}}'></img></li>
+                    <li><small>Modified {{item.modified.pretty}}</small></li>
+                  "
+                >
+                    <span class="icon-img">
+                      <img ng-src="{{ item.url }}"/>
+                    </span>
+                    <a class="icon-title"
+                      ng-class="{selectedIcon: item.name==selectedIconName}">
+                        {{item.name}}
+                    </a>
+                </a>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+      <div class="row">
+        <div class="col-xs-6 text-left">
+          <button class="btn btn-primary btn-sm" type="button"
+            ng-file-select="uploadIcons($files)">Upload</button>
+          <span ng-show="uploadRunning == true">
+            <i class="fa fa-spinner fa-spin"></i>
+            Uploading icon ...
+          </span>
+        </div>
+
+      </div>
+    </div>
+</div>

@@ -6,8 +6,6 @@ package com.boundlessgeo.geoserver.api.controllers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +25,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogVisitorAdapter;
@@ -37,8 +36,6 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
-import org.geoserver.ows.URLMangler.URLType;
-import org.geoserver.ows.util.ResponseUtils;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -48,7 +45,6 @@ import org.geotools.styling.Style;
 import org.geotools.util.KVP;
 import org.geotools.util.logging.Logging;
 
-import com.boundlessgeo.geoserver.api.exceptions.AppExceptionHandler;
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import com.boundlessgeo.geoserver.util.StyleAdaptor;
 
@@ -88,55 +84,48 @@ public class IconController extends ApiController {
     }
     
     @RequestMapping(value = "/{wsName}", method = RequestMethod.GET)
-    public @ResponseBody
-    JSONArr list(@PathVariable String wsName)
-            throws IOException {
-        WorkspaceInfo ws = findWorkspace( wsName );
-        Set<String> referenced = externalGraphics( wsName );
-        GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();
+    public @ResponseBody JSONArr list(@PathVariable String wsName, HttpServletRequest request) throws IOException {
 
-        // Scan workspace styles directory for supported formats
-        String path = Paths.path("workspaces",ws.getName(), "styles");
-        Resource styles = rl.get(path);
-        
+        WorkspaceInfo ws = findWorkspace(wsName, catalog());
+
         JSONArr arr = new JSONArr();
-        for( Resource r : styles.list() ){
-            String n = r.name();
-            String ext = pathExtension(n);
-            
-            if( !ICON_FORMATS.containsKey(ext.toLowerCase())){
-                continue;
-            }
-            Object format = ICON_FORMATS.get(ext.toLowerCase());
-            JSONObj item = arr.addObject().put("name",n).
-               put("format",ext).
-               put("mime",format);
-            if( referenced.contains(n)){
-               item.put("used", true );
+
+        Resource styles =  dataDir().get(ws, "styles");
+        if (styles.getType() != Type.UNDEFINED) {
+            Set<String> usedGraphics = findAllGraphics(ws);
+
+            for(Resource r : styles.list()){
+                String name = r.name();
+                String ext = fileExt(name);
+
+                if(!ICON_FORMATS.containsKey(ext.toLowerCase())){
+                    continue;
+                }
+
+                JSONObj item = icon(arr.addObject(), ws, r, request);
+                item.put("used", usedGraphics.contains(name));
             }
         }
+
         return arr;
     }
     
 
-    @RequestMapping(
-            value = "/{wsName}",
-            method = RequestMethod.POST,consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
+    @RequestMapping(value = "/{wsName}", method = RequestMethod.POST,consumes=MediaType.MULTIPART_FORM_DATA_VALUE)
     public @ResponseStatus(value=HttpStatus.CREATED)
-           @ResponseBody
-           JSONArr create(@PathVariable String wsName,
-                          HttpServletRequest request )
-                                throws IOException, FileUploadException {
-        WorkspaceInfo ws = findWorkspace(wsName );        
+        @ResponseBody JSONArr create(@PathVariable String wsName,  HttpServletRequest request )
+        throws IOException, FileUploadException {
+
+        WorkspaceInfo ws = findWorkspace(wsName, catalog());
         
         // Resource resource = dataDir().get(ws).get("icons"); // GEOS-6690
         GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();        
-        Resource icons = rl.get(Paths.path("workspaces",ws.getName(),"styles"));
+        Resource styles = rl.get(Paths.path("workspaces",ws.getName(),"styles"));
 
         ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
-        
-        @SuppressWarnings("unchecked")
         List<FileItem> input = (List<FileItem>) upload.parseRequest(request);
+
+        JSONArr created = new JSONArr();
         for (FileItem file : input) {
             String filename = file.getName();
 
@@ -147,7 +136,7 @@ public class IconController extends ApiController {
             if (filename.lastIndexOf('\\') != -1) {
                 filename = filename.substring(filename.lastIndexOf('\\'));
             }
-            String ext = pathExtension(filename);
+            String ext = fileExt(filename);
             if( !ICON_FORMATS.containsKey(ext)){
                 String msg = "Icon "+filename+" format "+ext+" unsupported - try:"+ICON_FORMATS.keySet();
                 LOG.warning(msg);
@@ -155,75 +144,59 @@ public class IconController extends ApiController {
             }
             try {
                 InputStream data = file.getInputStream();                
-                Resources.copy(data, icons, filename );
+                Resources.copy(data, styles, filename);
+
+                icon(created.addObject(), ws, styles.get(filename), request);
             } catch (Exception e) {
                 throw new FileUploadException("Unable to write "+filename,e);
             }
         }
-        return list(wsName);
 
+        return created;
     }
     
+
+    JSONObj icon(JSONObj obj, WorkspaceInfo ws, Resource r, HttpServletRequest request) {
+        String filename = r.name();
+        String ext = fileExt(filename);
+        Object format = ICON_FORMATS.get(ext.toLowerCase());
+
+        obj.put("name", filename)
+            .put("format",ext)
+            .put("mime",format)
+            .put("url", request.getRequestURL().append("/").append(filename).toString());
+
+        IO.date(obj.putObject("modified"), new Date(r.lastmodified()));
+        return obj;
+    }
 
     @RequestMapping(value = "/{wsName}/{icon:.+}", method = RequestMethod.GET)
-    public @ResponseBody
-    JSONObj get(@PathVariable String wsName,
-                @PathVariable String icon,
-                HttpServletRequest request) throws IOException {
+    public @ResponseBody byte[] raw(@PathVariable String wsName, @PathVariable String icon,
+                                   HttpServletResponse response) throws IOException {
 
-        WorkspaceInfo ws = findWorkspace(wsName);
-        Set<String> referenced = externalGraphics(wsName);
-        
+        WorkspaceInfo ws = findWorkspace(wsName, catalog());
+
         GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();
         Resource resource = rl.get(Paths.path("workspaces",ws.getName(),"styles",icon));
-        
+
         if( resource.getType() != Type.RESOURCE ){
             throw new NotFoundException("Icon "+icon+" not found");
         }
-        JSONObj details = new JSONObj();
-        String ext = pathExtension(icon);
-        String format = ICON_FORMATS.get(ext.toLowerCase());
-        if(format == null){
-            throw new NotFoundException("Extension "+ext+" is not listed as an icon mime type");
-        }
-        details.put("name",icon).
-           put("format",ext).
-           put("mime",format);
-        if( referenced.contains(icon)){
-            details.put("used", true );
-        }        
-        IO.date(details.putObject("modified"), new Date( resource.lastmodified() ));
-        
-//        String baseUrl = geoServer.getSettings().getProxyBaseUrl();
-//        String url = ResponseUtils.buildURL(baseUrl,"workspaces/"+ws.getName()+"/styles/"+icon,null,URLType.RESOURCE);
-        String url = request.getRequestURL().append("/raw").toString();
-        details.put("url", url );
-        
-        return details;
-    }
-    
-    @RequestMapping(value = "/{wsName}/{icon:.*}/raw", method = RequestMethod.GET)
-    public HttpServletResponse raw(@PathVariable String wsName, @PathVariable String icon,
-                                   HttpServletResponse response) throws IOException {    
-        
-        WorkspaceInfo ws = findWorkspace(wsName);
-        
-        GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();
-        Resource resource = rl.get(Paths.path("workspaces",ws.getName(),"styles",icon));
-        
-        if( resource.getType() != Type.RESOURCE ){
-            throw new NotFoundException("Icon "+icon+" not found");
-        }
-        String ext = pathExtension(icon);
+        String ext = fileExt(icon);
         String mimeType = ICON_FORMATS.get(ext.toLowerCase());
-        
-        response.setContentType(mimeType);        
-        response.setStatus(HttpServletResponse.SC_OK);
+
+        response.setContentType(mimeType);
+        //response.setStatus(HttpServletResponse.SC_OK);
         response.setDateHeader("Last-Modified", resource.lastmodified() );
-        IOUtils.copy(resource.in(), response.getOutputStream());
-        
-        return response;
+        //IOUtils.copy(resource.in(), response.getOutputStream());
+
+        try (
+            InputStream in = resource.in();
+        ) {
+            return IOUtils.toByteArray(in);
+        }
     }
+
     @ExceptionHandler(FileUploadException.class)
     public @ResponseBody JSONObj error(FileUploadException e, HttpServletResponse response) {
         response.setStatus(HttpStatus.BAD_REQUEST.value());
@@ -238,18 +211,16 @@ public class IconController extends ApiController {
 
     /** 
      * Check what icons/fonts are referenced style.
-     * @param wsName
-     * @param layer
      * @return Set of icons used by layer.
      * @throws IOException Trouble access default style
      */    
     @SuppressWarnings("unchecked")
-    private Set<String> externalGraphics(String wsName) throws IOException {
+    private Set<String> findAllGraphics(WorkspaceInfo ws) throws IOException {
         final Catalog cat = geoServer.getCatalog();
-        WorkspaceInfo w = findWorkspace(wsName);
+
         final Set<String> externalGraphics = new HashSet<String>();
         
-        w.accept( new CatalogVisitorAdapter() {
+        ws.accept( new CatalogVisitorAdapter() {
             @Override
             public void visit(WorkspaceInfo workspace) {
                 for( StoreInfo store : cat.getStoresByWorkspace(workspace,StoreInfo.class)){
@@ -329,36 +300,8 @@ public class IconController extends ApiController {
         });
         return externalGraphics;
     }
-    
-    /**
-     * Replacement for {@link Paths#extension}.
-     * <p>
-     * Extension is lowercase suitable for use with {@link #ICON_FORMATS}.get(extension).
-     * @param filename
-     * @return extension for provided filename, or null
-     */
-    private String pathExtension(String filename) {
-        if (filename == null || filename.lastIndexOf('.') == -1) {
-            return null;
-        }
-        String ext = filename.substring(filename.lastIndexOf('.') + 1);
-        return ext.toLowerCase();
-    }
-    
-    private WorkspaceInfo findWorkspace(String wsName) {
-        Catalog cat = geoServer.getCatalog();
-        WorkspaceInfo ws;
-        if ("default".equals(wsName)) {
-            ws = cat.getDefaultWorkspace();
-        } else {
-            ws = cat.getWorkspaceByName(wsName);
-        }
-        if (ws == null) {
-            throw new RuntimeException("Unable to find workspace " + wsName);
-        }
-        return ws;
-    }
-    
 
-
+    String fileExt(String filename) {
+        return FilenameUtils.getExtension(filename.toLowerCase());
+    }
 }

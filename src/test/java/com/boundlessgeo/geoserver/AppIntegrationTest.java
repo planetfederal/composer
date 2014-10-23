@@ -102,8 +102,7 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         body.writeTo(bout);
         request.setContent(bout.toByteArray());
         
-        JSONArr arr = ctrl.create("cite", request );
-        System.out.println( arr );
+        JSONArr arr = ctrl.create("cite", request);
         assertEquals( 1, arr.size() );
         
         Resource r = catalog.getResourceLoader().get("workspaces/cite/styles/STYLE.PROPERTIES");
