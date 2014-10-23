@@ -150,7 +150,7 @@ public class MapController extends ApiController {
 
     void updateBounds(ReferencedEnvelope bounds, LayerInfo layer) throws Exception {
         ResourceInfo r = layer.getResource();
-        if (CRS.equalsIgnoreMetadata(bounds.getCoordinateReferenceSystem(), r.getCRS())) {
+        if (r.boundingBox() != null && CRS.equalsIgnoreMetadata(bounds.getCoordinateReferenceSystem(), r.getCRS())) {
             bounds.include(r.boundingBox());
         }
         else {
