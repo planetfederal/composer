@@ -6,10 +6,12 @@ package com.boundlessgeo.geoserver;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Facade for managing projections.
@@ -46,13 +48,17 @@ public class Proj {
         }
     }
 
-    public CoordinateReferenceSystem crs(final String srs) throws Exception {
-        return cache.get(srs, new Callable<CoordinateReferenceSystem>() {
-            @Override
-            public CoordinateReferenceSystem call() throws Exception {
-                return CRS.decode(srs);
-            }
-        });
+    public CoordinateReferenceSystem crs(final String srs) {
+        try {
+            return cache.get(srs, new Callable<CoordinateReferenceSystem>() {
+                @Override
+                public CoordinateReferenceSystem call() throws Exception {
+                    return CRS.decode(srs);
+                }
+            });
+        } catch (ExecutionException e) {
+            throw new IllegalArgumentException("Unable to decode projection: " + srs, e.getCause());
+        }
     }
 
     public Map<String,CoordinateReferenceSystem> recent() {

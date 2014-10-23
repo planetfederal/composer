@@ -77,8 +77,7 @@ public class MapController extends ApiController {
     @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    JSONObj create(@PathVariable String wsName,
-                                        @RequestBody JSONObj obj) {
+    JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj) {
         String name = obj.str("name");
         String title = obj.str("title");
         String description = obj.str("abstract");
@@ -86,12 +85,13 @@ public class MapController extends ApiController {
         Date created = new Date();
 
         CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
-        if(obj.has("proj")){
-            String srs = obj.str("proj");
+
+        JSONObj proj = obj.object("proj");
+        if (proj != null) {
             try {
-                crs = Proj.get().crs(srs);
+                crs = IO.crs(proj);
             } catch (Exception e) {
-                throw new BadRequestException("Unrecognized projection: " + srs);
+                throw new BadRequestException("Error parsing proj: " + proj.toString());
             }
         }
         else {
@@ -362,8 +362,10 @@ public class MapController extends ApiController {
         ReferencedEnvelope bounds = map.getBounds();
         IO.proj(obj.putObject("proj"), bounds.getCoordinateReferenceSystem(), null);
         IO.bounds(obj.putObject("bbox"), bounds);
-        
-        if( !obj.has("modified")){
+
+        if(!obj.has("modified")){
+            //JD: we don't need this, the modified flag will get populated when the user actually edits the map
+            /*
             String path = Paths.path( "workspaces", wsName, "layergroups", String.format("%s.xml", map.getName()));
             Resource r = geoServer.getCatalog().getResourceLoader().get( path );
             if( r.getType() == Type.RESOURCE ){
@@ -371,6 +373,7 @@ public class MapController extends ApiController {
                 String time = DateUtil.formatDate( new Date(modified));
                 obj.put("modified", time );
             }
+            */
         }
         
         obj.put("layer_count", map.getLayers().size() );
