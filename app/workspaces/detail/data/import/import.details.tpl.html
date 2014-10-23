@@ -5,7 +5,10 @@
       Please specify the projection for the following layers.
     </p>
     <div ng-grid="pendingGridOpts" class="pending-layers"></div>
-    <button ng-click="reimport()" class="btn btn-success pull-right"><i class="fa fa-refresh"></i> Re-import</button>
+    <div class="pull-right">
+      <button ng-click="reimport()" class="btn btn-success btn-sm"><i class="fa fa-refresh"></i> Re-import</button>
+      <button ng-click="cancel()" class="btn btn-default btn-sm">Cancel</button>
+    </div>
   </div>
   <div ng-if="import.imported.length > 0">
     <h3>Imported Layers</h3>

@@ -3,8 +3,8 @@
   <div>
     <div class="row">
       <div class="col-sm-8 col-sm-offset-2">
+        <h4 ng-hide="step==2" class="text-center">Step 1. Map Info</h4>
         <form ng-hide="step==2" name="newMap" role="form" class="new-map-form">
-          <h4 class="text-center">Step 1. Map Info</h4>
           <div class="form-group" name="newMapName">
             <label for="name">Map Name*</label>
             <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
@@ -26,12 +26,12 @@
             <textarea rows="4" cols="40" class="form-control abstract" name="abstract" ng-model="mapInfo.abstract" ng-minlength="1">Description for map</textarea>
           </div>
         </form>
+        <h4 ng-show="step==2">Step 2. Add Layer(s)</h4>
         <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form">
-          <h4>Step 2. Add Layer(s)</h4>
           <div class="form-group" name="layer">
-            <label for="layers">Available Layers:</label>
-
-            <ui-select multiple ng-model="map.layers" ng-disabled="disabled" theme="bootstrap" style="width:100%;" ng-minlength="1" required>
+            <label for="lyrs">Available Layers:</label>
+            <br/>
+            <ui-select multiple ng-required="step==2" ng-model="map.layers" name="lyrs" ng-disabled="disabled" theme="bootstrap" style="width:100%;">
               <ui-select-match placeholder="Choose one or more Layers...">
                 {{ $item.name }}
               </ui-select-match>
@@ -39,6 +39,7 @@
                   <div ng-bind-html="layer.name | highlight: $select.search"></div>
               </ui-select-choices>
             </ui-select>
+            <span ng-show="newMap.lyrs.$error.required" class="error">Required</span>
           </div>
         </form>
         <div ng-hide="mapCreated" style="margin-top:15px;"></div>
@@ -49,10 +50,10 @@
       <div class="col-sm-8 col-sm-offset-2">
         <div class="form-footer">
           <small class="pull-left">* = Required</small>
-          <div class="pull-right">
+          <div class="submit-buttons pull-right">
             <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
             <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-            <button ng-show="step!==1" class="btn btn-primary btn-sm" ng-click="createMap(newMap.$valid)" ng-disabled="!newMap.$valid">Create</button>
+            <button ng-show="step==2" class="btn btn-primary btn-sm" ng-click="createMap()" ng-disabled="map.layers.length==0">Create</button>
             <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="addLayers();" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
           </div>
         </div>

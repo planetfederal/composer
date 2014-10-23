@@ -53,30 +53,28 @@ angular.module('gsApp.workspaces.maps.new', [
       $state.go('workspace.maps.main', {workspace:$scope.workspace});
     };
 
-    $scope.createMap = function(isValid) {
-      if (isValid) {
-        $scope.mapInfo.layers = [];
-        for (var i=0; i< $scope.map.layers.length; i++) {
-          $scope.mapInfo.layers.push({
-            'name': $scope.map.layers[i],
-            'workspace': $scope.workspace
-          });
-        }
-        $scope.map.layers = [];
-        $log.log($scope.mapInfo);
-
-        GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
-          function(result) {
-            if (result.success) {
-              $log.log(result.data);
-            } else {
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Could not create map.',
-                fadeout: true
-              }];
-            }
-          });
+    $scope.createMap = function() {
+      $scope.mapInfo.layers = [];
+      for (var i=0; i< $scope.map.layers.length; i++) {
+        $scope.mapInfo.layers.push({
+          'name': $scope.map.layers[i],
+          'workspace': $scope.workspace
+        });
       }
+      $scope.map.layers = [];
+      $log.log($scope.mapInfo);
+
+      GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
+        function(result) {
+          if (result.success) {
+            $log.log(result.data);
+          } else {
+            $rootScope.alerts = [{
+              type: 'danger',
+              message: 'Could not create map.',
+              fadeout: true
+            }];
+          }
+        });
     };
   }]);
