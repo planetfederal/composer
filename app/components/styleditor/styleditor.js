@@ -83,6 +83,16 @@ angular.module('gsApp.styleditor', [
     }])
 .run(['YsldHinter', '$log',
     function(YsldHinter, $log) {
+      CodeMirror.prototype.insertOrReplace = function(value) {
+        if (this.somethingSelected()) {
+          // replace the selection
+          this.replaceSelection(value, 'around');
+        }
+        else {
+          // insert
+          this.replaceRange(value, this.getCursor());
+        }
+      };
       CodeMirror.commands.autocomplete = function(cm) {
         cm.showHint({
           hint: function(cm, options) {

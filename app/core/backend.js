@@ -310,9 +310,8 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot+'/icons/'+workspace
             });
           },
-          getIconURL: function(workspace, iconfile) {
-            var url = gsRoot+'/'+workspace+'/styles/'+iconfile;
-            return url;
+          url: function(workspace) {
+            return apiRoot+'/icons/'+workspace;
           }
         },
 

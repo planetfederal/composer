@@ -1,11 +1,14 @@
 /*global window, document, ZeroClipboard, $ */
-angular.module('gsApp.styleditor.icons', [ 'gsApp.core.utilities' ])
-.directive('styleEditorIcons', ['$log', 'GeoServer', '$modal',
-    function($log, GeoServer) {
+angular.module('gsApp.styleditor.icons', [
+  'angularFileUpload',
+  'gsApp.core.utilities'
+])
+.directive('styleEditorIcons', ['$modal', '$log', 'GeoServer',
+    function($modal, $log, GeoServer) {
       return {
         restrict: 'EA',
         scope: {
-          click: '='
+          editor: '='
         },
         template:
           '<li class="dropdown dropdown-toggle icons-dropdown" ' +
@@ -22,15 +25,7 @@ angular.module('gsApp.styleditor.icons', [ 'gsApp.core.utilities' ])
           GeoServer.icons.get(workspace)
             .then(function(result) {
               if (result.success) {
-                result.data.forEach(function(item) {
-                  $scope.icons.push(
-                    { 'name': item.name,
-                      'url': $scope.getIconURL(item.name),
-                      'selected': false
-                    });
-                });
-                // Set default selected
-                $scope.icon = $scope.icons[0];
+                $scope.icons = result.data;
               } else {
                 $scope.$parent.alerts = [{
                   type: 'warning',
@@ -39,10 +34,6 @@ angular.module('gsApp.styleditor.icons', [ 'gsApp.core.utilities' ])
                 }];
               }
             });
-
-          $scope.getIconURL = function(iconfile) {
-            return GeoServer.icons.getIconURL(workspace, iconfile);
-          };
 
           $scope.selectIcon = function() {
             if ($scope.icons.length===-1) {
@@ -53,59 +44,65 @@ angular.module('gsApp.styleditor.icons', [ 'gsApp.core.utilities' ])
               }];
               return;
             }
-            var modalInstance = $modal.open({
-              templateUrl: '/components/styleditor/tools/icons-modal.tpl.html',
+            $modal.open({
+              templateUrl: '/components/styleditor/tools/icons.modal.tpl.html',
               controller: 'IconsModalCtrl',
               size: 'lg',
               resolve: {
                 workspace: function() {
                   return workspace;
                 },
-                geoserver: function() {
-                  return GeoServer;
-                },
                 icons: function() {
                   return $scope.icons;
-                },
-                editor: function() {
-                  return $scope.$parent.editor;
                 }
               }
+            }).result.then(function(icon) {
+              $scope.editor.insertOrReplace(icon.name);
             });
           };
         }
       };
     }])
-.controller('IconsModalCtrl', ['$scope', '$modalInstance',
-  'workspace', 'geoserver', 'icons', 'editor', '$timeout',
-  function($scope, $modalInstance, workspace, geoserver, icons,
-    editor, $timeout) {
+.controller('IconsModalCtrl', ['$scope', '$modalInstance', '$upload', '$log',
+    'GeoServer', 'workspace', 'icons',
+    function($scope, $modalInstance, $upload, $log, GeoServer, workspace,
+      icons) {
 
-    $scope.workspace = workspace;
-    $scope.geoserver = geoserver;
-    $scope.icons = icons;
-    $scope.selectedIconName = null;
+      $scope.workspace = workspace;
+      $scope.icons = icons;
 
-    $scope.ok = function () {
-      $modalInstance.close($scope.icon);
-    };
-    $scope.cancel = function () {
-      $modalInstance.dismiss('cancel');
-    };
-    $scope.chooseIcon = function(i) {
-      $scope.selectedIconName = i.name;
-    };
+      $scope.close = function () {
+        $modalInstance.dismiss('cancel');
+      };
 
-    $timeout(function() {
-      new ZeroClipboard($('#copyIcon')).on('copy',
-      function(event) {
-        var clipboard = event.clipboardData;
-        if ($scope.selectedIconName) {
-          clipboard.setData('text/plain',
-            $scope.selectedIconName
-          );
-        }
-      });
-    }, 500);
+      $scope.chooseIcon = function(icon) {
+        $modalInstance.close(icon);
+      };
 
-  }]);
+      $scope.uploadIcons = function(files) {
+        $scope.uploadRunning = true;
+        $upload.upload({
+          url: GeoServer.icons.url($scope.workspace),
+          method: 'POST',
+          file: files[0]
+        }).success(function(result) {
+          result.forEach(function(icon) {
+            icons.push(icon);
+          });
+          $scope.uploadRunning = false;
+        });
+      };
+
+      // $timeout(function() {
+      //   new ZeroClipboard($('#copyIcon')).on('copy',
+      //   function(event) {
+      //     var clipboard = event.clipboardData;
+      //     if ($scope.selectedIconName) {
+      //       clipboard.setData('text/plain',
+      //         $scope.selectedIconName
+      //       );
+      //     }
+      //   });
+      // }, 500);
+
+    }]);

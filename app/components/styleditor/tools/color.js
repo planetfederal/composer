@@ -31,17 +31,7 @@ angular.module('gsApp.styleditor.color', [])
               return true;
             },
             change: function(col) {
-              var hex = col.toHex();
-
-              var ed = $scope.editor;
-              if (ed.somethingSelected()) {
-                // replace the selection
-                ed.replaceSelection(hex, 'around');
-              }
-              else {
-                // insert
-                ed.replaceRange(hex, ed.getCursor());
-              }
+              $scope.editor.insertOrReplace(col.toHex());
             }
           });
         }

@@ -120,7 +120,7 @@ public class MapController extends ApiController {
         map.setAbstract( description );
         map.setTitle( title );
         map.setMode( Mode.SINGLE );
-        map.setWorkspace( findWorkspace(wsName) );
+        map.setWorkspace( findWorkspace(wsName, cat) );
 
         for (Object o : obj.array("layers")) {
             JSONObj l = (JSONObj) o;
@@ -415,20 +415,6 @@ public class MapController extends ApiController {
         }
 
         return IO.metadata(obj, map);
-    }
-    
-    WorkspaceInfo findWorkspace(String wsName) {
-        Catalog cat = geoServer.getCatalog();
-        WorkspaceInfo ws;
-        if ("default".equals(wsName)) {
-            ws = cat.getDefaultWorkspace();
-        } else {
-            ws = cat.getWorkspaceByName(wsName);
-        }
-        if (ws == null) {
-            throw new RuntimeException("Unable to find workspace " + wsName);
-        }
-        return ws;
     }
     
     LayerGroupInfo findMap(String wsName, String name) {
