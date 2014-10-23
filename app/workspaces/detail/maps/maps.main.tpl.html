@@ -1,6 +1,6 @@
 <h3>Maps</h3>
 <div>
-  <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length > 1">s</span> in <strong>{{ workspace }}</strong>
+  <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length==0 || maps.length>1">s</span> in <strong>{{ workspace }}</strong>
 </div>
 <div ng-repeat="map in maps" class="map-summary">
   <div class="row" ng-if="$index % 2 == 0">

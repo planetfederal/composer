@@ -41,13 +41,13 @@
           </a>
           <ul class="workspace-items" collapse="!toggleWkspc" role="menu">
             <li>
-              <a ng-click="onWorkspaceClick(workspace,'maps');"
+              <a ng-click="onWorkspaceClick(workspace,'maps.main');"
                 alt="Maps" title="Maps">
                 <i class="icon-map"></i> <span class="txt">Maps</span>
               </a>
             </li>
             <li>
-              <a ng-click="onWorkspaceClick(workspace,'data');"
+              <a ng-click="onWorkspaceClick(workspace,'data.main');"
                 alt="Data" title="Data">
                 <i class="fa fa-database fa-lg"></i> <span class="txt">Data
                 </span>
@@ -82,7 +82,7 @@
           </a>
         </li>
         <li ng-show="workspaces.length > 2" class="more">
-          <a ui-sref="workspaces" alt="More..." title="More..."> More...</a>
+          <a ui-sref="workspaces.list" alt="More..." title="More..."> More...</a>
         </li>
         <li ng-show="workspaces.length == 0" class="single-workspace">
           No Project Workspaces

@@ -242,4 +242,8 @@ angular.module('gsApp.workspaces.data.import', [
         });
       };
 
+      $scope.cancel = function() {
+        $state.go('workspace.data.main', {workspace:$scope.workspace});
+      };
+
     }]);
