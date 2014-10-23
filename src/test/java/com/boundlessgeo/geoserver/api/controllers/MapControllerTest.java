@@ -4,12 +4,14 @@
 package com.boundlessgeo.geoserver.api.controllers;
 
 import com.boundlessgeo.geoserver.api.converters.JSONMessageConverter;
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.boundlessgeo.geoserver.json.JSONWrapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import com.mockrunner.mock.web.MockServletContext;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.NamespaceInfo;
@@ -21,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -31,6 +34,7 @@ import javax.annotation.Nullable;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
@@ -83,6 +87,33 @@ public class MapControllerTest {
 
         Catalog cat = geoServer.getCatalog();
         verify(cat, times(1)).add(isA(LayerGroupInfo.class));
+    }
+
+    @Test
+    public void testCreateAlreadyExists() throws Exception {
+        MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true)
+                .map("map1")
+            .geoServer().build(geoServer);
+
+        JSONObj obj = new JSONObj();
+        obj.put("name", "map1");
+        obj.put("title", "Map1");
+        obj.putObject("proj").put("srs", "EPSG:4326");
+        obj.putArray("layers").addObject().put("name", "one");
+
+        MockHttpServletRequestBuilder reqBuilder = post("/api/maps/foo")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+
+        MockHttpServletRequest req = reqBuilder.buildRequest(new MockServletContext());
+        try {
+            new MapController(geoServer).create("foo", new JSONObj().put("name", "map1"));
+            fail();
+        }
+        catch(BadRequestException e) {
+            assertTrue(e.getMessage().contains("already exists"));
+        }
     }
 
     @Test

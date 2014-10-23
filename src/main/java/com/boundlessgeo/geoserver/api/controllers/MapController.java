@@ -44,6 +44,7 @@ import org.geotools.util.logging.Logging;
 
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,19 @@ public class MapController extends ApiController {
     public @ResponseBody
     JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj) {
         String name = obj.str("name");
+
+        if (name == null) {
+            throw new BadRequestException("Map object requires name");
+        }
+
+        try {
+            findMap(wsName, name);
+            throw new BadRequestException("Map named '" + name + "' already exists");
+        }
+        catch(NotFoundException e) {
+            // good!
+        }
+
         String title = obj.str("title");
         String description = obj.str("abstract");
         
