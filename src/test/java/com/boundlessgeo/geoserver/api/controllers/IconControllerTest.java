@@ -3,10 +3,13 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
+import java.util.Iterator;
+
 import com.boundlessgeo.geoserver.api.converters.JSONMessageConverter;
 import com.boundlessgeo.geoserver.api.converters.ResourceMessageConverter;
 import com.boundlessgeo.geoserver.api.converters.YsldMessageConverter;
 import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
 import com.boundlessgeo.geoserver.json.JSONWrapper;
 
 import org.geoserver.catalog.SLDHandler;
@@ -94,6 +97,42 @@ public class IconControllerTest {
 
       JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
       assertEquals( 2, arr.size() );
+      for( Iterator<Object> i = arr.iterator(); i.hasNext();){
+          Object item = i.next();
+          if( item instanceof JSONObj){
+              JSONObj obj = (JSONObj) item;
+              if(obj.str("name").equals("icon.png")){
+                  assertEquals( "png", obj.get("format"));
+                  assertEquals( "image/png", obj.get("mime"));
+                  assertTrue( obj.str("url").endsWith("icon.png"));            
+              }
+          }
+      }
     }
 
+    @Test
+    public void testRaw() throws Exception {
+        MockGeoServer.get().catalog()
+        .resources()
+          .resource("workspaces/foo/styles/one.yaml", "title: raw")
+          .directory("workspaces/foo/styles")
+          .resource("workspaces/foo/styles/icon.png", "PNG8")
+          .resource("workspaces/foo/styles/symbols.TTF", "TTF")
+        .geoServer().catalog()
+          .workspace("foo", "http://scratch.org", true)
+            .layer("one")
+              .style().ysld("one.yaml")
+        .geoServer().build(geoServer);
+
+      MvcResult result = mvc.perform(get("/api/icons/foo/icon.png"))
+              .andExpect(status().isOk())
+              .andExpect(content().contentType(MediaType.IMAGE_PNG_VALUE))
+              .andReturn();
+
+      String raw = result.getResponse().getContentAsString();
+      
+      assertEquals("PNG8",raw);
+    }
+
+    
 }
