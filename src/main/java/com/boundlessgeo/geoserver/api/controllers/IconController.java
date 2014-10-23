@@ -183,6 +183,9 @@ public class IconController extends ApiController {
             throw new NotFoundException("Icon "+icon+" not found");
         }
         String ext = fileExt(icon);
+        if( !ICON_FORMATS.containsKey(ext)){
+            throw new NotFoundException("Icon "+icon+" format unsupported");
+        }
         String mimeType = ICON_FORMATS.get(ext.toLowerCase());
 
         response.setContentType(mimeType);
@@ -197,6 +200,23 @@ public class IconController extends ApiController {
         }
     }
 
+    @RequestMapping(value = "/{wsName}/{icon:.+}", method = RequestMethod.DELETE)
+    public boolean delete(@PathVariable String wsName, @PathVariable String icon) throws IOException {
+
+        WorkspaceInfo ws = findWorkspace(wsName, catalog());
+
+        GeoServerResourceLoader rl = geoServer.getCatalog().getResourceLoader();
+        Resource resource = rl.get(Paths.path("workspaces",ws.getName(),"styles",icon));
+        if( resource.getType() != Type.RESOURCE ){
+            throw new NotFoundException("Icon "+icon+" not found");
+        }
+        String ext = fileExt(icon);
+        if( !ICON_FORMATS.containsKey(ext)){
+            throw new NotFoundException("Icon "+icon+" format unsupported");
+        }
+        return resource.delete();
+    }
+    
     @ExceptionHandler(FileUploadException.class)
     public @ResponseBody JSONObj error(FileUploadException e, HttpServletResponse response) {
         response.setStatus(HttpStatus.BAD_REQUEST.value());

@@ -7,9 +7,10 @@ import com.boundlessgeo.geoserver.api.controllers.IconController;
 import com.boundlessgeo.geoserver.api.controllers.ImportController;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
-import net.sf.json.JSONArray;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.importer.Importer;
@@ -17,7 +18,10 @@ import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.test.GeoServerSystemTestSupport;
 import org.junit.Test;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import javax.mail.internet.InternetHeaders;
 import javax.mail.internet.MimeBodyPart;
@@ -28,6 +32,10 @@ import java.io.ByteArrayOutputStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class AppIntegrationTest extends GeoServerSystemTestSupport {
 
@@ -82,17 +90,17 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
     
 
     @Test
-    public void testIconsUpload() throws Exception {
+    public void testIconsUploadDelete() throws Exception {
         Catalog catalog = getCatalog();
         IconController ctrl = new IconController(getGeoServer());
         
         // test upload
-        MockHttpServletRequest request = new MockHttpServletRequest();
-        request.setContextPath("/geoserver");
-        request.setRequestURI("/geoserver/api/icons");
-        request.setMethod("post");
+        MockHttpServletRequest upload = new MockHttpServletRequest();
+        upload.setContextPath("/geoserver");
+        upload.setRequestURI("/geoserver/api/icons");
+        upload.setMethod("post");
         MimeMultipart body = new MimeMultipart();
-        request.setContentType(body.getContentType());
+        upload.setContentType(body.getContentType());
         InternetHeaders headers = new InternetHeaders();
         headers.setHeader("Content-Disposition", "form-data; name=\"icon\"; filename=\"STYLE.PROPERTIES\"");
         headers.setHeader("Content-Type", "text/x-java-properties");
@@ -100,13 +108,18 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         body.writeTo(bout);
-        request.setContent(bout.toByteArray());
+        upload.setContent(bout.toByteArray());
         
-        JSONArr arr = ctrl.create("cite", request);
+        JSONArr arr = ctrl.create("cite", upload);
         assertEquals( 1, arr.size() );
         
         Resource r = catalog.getResourceLoader().get("workspaces/cite/styles/STYLE.PROPERTIES");
         assertEquals("created", Resource.Type.RESOURCE, r.getType() );
+        
+        // test delete
+        MockHttpServletRequestBuilder delete = delete("/api/icons/foo/icon.png");
+        boolean removed = ctrl.delete("cite","STYLE.PROPERTIES");
+        assertEquals( true, removed );
     }
 
 }
