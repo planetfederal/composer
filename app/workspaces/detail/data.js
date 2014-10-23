@@ -27,9 +27,9 @@ angular.module('gsApp.workspaces.data', [
       });
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
-  '$stateParams', '$modal', '$window', '$log', 'GeoServer',
+  '$stateParams', '$modal', '$window', '$log', 'GeoServer', 'lodash',
     function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
-      GeoServer) {
+      GeoServer, lodash) {
 
       var workspace = $scope.workspace;
 
@@ -60,22 +60,45 @@ angular.module('gsApp.workspaces.data', [
         }
       };
 
+      $scope.selectStore = function(store) {
+        if ($scope.selectedStore &&
+              $scope.selectedStore.name===store.name) {
+          return;
+        }
+        $scope.selectedStore = store;
+
+        GeoServer.datastores.getDetails($scope.workspace, store.name).then(
+        function(result) {
+          if (result.success) {
+            var storeData = result.data;
+            $scope.selectedStore = storeData;
+          } else {
+            $rootScope.alerts = [{
+              type: 'warning',
+              message: 'Details for store ' + $scope.selectedStore.name +
+                ' could not be loaded.',
+              fadeout: true
+            }];
+          }
+        });
+      };
+
       $scope.addNewStore = function() {
         $state.go('workspace.data.import.file', {workspace:$scope.workspace});
-        // var modalInstance = $modal.open({
-        //   templateUrl: '/workspaces/detail/modals/data.add.tpl.html',
-        //   controller: 'WorkspaceAddDataCtrl',
-        //   backdrop: 'static',
-        //   size: 'lg',
-        //   resolve: {
-        //     workspace: function() {
-        //       return $scope.workspace;
-        //     },
-        //     storeAdded: function() {
-        //       return $scope.storeAdded;
-        //     }
-        //   }
-        // });
+      };
+
+      $scope.storeRemoved = function(storeToRemove) {
+        var index = lodash.findIndex($scope.datastores, function(ds) {
+          return ds.name===storeToRemove.name;
+        });
+        if (index > -1) {
+          $scope.datastores.splice(index, 1);
+        }
+        $scope.selectedStore = null;
+      };
+
+      $scope.storeAdded = function(storeToAdd) {
+        $scope.datastores.push(storeToAdd);
       };
 
       $scope.deleteStore = function() {
@@ -107,17 +130,6 @@ angular.module('gsApp.workspaces.data', [
     function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
       GeoServer) {
 
-      $scope.storeRemoved = function(storeToRemove) {
-        var index = $scope.datastores.indexOf(storeToRemove);
-        if (index > -1) {
-          $scope.datastores.splice(index, 1);
-        }
-      };
-
-      $scope.storeAdded = function(storeToAdd) {
-        $scope.datastores.push(storeToAdd);
-      };
-
       // See utilities.js pop directive - 1 popover open at a time
       var openPopoverStore;
       $scope.closePopovers = function(store) {
@@ -130,31 +142,6 @@ angular.module('gsApp.workspaces.data', [
           store.showSourcePopover = true;
           openPopoverStore = store;
         }
-      };
-
-      $scope.allRetrievedLayers = [];
-
-      $scope.selectStore = function(store) {
-        if ($scope.selectedStore &&
-              $scope.selectedStore.name===store.name) {
-          return;
-        }
-        $scope.selectedStore = store;
-
-        GeoServer.datastores.getDetails($scope.workspace, store.name).then(
-        function(result) {
-          if (result.success) {
-            var storeData = result.data;
-            $scope.selectedStore = storeData;
-          } else {
-            $rootScope.alerts = [{
-              type: 'warning',
-              message: 'Details for store ' + $scope.selectedStore.name +
-                ' could not be loaded.',
-              fadeout: true
-            }];
-          }
-        });
       };
 
       $scope.showLayer = function(layer) {

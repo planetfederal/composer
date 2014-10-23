@@ -5,7 +5,7 @@
 <div class="row datastores">
   <div class="col-sm-6">
     <ul class="list-unstyled stores-list" ng-style="storesListHeight">
-      <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
+      <li class="store-row" ng-repeat="ds in $parent.datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
         <div class="icon-column">
           <h3 class="datastore-icons"><i ng-class="{'icon-file': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
           <p class="datastore-label">{{ ds.sourcetype }}</p>

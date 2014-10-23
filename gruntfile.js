@@ -62,7 +62,8 @@ var deps = {
     'angular-ui-sortable/sortable.js',
     'ng-file-upload/angular-file-upload-shim.js',
     'ng-file-upload/angular-file-upload.js',
-    'ng-clip/src/ngClip.js'
+    'ng-clip/src/ngClip.js',
+    'ng-lodash/build/ng-lodash.min.js'
   ],
 
   less: [

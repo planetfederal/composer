@@ -32,7 +32,7 @@
     "angular-animate": "~1.2.22",
     "js-yaml": "~3.1.0",
     "ng-file-upload": "~1.6.12",
-    "lodash": "~2.4.1",
-    "angular-ui-select": "~0.8.3"
+    "angular-ui-select": "~0.8.3",
+    "ng-lodash": "~0.0.2"
   }
 }
