@@ -36,6 +36,8 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
+import org.geoserver.ows.URLMangler.URLType;
+import org.geoserver.ows.util.ResponseUtils;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -161,10 +163,13 @@ public class IconController extends ApiController {
         String ext = fileExt(filename);
         Object format = ICON_FORMATS.get(ext.toLowerCase());
 
+        String baseUrl = ResponseUtils.baseURL(request);
+        String url = ResponseUtils.buildURL(baseUrl,  filename, null, URLType.RESOURCE );
+        
         obj.put("name", filename)
             .put("format",ext)
             .put("mime",format)
-            .put("url", request.getRequestURL().append("/").append(filename).toString());
+            .put("url", url);
 
         IO.date(obj.putObject("modified"), new Date(r.lastmodified()));
         return obj;
