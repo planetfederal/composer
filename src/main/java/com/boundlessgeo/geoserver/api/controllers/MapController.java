@@ -68,7 +68,7 @@ import com.vividsolutions.jts.geom.Envelope;
 @RequestMapping("/api/maps")
 public class MapController extends ApiController {
 
-    static Logger LOG = Logging.getLogger(LayerController.class);
+    static Logger LOG = Logging.getLogger(MapController.class);
 
     @Autowired
     public MapController(GeoServer geoServer) {
