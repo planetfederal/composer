@@ -85,7 +85,7 @@ public class ImportController extends ApiController {
         }
 
         // create a new temp directory for the uploaded file
-        File uploadDir = dataDir().get(ws, "data", hasher.get()).dir();
+        File uploadDir = dataDir().get(ws, "data", hasher.get().toLowerCase()).dir();
         if (!uploadDir.exists()) {
             throw new RuntimeException("Unable to create directory for file upload");
         }
