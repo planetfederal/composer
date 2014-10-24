@@ -53,13 +53,18 @@ angular.module('gsApp.workspaces.home', [
           }
         };
 
+        $scope.workspaceHome = function() {
+          $scope.selectTab($scope.tabs[0]);
+          $scope.tabs[0].active = true;
+        };
+
         $scope.createMap = function() {
           $scope.selectTab($scope.tabs[0]);
           $scope.tabs[0].active = true;
           $timeout(function() {
             $scope.$broadcast(AppEvent.CreateNewMap);
           }, 200);
-        }
+        };
 
         $scope.importData = function() {
           $scope.selectTab($scope.tabs[1]);
@@ -67,7 +72,7 @@ angular.module('gsApp.workspaces.home', [
           $timeout(function() {
             $scope.$broadcast(AppEvent.ImportData);
           }, 100);
-        }
+        };
 
         $scope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {

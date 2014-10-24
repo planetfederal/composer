@@ -70,7 +70,6 @@ angular.module('gsApp.workspaces.maps', [
       };
 
       $scope.createMap = function() {
-        console.log("got here");
         $state.go('workspace.maps.new', {workspace:$scope.workspace});
       };
       $scope.$on(AppEvent.CreateNewMap, function() {
