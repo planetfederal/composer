@@ -13,9 +13,9 @@ angular.module('gsApp.sidenav', [
     };
   })
 .controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer',
-  'AppEvent', '$state', '$log', '$timeout', '$window',
+  'AppEvent', '$state', '$log', '$timeout', '$window', 'AppSession',
   function($scope, $rootScope, GeoServer, AppEvent, $state, $log,
-    $timeout, $window) {
+    $timeout, $window, AppSession) {
 
     // Hug partial menu to sidebar bottom if height's enough
     $scope.onWindowResize = function() {
