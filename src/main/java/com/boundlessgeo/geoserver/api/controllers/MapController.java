@@ -5,7 +5,6 @@ package com.boundlessgeo.geoserver.api.controllers;
 
 import static org.geoserver.catalog.Predicates.equal;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -16,12 +15,6 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
-import com.boundlessgeo.geoserver.Proj;
-import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-
-import org.apache.commons.httpclient.util.DateUtil;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
@@ -33,18 +26,11 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
-import org.geoserver.platform.resource.Paths;
-import org.geoserver.platform.resource.Resource;
-import org.geoserver.platform.resource.Resource.Type;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
-
-import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
-
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +45,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
+import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -296,7 +286,7 @@ public class MapController extends ApiController {
     public @ResponseBody void layers(@RequestBody JSONArr layers, @PathVariable String wsName, @PathVariable String name) {
         LayerGroupInfo m = findMap(wsName, name);
 
-        List<MapLayer> mapLayers = new ArrayList();
+        List<MapLayer> mapLayers = new ArrayList<MapLayer>();
         for (int i = 0; i < m.getLayers().size(); i++) {
             mapLayers.add(new MapLayer(m.getLayers().get(i), m.getStyles().get(i)));
         }

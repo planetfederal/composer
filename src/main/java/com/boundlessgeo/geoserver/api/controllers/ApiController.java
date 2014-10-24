@@ -13,11 +13,13 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geotools.feature.NameImpl;
+
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 
 import javax.annotation.Nullable;
@@ -74,8 +76,8 @@ public abstract class ApiController {
     }
 
     protected LayerInfo findLayer(String wsName, String name, Catalog cat) {
-        LayerInfo l = cat.getLayerByName(new NameImpl(wsName, name));
-        if (l == null) {
+        LayerInfo l = cat.getLayerByName(wsName+":"+name);
+        if( l == null ){
             throw new NotFoundException(String.format("No such layer %s:%s", wsName, name));
         }
         return l;
