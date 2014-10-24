@@ -164,7 +164,7 @@ public class IconController extends ApiController {
         Object format = ICON_FORMATS.get(ext.toLowerCase());
 
         String baseUrl = ResponseUtils.baseURL(request);
-        String url = ResponseUtils.buildURL(baseUrl,  filename, null, URLType.RESOURCE );
+        String url = ResponseUtils.buildURL(baseUrl, "app/api/icons/"+ws.getName()+"/"+filename, null, URLType.RESOURCE );
         
         obj.put("name", filename)
             .put("format",ext)
