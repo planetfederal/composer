@@ -3,9 +3,21 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import static com.boundlessgeo.geoserver.api.controllers.ApiController.DEFAULT_PAGESIZE;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Nullable;
+import javax.xml.transform.TransformerException;
 
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
@@ -43,21 +55,8 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import javax.annotation.Nullable;
-import javax.xml.transform.TransformerException;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.geoserver.catalog.Predicates.equal;
-import static org.mockito.Mockito.*;
-import static com.boundlessgeo.geoserver.api.controllers.ApiController.DEFAULT_PAGESIZE;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 /**
  * Helper to mock up GeoServer configuration.
@@ -198,7 +197,7 @@ public class MockGeoServer {
         Catalog catalog;
 
         MockGeoServer geoServer;
-        List<WorkspaceBuilder> workspaces = new ArrayList();
+        List<WorkspaceBuilder> workspaces = new ArrayList<WorkspaceBuilder>();
 
         public CatalogBuilder(MockGeoServer geoServer) {
             this.geoServer = geoServer;
@@ -221,6 +220,7 @@ public class MockGeoServer {
         }
 
         private void apply(GeoServer geoServer) {
+            // data structures
             List<WorkspaceInfo> allWorkspaces = Lists.transform(workspaces,
                     new Function<WorkspaceBuilder, WorkspaceInfo>() {
                         @Nullable
@@ -237,6 +237,8 @@ public class MockGeoServer {
                             return builder.namespace;
                         }
                     });
+            List<LayerInfo> allLayers = new ArrayList<LayerInfo>();
+            List<LayerGroupInfo> allMaps = new ArrayList<LayerGroupInfo>();
 
             when(catalog.getWorkspaces()).thenReturn(allWorkspaces);
             when(catalog.list(WorkspaceInfo.class, Predicates.acceptAll()))
@@ -245,8 +247,6 @@ public class MockGeoServer {
             when(catalog.list(NamespaceInfo.class, Predicates.acceptAll()))
                 .thenReturn(new CloseableIteratorAdapter<NamespaceInfo>(allNamespaces.iterator()));
 
-            List<LayerInfo> allLayers = new ArrayList<LayerInfo>();
-            List<LayerGroupInfo> allMaps = new ArrayList<LayerGroupInfo>();
 
             for (WorkspaceBuilder wsBuilder : workspaces) {
                 final List<LayerInfo> layers = Lists.transform(wsBuilder.layers, new Function<LayerBuilder, LayerInfo>() {
@@ -257,6 +257,10 @@ public class MockGeoServer {
                     }
                 });
                 allLayers.addAll(layers);
+                for(LayerBuilder layer : wsBuilder.layers ){
+                    String layerName = wsBuilder.namespace.getPrefix()+":"+layer.name;
+                    when(catalog.getLayerByName( layerName )).thenReturn(layer.layer);
+                }
 
                 Answer<CloseableIteratorAdapter<LayerInfo>> a = new Answer<CloseableIteratorAdapter<LayerInfo>>() {
                     @Override
@@ -270,7 +274,7 @@ public class MockGeoServer {
                     wsBuilder.workspace.getName()), null, DEFAULT_PAGESIZE, null)).thenAnswer(a);
                 when(catalog.count(LayerInfo.class, Predicates.equal("resource.namespace.prefix",
                     wsBuilder.workspace.getName()))).thenReturn(wsBuilder.layers.size());
-
+                
                 final List<LayerGroupInfo> maps = Lists.transform(wsBuilder.maps, new Function<MapBuilder, LayerGroupInfo>() {
                     @Nullable
                     @Override
@@ -291,12 +295,12 @@ public class MockGeoServer {
                 when(catalog.list(LayerGroupInfo.class, Predicates.equal("workspace.name",
                     wsBuilder.workspace.getName()))).thenAnswer(b);
             }
-
             when(catalog.getLayers()).thenReturn(allLayers);
             when(catalog.list(LayerInfo.class, Predicates.acceptAll())).thenReturn(
                 new CloseableIteratorAdapter<LayerInfo>(allLayers.iterator()));
             when(catalog.list(LayerInfo.class, Predicates.acceptAll())).thenReturn(
                     new CloseableIteratorAdapter<LayerInfo>(allLayers.iterator()));
+            // layer group
             when(catalog.getLayerGroups()).thenReturn(allMaps);
             when(catalog.list(LayerGroupInfo.class, Predicates.acceptAll())).thenReturn(
                     new CloseableIteratorAdapter<LayerGroupInfo>(allMaps.iterator()));
@@ -475,7 +479,7 @@ public class MockGeoServer {
 
         WorkspaceBuilder workspaceBuilder;
         MapBuilder mapBuilder;
-        ResourceBuilder resourceBuilder;
+        ResourceBuilder<?> resourceBuilder;
 
         public LayerBuilder(String name, WorkspaceBuilder workspaceBuilder) {
             this.name = name;
@@ -492,9 +496,9 @@ public class MockGeoServer {
             when(layer.getMetadata()).thenReturn(meta);
 
             Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
-            when(catalog.getLayerByName(name)).thenReturn(layer);
+            
             when(catalog.getLayerByName(wsName+":"+name)).thenReturn(layer);
-            when(catalog.getLayerByName(new NameImpl(wsName, name))).thenReturn(layer);
+            when(catalog.getLayerByName(new NameImpl(workspaceBuilder.namespace.getURI(), name))).thenReturn(layer);
         }
 
         public LayerBuilder(String name, MapBuilder mapBuilder) {
