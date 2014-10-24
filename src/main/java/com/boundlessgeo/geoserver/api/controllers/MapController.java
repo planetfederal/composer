@@ -237,6 +237,7 @@ public class MapController extends ApiController {
         else {
             map.getMetadata().put("change", "modified "+obj.keys() );
         }
+        cat.save(map);
         
         return mapDetails(new JSONObj(), map, wsName);
     }
