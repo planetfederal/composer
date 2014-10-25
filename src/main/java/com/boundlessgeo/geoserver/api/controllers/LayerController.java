@@ -14,17 +14,20 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogBuilder;
+import org.geoserver.catalog.CatalogFactory;
+import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
+import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
@@ -43,10 +46,6 @@ import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
-import com.boundlessgeo.geoserver.api.exceptions.AppExceptionHandler;
-import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
-import com.boundlessgeo.geoserver.api.exceptions.InvalidYsldException;
-import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import org.opengis.filter.Filter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,9 +57,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
+import com.boundlessgeo.geoserver.api.exceptions.InvalidYsldException;
+import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
 import com.google.common.io.ByteSource;
 
 @Controller
@@ -112,6 +117,68 @@ public class LayerController extends ApiController {
         return obj;
     }
 
+    @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj) {
+        Catalog cat = geoServer.getCatalog();
+        String name = obj.str("name");
+        if (name == null) {
+            throw new BadRequestException("Layer object requires name");
+        }
+        try {
+            @SuppressWarnings("unused")
+            LayerInfo l = findLayer(wsName, name, cat);
+            throw new BadRequestException("Layer named '" + wsName + ":" + name
+                    + "' already exists");
+        } catch (NotFoundException good) {
+        }
+        CatalogBuilder build = new CatalogBuilder( cat );
+        CatalogFactory factory = cat.getFactory();
+        LayerInfo l = factory.createLayer();
+        if( obj.has("from")){
+            String from = obj.str("from");
+            try {
+                LayerInfo origional = findLayer(wsName, from,cat);
+                if( origional.getResource() instanceof FeatureTypeInfo){
+                    FeatureTypeInfo resource = (FeatureTypeInfo) origional.getResource();
+                    FeatureTypeInfo data = factory.createFeatureType();
+                    build.updateFeatureType( data,  resource);
+                    l.setResource(data);
+                }
+                else if( origional.getResource() instanceof CoverageInfo){
+                    CoverageInfo resource = (CoverageInfo) origional.getResource();
+                    CoverageInfo data = factory.createCoverage();
+                    build.updateCoverage( data,  resource);
+                    l.setResource(data);
+                }
+                else if( origional.getResource() instanceof WMSLayerInfo){
+                    WMSLayerInfo resource = (WMSLayerInfo) origional.getResource();
+                    WMSLayerInfo data = factory.createWMSLayer();
+                    build.updateWMSLayer( data,  resource);
+                    l.setResource(data);
+                }
+                else {
+                    throw new NotFoundException("Could not copy resource for "+wsName+":"+wsName+" "+origional.getResource().getName() );
+                }
+                // restore name in case it was replaced by duplicate
+                l.setName(name);
+                build.updateLayer( l,  origional );
+                return update(l, obj);
+            }
+            catch( NotFoundException notFound ){
+                throw new BadRequestException("Layer "+wsName+":"+name+" from "+from+": "+notFound); 
+            }
+        }
+        // Create appropriate resource - by looking up store?
+        // Create layer
+        
+        
+        
+        cat.save(l.getResource());
+        cat.save(l);
+        return IO.layer(new JSONObj(), l);
+    }
+    
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name) {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
@@ -127,24 +194,26 @@ public class LayerController extends ApiController {
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PATCH)
     public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
-        return  put(wsName, name, obj);
+        Catalog cat = geoServer.getCatalog();
+        LayerInfo layer = findLayer(wsName, name, cat);
+        return  update(layer, obj);
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
         Catalog cat = geoServer.getCatalog();
-
         LayerInfo layer = findLayer(wsName, name, cat);
+        return  update(layer, obj);
+    }
+    
+    JSONObj update(LayerInfo layer, JSONObj obj) {
         ResourceInfo resource = layer.getResource();
-
         for (String prop : obj.keys()) {
             if ("title".equals(prop)) {
                 layer.setTitle(obj.str("title"));
-            }
-            else if ("description".equals(prop)) {
+            } else if ("description".equals(prop)) {
                 layer.setAbstract(obj.str("description"));
-            }
-            else if ("bbox".equals(prop)) {
+            } else if ("bbox".equals(prop)) {
                 JSONObj bbox = obj.object("bbox");
                 if (bbox.has("native")) {
                     resource.setNativeBoundingBox(
@@ -154,33 +223,25 @@ public class LayerController extends ApiController {
                     resource.setNativeBoundingBox(
                         new ReferencedEnvelope(IO.bounds(bbox.object("lonlat")), DefaultGeographicCRS.WGS84));
                 }
-            }
-            else if ("proj".equals(prop)) {
+            } else if ("proj".equals(prop)) {
                 JSONObj proj = obj.object("proj");
                 if (!proj.has("srs")) {
                     throw new BadRequestException("proj property must contain a 'srs' property");
                 }
-
                 String srs = proj.str("srs");
                 try {
                     CRS.decode(srs);
                 } catch (Exception e) {
                     throw new BadRequestException("Unknown spatial reference identifier: " + srs);
                 }
-
                 resource.setSRS(srs);
             }
         }
-
+        Catalog cat = geoServer.getCatalog();
         cat.save(resource);
         cat.save(layer);
-
-        return get(wsName, name);
+        return IO.layer(new JSONObj(), layer);
     }
-
-    
- 
-
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
     public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name)

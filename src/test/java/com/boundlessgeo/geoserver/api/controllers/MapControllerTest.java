@@ -3,19 +3,23 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import com.boundlessgeo.geoserver.api.converters.JSONMessageConverter;
-import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-import com.boundlessgeo.geoserver.json.JSONWrapper;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import static junit.framework.TestCase.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.mockrunner.mock.web.MockServletContext;
+import javax.annotation.Nullable;
+
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
-import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,22 +33,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import javax.annotation.Nullable;
-
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.boundlessgeo.geoserver.api.converters.JSONMessageConverter;
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.json.JSONWrapper;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import com.mockrunner.mock.web.MockServletContext;
 
 public class MapControllerTest {
 
@@ -106,6 +102,7 @@ public class MapControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(obj.toString());
 
+        @SuppressWarnings("unused")
         MockHttpServletRequest req = reqBuilder.buildRequest(new MockServletContext());
         try {
             new MapController(geoServer).create("foo", new JSONObj().put("name", "map1"));
@@ -159,6 +156,7 @@ public class MapControllerTest {
 
     @Test
     public void testGet() throws Exception {
+        @SuppressWarnings("unused")
         GeoServer gs = MockGeoServer.get().catalog()
           .resources()
             .resource("workspaces/foo/layergroups/map.xml", "layergroup placeholder")
@@ -211,6 +209,7 @@ public class MapControllerTest {
 
     @Test
     public void testGetLayers() throws Exception {
+        @SuppressWarnings("unused")
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
                 .map("map")
@@ -236,9 +235,9 @@ public class MapControllerTest {
         assertEquals("vector", obj.str("type"));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Test
     public void testPutLayers() throws Exception {
+        @SuppressWarnings("unused")
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
                 .map("map")
@@ -257,6 +256,7 @@ public class MapControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(arr.toString());
 
+        @SuppressWarnings("unused")
         MvcResult result = mvc.perform(req)
             .andExpect(status().isOk())
             .andReturn();
