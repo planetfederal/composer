@@ -180,7 +180,7 @@ public class CatalogCreator {
             CatalogBuilder builder = builder();
             builder.setStore(parent.store);
 
-            FeatureSource source = dataStore.getFeatureSource(name);
+            FeatureSource<?,?> source = dataStore.getFeatureSource(name);
             featureType = builder.buildFeatureType(source);
             builder.setupBounds(featureType, source);
 

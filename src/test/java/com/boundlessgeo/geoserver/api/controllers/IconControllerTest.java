@@ -3,14 +3,15 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import java.util.Iterator;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.boundlessgeo.geoserver.api.converters.JSONMessageConverter;
-import com.boundlessgeo.geoserver.api.converters.ResourceMessageConverter;
-import com.boundlessgeo.geoserver.api.converters.YsldMessageConverter;
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-import com.boundlessgeo.geoserver.json.JSONWrapper;
+import java.util.Iterator;
 
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleHandler;
@@ -32,12 +33,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.boundlessgeo.geoserver.api.converters.JSONMessageConverter;
+import com.boundlessgeo.geoserver.api.converters.ResourceMessageConverter;
+import com.boundlessgeo.geoserver.api.converters.YsldMessageConverter;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.json.JSONWrapper;
 
 public class IconControllerTest {
 

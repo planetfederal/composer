@@ -12,11 +12,9 @@ import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,12 +43,9 @@ import org.geoserver.platform.resource.Paths;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
 import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.data.DataAccess;
-import org.geotools.data.DataAccessFactory;
-import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.DataAccessFinder;
 import org.geotools.data.DataStore;
 import org.geotools.data.ows.Layer;
-import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.wms.WebMapServer;
 import org.geotools.feature.NameImpl;
 import org.geotools.util.Converters;
@@ -58,7 +53,6 @@ import org.geotools.util.NullProgressListener;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.Format;
 import org.opengis.coverage.grid.GridCoverageReader;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -342,85 +336,6 @@ import com.google.common.collect.Iterables;
         return reconnect;
     }
     
-    static public enum Type {FILE,DATABASE,WEB,GENERIC;
-        static Type of( DataAccessFactory format){
-            Set<String> params = new HashSet<String>();
-            for (Param info : format.getParametersInfo()) {
-                params.add(info.getName());
-            }
-            if (params.contains("dbtype")) {
-                return Type.DATABASE;
-            }
-            if (params.contains("directory") || params.contains("file")) {
-                return Type.FILE;
-            }
-            if (params.contains("wms")
-                    || params.contains("WFSDataStoreFactory:GET_CAPABILITIES_URL")) {
-                return Type.WEB;
-            }
-            if( params.contains("url") ){
-                return Type.FILE;
-            }
-            return Type.GENERIC;
-        }
-        static Type of( StoreInfo store ){
-            if( store instanceof CoverageStoreInfo){
-                String url = ((CoverageStoreInfo)store).getURL();
-                if( url.startsWith("file")){
-                    return Type.FILE;
-                }
-                else if( url.startsWith("http") ||
-                         url.startsWith("https") ||
-                         url.startsWith("ftp") ||
-                         url.startsWith("sftp")){
-                    return Type.WEB;
-                }
-            }
-            Map<String, Serializable> params = store.getConnectionParameters();
-            if( params.containsKey("dbtype")){
-                return Type.DATABASE;
-            }
-            if( store instanceof WMSStoreInfo){
-                return Type.WEB;
-            }
-            if( params.keySet().contains("directory") ||
-                params.keySet().contains("file") ){
-                
-                return Type.FILE;
-            }
-            for( Object value : params.values()){
-                if( value == null ) continue;
-                if( value instanceof File ||
-                    (value instanceof String && ((String)value).startsWith("file:")) ||
-                    (value instanceof URL && ((URL)value).getProtocol().equals("file"))){
-                    return Type.FILE;
-                }
-                if( (value instanceof String && ((String)value).startsWith("http:")) ||
-                    (value instanceof URL && ((URL)value).getProtocol().equals("http"))){
-                    return Type.WEB;
-                }
-                if( value instanceof String && ((String)value).startsWith("jdbc:")){
-                    return Type.DATABASE;
-                }
-            }
-            return Type.GENERIC;
-        }        
-    }
-    static public enum Kind {RASTER,VECTOR,SERVICE,UNKNOWN;
-        static Kind of( StoreInfo store ){
-            if( store instanceof CoverageStoreInfo){
-                return Kind.RASTER;
-            }
-            else if( store instanceof DataStoreInfo){
-                return Kind.VECTOR;
-            }
-            else if(store instanceof WMSStoreInfo){
-                return Kind.SERVICE;
-            }
-            return Kind.UNKNOWN;
-        }
-    }
-
     private JSONObj store(JSONObj obj, StoreInfo store) {       
         String name = store.getName();
 
@@ -432,8 +347,8 @@ import com.google.common.collect.Iterables;
         
         String source = source(store);
         obj.put("source", source )
-           .put("type", Type.of(store).name())
-           .put("kind", Kind.of(store).name());   
+           .put("type", IO.Type.of(store).name())
+           .put("kind", IO.Kind.of(store).name());   
 
         return IO.metadata(obj, store);
     }
@@ -512,6 +427,7 @@ import com.google.common.collect.Iterables;
         return list;
     }
 
+    @SuppressWarnings("unchecked")
     private JSONArr resources(StoreInfo store, JSONArr list) throws IOException {
         Catalog cat = geoServer.getCatalog();
         WorkspaceInfo ws = store.getWorkspace();

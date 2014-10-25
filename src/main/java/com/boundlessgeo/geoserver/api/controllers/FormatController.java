@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.boundlessgeo.geoserver.api.controllers.StoreController.Type;
+import com.boundlessgeo.geoserver.api.controllers.IO.Type;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 
@@ -50,7 +50,7 @@ import com.boundlessgeo.geoserver.json.JSONObj;
         for (Iterator<DataAccessFactory> i = DataAccessFinder.getAllDataStores(); i.hasNext();) {
             DataAccessFactory f = i.next();
             String name = format(f.getDisplayName());
-            StoreController.Type type = StoreController.Type.of(f);
+            IO.Type type = IO.Type.of(f);
             list.addObject()
                 .put("name", name)
                 .put("title",f.getDisplayName() )
@@ -92,7 +92,7 @@ import com.boundlessgeo.geoserver.json.JSONObj;
                 .put("description", f.getDescription() )
                 .put("available", f.isAvailable() );
             
-            StoreController.Type type = StoreController.Type.of(f);
+            IO.Type type = IO.Type.of(f);
             obj.put("type",type.toString());
             obj.put("kind","VECTOR");
             
