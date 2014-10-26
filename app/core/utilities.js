@@ -40,7 +40,7 @@ angular.module('gsApp.core.utilities', [])
   return $tooltip('popoverHtmlUnsafe', 'popover', 'click');
 }])
 /*
- * Filter below partitions large list greater than 20 into columns
+ * Filter below partitions data into columns
  */
 .filter('partition', function() {
   var cache = {};

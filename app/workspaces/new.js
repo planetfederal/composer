@@ -19,7 +19,7 @@ angular.module('gsApp.workspaces.new', [])
       $scope.workspaceCreated = false;
 
       $scope.cancel = function() {
-        $state.go('workspaces');
+        $state.go('workspaces.list');
       };
 
       $scope.updateUri = function() {
@@ -47,5 +47,9 @@ angular.module('gsApp.workspaces.new', [])
               }];
             }
           });
+      };
+
+      $scope.viewWorkspace = function() {
+        $state.go('workspace', {workspace: $scope.workspace});
       };
     }]);

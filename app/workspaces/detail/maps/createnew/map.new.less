@@ -6,7 +6,12 @@
 
   form.new-map-form {
 
-    width: 80%;
+    &.form-1 {
+      width: 60%;
+    }
+    &.form-2 {
+      width: 100%;
+    }
 
     .centered {
       text-align: center;
@@ -14,6 +19,14 @@
 
     label {
       font-weight: bold;
+    }
+
+    [name='create-new-layers'] {
+      text-align: center;
+      margin: 10px auto;
+      p {
+        margin: 10px auto;
+      }
     }
 
     .crs-warning {

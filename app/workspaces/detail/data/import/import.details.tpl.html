@@ -18,5 +18,21 @@
     </p>
     <div ng-grid="completedGridOpts"></div>
   </div>
-
+  <div class="map-choice">
+    <div class="map-label">Add Layers above to Map: </div>
+    <div class="map-picker">
+      <ui-select ng-model="map.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false" ng-change="setMap(map.selected);">
+        <ui-select-match placeholder="Select a map...">
+          {{$select.selected.name}}
+        </ui-select-match>
+        <ui-select-choices repeat="map in maps">
+          <span ng-bind-html="map.name | highlight: $select.search"></span>
+        </ui-select-choices>
+      </ui-select>
+    </div>
+    <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap(layerSelections)">
+      <span ng-if="!createMap">+ Add to Map</span>
+      <span ng-if="createMap">Create Map with Selected</span>
+    </button>
+  </div>
 </div>
