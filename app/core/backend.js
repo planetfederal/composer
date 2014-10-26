@@ -18,7 +18,7 @@ angular.module('gsApp.core.backend',[])
         $http(config)
           .success(function(data, status, headers, config) {
             d.resolve({
-              success: status == 200,
+              success: status >= 200 && status < 300,
               status: status,
               data: data
             });
