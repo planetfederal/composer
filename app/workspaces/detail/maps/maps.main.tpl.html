@@ -1,20 +1,33 @@
-<h3>Maps</h3>
-<div>
-  <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length==0 || maps.length>1">s</span> in <strong>{{ workspace }}</strong>
-</div>
-<div ng-repeat="map in maps" class="map-summary">
-  <div class="row" ng-if="$index % 2 == 0">
-    <div class="col-sm-6">
-      <a href="" ng-click="onEdit(map)">
-        <img ng-src="{{ thumbnails[map.name] }}" height="250" width="250" title="Edit Map" />
-      </a>
-      <div class="map-summary-detail">
-        <h4>{{ map.title }}</h4>
-        <p>{{ map.layer_count }} Layers</p>
-        <p>{{ map.proj.srs }}</p>
-        <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
+<div class="map-tab-inner">
+  <h3>Maps</h3>
+  <div class="maps-count">
+    <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length==0 || maps.length>1">s</span> in <strong>{{ workspace }}</strong>
+  </div>
+  <div class="map-summary">
+    <div class="row" ng-repeat="row in maps | partition:2">
+      <div class="col-sm-6" ng-repeat="map in row">
+        <a href="" ng-click="onEdit(map)">
+          <img ng-src="{{ thumbnails[map.name] }}" height="250" width="250" title="Edit Map" />
+        </a>
+        <div class="map-summary-detail">
+          <h4>{{ map.name }}</h4>
+          <p>{{ map.layer_count }} Layers</p>
+          <p>{{ map.proj.srs }}</p>
+          <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
+        </div>
+        <p class="abstract">{{sanitizeHTML(map.abstract)}}</p>
       </div>
-      <p class="abstract">{{sanitizeHTML(map.abstract)}}</p>
+    </div>
+  </div>
+  <div ng-show="maps.length==0">
+    <div class="row">
+      <div class="col-sm-6">
+        <a ng-click="createMap();">
+          <div class="new-map-box">New Map
+            <div class="plus">+ <i class="icon-map"></i></div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </div>

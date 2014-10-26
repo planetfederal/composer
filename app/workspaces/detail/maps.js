@@ -36,6 +36,7 @@ angular.module('gsApp.workspaces.maps', [
         function(result) {
           if (result.success) {
             $scope.maps = result.data;
+
             // load all map thumbnails & metadata
             for (var i=0; i < $scope.maps.length; i++) {
               var map = $scope.maps[i];

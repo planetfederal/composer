@@ -23,7 +23,8 @@ angular.module('gsApp.workspaces.data', [
       $stateProvider.state('workspace.data.import', {
         url: '/import',
         templateUrl: '/workspaces/detail/data/import/import.tpl.html',
-        controller: 'DataImportCtrl'
+        controller: 'DataImportCtrl',
+        params: { workspace: {}, maps: { value: null } }
       });
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
@@ -88,14 +89,20 @@ angular.module('gsApp.workspaces.data', [
       };
 
       $scope.importData = function() {
-        $state.go('workspace.data.import', {workspace:$scope.workspace});
+        $state.go('workspace.data.import', {
+          workspace: $scope.workspace,
+          maps: $scope.maps
+        });
       };
       $scope.$on(AppEvent.ImportData, function() {
         $scope.importData();
       });
 
       $scope.addNewStore = function() {
-        $state.go('workspace.data.import.file', {workspace:$scope.workspace});
+        $state.go('workspace.data.import.file', {
+          workspace: $scope.workspace,
+          maps: $scope.maps
+        });
       };
 
       $scope.storeRemoved = function(storeToRemove) {
