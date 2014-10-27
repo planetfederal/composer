@@ -1,0 +1,37 @@
+/* map.settings.less */
+
+@import "../../../variables.less";
+
+.modal-body {
+  width: 90%;
+  margin-left: 20px;
+
+  .mapSettings {
+    margin-top: 0;
+  }
+
+  #mapName {
+    width: 50%;
+    clear: both;
+  }
+
+  #mapProj {
+    .crs-warning {
+      display: inline-block;
+    }
+    .proj-field {
+      clear: both;
+    }
+  }
+}
+
+.modal-footer {
+  .btn {
+    margin-left: 20px !important;
+  }
+  .saved {
+    float: left;
+    color: @green;
+  }
+}
+

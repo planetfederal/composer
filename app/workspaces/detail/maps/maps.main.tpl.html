@@ -7,15 +7,18 @@
     <div class="row" ng-repeat="row in maps | partition:2">
       <div class="col-sm-6" ng-repeat="map in row">
         <a href="" ng-click="onEdit(map)">
-          <img ng-src="{{ thumbnails[map.name] }}" height="250" width="250" title="Edit Map" />
+          <img ng-src="{{ thumbnails[map.name] }}" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
         </a>
         <div class="map-summary-detail">
           <h4>{{ map.name }}</h4>
+          <p ng-if="map.title"><strong>Title:</strong> {{ map.title }}</p>
           <p>{{ map.layer_count }} Layers</p>
           <p>{{ map.proj.srs }}</p>
+          <p><a ng-click="editMapSettings(map);">Map Settings</a></p>
           <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
         </div>
-        <p class="abstract">{{sanitizeHTML(map.abstract)}}</p>
+        <p ng-if="map.modified.pretty"><strong>Edited:</strong> {{ map.modified.pretty }}</p>
+        <p class="abstract" ng-if="map.description"><strong>Description:</strong> {{sanitizeHTML(map.description)}}</p>
       </div>
     </div>
   </div>

@@ -54,5 +54,9 @@ angular.module('gsApp.core.event', [])
   /**
    * Fired when data import is requested
    */
-  ImportData: 'import-data'
+  ImportData: 'import-data',
+  /**
+   * Fired when map settings are updated
+   */
+  MapUpdated: 'map-updated'
 });

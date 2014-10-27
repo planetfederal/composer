@@ -1,5 +1,6 @@
 angular.module('gsApp.workspaces.maps', [
   'gsApp.workspaces.maps.new',
+  'gsApp.workspaces.maps.settings',
   'gsApp.alertpanel',
   'gsApp.core.utilities',
   'ngSanitize'
@@ -32,6 +33,9 @@ angular.module('gsApp.workspaces.maps', [
       $scope.thumbnails = {};
       $scope.olmaps = {};
 
+      $scope.mapThumbsWidth = 175;
+      $scope.mapThumbsHeight = 175;
+
       GeoServer.maps.get($scope.workspace).then(
         function(result) {
           if (result.success) {
@@ -41,15 +45,13 @@ angular.module('gsApp.workspaces.maps', [
             for (var i=0; i < $scope.maps.length; i++) {
               var map = $scope.maps[i];
               var layers = '';
-
               $scope.maps[i].workspace = $scope.workspace;
               $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
               var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west +
                ',' + map.bbox.south + ',' + map.bbox.east + ',' +
                map.bbox.north;
-
               var url = GeoServer.map.thumbnail.get(map.workspace,
-                map.layergroupname, 250, 250);
+                map.layergroupname, $scope.mapThumbsWidth, $scope.mapThumbsHeight);
               var srs = '&srs=' + map.proj.srs;
 
               $scope.thumbnails[map.name] = url + bbox +
@@ -79,9 +81,10 @@ angular.module('gsApp.workspaces.maps', [
 
     }])
 .controller('MapsMainCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$log', 'GeoServer',
+  '$sce', '$window', '$log', 'GeoServer', '$modal', '$rootScope',
+  'AppEvent', '_',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer) {
+      GeoServer, $modal, $rootScope, AppEvent, _) {
 
       $scope.workspace = $stateParams.workspace;
 
@@ -102,4 +105,37 @@ angular.module('gsApp.workspaces.maps', [
         });
       };
 
-    }]);
+      $scope.editMapSettings = function(map) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/map.settings.tpl.html',
+          controller: 'EditMapSettingsCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            map: function() {
+              return map;
+            }
+          }
+        });
+      };
+
+      $rootScope.$on(AppEvent.MapUpdated, function(scope, maps) {
+        // Update thumbnail if name chanaged
+        var _new = maps.new;
+        var _original = maps.original;
+        if (_new.name !== _original.name) {
+          var url = GeoServer.map.thumbnail.get(_new.workspace,
+            _new.layergroupname, $scope.mapThumbsWidth, $scope.mapThumbsHeight);
+
+          $scope.thumbnails[_new.name] = url + _new.bbox +
+            '&format=image/png' + '&srs=' + _new.proj.srs;
+
+          // remove old thumbnail
+          $scope.thumbnails[_original.name] = null;
+        }
+
+      });
+  }]);

@@ -1,0 +1,38 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Map Settings for {{ map.name }}</h4>
+    <small class="pull-right">* = Required</small>
+  </div>
+  <div class="modal-body">
+    <form name="form.mapSettings" role="form" class="mapSettings">
+      <div class="form-group">
+        <label for="mapName">Map Name *</label>
+        <input name="form.mapSettings.name" type="text" class="form-control input-sm" id="mapName" ng-model="map.name">
+        <small>(No spaces, max 10 characters.)</small>
+      </div>
+      <div class="form-group">
+        <label for="mapTitle">Title</label>
+        <input name="form.mapSettings.title" type="text" class="form-control input-sm" id="mapTitle" ng-model="map.title">
+        <small>(Spaces ok, for humans.)</small>
+      </div>
+      <div class="form-group" id="mapProj">
+        <label for="form.mapSettings.crs">
+          Projection * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
+        </label>
+        <proj-field name="crs" proj="map.proj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
+        <span ng-show="form.mapSettings.crs.$dirty && !form.mapSettings.crs.$error.pattern && !mapSettings.proj.srs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
+        <span ng-show="form.mapSettings.crs.$dirty && !form.mapSettings.crs.$error.pattern && mapSettings.crs.$error.required" class="error">Required</span>
+        <small>(e.g. EPSG:4326)</small>
+      </div>
+      <div class="form-group">
+        <label for="proj">Description</label>
+        <textarea rows="4" cols="40" class="form-control abstract" name="description" ng-model="map.description"></textarea>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
+    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty">Update Map</button>
+  </div>
+</div>
