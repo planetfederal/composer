@@ -3,13 +3,13 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.io.File;
+import java.util.Date;
+import java.util.Iterator;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
@@ -22,12 +22,6 @@ import org.geoserver.importer.ImportData;
 import org.geoserver.importer.ImportFilter;
 import org.geoserver.importer.ImportTask;
 import org.geoserver.importer.Importer;
-import org.geotools.referencing.CRS;
-import com.boundlessgeo.geoserver.util.Hasher;
-import com.boundlessgeo.geoserver.api.exceptions.AppExceptionHandler;
-import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
-import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -37,11 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import java.io.File;
-import java.util.Date;
-import java.util.Iterator;
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
+import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.util.Hasher;
 
 @Controller
 @RequestMapping("/api/imports")

@@ -3,29 +3,26 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.Iterator;
+
+import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.geoserver.catalog.Catalog;
-import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
-import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
-import org.geotools.feature.NameImpl;
 
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
-
-import javax.annotation.Nullable;
-import javax.servlet.http.HttpServletRequest;
-import java.util.Iterator;
-import java.util.List;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 /**
  * Base class for api controllers.
@@ -105,6 +102,7 @@ public abstract class ApiController {
         return new ServletFileUpload(diskFactory);
     }
 
+    @SuppressWarnings("unchecked")
     protected Iterator<FileItem> doFileUpload(HttpServletRequest request) throws FileUploadException {
         ServletFileUpload upload = newFileUpload();
 
