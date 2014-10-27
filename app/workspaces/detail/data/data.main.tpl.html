@@ -18,6 +18,9 @@
               <label class="btn btn-xs" ng-class="{'btn-success': ds.enabled, 'btn-default': !ds.enabled}" ng-click="enableDisableStore(ds)" ng-model="ds.enabled">Enabled</label>
               <label class="btn btn-xs" ng-class="{'btn-primary': !ds.enabled, 'btn-default': ds.enabled}" ng-click="enableDisableStore(ds)">Disabled</label>
             </div>
+            <div class="delete-column" ng-show="selectedStore.name==ds.name">
+              <button ng-click="deleteStore();" class="btn btn-default btn-xs"><i class="icon-remove"></i> Delete</button>
+            </div>
           </p>
         </div>
       </li>

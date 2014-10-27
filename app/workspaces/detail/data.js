@@ -28,10 +28,10 @@ angular.module('gsApp.workspaces.data', [
       });
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
-  '$stateParams', '$modal', '$window', '$log', 'GeoServer', 'lodash',
+  '$stateParams', '$modal', '$window', '$log', 'GeoServer', '_',
   'AppEvent',
     function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
-      GeoServer, lodash, AppEvent) {
+      GeoServer, _, AppEvent) {
 
       var workspace = $scope.workspace;
 
@@ -55,6 +55,11 @@ angular.module('gsApp.workspaces.data', [
                 ds.sourcetype = 'shp_dir';
               }
             });
+
+            // select first store as default to show
+            if ($scope.datastores.length > 0) {
+              $scope.selectStore($scope.datastores[0]);
+            }
           });
       }
       getDataStores();
@@ -106,7 +111,7 @@ angular.module('gsApp.workspaces.data', [
       };
 
       $scope.storeRemoved = function(storeToRemove) {
-        var index = lodash.findIndex($scope.datastores, function(ds) {
+        var index = _.findIndex($scope.datastores, function(ds) {
           return ds.name===storeToRemove.name;
         });
         if (index > -1) {
