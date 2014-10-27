@@ -48,11 +48,14 @@ angular.module('gsApp.sidenav', [
             $rootScope.$broadcast(AppEvent.WorkspacesFetched,
               $scope.workspaceData);
           } else {
-            $scope.alerts = [{
+            // special case, check for 401 Unauthorized, if so be quiet
+            if (result.status != 401) {
+              $scope.alerts = [{
                 type: 'warning',
                 message: 'Could not get workspaces.',
                 fadeout: true
               }];
+            }
           }
         });
       }
@@ -119,4 +122,3 @@ angular.module('gsApp.sidenav', [
         });
       });
   }]);
-
