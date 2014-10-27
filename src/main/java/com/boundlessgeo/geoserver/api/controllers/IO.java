@@ -523,6 +523,7 @@ public class IO {
         return obj.put("timestamp", timestamp).put("pretty", PRETTY_TIME.format(date));
     }
 
+    /** Metadata: created and modified */
     static JSONObj metadata(JSONObj obj, Info i) {
         Date created = Metadata.created(i);
         if (created != null) {

@@ -19,6 +19,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.xml.transform.TransformerException;
 
+
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.FeatureTypeInfo;
@@ -55,6 +56,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.boundlessgeo.geoserver.api.controllers.MockGeoServer.LayerBuilder;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
@@ -541,7 +543,6 @@ public class MockGeoServer {
             LayerInfo layer = layerBuilder.layer;
             when(resource.getName()).thenReturn(layerBuilder.name);
             when(resource.getNativeName()).thenReturn(layerBuilder.name);
-
             when(resource.getNamespace()).thenAnswer(new Answer<NamespaceInfo>() {
                 @Override
                 public NamespaceInfo answer(InvocationOnMock invocation) throws Throwable {
@@ -603,6 +604,14 @@ public class MockGeoServer {
               .latLonBbox(-180, -90, 180, 90);
 
             return schema("geom:Point,name:String");
+        }
+
+        public LayerBuilder layer() {
+            return this.layerBuilder;
+        }
+
+        public MapBuilder map() {
+            return this.layerBuilder.mapBuilder;
         }
     }
 

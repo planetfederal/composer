@@ -179,7 +179,7 @@ public class MapControllerTest {
         assertEquals("map", obj.str("name"));
         assertEquals("foo", obj.str("workspace"));
         assertEquals("The map", obj.str("title"));
-        assertEquals("This map is cool!", obj.str("abstract"));
+        assertEquals("This map is cool!", obj.str("description"));
         
         assertEquals(-180d, obj.object("bbox").doub("west"), 0.1);
         assertEquals(-90d, obj.object("bbox").doub("south"), 0.1);
@@ -203,7 +203,6 @@ public class MapControllerTest {
             }
         });
 
-        assertNotNull(obj.get("created"));
         assertNotNull(obj.get("modified"));
     }
 
@@ -243,9 +242,11 @@ public class MapControllerTest {
                 .map("map")
                     .defaults()
                     .layer("one")
-                        .style().ysld("one.ysld").layer().map()
+                        .style().ysld("one.ysld").layer()
+                        .featureType().defaults().map()
                     .layer("two")
                         .style().ysld("two.ysld").layer()
+                        .featureType().defaults()
             .geoServer().build(geoServer);
 
         JSONArr arr = new JSONArr();
