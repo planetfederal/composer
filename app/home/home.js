@@ -24,7 +24,6 @@ angular.module('gsApp.home', [])
         else { $scope.server.title = 'localhost:8000'; }
         //$scope.server.status = serverInfo.status;
         $scope.server.status = 'ok';
-        
         $scope.server.url = GeoServer.baseUrl();
         $scope.catalog = serverInfo.catalog;
         $scope.services = serverInfo.services;

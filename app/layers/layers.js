@@ -64,6 +64,13 @@ angular.module('gsApp.layers', [
       $scope.thumbnail = '';
       $scope.dropdownBoxSelected = '';
 
+      //Show me an error...just for fun.
+      /*$rootScope.alerts = [{
+        type: 'warning',
+        message: 'Critical error.',
+        fadeout: false
+      }];*/
+
       $scope.onStyleEdit = function(layer) {
         $state.go('layer.style', {
           workspace: layer.workspace,
@@ -255,7 +262,9 @@ angular.module('gsApp.layers', [
         pageSize: 15,
         currentPage: 1
       };
-
+      $scope.filterOptions = {
+        filterText: ''
+      };
       $scope.gridSelections = [];
       $scope.gridOptions = {
         data: 'layerData',
@@ -387,10 +396,7 @@ angular.module('gsApp.layers', [
         footerTemplate: '/components/grid/footer.tpl.html',
         totalServerItems: 'totalServerItems',
         pagingOptions: $scope.pagingOptions,
-        filterOptions: {
-          filterText: '',
-          useExternalFilter: true
-        }
+        filterOptions: $scope.filterOptions
       };
 
       $scope.refreshLayers = function(ws) {

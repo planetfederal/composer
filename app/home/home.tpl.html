@@ -1,7 +1,6 @@
 <div class="container-fluid">
 <h3 class="page-title"><i class="icon-lg icon-home"></i> {{title}}</h3>
   <div class="row">
-    <div class="col-sm-12"><h4>GeoServer Details</h4></div>
     <div class="col-sm-3">
       <p>{{ server.title }}{{ server.url }}</p>
       <!--<p>{{ serverInfo }}</p>-->
@@ -13,34 +12,32 @@
     <div class="col-sm-1"><a href="logs">Logs</a></div>
     <div class="col-sm-5"></div>
   </div>
-  <div class="row">
-    <div class="col-sm-9">
-      <h4>Catalog</h4>
-      <ul class="catalog">
-        <li>
-          <a ui-sref="workspaces">Project Workspaces: {{ catalog.workspaces }}</a>
-        </li>
-        <li>
-          <a ui-sref="layers">Layers: {{ catalog.layers }}</a>
-        </li>
-        <li>
-          <a ui-sref="maps">Maps: {{ catalog.maps }}</a>
-        </li>
-      </ul>
-    </div>
-    <div class="col-sm-3">
-      <h4>Services</h4>
-      <ul class="catalog">
-        <li ng-repeat="(key,val) in services">
-          <p><strong>{{ key }}</strong></p>
-          <ul class="services">
-            <li ng-repeat="version in val.versions">
-              <a href="{{ server.url }}/ows?service={{key}}&version={{version}}&request=GetCapabilities" target="_blank">{{ version }}</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
+
+  <div>
+    <h4>Catalog</h4>
+    <ul class="catalog">
+      <li>
+        <a ui-sref="workspaces">Project Workspaces: {{ catalog.workspaces }}</a>
+      </li>
+      <li>
+        <a ui-sref="layers">Layers: {{ catalog.layers }}</a>
+      </li>
+      <li>
+        <a ui-sref="maps">Maps: {{ catalog.maps }}</a>
+      </li>
+    </ul>
+  </div>
+  <div class="col-sm-3">
+    <h4>Services</h4>
+    <ul class="catalog">
+      <li ng-repeat="(key,val) in services">
+        <p><strong>{{ key }}</strong></p>
+        <ul class="services">
+          <li ng-repeat="version in val.versions">
+            <a href="{{ server.url }}/ows?service={{key}}&version={{version}}&request=GetCapabilities" target="_blank">{{ version }}</a>
+          </li>
+        </ul>
+      </li>
+    </ul>
   </div>
 </div>
-

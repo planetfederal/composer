@@ -1,0 +1,51 @@
+/* alertpanel.less */
+
+@import url('../../variables.less');
+
+.alert-panel {
+  position:absolute;
+  margin-left: -19%;
+  width: 35%;
+  top: 0;
+  left: 50%;
+
+  ul {
+    margin-bottom: 0px;
+  }
+  div[class*='bg-'] {
+    padding: 5px;
+    .rounded(2px);
+  }
+
+  .alert:first-child {
+    margin-top: 5px;
+  }
+
+  .alert:last-child {
+    margin-bottom: 0px;
+  }
+
+  .alert {
+    padding: 5px 25px 5px 10px;
+    margin-bottom: 5px;
+    -webkit-transition:all linear 1s;
+    transition:all linear 1s;
+    .rounded(2px);
+    .box-shadow(3px 3px 3px 0px rgba(50,50,50,.8));
+  }
+
+  .alert.ng-hide {
+    opacity: 0;
+  }
+
+  .alert-details {
+    cursor: pointer;
+    float: right;
+  }
+}
+
+.alert-modal-details {
+  white-space: pre;
+  max-height: 600px;
+  overflow-y: scroll;
+}
