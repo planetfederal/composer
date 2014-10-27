@@ -66,7 +66,7 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         createMultiPartFormContent(request, "form-data; name=\"upload\"; filename=\"point.zip\"", "application/zip",
                 IOUtils.toByteArray(getClass().getResourceAsStream("point.shp.zip")));
 
-        JSONObj result = ctrl.create("gs", request);
+        JSONObj result = ctrl.importFile("gs", request);
 
         assertEquals(1, result.array("imported").size());
         JSONObj obj = result.array("imported").object(0);

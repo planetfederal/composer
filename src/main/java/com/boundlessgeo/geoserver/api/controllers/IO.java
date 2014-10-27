@@ -246,12 +246,16 @@ public class IO {
      * @return The object passed in.
      */
     public static JSONObj bounds(JSONObj obj, Envelope bbox) {
-        Coordinate center = bbox.centre();
         obj.put("west", bbox.getMinX())
-                .put("south", bbox.getMinY())
-                .put("east", bbox.getMaxX())
-                .put("north", bbox.getMaxY())
-                .putArray("center").add(center.x).add(center.y);
+            .put("south", bbox.getMinY())
+            .put("east", bbox.getMaxX())
+            .put("north", bbox.getMaxY());
+
+        if (!bbox.isNull()) {
+            Coordinate center = bbox.centre();
+            obj.putArray("center").add(center.x).add(center.y);
+        }
+
         return obj;
     }
 
@@ -613,12 +617,11 @@ public class IO {
     
     public static JSONObj param(JSONObj json, Parameter<?> p) {
         if (p != null) {
-            String title = p.getTitle() != null ? p.getTitle().toString() : WordUtils.capitalize(p
-                    .getName());
-            
+            String title = p.getTitle() != null ? p.getTitle().toString() : WordUtils.capitalize(p.getName());
             String description = p.getDescription() != null ? p.getDescription().toString() : null;
-            json.put("name", p.getName())
-                .put("title", title)
+
+            JSONObj def = json.putObject(p.getName());
+            def.put("title", title)
                 .put("description",  description)
                 .put("type", p.getType().getSimpleName())
                 .put("default", safeValue(p.getDefaultValue()))
@@ -626,7 +629,7 @@ public class IO {
                 .put("required", p.isRequired());
             
             if( !(p.getMinOccurs() == 1 && p.getMaxOccurs() == 1)){
-                json.putArray("occurs")
+                def.putArray("occurs")
                     .add( p.getMinOccurs())
                     .add(p.getMaxOccurs());
             }
@@ -637,7 +640,7 @@ public class IO {
                     if (Parameter.LEVEL.equals(key)) {
                         continue;
                     }
-                    json.put(key, p.metadata.get(key));
+                    def.put(key, p.metadata.get(key));
                 }
             }
         }
