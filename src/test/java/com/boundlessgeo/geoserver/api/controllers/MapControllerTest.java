@@ -226,11 +226,11 @@ public class MapControllerTest {
         assertEquals(2, arr.size());
 
         JSONObj obj = arr.object(0);
-        assertEquals("one", obj.str("name"));
+        assertEquals("two", obj.str("name"));
         assertEquals("vector", obj.str("type"));
 
         obj = arr.object(1);
-        assertEquals("two", obj.str("name"));
+        assertEquals("one", obj.str("name"));
         assertEquals("vector", obj.str("type"));
     }
 
