@@ -1,0 +1,30 @@
+<div class="alert-panel">
+  <script type="text/ng-template" id="alert-modal">
+    <div class="modal-body">
+      <div class="alert-modal-details">
+        1: {{ message.details }}
+
+        <div>2: {{groups}}</div>
+
+        3: <div ng-repeat="group in groups">
+          {{group-title}} - {{group.content}}
+        </div>
+
+        4: <accordion>
+          <accordion-group heading="{{group.title}}" ng-repeat="group in groups">
+            {{group.content}}
+          </accordion-group>
+        </accordion>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" clip-copy="message.details" clip-click="copy()">Copy</button>
+      <button class="btn btn-primary" ng-click="close()">Close</button>
+    </div>
+  </script>
+  <alert ng-repeat="msg in messages" type="{{msg.type}}" close="closeAlert($index)">{{msg.message}}
+    <a ng-click="showDetails(msg)" class="alert-details">More details...</a>
+  </alert>
+
+  
+</div>
