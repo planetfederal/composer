@@ -243,6 +243,7 @@ public class LayerControllerTest {
 
         JSONObj obj = JSONWrapper.read(result.getResponse().getContentAsString()).toObject();
         assertNotNull(obj.get("message"));
+        assertNotNull(obj.get("cause"));
         assertNotNull(obj.get("trace"));
 
         JSONArr arr = obj.array("errors");

@@ -543,11 +543,21 @@ public class IO {
                 if (message == null && t.getMessage() != null) {
                     message = t.getMessage();
                 }
-                cause.add(t.toString());
+                StringBuilder trace = new StringBuilder();
+                for( StackTraceElement e : t.getStackTrace()){
+                    trace.append( e.toString()).append('\n');
+                }
+                cause.addObject()
+                    .put("exception", t.getClass().getSimpleName())
+                    .put("message", t.getMessage())
+                    .put("trace",trace.toString());
+            }
+            if (message == null) {
+                message = error.getClass().getSimpleName();
             }
             json.put("message", message != null ? message : error.toString())
                 .put("cause", cause)
-                .put("trace", Throwables.getStackTraceAsString(error));
+                .put("trace",Throwables.getStackTraceAsString(error));
         }
         return json;
     }
