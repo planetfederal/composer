@@ -48,6 +48,10 @@ angular.module('gsApp', [
               $scope.state.prev = {name: from, params: fromParams};
             });
     }])
+.factory('_', ['lodash',
+    function(lodash) {
+      return lodash;
+    }])
 .run(['$rootScope', 'GeoServer', 'AppSession',
     function($rootScope, GeoServer, AppSession) {
       GeoServer.session().then(function(result) {
