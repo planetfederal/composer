@@ -22,8 +22,10 @@ import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.Info;
+import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSLayerInfo;
@@ -37,7 +39,9 @@ import org.geotools.feature.FeatureTypes;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.geotools.geometry.jts.Geometries;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.coverage.FeatureUtilities;
 import org.geotools.util.logging.Logging;
 import org.ocpsoft.pretty.time.PrettyTime;
@@ -51,10 +55,12 @@ import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.PropertyType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.PropertyName;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.ReferenceIdentifier;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.ProjectedCRS;
+import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.GenericName;
 
 import com.boundlessgeo.geoserver.Proj;
@@ -305,7 +311,35 @@ public class IO {
         obj.put("default", isDefault);
         return obj;
     }
-
+    
+    public static JSONObj layer(JSONObj obj, PublishedInfo layer) {
+        if( layer == null ){
+            return obj;
+        }
+        if( layer instanceof LayerInfo){
+            return layer( obj, (LayerInfo) layer );
+        }
+        else if ( layer instanceof LayerGroupInfo ){
+            return layer( obj, (LayerGroupInfo) layer );
+        }
+        else {
+            return obj;
+        }
+    }
+    
+    public static JSONObj layer(JSONObj obj, LayerGroupInfo layer) {
+        String wsName = layer.getWorkspace().getName();
+        obj.put("name", layer.getName())
+           .put("workspace", wsName)
+           .put("title", layer.getTitle() )
+           .put("description", layer.getAbstract() )
+           .put("type", layer.getMode().toString() );
+        
+        proj(obj.putObject("proj"), layer.getBounds().getCoordinateReferenceSystem(), null);
+        bbox(obj.putObject("bbox"), layer);
+        
+        return obj;
+    }
     /**
      * Encodes a layer within the specified object.
      *
@@ -314,7 +348,6 @@ public class IO {
     @SuppressWarnings("unchecked")
     public static JSONObj layer(JSONObj obj, LayerInfo layer) {
         String wsName = layer.getResource().getNamespace().getPrefix();
-
         ResourceInfo r = layer.getResource();
         Kind kind = IO.Kind.of(r); //IO.type(r);
         
@@ -374,6 +407,21 @@ public class IO {
         @SuppressWarnings("unchecked")
         Geometries geomType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
         return geomType.getName();
+    }
+    
+    public static JSONObj bbox( JSONObj bbox, LayerGroupInfo l ){
+        ReferencedEnvelope bounds = l.getBounds();
+        if (bounds != null) {
+            bounds(bbox.putObject("native"), bounds );
+            
+            try {
+                ReferencedEnvelope latLonBounds = bounds.transform(DefaultGeographicCRS.WGS84, true);
+                bounds(bbox.putObject("lonlat"), latLonBounds);
+            } catch (TransformException e) {
+            } catch (FactoryException e) {
+            }
+        }
+        return bbox;
     }
     
     public static JSONObj bbox( JSONObj bbox, ResourceInfo r ){

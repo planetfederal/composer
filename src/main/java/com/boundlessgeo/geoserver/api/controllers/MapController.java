@@ -277,7 +277,7 @@ public class MapController extends ApiController {
     }
     private JSONArr mapLayers(LayerGroupInfo map){
         JSONArr arr = new JSONArr();
-        for (LayerInfo l : map.layers()) {
+        for (PublishedInfo l : layers(map)) {
             IO.layer(arr.addObject(), l);
         }
         return arr;
