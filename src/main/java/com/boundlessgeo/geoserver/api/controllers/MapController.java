@@ -26,6 +26,10 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Paths;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -271,20 +275,21 @@ public class MapController extends ApiController {
 
         return arr;
     }
-
-    @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.GET)
-    public @ResponseBody JSONArr layers(@PathVariable String wsName, @PathVariable String name) {
-        LayerGroupInfo m = findMap(wsName, name);
-
+    private JSONArr mapLayers(LayerGroupInfo map){
         JSONArr arr = new JSONArr();
-        for (LayerInfo l : m.layers()) {
+        for (LayerInfo l : map.layers()) {
             IO.layer(arr.addObject(), l);
         }
         return arr;
     }
+    @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.GET)
+    public @ResponseBody JSONArr mapLayers(@PathVariable String wsName, @PathVariable String name) {
+        LayerGroupInfo m = findMap(wsName, name);
+        return mapLayers(m);
+    }
 
     @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.PUT)
-    public @ResponseBody void layers(@RequestBody JSONArr layers, @PathVariable String wsName, @PathVariable String name) {
+    public @ResponseBody JSONArr mapLayers(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONArr layers) {
         LayerGroupInfo m = findMap(wsName, name);
 
         List<MapLayer> mapLayers = new ArrayList<MapLayer>();
@@ -332,6 +337,7 @@ public class MapController extends ApiController {
         m.getStyles().addAll(reStyles);
 
         cat.save(m);
+        return mapLayers(m);
     }
 
     private boolean checkMap(LayerGroupInfo map) {
@@ -362,27 +368,29 @@ public class MapController extends ApiController {
         obj.put("name", map.getName())
            .put("workspace", wsName)
            .put("title", map.getTitle())
-           .put("abstract", map.getAbstract());
-        
+           .put("description", map.getAbstract());
         ReferencedEnvelope bounds = map.getBounds();
         IO.proj(obj.putObject("proj"), bounds.getCoordinateReferenceSystem(), null);
         IO.bounds(obj.putObject("bbox"), bounds);
-
-        if(!obj.has("modified")){
-            //JD: we don't need this, the modified flag will get populated when the user actually edits the map
-            /*
-            String path = Paths.path( "workspaces", wsName, "layergroups", String.format("%s.xml", map.getName()));
-            Resource r = geoServer.getCatalog().getResourceLoader().get( path );
-            if( r.getType() == Type.RESOURCE ){
-                long modified = r.lastmodified();
-                String time = DateUtil.formatDate( new Date(modified));
-                obj.put("modified", time );
-            }
-            */
-        }
+        obj.put("layer_count", map.getLayers().size());
         
-        obj.put("layer_count", map.getLayers().size() );
-
+        // List date map was last modified
+        if( obj.has("modified") ){
+            IO.metadata(obj, map);
+        }
+        else {
+            // Generate metadatabased on resource timestamp
+            String path = Paths.path("workspaces", wsName, "layergroups",
+                    String.format("%s.xml", map.getName()));
+            GeoServerResourceLoader resourceLoader = geoServer.getCatalog().getResourceLoader();
+            if( resourceLoader != null ){
+                Resource r = resourceLoader.get(path);
+                if (r != null && r.getType() == Type.RESOURCE) {
+                    long modified = r.lastmodified();
+                    IO.date(obj.putObject("modified"), new Date(modified));
+                }
+            }
+        }
         return obj;
     }
     JSONObj mapDetails(JSONObj obj, LayerGroupInfo map, String wsName) {
@@ -418,8 +426,7 @@ public class MapController extends ApiController {
             }
             
         }
-
-        return IO.metadata(obj, map);
+        return obj;
     }
     
     LayerGroupInfo findMap(String wsName, String name) {
