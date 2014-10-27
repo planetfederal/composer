@@ -18,9 +18,6 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -46,10 +43,6 @@ import org.geoserver.platform.resource.Resources;
 import org.geotools.styling.Style;
 import org.geotools.util.KVP;
 import org.geotools.util.logging.Logging;
-
-import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
-import com.boundlessgeo.geoserver.util.StyleAdaptor;
-
 import org.opengis.metadata.citation.OnLineResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -61,6 +54,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.util.StyleAdaptor;
 
 @Controller
 @RequestMapping("/api/icons")
@@ -125,6 +123,7 @@ public class IconController extends ApiController {
         Resource styles = rl.get(Paths.path("workspaces",ws.getName(),"styles"));
 
         ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
+        @SuppressWarnings("unchecked")
         List<FileItem> input = (List<FileItem>) upload.parseRequest(request);
 
         JSONArr created = new JSONArr();

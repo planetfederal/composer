@@ -12,7 +12,6 @@ import org.geotools.coverage.grid.io.GridFormatFinder;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFactory.Param;
 import org.geotools.data.DataAccessFinder;
-import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.util.logging.Logging;
 import org.opengis.coverage.grid.Format;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.boundlessgeo.geoserver.api.controllers.IO.Type;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 

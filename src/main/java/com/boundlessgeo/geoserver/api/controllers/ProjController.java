@@ -3,13 +3,9 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import com.boundlessgeo.geoserver.Proj;
-import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
-import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
+import java.util.Map;
+
 import org.geoserver.config.GeoServer;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,7 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Map;
+import com.boundlessgeo.geoserver.Proj;
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
+import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
 
 @Controller
 @RequestMapping("/api/projections")

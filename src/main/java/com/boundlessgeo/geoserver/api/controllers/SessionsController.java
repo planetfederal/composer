@@ -3,18 +3,20 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-import com.boundlessgeo.geoserver.AppSessionDebugger;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Enumeration;
+
+import javax.servlet.http.HttpSession;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Enumeration;
+import com.boundlessgeo.geoserver.AppSessionDebugger;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
 
 @Controller
 @RequestMapping("/api/sessions")
@@ -33,6 +35,7 @@ public class SessionsController {
                .put("updated", dateFormat.format(new Date(session.getLastAccessedTime())))
                .put("timeout", session.getMaxInactiveInterval());
 
+            @SuppressWarnings("unchecked")
             Enumeration<String> attNames = session.getAttributeNames();
             JSONObj atts = obj.putObject("attributes");
             while (attNames.hasMoreElements()) {

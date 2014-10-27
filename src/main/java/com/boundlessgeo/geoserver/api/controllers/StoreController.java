@@ -393,7 +393,9 @@ import com.google.common.collect.Iterables;
             while (layers.hasNext()) {
                 ResourceInfo r = layers.next();
                 for (LayerInfo l : cat.getLayers(r)) {
-                    count++;
+                    if (l != null) {
+                        count++;
+                    }
                 }
             }
         }
