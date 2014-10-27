@@ -40,6 +40,13 @@ angular.module('gsApp.core.backend',[])
           url: function(workspace) {
             return importRoot + workspace;
           },
+          post: function(workspace, content) {
+            return http({
+              method: 'POST',
+              url: importRoot + workspace,
+              data: content
+            });
+          },
           get: function(workspace, id) {
             return http({
               method: 'GET',
@@ -327,6 +334,24 @@ angular.module('gsApp.core.backend',[])
             return http({
               method: 'GET',
               url: apiRoot+'/projections/' + srs
+            });
+          }
+        },
+
+        formats: {
+          get: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot + '/formats'
+            });
+          }
+        },
+
+        format: {
+          get: function(name) {
+            return http({
+              method: 'GET',
+              url: apiRoot + '/formats/' + name
             });
           }
         }

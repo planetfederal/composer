@@ -1,6 +1,7 @@
 angular.module('gsApp.workspaces.data.import', [
   'ngGrid',
   'angularFileUpload',
+  'ui.bootstrap',
   'gsApp.core.utilities',
   'gsApp.projfield'
 ])
@@ -81,6 +82,11 @@ angular.module('gsApp.workspaces.data.import', [
           });
         }
       };
+
+      $scope.importResult = null;
+      $scope.setImportResult = function(result) {
+        $scope.importResult = result;
+      };
     }])
 .controller('DataImportFileCtrl', ['$scope', '$state', '$upload', '$log',
     'GeoServer', '$stateParams',
@@ -100,16 +106,61 @@ angular.module('gsApp.workspaces.data.import', [
         }).progress(function(e) {
           $scope.progress.percent = parseInt(100.0 * e.loaded / e.total);
         }).success(function(e) {
-          $scope.result = e;
+          $scope.setImportResult(e);
           $scope.storeAdded();
         });
       };
       $scope.progress = {percent: 0};
     }])
-.controller('DataImportDbCtrl', ['$scope', '$state', '$stateParams',
-    function($scope, $state, $stateParams) {
+.controller('DataImportDbCtrl', ['$scope', '$state', '$stateParams', '$log',
+    'GeoServer', '_',
+    function($scope, $state, $stateParams, $log, GeoServer, _) {
       $scope.workspace = $stateParams.workspace;
       $scope.maps = $stateParams.maps;
+      $scope.chooseTables = false;
+
+      $scope.chooseFormat = function(f) {
+        GeoServer.format.get(f.name).then(function(result) {
+          if (result.success) {
+            $scope.format = result.data;
+
+            $scope.params = _.mapValues($scope.format.params, function(param) {
+              return angular.extend(param, {
+                value: param.default
+              });
+            });
+          }
+        });
+      };
+
+      $scope.connect = function() {
+        $scope.connecting = true;
+        var content = _.mapValues($scope.params, function(p) {
+          return p.value;
+        });
+
+        GeoServer.import.post($scope.workspace, content)
+          .then(function(result) {
+            if (result.success) {
+              $scope.error = null;
+              $scope.setImportResult(result.data);
+            }
+            else {
+              $scope.error = result.data;
+            }
+            $scope.connecting = false;
+          });
+      };
+
+      GeoServer.formats.get().then(function(result) {
+        if (result.success) {
+          $scope.formats = result.data.filter(function(f) {
+            return f.type == 'database';
+          });
+        }
+      });
+
+
     }])
 .controller('DataImportDetailsCtrl', ['$scope', '$state', '$stateParams',
     '$log', 'GeoServer', '$rootScope',

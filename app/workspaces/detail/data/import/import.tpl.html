@@ -16,6 +16,26 @@
       </button>
     </div>
   </div>
+  
   <div ui-view></div>
-</div>
 
+  <div class="import-result text-center" ng-show="importResult != null">
+    <alert ng-if="importResult.imported.length > 0" type="success">
+    {{ importResult.imported.length }} layers were successfully imported.
+    </alert>
+    <alert ng-if="importResult.pending.length > 0" type="warning">
+    {{ importResult.pending.length }} layers require additional input.
+    </alert>
+    <alert ng-if="importResult.ignored.length > 0" type="info">
+    {{ importResult.ignored.length }} files were ignored.
+    </alert>
+    <alert ng-if="importResult.failed.length > 0" type="danger">
+    {{ importResult.failed.length }} layers resulted in an error.
+    </alert>
+    <div class="text-right">
+      <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
+        Details &rarr;
+      </button>
+    </div>
+  </div>
+</div>

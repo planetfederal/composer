@@ -1,4 +1,4 @@
-/* import.file.less */
+/* import.less */
 
 @import "../../../../variables.less";
 
@@ -7,13 +7,12 @@
 
   .upload-options {
     max-width: 70%;
-    margin: 0 auto;
+    margin: 0 auto 20px;
   }
 }
 
 .data-import-file {
   width: 70%;
-  margin-top: 20px;
   margin-left: auto;
   margin-right: auto;
 
@@ -60,6 +59,22 @@
       margin-top: 5px;
     }
   }
+}
+
+.data-import-db {
+  .db-list {
+    [class*="col-"] {
+      padding: 25px;
+
+      .db-logo {
+        margin-bottom: 10px;
+      }
+    }
+  }
+/*   .db-details {
+  max-width: 70%;
+  margin: 0 auto;
+} */
 }
 
 .data-import-details {

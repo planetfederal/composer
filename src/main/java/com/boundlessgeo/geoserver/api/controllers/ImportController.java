@@ -3,12 +3,12 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
-import java.io.File;
-import java.util.Date;
-import java.util.Iterator;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
+import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
+import com.boundlessgeo.geoserver.json.JSONArr;
+import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.util.Hasher;
+import com.google.common.collect.Maps;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.geoserver.catalog.Catalog;
@@ -16,6 +16,7 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
+import org.geoserver.importer.Database;
 import org.geoserver.importer.Directory;
 import org.geoserver.importer.ImportContext;
 import org.geoserver.importer.ImportData;
@@ -31,11 +32,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
-import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
-import com.boundlessgeo.geoserver.json.JSONArr;
-import com.boundlessgeo.geoserver.json.JSONObj;
-import com.boundlessgeo.geoserver.util.Hasher;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/api/imports")
@@ -53,7 +55,7 @@ public class ImportController extends ApiController {
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public @ResponseBody
-    JSONObj create(@PathVariable String wsName, HttpServletRequest request)
+    JSONObj importFile(@PathVariable String wsName, HttpServletRequest request)
         throws Exception {
 
         // grab the workspace
@@ -76,8 +78,36 @@ public class ImportController extends ApiController {
         Directory dir = new Directory(uploadDir);
         dir.accept(files.next());
 
+        return doImport(dir, ws);
+    }
+
+    @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody JSONObj importDb(@PathVariable String wsName, @RequestBody JSONObj obj) throws Exception {
+        // grab the workspace
+        Catalog catalog = geoServer.getCatalog();
+        WorkspaceInfo ws = findWorkspace(wsName, catalog);
+
+        // create the import data
+        Database db = new Database(hack(obj));
+        return doImport(db, ws);
+    }
+
+    Map<String, Serializable> hack(JSONObj obj) {
+        Map<String,Serializable> map = Maps.newLinkedHashMap();
+        for (Object e : obj.raw().entrySet()) {
+            Map.Entry<String,Serializable> entry = (Map.Entry) e;
+            Serializable value = entry.getValue();
+            if (value instanceof Long) {
+                value = ((Long)value).intValue();
+            }
+            map.put(entry.getKey(), value);
+        }
+        return map;
+    }
+
+    JSONObj doImport(ImportData data, WorkspaceInfo ws) throws Exception {
         // run the import
-        ImportContext imp = importer.createContext(dir, ws);
+        ImportContext imp = importer.createContext(data, ws);
         importer.run(imp);
 
         for (ImportTask t : imp.getTasks()) {
@@ -85,7 +115,7 @@ public class ImportController extends ApiController {
                 touch(t);
             }
         }
-        return get(wsName, imp.getId());
+        return get(ws.getName(), imp.getId());
     }
 
     @RequestMapping(value = "/{wsName}/{id}", method = RequestMethod.GET)
