@@ -6,14 +6,18 @@
     </div>
     <form class="login-form">
       <div class="form-group">
-        <label for="username" class="control-label">Username</label>
-        <input ng-model="creds.username" type="text" class="form-control" login-focus/>
+        <div class="col-xs-2"><label for="username" class="control-label">Username</label></div>
+        <div class="col-xs-10"><input ng-model="creds.username" type="text" class="form-control" login-focus/></div>
       </div>
+      <br /><br />
       <div class="form-group">
-        <label for="password" class="control-label">Password</label>
-        <input ng-model="creds.password" type="password" class="form-control"/>
+        <div class="col-xs-2"><label for="password" class="control-label">Password</label></div>
+        <div class="col-xs-10"><input ng-model="creds.password" type="password" class="form-control"/></div>
       </div>
-      <button ng-click="login()">Login</button>
+      <div class="col-xs-12">
+        <div style="height: 5px;"></div>
+        <button class="btn btn-success btn-sm pull-right" ng-click="login()">Login</button>
+      </div>
     </form>
     </div>
 </div>
