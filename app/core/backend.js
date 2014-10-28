@@ -221,10 +221,14 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot+'/layers/'+workspace+'/'+layer+'/style'
             });
           },
-          put: function(workspace, layer, content) {
+          put: function(workspace, layer, content, map) {
+            var url = apiRoot+'/layers/'+workspace+'/'+layer+'/style';
+            if (map) {
+              url += '?map=' + map.name;
+            }
             return http({
               method: 'PUT',
-              url: apiRoot+'/layers/'+workspace+'/'+layer+'/style',
+              url: url,
               data: content,
               headers: {
                 'Content-Type': 'application/vnd.geoserver.ysld+yaml'

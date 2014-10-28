@@ -16,11 +16,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.Collections;
+
 import javax.annotation.Nullable;
 
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.config.GeoServer;
+import org.geoserver.security.impl.GeoServerRole;
+import org.geoserver.security.impl.GeoServerUser;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -28,6 +35,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -47,6 +57,9 @@ public class MapControllerTest {
     @Mock
     GeoServer geoServer;
 
+    @Mock
+    RecentObjectCache recent;
+
     @InjectMocks
     MapController ctrl;
 
@@ -59,6 +72,21 @@ public class MapControllerTest {
         mvc = MockMvcBuilders.standaloneSetup(ctrl).setMessageConverters(new JSONMessageConverter()).build();
     }
 
+    @Before
+    public void setUpAuth() {
+ 
+        GeoServerUser bob = GeoServerUser.createDefaultAdmin();
+        //GroupAdminProperty.set(bob.getProperties(), new String[]{"users"});
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+            bob, bob.getPassword(), Collections.singletonList(GeoServerRole.GROUP_ADMIN_ROLE));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+    
+    @After
+    public void clearAuth() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
+    
     @Test
     public void testCreate() throws Exception {
         MockGeoServer.get().catalog()
@@ -104,7 +132,8 @@ public class MapControllerTest {
 
         MockHttpServletRequest req = reqBuilder.buildRequest(new MockServletContext());
         try {
-            new MapController(geoServer).create("foo", new JSONObj().put("name", "map1"),req);
+            new MapController(geoServer, new RecentObjectCache())
+                .create("foo", new JSONObj().put("name", "map1"), req);
             fail();
         }
         catch(BadRequestException e) {
@@ -269,6 +298,49 @@ public class MapControllerTest {
 
         assertEquals( "one.ysld", m.getStyles().get(0).getFilename() );
         assertEquals( "two.ysld", m.getStyles().get(1).getFilename() );
+    }
+    
+    @Test
+    public void testRecentMaps() throws Exception {
+        @SuppressWarnings("unused")
+        GeoServer gs = MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true)
+            .map("map1", "map1")
+              .defaults()
+              .layer("one").featureType().defaults().store("foo").map().workspace()
+            .map("map2", "map2")
+              .defaults()
+              .layer("one").featureType().defaults().store("foo").map().workspace()
+            .map("map3", "map3")
+              .defaults()
+              .layer("one").featureType().store("foo").defaults()
+            .geoServer().build(geoServer);
+        
+        JSONObj obj;
+        MockHttpServletRequestBuilder req;
+
+        obj = new JSONObj().put("title", "new title");
+        req = put("/api/maps/foo/map3")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+        
+        obj = new JSONObj().put("title", "new title");
+        req = put("/api/maps/foo/map2")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+        
+        obj = new JSONObj().put("title", "new title");
+        req = put("/api/maps/foo/map1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+
+        verify(recent, times(1)).add(LayerGroupInfo.class, "map3");
+        verify(recent, times(1)).add(LayerGroupInfo.class, "map2");
+        verify(recent, times(1)).add(LayerGroupInfo.class, "map1");
+
     }
 
 }

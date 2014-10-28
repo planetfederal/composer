@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
@@ -27,8 +28,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
-import org.geoserver.platform.GeoServerResourceLoader;
-import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geotools.feature.NameImpl;
@@ -62,19 +61,21 @@ import com.vividsolutions.jts.geom.Envelope;
 @Controller
 @RequestMapping("/api/maps")
 public class MapController extends ApiController {
-
     static Logger LOG = Logging.getLogger(MapController.class);
 
+
+
     @Autowired
-    public MapController(GeoServer geoServer) {
-        super(geoServer);
+    public MapController(GeoServer geoServer, RecentObjectCache recentCache) {
+        super(geoServer, recentCache);
     }
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj, HttpServletRequest req) {
-        WorkspaceInfo ws = findWorkspace(wsName, catalog());
+        Catalog cat = catalog();
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
 
         String name = obj.str("name");
 
@@ -83,7 +84,7 @@ public class MapController extends ApiController {
         }
 
         try {
-            findMap(wsName, name);
+            findMap(wsName, name, cat);
             throw new BadRequestException("Map named '" + name + "' already exists");
         }
         catch(NotFoundException e) {
@@ -121,7 +122,6 @@ public class MapController extends ApiController {
             updateBounds = true;
         }
 
-        Catalog cat = geoServer.getCatalog();
         if (!obj.has("layers")) {
             throw new BadRequestException("Map object requires layers array");
         }
@@ -158,6 +158,8 @@ public class MapController extends ApiController {
 
         cat.add( map );
         cat.save(ws);
+
+        recent.add(LayerGroupInfo.class, map.getId());
         return mapDetails(new JSONObj(), map, wsName, req);
     }
 
@@ -173,18 +175,21 @@ public class MapController extends ApiController {
 
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.DELETE)
     public @ResponseBody
-    JSONArr delete(@PathVariable String wsName,
-                                        @PathVariable String name) {
-        LayerGroupInfo map = findMap(wsName,name);
-        geoServer.getCatalog().remove(map);
-        
+    JSONArr delete(@PathVariable String wsName, @PathVariable String name) {
+        Catalog cat = catalog();
+
+        LayerGroupInfo map = findMap(wsName,name, cat);
+        cat.remove(map);
+
+        recent.remove(LayerGroupInfo.class, map.getId());
         return list(wsName);
     }
     
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName,
                                      @PathVariable String name, HttpServletRequest req) {
-        LayerGroupInfo map = findMap(wsName, name);
+        Catalog cat = catalog();
+        LayerGroupInfo map = findMap(wsName, name, cat);
         return mapDetails(new JSONObj(), map, wsName, req);
     }
 
@@ -200,11 +205,11 @@ public class MapController extends ApiController {
                                      @PathVariable String name, 
                                      @RequestBody JSONObj obj,
                                      HttpServletRequest req) {
-        LayerGroupInfo map = findMap(wsName, name);
+        Catalog cat = geoServer.getCatalog();
+
+        LayerGroupInfo map = findMap(wsName, name, cat);
         WorkspaceInfo ws = map.getWorkspace();
 
-        Catalog cat = geoServer.getCatalog();
-        
         if(obj.has("name")){
             map.setName( obj.str("name"));
         }
@@ -239,7 +244,7 @@ public class MapController extends ApiController {
             map.layers().clear();
             map.layers().addAll(layers);
         }
-        // update configuration history        
+        // update configuration history
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         map.getMetadata().put("user", user );
 
@@ -255,7 +260,8 @@ public class MapController extends ApiController {
         }
         cat.save(map);
         cat.save(ws);
-        
+
+        recent.add(LayerGroupInfo.class, map.getId());
         return mapDetails(new JSONObj(), map, wsName, req);
     }
     
@@ -299,7 +305,7 @@ public class MapController extends ApiController {
     public @ResponseBody
     JSONArr mapLayerListGet(@PathVariable String wsName,
                             @PathVariable String name, HttpServletRequest req) {
-        LayerGroupInfo m = findMap(wsName, name);
+        LayerGroupInfo m = findMap(wsName, name, catalog());
         return mapLayerList(m,req);
     }
 
@@ -308,7 +314,7 @@ public class MapController extends ApiController {
                                                  @PathVariable String name,
                                                  @RequestBody JSONArr layers, HttpServletRequest req) {
         Catalog cat = geoServer.getCatalog();
-        LayerGroupInfo m = findMap(wsName, name);
+        LayerGroupInfo m = findMap(wsName, name, cat);
 
         // original
         List<MapLayer> mapLayers = MapLayer.list(m);
@@ -359,14 +365,17 @@ public class MapController extends ApiController {
 
         cat.save(m);
         cat.save(ws);
+
+        recent.add(LayerGroupInfo.class, m.getId());
         return mapLayerList(m,req);
     }
+
     @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.POST)
     public @ResponseBody JSONArr mapLayerListPost(@PathVariable String wsName,
                                                   @PathVariable String name,
                                                   @RequestBody JSONArr layers, HttpServletRequest req) {
         Catalog cat = geoServer.getCatalog();
-        LayerGroupInfo m = findMap(wsName, name);
+        LayerGroupInfo m = findMap(wsName, name, cat);
         WorkspaceInfo ws = m.getWorkspace();
 
         List<PublishedInfo> appendLayers = new ArrayList<PublishedInfo>();
@@ -399,6 +408,8 @@ public class MapController extends ApiController {
 
         cat.save(m);
         cat.save(ws);
+
+        recent.add(LayerGroupInfo.class, m.getId());
         return mapLayerList(m,req);
     }
     
@@ -406,8 +417,8 @@ public class MapController extends ApiController {
     public @ResponseBody JSONObj mapLayerGet(@PathVariable String wsName,
                                              @PathVariable String mpName,
                                              @PathVariable String name, HttpServletRequest req) {
-        LayerGroupInfo map = findMap(wsName, mpName);
-        PublishedInfo layer = findMapLayer( map, name );
+        LayerGroupInfo map = findMap(wsName, mpName, catalog());
+        PublishedInfo layer = findMapLayer(map, name);
         
         JSONObj obj = layer(new JSONObj(), layer, req);
         obj.putObject("map")
@@ -415,12 +426,29 @@ public class MapController extends ApiController {
             .put("url",IO.url(req,"/maps/%s/%s",wsName,mpName));
         return obj;
     }
+    
+    @RequestMapping(value="/recent", method = RequestMethod.GET)
+    public @ResponseBody JSONArr plistRecentMaps() {
+        JSONArr arr = new JSONArr();
+        Catalog cat = geoServer.getCatalog();
 
-    @RequestMapping(value="/{wsName}/{mpName}/layers/{name}", method = RequestMethod.DELETE)
+        for (String id : recent.list(LayerGroupInfo.class)) {
+            LayerGroupInfo map = cat.getLayerGroup(id);
+            if( checkMap( map ) ){
+                JSONObj obj = arr.addObject();
+                map(obj, map, map.getWorkspace().getName());
+            }
+        }
+        return arr;
+    }
+
+    @RequestMapping(value="/{wsName}/{mapName}/layers/{name}", method = RequestMethod.DELETE)
     public @ResponseBody JSONObj mapLayerDelete(@PathVariable String wsName,
-                                                @PathVariable String mpName,
+                                                @PathVariable String mapName,
                                                 @PathVariable String name, HttpServletRequest req) {
-        LayerGroupInfo map = findMap(wsName, mpName);
+        Catalog cat = geoServer.getCatalog();
+
+        LayerGroupInfo map = findMap(wsName, mapName, cat);
         WorkspaceInfo ws = map.getWorkspace();
 
         PublishedInfo layer = findMapLayer( map, name );
@@ -429,9 +457,8 @@ public class MapController extends ApiController {
         if( removed ){
             map.getStyles().remove(index);
 
-
-            Catalog cat = geoServer.getCatalog();
             cat.save(map);
+            recent.add(LayerGroupInfo.class, map.getId());
 
             JSONObj delete = new JSONObj()
                 .put("name", layer.getName())
@@ -561,15 +588,6 @@ public class MapController extends ApiController {
         throw new NotFoundException(message);
     }
 
-    LayerGroupInfo findMap(String wsName, String name) {
-        Catalog cat = geoServer.getCatalog();
-        LayerGroupInfo m = cat.getLayerGroupByName(wsName, name);
-        if (m == null) {
-            throw new NotFoundException(String.format("No such map %s:%s", wsName, name));
-        }
-        return m;
-    }
-    
     LayerInfo findLayer(String wsName, String name) {
         Catalog cat = geoServer.getCatalog();
         return wsName != null ? cat.getLayerByName(new NameImpl(wsName, name)) :

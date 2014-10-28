@@ -8,11 +8,13 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.StoreInfo;
@@ -28,13 +30,19 @@ import com.google.common.collect.Iterables;
  * Base class for api controllers.
  */
 public abstract class ApiController {
-
     public static final int DEFAULT_PAGESIZE = 25;
 
     protected GeoServer geoServer;
 
+    protected RecentObjectCache recent;
+
     public ApiController(GeoServer geoServer) {
+        this(geoServer, null);
+    }
+
+    public ApiController(GeoServer geoServer, RecentObjectCache recent) {
         this.geoServer = geoServer;
+        this.recent = recent;
     }
 
     public Catalog catalog() {
@@ -71,6 +79,14 @@ public abstract class ApiController {
             throw new NotFoundException(String.format("No such store %s:%s", wsName, name));
         }
         return s;
+    }
+
+    protected LayerGroupInfo findMap(String wsName, String name, Catalog cat) {
+        LayerGroupInfo m = cat.getLayerGroupByName(wsName, name);
+        if (m == null) {
+            throw new NotFoundException(String.format("No such map %s:%s", wsName, name));
+        }
+        return m;
     }
 
     /**
