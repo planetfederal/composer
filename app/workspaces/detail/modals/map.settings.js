@@ -46,8 +46,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 });
                 originalMap = angular.copy($scope.map);
               } else {
-                // TODO move alerts to top of header nav
-                $scope.alerts = [{
+                $rootScope.alerts = [{
                   type: 'warning',
                   message: 'Map update failed.',
                   fadeout: true
@@ -55,6 +54,26 @@ angular.module('gsApp.workspaces.maps.settings', [])
               }
             });
         }
+      };
+
+      $scope.deleteMap = function (map) {
+        GeoServer.map.delete($scope.workspace, map.name, {'name': map.name})
+        .then(function(result) {
+            if (result.success) {
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'Map ' + map.name + ' successfully deleted.',
+                fadeout: true
+              }];
+              $modalInstance.dismiss('close');
+            } else {
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Map could not be deleted.',
+                fadeout: true
+              }];
+            }
+          });
       };
 
       $scope.cancel = function () {

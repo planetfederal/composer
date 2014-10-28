@@ -7,9 +7,9 @@ angular.module('gsApp.workspaces.maps.new', [
   'ngGrid'
 ])
 .controller('NewMapCtrl', ['$scope', '$state', '$stateParams', '$rootScope',
-  '$log', 'GeoServer',
-  function ($scope, $state, $stateParams, $rootScope, $log,
-    GeoServer) {
+  '$log', 'GeoServer', '$window', 'AppEvent',
+  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer, $window,
+    AppEvent) {
 
     $scope.workspace = $stateParams.workspace;
     $scope.mapInfo = {
@@ -45,13 +45,18 @@ angular.module('gsApp.workspaces.maps.new', [
       GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
         function(result) {
           if (result.success) {
+            var map = result.data;
             $rootScope.alerts = [{
               type: 'success',
-              message: 'Map ' + result.data.name + ' created  with ' +
-                result.data.layers.length + ' layer(s).',
+              message: 'Map ' + map.name + ' created  with ' +
+                map.layers.length + ' layer(s).',
               fadeout: true
             }];
-            $scope.maps.push(result.data);
+            $scope.maps.push(map);
+            $rootScope.$broadcast(AppEvent.MapUpdated, {
+              'new': map
+            });
+            $state.go('workspace.maps.main');
           } else {
             $rootScope.alerts = [{
               type: 'danger',
@@ -69,9 +74,11 @@ angular.module('gsApp.workspaces.maps.new', [
       });
     };
 
-    // Available Layers
+    // Available Layers Table
     $scope.layers = [];
     $scope.totalServerItems = [];
+
+    $scope.gridWidth = {'width': $window.innerWidth - 150};
 
     $scope.pagingOptions = {
       pageSizes: [25, 50, 100],
@@ -84,7 +91,7 @@ angular.module('gsApp.workspaces.maps.new', [
       };
     $scope.layerSelections = [];
 
-    $scope.gridOptions = {
+    $scope.layerOptions = {
       data: 'layers',
       enableCellSelection: false,
       enableRowSelection: true,
@@ -146,9 +153,9 @@ angular.module('gsApp.workspaces.maps.new', [
           width: '10%'
         }
       ],
-      enablePaging: true,
+      enablePaging: false,
       enableColumnResize: false,
-      showFooter: true,
+      showFooter: false,
       totalServerItems: 'totalServerItems',
       pagingOptions: $scope.pagingOptions
     };
@@ -177,7 +184,5 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.setMap = function(map) {
       $scope.selectedMap = map;
     };
-
-    $scope.mapsToCreate = [$scope.mapInfo];
 
   }]);

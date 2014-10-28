@@ -51,7 +51,8 @@ angular.module('gsApp.workspaces.maps', [
                ',' + map.bbox.south + ',' + map.bbox.east + ',' +
                map.bbox.north;
               var url = GeoServer.map.thumbnail.get(map.workspace,
-                map.layergroupname, $scope.mapThumbsWidth, $scope.mapThumbsHeight);
+                map.layergroupname, $scope.mapThumbsWidth,
+                  $scope.mapThumbsHeight);
               var srs = '&srs=' + map.proj.srs;
 
               $scope.thumbnails[map.name] = url + bbox +
@@ -126,7 +127,7 @@ angular.module('gsApp.workspaces.maps', [
         // Update thumbnail if name chanaged
         var _new = maps.new;
         var _original = maps.original;
-        if (_new.name !== _original.name) {
+        if (_original && _new.name !== _original.name) {
           var url = GeoServer.map.thumbnail.get(_new.workspace,
             _new.layergroupname, $scope.mapThumbsWidth, $scope.mapThumbsHeight);
 
@@ -138,4 +139,4 @@ angular.module('gsApp.workspaces.maps', [
         }
 
       });
-  }]);
+    }]);

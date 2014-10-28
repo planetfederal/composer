@@ -1,6 +1,17 @@
-<h3>Create Map</h3>
+<h3>Create Map<span ng-show="step==2">:<strong> {{ mapInfo.name }}</strong></span></h3>
 <div class="new-map">
   <div>
+    <div class="row options" ng-show="step==2 && layers.length > 0">
+      <div class="col-sm-5 text-center">
+        <p class="lead"><i class="fa fa-check-square-o gray"></i> Select available layers<br/>below for new map:</p>
+        <button class="btn btn-primary btn-sm" ng-disabled="layerSelections.length==0" ng-click="createMap(layerSelections);">Create Map with Selected</button>
+      </div>
+      <div class="col-sm-5 text-center divider">
+        <span class="pull-left or">OR</span>
+        <p class="lead"><i class="fa fa-share gray"></i> Import data to create<br/>new layers:</p>
+        <button class="btn btn-primary btn-sm" ng-click="createNewLayers();">Import New Data &rarr;</button>
+      </div>
+    </div>
     <div class="row">
       <div class="col-sm-12">
         <form ng-hide="step==2" name="newMap" role="form" class="new-map-form form-1">
@@ -31,40 +42,18 @@
           </div>
         </form>
         <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form form-2">
-          <div class="form-group" name="create-new-layers" class="new-layers-group">
+          <div class="form-group new-layers-group" name="create-new-layers" ng-show="layers.length==0">
             <p>Available Layers in this workspace: {{ layers.length}}</p>
             <button class="btn btn-success btn-sm" ng-click="createNewLayers();">Import Data to Create New Layers &rarr;</button>
           </div>
           <div class="form-group" name="available-layers" ng-show="layers.length > 0">
-            <label style="padding:none;dispay: block;float: none; margin-top: 0px; padding: 0px; white-space: normla;" for="lyrs">Available Layers:</label>
-            <div name="lyrs" ng-grid="gridOptions">
-            </div>
+            <label class="avail-layers" for="lyrs">Available Layers:</label>
+            <div name="lyrs" ng-grid="layerOptions" id="avail-layers-grid" ng-style="gridWidth"></div>
             <br/>
           </div>
         </form>
         <div ng-hide="mapCreated" style="margin-top:15px;"></div>
         <div ng-show="mapCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Map Created.</div>
-      </div>
-    </div>
-    <div class="row" ng-show="step==2 && layers.length > 0">
-      <div class="col-sm-4">
-        <div class="map-choice">
-          <div class="map-label">Add Layers above to Map: </div>
-          <div class="map-picker">
-            <ui-select ng-model="map.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false" ng-change="setMap(map.selected);">
-              <ui-select-match placeholder="Select a map...">
-                {{$select.selected.name}}
-              </ui-select-match>
-              <ui-select-choices repeat="map in mapsToCreate">
-                <span ng-bind-html="map.name | highlight: $select.search"></span>
-              </ui-select-choices>
-            </ui-select>
-          </div>
-          <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap" ng-click="createMap(layerSelections)">
-            <span ng-if="!createMap">+ Add to Map</span>
-            <span ng-if="createMap">Create Map with Selected</span>
-          </button>
-        </div>
       </div>
     </div>
     <div class="row">
@@ -74,7 +63,6 @@
           <div class="submit-buttons pull-right">
             <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
             <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-            <button ng-show="step==2" class="btn btn-primary btn-sm" ng-click="createMap(layerSelections)" ng-disabled="map.layers.length==0">Create Map</button>
             <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="step=2;" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
           </div>
         </div>
