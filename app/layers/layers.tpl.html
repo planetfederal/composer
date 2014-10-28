@@ -18,8 +18,9 @@
           + New Layer
         </button>
     </div>
-    <div>
-      Filter: <input type="text" ng-model="filterOptions.filterText" placeholder="Filter by name, title, description..." size="25" />
+    <div class="text-right">
+      <input type="text" class="form-control grid-filter" ng-model="filterOptions.filterText"
+        placeholder="Filter by name, title, description..." size="25" />
     </div>
     <div ng-grid="gridOptions"></div>
     <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
