@@ -230,12 +230,11 @@ public class MapControllerTest {
 
         JSONObj obj = arr.object(0);
         assertEquals("two", obj.str("name"));
-        assertEquals("file", obj.str("type"));
-        assertEquals("vector", obj.str("kind"));
+        assertEquals("vector", obj.str("type"));
 
         obj = arr.object(1);
         assertEquals("one", obj.str("name"));
-        assertEquals("vector", obj.str("kind"));
+        assertEquals("vector", obj.str("type"));
     }
 
     @Test
