@@ -15,18 +15,15 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.xml.transform.TransformerException;
 
-
-
-
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
@@ -40,6 +37,7 @@ import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogFactoryImpl;
@@ -66,7 +64,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.boundlessgeo.geoserver.api.controllers.MockGeoServer.LayerBuilder;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 
@@ -423,6 +420,9 @@ public class MockGeoServer {
             case SERVICE:
                 store = mock(WMSStoreInfo.class);
                 break;
+            case RESOURCE:
+                store = mock(StoreInfo.class);
+                break;
             }
             when(store.getName()).thenReturn(name);
         }
@@ -444,7 +444,7 @@ public class MockGeoServer {
             }
             else if( source.contains("service=wms")){
                 when(store.getConnectionParameters()).thenReturn(
-                    (Map<String,Serializable>) (Map) new KVP("url", source) );
+                    (Map<String,Serializable>) (Map) new KVP("wms", source) );
             }
             else {
                 when(store.getConnectionParameters()).thenReturn(
@@ -616,22 +616,29 @@ public class MockGeoServer {
         public FeatureTypeBuilder featureType() {
             return new FeatureTypeBuilder(this);
         }
-        public FeatureTypeBuilder featureType(String storeName) {
-            return new FeatureTypeBuilder(this).store(storeName);
+
+        public CoverageBuilder coverage() {
+            return new CoverageBuilder(this);
+        }
+
+        public WMSLayerBuilder wmsLayer() {
+            return new WMSLayerBuilder(this);
         }
 
         public MockGeoServer geoServer() {
             return workspaceBuilder.geoServer();
         }
-        public ResourceBuilder<?,?> resource(){
+
+        public ResourceBuilder<?, ?> resource() {
             return this.resourceBuilder;
         }
-        public WorkspaceBuilder workspace(){
+
+        public WorkspaceBuilder workspace() {
             return this.workspaceBuilder;
         }
     }
 
-    public class ResourceBuilder<T extends ResourceInfo, B extends ResourceBuilder> extends Builder {
+    public abstract class  ResourceBuilder<T extends ResourceInfo, B extends ResourceBuilder<?,?>> extends Builder {
         
         protected T resource;
         protected LayerBuilder layerBuilder;
@@ -652,16 +659,9 @@ public class MockGeoServer {
             when(layer.getResource()).thenReturn(resource);
         }
         
-        @SuppressWarnings("unchecked")
-        public B store(final String storeName){
-            when(resource.getStore()).thenAnswer( new Answer<StoreInfo>() {
-                @Override
-                public StoreInfo answer(InvocationOnMock invocation) throws Throwable {
-                    return ResourceBuilder.this.layerBuilder.workspaceBuilder.findStore(storeName).store;
-                }
-            });
-            return (B) this;
-        }
+        public abstract B defaults();
+        
+        public abstract B store(final String storeName);
         
         @SuppressWarnings("unchecked")
         public B proj(String srs, CoordinateReferenceSystem crs) {
@@ -677,6 +677,7 @@ public class MockGeoServer {
             return (B) this;
         }
 
+        @SuppressWarnings("unchecked")
         public B latLonBbox(double x1, double y1, double x2, double y2) {
             when(resource.getLatLonBoundingBox()).thenReturn(new ReferencedEnvelope(x1,x2,y1,y2, DefaultGeographicCRS.WGS84));
             return (B) this;
@@ -691,7 +692,7 @@ public class MockGeoServer {
         }
         
         public MapBuilder map() {
-            return layerBuilder.mapBuilder;
+            return layerBuilder.map();
         }
 
         public MockGeoServer geoServer() {
@@ -699,7 +700,63 @@ public class MockGeoServer {
         }
     }
 
-    public class FeatureTypeBuilder extends ResourceBuilder<FeatureTypeInfo,FeatureTypeBuilder> {
+    public class WMSLayerBuilder extends ResourceBuilder<WMSLayerInfo, WMSLayerBuilder> {
+
+        public WMSLayerBuilder(LayerBuilder layerBuilder) {
+            super(mock(WMSLayerInfo.class), layerBuilder);
+        }
+
+        public WMSLayerBuilder defaults() {
+            proj("EPSG:4326", DefaultGeographicCRS.WGS84).bbox(-180, -90, 180, 90,
+                    DefaultGeographicCRS.WGS84).latLonBbox(-180, -90, 180, 90);
+            return this;
+        }
+
+        public WMSLayerBuilder store(final String storeName) {
+            WorkspaceBuilder workspaceBuilder = layerBuilder.workspaceBuilder;
+            if (workspaceBuilder.findStore(storeName) == null) {
+                workspaceBuilder.wms(storeName);
+            }
+            when(resource.getStore()).thenAnswer(new Answer<StoreInfo>() {
+                @Override
+                public StoreInfo answer(InvocationOnMock invocation) throws Throwable {
+                    return WMSLayerBuilder.this.layerBuilder.workspaceBuilder
+                            .findStore(storeName).store;
+                }
+            });
+            return this;
+        }
+    }
+    
+    public class CoverageBuilder extends ResourceBuilder<CoverageInfo, CoverageBuilder> {
+
+        public CoverageBuilder(LayerBuilder layerBuilder) {
+            super(mock(CoverageInfo.class), layerBuilder);
+        }
+
+        public CoverageBuilder defaults() {
+            proj("EPSG:4326", DefaultGeographicCRS.WGS84).bbox(-180, -90, 180, 90,
+                    DefaultGeographicCRS.WGS84).latLonBbox(-180, -90, 180, 90);
+            return this;
+        }
+
+        public CoverageBuilder store(final String storeName) {
+            WorkspaceBuilder workspaceBuilder = layerBuilder.workspaceBuilder;
+            if (workspaceBuilder.findStore(storeName) == null) {
+                workspaceBuilder.raster(storeName);
+            }
+            when(resource.getStore()).thenAnswer(new Answer<StoreInfo>() {
+                @Override
+                public StoreInfo answer(InvocationOnMock invocation) throws Throwable {
+                    return CoverageBuilder.this.layerBuilder.workspaceBuilder
+                            .findStore(storeName).store;
+                }
+            });
+            return this;
+        }
+    }
+
+    public class FeatureTypeBuilder extends ResourceBuilder<FeatureTypeInfo, FeatureTypeBuilder> {
 
         public FeatureTypeBuilder(LayerBuilder layerBuilder) {
             super(mock(FeatureTypeInfo.class), layerBuilder);
@@ -722,13 +779,19 @@ public class MockGeoServer {
 
             return schema("geom:Point,name:String");
         }
-
-        public LayerBuilder layer() {
-            return this.layerBuilder;
-        }
-
-        public MapBuilder map() {
-            return this.layerBuilder.mapBuilder;
+        
+        public FeatureTypeBuilder store(final String storeName){
+            WorkspaceBuilder workspaceBuilder = layerBuilder.workspaceBuilder;
+            if( workspaceBuilder.findStore(storeName) == null ){
+                workspaceBuilder.vector(storeName);
+            }
+            when(resource.getStore()).thenAnswer( new Answer<StoreInfo>() {
+                @Override
+                public StoreInfo answer(InvocationOnMock invocation) throws Throwable {
+                    return FeatureTypeBuilder.this.layerBuilder.workspaceBuilder.findStore(storeName).store;
+                }
+            });
+            return this;
         }
     }
 

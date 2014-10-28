@@ -91,7 +91,7 @@ public class IO {
             if (params.contains("dbtype")) {
                 return Kind.DATABASE;
             }
-            if (params.contains("directory") || params.contains("file")) {
+            if (params.contains("directory") || params.contains("file") || params.contains("raster")) {
                 return Kind.FILE;
             }
             if (params.contains("wms")
