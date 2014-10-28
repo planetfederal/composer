@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
@@ -26,6 +27,7 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
+import org.geoserver.ows.util.ResponseUtils;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -72,7 +74,7 @@ public class MapController extends ApiController {
     @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
-    JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj) {
+    JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj, HttpServletRequest req) {
         String name = obj.str("name");
 
         if (name == null) {
@@ -153,7 +155,7 @@ public class MapController extends ApiController {
         Metadata.modified(map, created);
 
         cat.add( map );
-        return mapDetails(new JSONObj(), map, wsName );
+        return mapDetails(new JSONObj(), map, wsName, ResponseUtils.baseURL(req));
     }
 
     void updateBounds(ReferencedEnvelope bounds, LayerInfo layer) throws Exception {
@@ -178,22 +180,23 @@ public class MapController extends ApiController {
     
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName,
-                                     @PathVariable String name) {
+                                     @PathVariable String name, HttpServletRequest req) {
         LayerGroupInfo map = findMap(wsName, name);
-        return mapDetails(new JSONObj(), map, wsName);
+        return mapDetails(new JSONObj(), map, wsName, ResponseUtils.baseURL(req));
     }
 
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.PATCH)
     public @ResponseBody JSONObj patch(@PathVariable String wsName,
                                        @PathVariable String name,
-                                       @RequestBody JSONObj obj) {
-        return put(wsName, name, obj);
+                                       @RequestBody JSONObj obj,HttpServletRequest req) {
+        return put(wsName, name, obj,req);
     }
 
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.PUT)
     public @ResponseBody JSONObj put(@PathVariable String wsName,
                                      @PathVariable String name, 
-                                     @RequestBody JSONObj obj) {
+                                     @RequestBody JSONObj obj,
+                                     HttpServletRequest req) {
         LayerGroupInfo map = findMap(wsName, name);
         Catalog cat = geoServer.getCatalog();
         
@@ -243,7 +246,7 @@ public class MapController extends ApiController {
         }
         cat.save(map);
         
-        return mapDetails(new JSONObj(), map, wsName);
+        return mapDetails(new JSONObj(), map, wsName, ResponseUtils.baseURL(req));
     }
     
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
@@ -272,24 +275,27 @@ public class MapController extends ApiController {
         finally {
             it.close();
         }
-
         return arr;
     }
-    private JSONArr mapLayers(LayerGroupInfo map){
+    
+    private JSONArr mapLayers(LayerGroupInfo map,String baseUrl){
         JSONArr arr = new JSONArr();
         for (PublishedInfo l : layers(map)) {
-            IO.layer(arr.addObject(), l);
+            layer(arr.addObject(), l, baseUrl);
         }
         return arr;
     }
     @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.GET)
-    public @ResponseBody JSONArr mapLayers(@PathVariable String wsName, @PathVariable String name) {
+    public @ResponseBody
+    JSONArr mapLayers(@PathVariable String wsName, @PathVariable String name,
+            HttpServletRequest req) {
+        
         LayerGroupInfo m = findMap(wsName, name);
-        return mapLayers(m);
+        return mapLayers(m,ResponseUtils.baseURL(req));
     }
 
     @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.PUT)
-    public @ResponseBody JSONArr mapLayers(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONArr layers) {
+    public @ResponseBody JSONArr mapLayers(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONArr layers, HttpServletRequest req) {
         LayerGroupInfo m = findMap(wsName, name);
 
         List<MapLayer> mapLayers = new ArrayList<MapLayer>();
@@ -337,7 +343,7 @@ public class MapController extends ApiController {
         m.getStyles().addAll(reStyles);
 
         cat.save(m);
-        return mapLayers(m);
+        return mapLayers(m,ResponseUtils.baseURL(req));
     }
 
     private boolean checkMap(LayerGroupInfo map) {
@@ -363,7 +369,8 @@ public class MapController extends ApiController {
         List<PublishedInfo> layers = map.getLayers();
         return Lists.reverse(layers);
     }
-
+    
+    /** Quick map description suitable for display in a list */
     JSONObj map(JSONObj obj, LayerGroupInfo map, String wsName) {
         obj.put("name", map.getName())
            .put("workspace", wsName)
@@ -393,38 +400,47 @@ public class MapController extends ApiController {
         }
         return obj;
     }
-    JSONObj mapDetails(JSONObj obj, LayerGroupInfo map, String wsName) {
+    /** Complete map description suitable for editing. */
+    JSONObj mapDetails(JSONObj obj, LayerGroupInfo map, String wsName, String baseUrl) {
         map(obj,map,wsName);
         
         List<PublishedInfo> published = layers(map);
         JSONArr layers = obj.putArray("layers");
         for (PublishedInfo l : published) {
-            JSONObj item = layers.addObject();
-            item.put("name", l.getName());
-            if( l.getTitle() != null ){
-                item.put("title", l.getTitle());
-            }
-            if( l.getAbstract() != null ){
-                item.put("abstract", l.getAbstract() );
-            }
-            if( l instanceof LayerInfo ){
-                LayerInfo info = (LayerInfo) l;
-                item.put("resource",info.getResource().getName() );
-                
-                StoreInfo store = info.getResource().getStore();
-                if( store != null ){
-                    WorkspaceInfo workspace = store.getWorkspace();
-                    String name = workspace.getName();
-                    item.put("workspace",name );
-                }
-            }
-            else if( l instanceof LayerGroupInfo){
-                LayerGroupInfo group = (LayerGroupInfo) l;
-                item.put("group", group.getMode().name() );
-                item.put("workspace", group.getWorkspace().getName() );
-                item.put("layer_count", group.getLayers().size() );
-            }
+            layer( layers.addObject(), l, baseUrl);
+        }
+        return obj;
+    }
+    
+    private JSONObj layer(JSONObj obj, PublishedInfo l, String baseUrl) {
+        if (l instanceof LayerInfo) {
+            LayerInfo info = (LayerInfo) l;
+            ResourceInfo r = info.getResource();
+            String wsName = r.getNamespace().getPrefix();
+            obj.put("workspace", wsName);
+            obj.put("name", info.getName());
+            obj.put("url", baseUrl+"/geoserver/api/layers/"+wsName+"/"+r.getName());
             
+            obj.put("title", IO.title(info));
+            obj.put("description", IO.description(info));
+            
+            StoreInfo store = r.getStore();
+            obj.put("type",IO.Type.of(info.getResource()).toString());
+            obj.put("kind",IO.Kind.of(info.getResource()).toString());
+            obj.putObject("resource")
+                .put("name",r.getName())
+                .put("url",baseUrl+"/geoserver/api/stores/"+wsName+"/"+store.getName()+"/"+r.getName());
+
+        } else if (l instanceof LayerGroupInfo) {
+            LayerGroupInfo group = (LayerGroupInfo) l;
+            String wsName = group.getWorkspace().getName();
+            obj.put("workspace", wsName);
+            obj.put("name", group.getName());
+            obj.put("url", baseUrl+"/geoserver/api/layers/"+wsName+"/"+group.getName());
+            obj.put("title", group.getTitle());
+            obj.put("description", group.getAbstract());
+            obj.put("group", group.getMode().name());
+            obj.put("layer_count", group.getLayers().size());
         }
         return obj;
     }

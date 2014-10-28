@@ -63,7 +63,8 @@ public class MapControllerTest {
     public void testCreate() throws Exception {
         MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
-                .layer("one").featureType().defaults()
+                .vector("sample").workspace()
+                .layer("one").featureType().defaults().store("sample")
             .geoServer().build(geoServer);
 
         JSONObj obj = new JSONObj();
@@ -102,10 +103,9 @@ public class MapControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(obj.toString());
 
-        @SuppressWarnings("unused")
         MockHttpServletRequest req = reqBuilder.buildRequest(new MockServletContext());
         try {
-            new MapController(geoServer).create("foo", new JSONObj().put("name", "map1"));
+            new MapController(geoServer).create("foo", new JSONObj().put("name", "map1"),req);
             fail();
         }
         catch(BadRequestException e) {
@@ -163,11 +163,13 @@ public class MapControllerTest {
           .geoServer()
             .catalog()
               .workspace("foo", "http://scratch.org", true)
+                .vector("shape")
+              .workspace()
                 .map("map")
                   .defaults()
                   .info("The map", "This map is cool!")
-                  .layer("one").featureType().defaults().map()
-                  .layer("two").featureType().defaults()
+                  .layer("one").featureType().defaults().store("shape").map()
+                  .layer("two").featureType().defaults().store("shape")
           .geoServer().build(geoServer);
         
         MvcResult result = mvc.perform(get("/api/maps/foo/map"))
@@ -211,10 +213,11 @@ public class MapControllerTest {
         @SuppressWarnings("unused")
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
+                .vector("store").source("directory").workspace()
                 .map("map")
                     .defaults()
-                    .layer("one").featureType().defaults().map()
-                    .layer("two").featureType().defaults()
+                    .layer("one").featureType().defaults().store("store").map()
+                    .layer("two").featureType().defaults().store("store")
             .geoServer().build(geoServer);
 
         MvcResult result = mvc.perform(get("/api/maps/foo/map/layers"))
@@ -227,11 +230,12 @@ public class MapControllerTest {
 
         JSONObj obj = arr.object(0);
         assertEquals("two", obj.str("name"));
-        assertEquals("vector", obj.str("type"));
+        assertEquals("file", obj.str("type"));
+        assertEquals("vector", obj.str("kind"));
 
         obj = arr.object(1);
         assertEquals("one", obj.str("name"));
-        assertEquals("vector", obj.str("type"));
+        assertEquals("vector", obj.str("kind"));
     }
 
     @Test
@@ -239,14 +243,15 @@ public class MapControllerTest {
         @SuppressWarnings("unused")
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
+                .vector("store").workspace()
                 .map("map")
                     .defaults()
                     .layer("one")
                         .style().ysld("one.ysld").layer()
-                        .featureType().defaults().map()
+                        .featureType().defaults().store("store").map()
                     .layer("two")
                         .style().ysld("two.ysld").layer()
-                        .featureType().defaults()
+                        .featureType().defaults().store("store")
             .geoServer().build(geoServer);
 
         JSONArr arr = new JSONArr();

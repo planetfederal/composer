@@ -12,16 +12,23 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.xml.transform.TransformerException;
 
 
+
+
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CoverageStoreInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
@@ -31,7 +38,9 @@ import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.impl.CatalogFactoryImpl;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
@@ -52,6 +61,7 @@ import org.geotools.styling.Rule;
 import org.geotools.styling.SLDTransformer;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
+import org.geotools.util.KVP;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -354,6 +364,22 @@ public class MockGeoServer {
             maps.add(mapBuilder);
             return mapBuilder;
         }
+        
+        public StoreBuilder vector(String name) {
+            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Kind.VECTOR);
+            stores.add(storeBuilder);
+            return storeBuilder;
+        }
+        public StoreBuilder wms(String name) {
+            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Kind.SERVICE);
+            stores.add(storeBuilder);
+            return storeBuilder;
+        }
+        public StoreBuilder raster(String name) {
+            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Kind.RASTER);
+            stores.add(storeBuilder);
+            return storeBuilder;
+        }
 
         public CatalogBuilder catalog() {
             return catalogBuilder;
@@ -362,11 +388,78 @@ public class MockGeoServer {
         public MockGeoServer geoServer() {
             return catalogBuilder.geoServer();
         }
+        
+        StoreBuilder findStore(String name ){
+            for( StoreBuilder store : this.stores ){
+                if( name.equals( store.name )){
+                    return store;
+                }
+            }
+            return null;
+        }
 
     }
 
-    public class StoreBuilder {
+    public class StoreBuilder extends Builder {
+        String name;
+        KVP kvp;
+        WorkspaceBuilder workspaceBuilder;
+        public String source;
+        
+        StoreInfo store;
+        
+        
+        public StoreBuilder(String name, WorkspaceBuilder workspaceBuilder, IO.Kind kind) {
+            this.name = name;
+            this.workspaceBuilder = workspaceBuilder;
 
+            switch (kind) {
+            case VECTOR:
+                store = mock(DataStoreInfo.class);
+                break;
+            case RASTER:
+                store = mock(CoverageStoreInfo.class);
+                break;
+            case SERVICE:
+                store = mock(WMSStoreInfo.class);
+                break;
+            }
+            when(store.getName()).thenReturn(name);
+        }
+        
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        public StoreBuilder source(String source){
+            if( source.endsWith(".shp")){
+                when(store.getConnectionParameters()).thenReturn(
+                    (Map<String,Serializable>) (Map) new KVP("url", source) );
+            }
+            else if( source.endsWith(".png")||source.endsWith(".tif")||source.endsWith(".tiff")){
+                when(store.getConnectionParameters()).thenReturn(
+                    (Map<String,Serializable>) (Map) new KVP("raster", source) );
+            }
+            else if( source.startsWith("postgis")){
+                String host = source.substring(8);
+                when(store.getConnectionParameters()).thenReturn(
+                    (Map<String,Serializable>) (Map) new KVP("dbtype", "postgis","host",host,"port","5432") );
+            }
+            else if( source.contains("service=wms")){
+                when(store.getConnectionParameters()).thenReturn(
+                    (Map<String,Serializable>) (Map) new KVP("url", source) );
+            }
+            else {
+                when(store.getConnectionParameters()).thenReturn(
+                    (Map<String,Serializable>) (Map) new KVP("directory", source) );
+            }
+            return this;
+        }
+
+        public MockGeoServer geoServer() {
+            return workspaceBuilder.geoServer();
+        }
+
+        public WorkspaceBuilder workspace() {
+            return workspaceBuilder;
+        }
     }
 
     public class MapBuilder extends Builder {
@@ -468,7 +561,6 @@ public class MockGeoServer {
         public MockGeoServer geoServer() {
             return workspaceBuilder.geoServer();
         }
-
         public WorkspaceBuilder workspace() {
             return workspaceBuilder;
         }
@@ -481,12 +573,11 @@ public class MockGeoServer {
 
         WorkspaceBuilder workspaceBuilder;
         MapBuilder mapBuilder;
-        ResourceBuilder<?> resourceBuilder;
+        ResourceBuilder<?,?> resourceBuilder;
 
         public LayerBuilder(String name, WorkspaceBuilder workspaceBuilder) {
             this.name = name;
             this.workspaceBuilder = workspaceBuilder;
-
             String wsName = workspaceBuilder.workspace.getName();
             layer = mock(LayerInfo.class);
             when(layer.getName()).thenReturn(name);
@@ -525,14 +616,23 @@ public class MockGeoServer {
         public FeatureTypeBuilder featureType() {
             return new FeatureTypeBuilder(this);
         }
+        public FeatureTypeBuilder featureType(String storeName) {
+            return new FeatureTypeBuilder(this).store(storeName);
+        }
 
         public MockGeoServer geoServer() {
             return workspaceBuilder.geoServer();
         }
+        public ResourceBuilder<?,?> resource(){
+            return this.resourceBuilder;
+        }
+        public WorkspaceBuilder workspace(){
+            return this.workspaceBuilder;
+        }
     }
 
-    public class ResourceBuilder<T extends ResourceInfo> extends Builder {
-
+    public class ResourceBuilder<T extends ResourceInfo, B extends ResourceBuilder> extends Builder {
+        
         protected T resource;
         protected LayerBuilder layerBuilder;
 
@@ -551,28 +651,45 @@ public class MockGeoServer {
             });
             when(layer.getResource()).thenReturn(resource);
         }
-
-        public ResourceBuilder<T> proj(String srs, CoordinateReferenceSystem crs) {
+        
+        @SuppressWarnings("unchecked")
+        public B store(final String storeName){
+            when(resource.getStore()).thenAnswer( new Answer<StoreInfo>() {
+                @Override
+                public StoreInfo answer(InvocationOnMock invocation) throws Throwable {
+                    return ResourceBuilder.this.layerBuilder.workspaceBuilder.findStore(storeName).store;
+                }
+            });
+            return (B) this;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public B proj(String srs, CoordinateReferenceSystem crs) {
             when(resource.getSRS()).thenReturn(srs);
             when(resource.getCRS()).thenReturn(crs);
-            return this;
+            return (B) this;
         }
 
-        public ResourceBuilder<T> bbox(double x1, double y1, double x2, double y2, CoordinateReferenceSystem crs) {
+        @SuppressWarnings("unchecked")
+        public B bbox(double x1, double y1, double x2, double y2, CoordinateReferenceSystem crs) {
             when(resource.getNativeBoundingBox()).thenReturn(new ReferencedEnvelope(x1,x2,y1,y2,crs));
             when(resource.getNativeCRS()).thenReturn(crs);
-            return this;
+            return (B) this;
         }
 
-        public ResourceBuilder<T> latLonBbox(double x1, double y1, double x2, double y2) {
+        public B latLonBbox(double x1, double y1, double x2, double y2) {
             when(resource.getLatLonBoundingBox()).thenReturn(new ReferencedEnvelope(x1,x2,y1,y2, DefaultGeographicCRS.WGS84));
-            return this;
+            return (B) this;
         }
 
         public WorkspaceBuilder workspace() {
             return layerBuilder.workspaceBuilder;
         }
 
+        public LayerBuilder layer() {
+            return layerBuilder;
+        }
+        
         public MapBuilder map() {
             return layerBuilder.mapBuilder;
         }
@@ -582,7 +699,7 @@ public class MockGeoServer {
         }
     }
 
-    public class FeatureTypeBuilder extends ResourceBuilder<FeatureTypeInfo> {
+    public class FeatureTypeBuilder extends ResourceBuilder<FeatureTypeInfo,FeatureTypeBuilder> {
 
         public FeatureTypeBuilder(LayerBuilder layerBuilder) {
             super(mock(FeatureTypeInfo.class), layerBuilder);
