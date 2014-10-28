@@ -17,9 +17,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 import javax.xml.transform.TransformerException;
+
 
 //import org.apache.wicket.util.file.Files;
 import org.geoserver.catalog.Catalog;
@@ -351,13 +353,21 @@ public class MockGeoServer {
         }
 
         public LayerBuilder layer(String name) {
-            LayerBuilder lBuilder = new LayerBuilder(name, this);
+            return layer(name, null);
+        }
+
+        public LayerBuilder layer(String name, String id) {
+            LayerBuilder lBuilder = new LayerBuilder(name, id, this);
             layers.add(lBuilder);
             return lBuilder;
         }
 
         public MapBuilder map(String name) {
-            MapBuilder mapBuilder = new MapBuilder(name, this);
+            return map(name, null);
+        }
+
+        public MapBuilder map(String name, String id) {
+            MapBuilder mapBuilder = new MapBuilder(name, id, this);
             maps.add(mapBuilder);
             return mapBuilder;
         }
@@ -469,15 +479,20 @@ public class MockGeoServer {
         WorkspaceBuilder workspaceBuilder;
         List<LayerBuilder> layers = new ArrayList<LayerBuilder>();
 
-        public MapBuilder(String name, WorkspaceBuilder workspaceBuilder) {
+        public MapBuilder(String name, String id, WorkspaceBuilder workspaceBuilder) {
             this.name = name;
             this.workspaceBuilder = workspaceBuilder;
 
+            id = id != null ? id : UUID.randomUUID().toString();
+
             String wsName = workspaceBuilder.workspace.getName();
             map = mock(LayerGroupInfo.class);
+
+            when(map.getId()).thenReturn(id);
             when(map.getName()).thenReturn(name);
             when(map.getMode()).thenReturn(Mode.SINGLE);
             when(map.prefixedName()).thenReturn(wsName + ":" + name);
+            when(map.getWorkspace()).thenReturn(workspaceBuilder.workspace);
             
             when(map.layers()).thenAnswer(new Answer<List<LayerInfo>>() {
                 @Override
@@ -527,6 +542,7 @@ public class MockGeoServer {
             when(map.getMetadata()).thenReturn(meta);
 
             Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
+            when(catalog.getLayerGroup(id)).thenReturn(map);
             when(catalog.getLayerGroupByName(name)).thenReturn(map);
             when(catalog.getLayerGroupByName(wsName, name)).thenReturn(map);
         }
@@ -552,7 +568,10 @@ public class MockGeoServer {
         }
 
         public LayerBuilder layer(String name) {
-            LayerBuilder layerBuilder = new LayerBuilder(name, this);
+            return layer(name, null);
+        }
+        public LayerBuilder layer(String name, String id) {
+            LayerBuilder layerBuilder = new LayerBuilder(name, id, this);
             layers.add(layerBuilder);
             return layerBuilder;
         }
@@ -575,11 +594,14 @@ public class MockGeoServer {
         MapBuilder mapBuilder;
         ResourceBuilder<?,?> resourceBuilder;
 
-        public LayerBuilder(String name, WorkspaceBuilder workspaceBuilder) {
+        public LayerBuilder(String name, String id, WorkspaceBuilder workspaceBuilder) {
             this.name = name;
             this.workspaceBuilder = workspaceBuilder;
             String wsName = workspaceBuilder.workspace.getName();
             layer = mock(LayerInfo.class);
+
+            id = id != null ? id : UUID.randomUUID().toString();
+            when(layer.getId()).thenReturn(id);
             when(layer.getName()).thenReturn(name);
             when(layer.prefixedName()).thenReturn(wsName+":"+name);
 
@@ -590,12 +612,13 @@ public class MockGeoServer {
 
             Catalog catalog = workspaceBuilder.catalogBuilder.catalog;
             
+            when(catalog.getLayer(id)).thenReturn(layer);
             when(catalog.getLayerByName(wsName+":"+name)).thenReturn(layer);
             when(catalog.getLayerByName(new NameImpl(workspaceBuilder.namespace.getURI(), name))).thenReturn(layer);
         }
 
-        public LayerBuilder(String name, MapBuilder mapBuilder) {
-            this(name, mapBuilder.workspaceBuilder);
+        public LayerBuilder(String name, String id, MapBuilder mapBuilder) {
+            this(name, null, mapBuilder.workspaceBuilder);
             this.mapBuilder = mapBuilder;
         }
 

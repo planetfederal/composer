@@ -104,7 +104,7 @@ angular.module('gsApp.maps.compose', [
 
       $scope.saveStyle = function() {
         var l = $scope.activeLayer;
-        GeoServer.style.put(l.workspace, l.name, $scope.style)
+        GeoServer.style.put(l.workspace, l.name, $scope.style, $scope.map)
           .then(function(result) {
             if (result.success == true) {
               $scope.markers = null;

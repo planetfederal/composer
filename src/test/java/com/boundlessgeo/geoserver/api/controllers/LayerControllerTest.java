@@ -9,10 +9,10 @@ import com.boundlessgeo.geoserver.api.converters.YsldMessageConverter;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.boundlessgeo.geoserver.json.JSONWrapper;
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-import junit.framework.Assert;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.Predicates;
@@ -48,9 +48,7 @@ import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import static com.boundlessgeo.geoserver.api.controllers.ApiController.DEFAULT_PAGESIZE;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -62,6 +60,9 @@ public class LayerControllerTest {
 
     @Mock
     GeoServer geoServer;
+
+    @Mock
+    RecentObjectCache recent;
 
     @InjectMocks
     LayerController ctrl;
@@ -329,5 +330,43 @@ public class LayerControllerTest {
 
     String toString(Resource r) {
         return new String(((ByteArrayOutputStream)r.out()).toByteArray());
+    }
+    
+    @Test
+    public void testRecentLayers() throws Exception {
+        @SuppressWarnings("unused")
+        GeoServer gs = MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true)
+                .layer("layer1", "layer1")
+                    .featureType().defaults().store("foo").workspace()
+                .layer("layer2", "layer2")
+                    .featureType().defaults().store("foo").workspace()
+                .layer("layer3", "layer3")
+                    .featureType().defaults().store("foo").workspace()
+                .geoServer().build(geoServer);
+
+        JSONObj obj;
+        MockHttpServletRequestBuilder req;
+        obj = new JSONObj().put("title", "new title");
+        req = put("/api/layers/foo/layer3")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+        
+        obj = new JSONObj().put("title", "new title");
+        req = put("/api/layers/foo/layer2")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+        
+        obj = new JSONObj().put("title", "new title");
+        req = put("/api/layers/foo/layer1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(obj.toString());
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+
+        verify(recent, times(1)).add(LayerInfo.class, "layer3");
+        verify(recent, times(1)).add(LayerInfo.class, "layer2");
+        verify(recent, times(1)).add(LayerInfo.class, "layer1");
     }
 }

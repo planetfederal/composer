@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import com.google.common.base.Throwables;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -29,6 +30,7 @@ import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
+import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.ResourceInfo;
@@ -37,7 +39,6 @@ import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
@@ -47,7 +48,6 @@ import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
-import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.NameImpl;
@@ -63,7 +63,6 @@ import org.geotools.ysld.Ysld;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -95,8 +94,8 @@ public class LayerController extends ApiController {
     Importer importer;
 
     @Autowired
-    public LayerController(GeoServer geoServer, Importer importer) {
-        super(geoServer);
+    public LayerController(GeoServer geoServer, RecentObjectCache recentCache, Importer importer) {
+        super(geoServer, recentCache);
         this.importer = importer;
     }
 
@@ -386,6 +385,7 @@ public class LayerController extends ApiController {
     public @ResponseBody void delete(@PathVariable String wsName, @PathVariable String name) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
+        recent.remove(LayerInfo.class, layer.getId());
         new CascadeDeleteVisitor(cat).visit(layer);
     }
 
@@ -393,6 +393,7 @@ public class LayerController extends ApiController {
     public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
+        recent.add(LayerInfo.class, layer.getId());
         return  update(layer, obj,req);
     }
 
@@ -400,6 +401,7 @@ public class LayerController extends ApiController {
     public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
+        recent.add(LayerInfo.class, layer.getId());
         return  update(layer, obj,req);
     }
     
@@ -443,8 +445,8 @@ public class LayerController extends ApiController {
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
-    public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName, @PathVariable String name)
-        throws IOException {
+    public @ResponseBody void style(@RequestBody byte[] rawStyle, @PathVariable String wsName,
+        @PathVariable String name, @RequestParam(value="map", required=false) String mapName) throws IOException {
         // first thing is sanity check on the style content
         List<MarkedYAMLException> errors = Ysld.validate(ByteSource.wrap(rawStyle).openStream());
         if (!errors.isEmpty()) {
@@ -497,8 +499,22 @@ public class LayerController extends ApiController {
             cat.save(s);
         }
 
-        Metadata.modified(l, new Date());
+        Date mod = new Date();
+        Metadata.modified(l, mod);
+
+        LayerGroupInfo map = null;
+        if (mapName != null) {
+            map = findMap(wsName, mapName, cat);
+        }
+
         cat.save(l);
+        recent.add(LayerInfo.class, l.getId());
+        if (map != null) {
+            Metadata.modified(map, mod);
+            cat.save(map);
+
+            recent.add(LayerGroupInfo.class, map.getId());
+        }
     }
 
 
@@ -561,6 +577,18 @@ public class LayerController extends ApiController {
             }
         }
         return obj;
+    }
+    
+    @RequestMapping(value="/recent", method = RequestMethod.GET)
+    public @ResponseBody JSONArr recent(HttpServletRequest req) {
+        Catalog cat = geoServer.getCatalog();
+        JSONArr arr = new JSONArr();
+        
+        for (String id : recent.list(LayerInfo.class)) {
+            LayerInfo layer = cat.getLayer(id);
+            IO.layer(arr.addObject(), layer, req);
+        }
+        return arr;
     }
 
     JSONObj layer(JSONObj obj, LayerInfo l, HttpServletRequest req) {
