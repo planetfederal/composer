@@ -75,111 +75,111 @@ import com.vividsolutions.jts.geom.Geometry;
  * Helper for encoding/decoding objects to/from JSON.
  */
 public class IO {
-
-    static public enum Type {FILE,DATABASE,WEB,GENERIC;
+    /** Kind of provider */
+    static public enum Kind {FILE,DATABASE,WEB,GENERIC;
         public String toString() {
             return name().toLowerCase();
         }
-        static Type of( ResourceInfo resource){
+        static Kind of( ResourceInfo resource){
             return of( resource.getStore());
         }
-        static Type of( DataAccessFactory format){
+        static Kind of( DataAccessFactory format){
             Set<String> params = new HashSet<String>();
             for (Param info : format.getParametersInfo()) {
                 params.add(info.getName());
             }
             if (params.contains("dbtype")) {
-                return Type.DATABASE;
+                return Kind.DATABASE;
             }
             if (params.contains("directory") || params.contains("file")) {
-                return Type.FILE;
+                return Kind.FILE;
             }
             if (params.contains("wms")
                     || params.contains("WFSDataStoreFactory:GET_CAPABILITIES_URL")) {
-                return Type.WEB;
+                return Kind.WEB;
             }
             if( params.contains("url") ){
-                return Type.FILE;
+                return Kind.FILE;
             }
-            return Type.GENERIC;
+            return Kind.GENERIC;
         }
-        static Type of( StoreInfo store ){
+        static Kind of( StoreInfo store ){
             if( store instanceof CoverageStoreInfo){
                 String url = ((CoverageStoreInfo)store).getURL();
                 if( url.startsWith("file")){
-                    return Type.FILE;
+                    return Kind.FILE;
                 }
                 else if( url.startsWith("http") ||
                          url.startsWith("https") ||
                          url.startsWith("ftp") ||
                          url.startsWith("sftp")){
-                    return Type.WEB;
+                    return Kind.WEB;
                 }
             }
             Map<String, Serializable> params = store.getConnectionParameters();
             if(params == null ){
-                return Type.GENERIC;
+                return Kind.GENERIC;
             }
             else if( params.containsKey("dbtype")){
-                return Type.DATABASE;
+                return Kind.DATABASE;
             }
             else if( store instanceof WMSStoreInfo){
-                return Type.WEB;
+                return Kind.WEB;
             }
             else if( params.keySet().contains("directory") ||
                 params.keySet().contains("file") ){
                 
-                return Type.FILE;
+                return Kind.FILE;
             }
             for( Object value : params.values()){
                 if( value == null ) continue;
                 if( value instanceof File ||
                     (value instanceof String && ((String)value).startsWith("file:")) ||
                     (value instanceof URL && ((URL)value).getProtocol().equals("file"))){
-                    return Type.FILE;
+                    return Kind.FILE;
                 }
                 if( (value instanceof String && ((String)value).startsWith("http:")) ||
                     (value instanceof URL && ((URL)value).getProtocol().equals("http"))){
-                    return Type.WEB;
+                    return Kind.WEB;
                 }
                 if( value instanceof String && ((String)value).startsWith("jdbc:")){
-                    return Type.DATABASE;
+                    return Kind.DATABASE;
                 }
             }
-            return Type.GENERIC;
+            return Kind.GENERIC;
         }
     }
-
-    static public enum Kind {RASTER,VECTOR,SERVICE,RESOURCE;
+    /** Type of content: raster, vector, service(wms layer), generic resource */
+    static public enum Type {RASTER,VECTOR,SERVICE,RESOURCE;
         public String toString() {
             return name().toLowerCase();
         }
-        static Kind of( String resource ){
+        static Type of( String resource ){
             return valueOf(resource.toUpperCase());
         }
-        static Kind of( ResourceInfo resource ){
+        static Type of( ResourceInfo resource ){
             if( resource instanceof CoverageInfo){
-                return Kind.RASTER;
+                return Type.RASTER;
             }
             else if( resource instanceof FeatureTypeInfo){
-                return Kind.VECTOR;
+                return Type.VECTOR;
             }
             else if(resource instanceof WMSLayerInfo){
-                return Kind.SERVICE;
+                return Type.SERVICE;
             }
-            return Kind.RESOURCE;
+            return Type.RESOURCE;
         }
-        static Kind of( StoreInfo store ){
+        static Type of( StoreInfo store ){
             if( store instanceof CoverageStoreInfo){
-                return Kind.RASTER;
+                return Type.RASTER;
             }
             else if( store instanceof DataStoreInfo){
-                return Kind.VECTOR;
+                return Type.VECTOR;
             }
             else if(store instanceof WMSStoreInfo){
-                return Kind.SERVICE;
+                return Type.SERVICE;
             }
-            return Kind.RESOURCE;
+            return Type.RESOURCE;
         }
     }
 
@@ -372,13 +372,13 @@ public class IO {
     public static JSONObj layer(JSONObj obj, LayerInfo layer) {
         String wsName = layer.getResource().getNamespace().getPrefix();
         ResourceInfo r = layer.getResource();
-        Kind kind = IO.Kind.of(r); //IO.type(r);
+        Type type = IO.Type.of(r); //IO.type(r);
         
         obj.put("name", layer.getName())
                 .put("workspace", wsName)
                 .put("title", title(layer))
                 .put("description", description(layer))
-                .put("type", kind.toString());
+                .put("type", type.toString());
         
         JSONArr keywords = new JSONArr();
         keywords.raw().addAll( r.keywordValues() );

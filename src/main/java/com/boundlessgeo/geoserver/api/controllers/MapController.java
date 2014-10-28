@@ -423,10 +423,9 @@ public class MapController extends ApiController {
             
             obj.put("title", IO.title(info));
             obj.put("description", IO.description(info));
+            obj.put("type",IO.Type.of(info.getResource()).toString());
             
             StoreInfo store = r.getStore();
-            obj.put("type",IO.Type.of(info.getResource()).toString());
-            obj.put("kind",IO.Kind.of(info.getResource()).toString());
             obj.putObject("resource")
                 .put("name",r.getName())
                 .put("url",baseUrl+"/geoserver/api/stores/"+wsName+"/"+store.getName()+"/"+r.getName());

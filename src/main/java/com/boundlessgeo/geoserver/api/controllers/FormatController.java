@@ -200,9 +200,9 @@ import static com.google.common.collect.Iterables.transform;
     }
 
     DataFormat<DataAccessFactory> format(DataAccessFactory f) {
-        IO.Type type = IO.Type.of(f);
+        IO.Kind kind = IO.Kind.of(f);
         return new DataFormat(formatName(f.getDisplayName()), f.getDisplayName(), f.getDescription(),
-                "vector", type.toString().toLowerCase(), f);
+                "vector", kind.toString().toLowerCase(), f);
     }
 
     DataFormat<Format> format(Format g) {

@@ -366,17 +366,17 @@ public class MockGeoServer {
         }
         
         public StoreBuilder vector(String name) {
-            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Kind.VECTOR);
+            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Type.VECTOR);
             stores.add(storeBuilder);
             return storeBuilder;
         }
         public StoreBuilder wms(String name) {
-            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Kind.SERVICE);
+            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Type.SERVICE);
             stores.add(storeBuilder);
             return storeBuilder;
         }
         public StoreBuilder raster(String name) {
-            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Kind.RASTER);
+            StoreBuilder storeBuilder = new StoreBuilder(name, this,IO.Type.RASTER);
             stores.add(storeBuilder);
             return storeBuilder;
         }
@@ -409,7 +409,7 @@ public class MockGeoServer {
         StoreInfo store;
         
         
-        public StoreBuilder(String name, WorkspaceBuilder workspaceBuilder, IO.Kind kind) {
+        public StoreBuilder(String name, WorkspaceBuilder workspaceBuilder, IO.Type kind) {
             this.name = name;
             this.workspaceBuilder = workspaceBuilder;
 

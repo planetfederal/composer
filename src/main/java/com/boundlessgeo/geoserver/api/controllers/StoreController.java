@@ -347,8 +347,8 @@ import com.google.common.collect.Iterables;
         
         String source = source(store);
         obj.put("source", source )
-           .put("type", IO.Type.of(store).name())
-           .put("kind", IO.Kind.of(store).name());   
+           .put("type", IO.Kind.of(store).name())
+           .put("kind", IO.Type.of(store).name());   
 
         return IO.metadata(obj, store);
     }
