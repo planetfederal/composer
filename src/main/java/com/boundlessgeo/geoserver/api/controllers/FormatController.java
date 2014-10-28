@@ -56,7 +56,7 @@ import static com.google.common.collect.Iterables.transform;
     @RequestMapping(method = RequestMethod.GET)
     public @ResponseBody JSONArr list() {
         JSONArr list = new JSONArr();
-        for (DataFormat format : formats()) {
+        for (DataFormat<?> format : formats()) {
             encode(list.addObject(), format);
         }
 
@@ -107,7 +107,7 @@ import static com.google.common.collect.Iterables.transform;
         throw new NotFoundException("Unrecognized format: " + name);
     }
 
-    JSONObj encode(JSONObj obj, DataFormat format) {
+    JSONObj encode(JSONObj obj, DataFormat<?> format) {
         return obj.put("name", format.name)
         .put("title", format.title )
         .put("description", format.description)
@@ -201,16 +201,16 @@ import static com.google.common.collect.Iterables.transform;
 
     DataFormat<DataAccessFactory> format(DataAccessFactory f) {
         IO.Kind kind = IO.Kind.of(f);
-        return new DataFormat(formatName(f.getDisplayName()), f.getDisplayName(), f.getDescription(),
+        return new DataFormat<DataAccessFactory>(formatName(f.getDisplayName()), f.getDisplayName(), f.getDescription(),
                 "vector", kind.toString().toLowerCase(), f);
     }
 
     DataFormat<Format> format(Format g) {
-        return new DataFormat(formatName(g.getName()), g.getName(), g.getDescription(), "raster", "file", g);
+        return new DataFormat<Format>(formatName(g.getName()), g.getName(), g.getDescription(), "raster", "file", g);
     }
 
     DataFormat<Class<?>> format(Class<WebMapServer> clazz) {
-        return new DataFormat("wms", "Web Map Service", "Layers from a remote Web Map Service",
+        return new DataFormat<Class<?>>("wms", "Web Map Service", "Layers from a remote Web Map Service",
             "service", null, WebMapServer.class);
     }
 
