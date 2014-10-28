@@ -110,7 +110,7 @@ public class LayerController extends ApiController {
             CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, filter, offset(req), count, null);
         ) {
             while (it.hasNext()) {
-                IO.layer(arr.addObject(), it.next());
+                IO.layer(arr.addObject(), it.next(), req);
             }
         }
 
@@ -119,7 +119,7 @@ public class LayerController extends ApiController {
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj) {
+    public @ResponseBody JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj, HttpServletRequest req) {
         Catalog cat = geoServer.getCatalog();
         String name = obj.str("name");
         if (name == null) {
@@ -163,7 +163,7 @@ public class LayerController extends ApiController {
                 // restore name in case it was replaced by duplicate
                 l.setName(name);
                 build.updateLayer( l,  origional );
-                return update(l, obj);
+                return update(l, obj,req);
             }
             catch( NotFoundException notFound ){
                 throw new BadRequestException("Layer "+wsName+":"+name+" from "+from+": "+notFound); 
@@ -176,13 +176,13 @@ public class LayerController extends ApiController {
         
         cat.save(l.getResource());
         cat.save(l);
-        return IO.layer(new JSONObj(), l);
+        return IO.layer(new JSONObj(), l, req);
     }
     
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
-    public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name) {
+    public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name, HttpServletRequest req) {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
-        return IO.layer(new JSONObj(), l);
+        return IO.layer(new JSONObj(), l, req);
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.DELETE)
@@ -193,20 +193,20 @@ public class LayerController extends ApiController {
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PATCH)
-    public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+    public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
-        return  update(layer, obj);
+        return  update(layer, obj,req);
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+    public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
-        return  update(layer, obj);
+        return  update(layer, obj,req);
     }
     
-    JSONObj update(LayerInfo layer, JSONObj obj) {
+    JSONObj update(LayerInfo layer, JSONObj obj, HttpServletRequest req) {
         ResourceInfo resource = layer.getResource();
         for (String prop : obj.keys()) {
             if ("title".equals(prop)) {
@@ -240,7 +240,7 @@ public class LayerController extends ApiController {
         Catalog cat = geoServer.getCatalog();
         cat.save(resource);
         cat.save(layer);
-        return IO.layer(new JSONObj(), layer);
+        return IO.layer(new JSONObj(), layer, req);
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)

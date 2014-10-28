@@ -84,9 +84,9 @@ public class LayerControllerTest {
         MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
                 .layer("one")
-                  .featureType().defaults().workspace()
+                  .featureType().defaults().store("one").workspace()
                 .layer("two")
-                  .featureType().defaults().workspace()
+                  .featureType().defaults().store("two").workspace()
             .geoServer().build(geoServer);
 
 
@@ -123,7 +123,7 @@ public class LayerControllerTest {
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
                 .layer("one").info("The layer", "This layer is cool!")
-                .featureType().defaults()
+                .featureType().defaults().store("foo")
             .geoServer().build(geoServer);
 
         MvcResult result = mvc.perform(get("/api/layers/foo/one"))
@@ -259,7 +259,7 @@ public class LayerControllerTest {
     public void testDelete() throws Exception {
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
-                .layer("one").info("The layer", "This layer is cool!")
+                .layer("one").info("The layer", "This layer is cool!").featureType().store("foo")
                 .geoServer().build(geoServer);
 
         mvc.perform(delete("/api/layers/foo/one"))
@@ -275,7 +275,7 @@ public class LayerControllerTest {
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
                 .layer("one").info("The layer", "This layer is cool!")
-                .featureType().defaults()
+                .featureType().defaults().store("one")
                 .geoServer().build(geoServer);
 
         JSONObj obj = new JSONObj().put("title", "new title");

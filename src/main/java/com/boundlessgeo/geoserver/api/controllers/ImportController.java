@@ -241,7 +241,7 @@ public class ImportController extends ApiController {
 
         LayerInfo layer = task.getLayer();
         JSONObj obj = task(task);
-        IO.layer(obj.putObject("layer"), layer);
+        IO.layer(obj.putObject("layer"), layer, null);
         return obj;
     }
 

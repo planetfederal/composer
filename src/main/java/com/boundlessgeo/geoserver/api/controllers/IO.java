@@ -15,6 +15,8 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.WordUtils;
 import org.geoserver.catalog.CoverageInfo;
@@ -31,6 +33,8 @@ import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.ows.URLMangler.URLType;
+import org.geoserver.ows.util.ResponseUtils;
 import org.geoserver.wms.WMSInfo;
 import org.geotools.data.DataAccessFactory;
 import org.geotools.data.DataAccessFactory.Param;
@@ -335,15 +339,15 @@ public class IO {
         return layer.getAbstract() != null ? layer.getAbstract() : r != null ? r.getAbstract() : null;
     }
 
-    public static JSONObj layer(JSONObj obj, PublishedInfo layer) {
+    public static JSONObj layer(JSONObj obj, PublishedInfo layer, HttpServletRequest req) {
         if( layer == null ){
             return obj;
         }
         if( layer instanceof LayerInfo){
-            return layer( obj, (LayerInfo) layer );
+            return layer( obj, (LayerInfo) layer, req );
         }
         else if ( layer instanceof LayerGroupInfo ){
-            return layer( obj, (LayerGroupInfo) layer );
+            return layer( obj, (LayerGroupInfo) layer, req );
         }
         else {
             return obj;
@@ -369,7 +373,7 @@ public class IO {
      * @return The object passed in.
      */
     @SuppressWarnings("unchecked")
-    public static JSONObj layer(JSONObj obj, LayerInfo layer) {
+    public static JSONObj layer(JSONObj obj, LayerInfo layer, HttpServletRequest req) {
         String wsName = layer.getResource().getNamespace().getPrefix();
         ResourceInfo r = layer.getResource();
         Type type = IO.Type.of(r); //IO.type(r);
@@ -379,6 +383,16 @@ public class IO {
                 .put("title", title(layer))
                 .put("description", description(layer))
                 .put("type", type.toString());
+        
+        StoreInfo store = r.getStore();
+        if( req != null ){
+            String baseURL = ResponseUtils.baseURL(req);
+            obj.putObject("resource")
+                .put("name",r.getName())
+                .put("url",
+                     ResponseUtils.buildURL(baseURL, "/geoserver/api/stores/"+wsName+"/"+store.getName()+"/"+r.getName(), null,  URLType.SERVICE )
+                );
+        }
         
         JSONArr keywords = new JSONArr();
         keywords.raw().addAll( r.keywordValues() );

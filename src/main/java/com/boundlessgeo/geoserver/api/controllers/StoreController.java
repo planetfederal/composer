@@ -37,6 +37,8 @@ import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
+import org.geoserver.ows.URLMangler.URLType;
+import org.geoserver.ows.util.ResponseUtils;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
@@ -101,16 +103,28 @@ import com.google.common.collect.Iterables;
     
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody
-    JSONObj get(@PathVariable String wsName, @PathVariable String name) {
+    JSONObj get(@PathVariable String wsName, @PathVariable String name, HttpServletRequest req) {
         StoreInfo store = findStore(wsName, name, geoServer.getCatalog());
         if (store == null) {
             throw new IllegalArgumentException("Store " + wsName + ":" + name + " not found");
         }
         try {
-            return storeDetails(new JSONObj(), store);
+            return storeDetails(new JSONObj(), store,req);
         } catch (IOException e) {
             throw new RuntimeException(String.format("Error occured accessing store: %s,%s",wsName, name), e);
         }
+    }
+
+    @RequestMapping(value = "/{wsName}/{stName}/{name}", method = RequestMethod.GET)
+    public @ResponseBody JSONObj resource(@PathVariable String wsName, @PathVariable String stName, @PathVariable String name, HttpServletRequest req) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        StoreInfo store = findStore(wsName, stName, cat );
+        JSONObj obj = resource( new JSONObj(), store, name, req);
+        obj.putObject("store")
+            .put("name", stName )
+            // http://localhost:8080/geoserver/app/api/stores/medford/med_shp/zoning
+            .put("url", ResponseUtils.buildURL( ResponseUtils.baseURL(req), "app/api/stores/"+wsName+"/"+stName, null, URLType.SERVICE));
+        return obj;
     }
     
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.DELETE)
@@ -156,7 +170,7 @@ import com.google.common.collect.Iterables;
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.POST)
     public @ResponseBody
-    JSONObj create(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+    JSONObj create(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         CatalogFactory factory = cat.getFactory();
         
@@ -232,10 +246,10 @@ import com.google.common.collect.Iterables;
         }
         cat.add(store);
         
-        return storeDetails(new JSONObj(), store);
+        return storeDetails(new JSONObj(), store,req);
     }
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PATCH)
-    public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+    public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         StoreInfo store = cat.getStoreByName(wsName, name, StoreInfo.class );
         
@@ -244,7 +258,7 @@ import com.google.common.collect.Iterables;
         if (refresh) {
             resetConnection(store);
         }
-        return storeDetails(new JSONObj(), store);
+        return storeDetails(new JSONObj(), store,req);
     }
     
     private void resetConnection(StoreInfo store ){
@@ -259,7 +273,7 @@ import com.google.common.collect.Iterables;
     }
     
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj) throws IOException {
+    public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         StoreInfo store = cat.getStoreByName(wsName, name, StoreInfo.class );
         
@@ -269,7 +283,7 @@ import com.google.common.collect.Iterables;
         if (refresh) {
             resetConnection(store);
         }
-        return storeDetails(new JSONObj(), store);
+        return storeDetails(new JSONObj(), store,req);
     }
     
     @SuppressWarnings("unchecked")
@@ -353,7 +367,7 @@ import com.google.common.collect.Iterables;
         return IO.metadata(obj, store);
     }
 
-    private JSONObj storeDetails(JSONObj json, StoreInfo store) throws IOException {
+    private JSONObj storeDetails(JSONObj json, StoreInfo store, HttpServletRequest req) throws IOException {
         store(json, store);
 
         JSONObj connection = new JSONObj();
@@ -377,7 +391,7 @@ import com.google.common.collect.Iterables;
         json.put("error", IO.error( new JSONObj(), store.getError()));
 
         if (store.isEnabled()) {
-            resources(store, json.putArray("resources"));
+            resources(store, json.putArray("resources"),req);
         }
         json.put("layer-count",layerCount(store));
 
@@ -406,7 +420,8 @@ import com.google.common.collect.Iterables;
         if (r != null) {
             Catalog cat = geoServer.getCatalog();
             for (LayerInfo l : cat.getLayers(r)) {
-                layer(list.addObject(), l, true);
+                JSONObj obj = layer(list.addObject(), l, true);
+                
             }
         }
         return list;
@@ -430,80 +445,85 @@ import com.google.common.collect.Iterables;
     }
 
     @SuppressWarnings("unchecked")
-    private JSONArr resources(StoreInfo store, JSONArr list) throws IOException {
+    private JSONArr resources(StoreInfo store, JSONArr list, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         WorkspaceInfo ws = store.getWorkspace();
 
         for (String resource : listResources(store)) {
-            JSONObj obj = list.addObject();
-            obj.put("name", resource);
-            if(store instanceof DataStoreInfo){
-                DataStoreInfo data = (DataStoreInfo) store;
-                
-                @SuppressWarnings("rawtypes")
-                DataAccess dataStore = data.getDataStore(new NullProgressListener());
-                FeatureType schema;
-                org.geotools.data.ResourceInfo info;
-                if (dataStore instanceof DataStore) {
-                    schema = ((DataStore) dataStore).getSchema(resource);
-                    info = ((DataStore) dataStore).getFeatureSource(resource).getInfo();
-                } else {
-                    NameImpl name = new NameImpl(resource);
-                    schema = dataStore.getSchema(name);
-                    info = dataStore.getFeatureSource(name).getInfo();
-                }
-                String title = info.getTitle() == null
-                        ? WordUtils.capitalize(resource)
-                        : info.getTitle();
-                String description = info.getDescription() == null ? "" : info.getDescription();
-                obj.put("title", title);
-                obj.put("description", description);
-                
-                JSONArr keywords = obj.putArray("keywords");
-                keywords.raw().addAll( info.getKeywords() );
-                IO.bounds(obj.putObject("bounds"),info.getBounds());
-                IO.schema(obj.putObject("schema"), schema, false);
-            }
-            if(store instanceof CoverageStoreInfo){
-                CoverageStoreInfo data = (CoverageStoreInfo) store;
-                GridCoverageReader r = data.getGridCoverageReader(null, null);
-                obj.put("title", WordUtils.capitalize(resource));
-                obj.put("description", "");
-                if( r instanceof GridCoverage2DReader){
-                    GridCoverage2DReader reader = (GridCoverage2DReader) r;
-                    CoordinateReferenceSystem crs = reader.getCoordinateReferenceSystem(resource);
-                    IO.schemaGrid(obj.putObject("schema"), crs, false);
-                }
-                else {
-                    IO.schemaGrid( obj.putObject("schema"), AbstractGridFormat.getDefaultCRS(), false);
-                }
-            }
-            
-            JSONArr layers = obj.putArray("layers");
-            if (store instanceof CoverageStoreInfo) {
-                // coverage store does not respect native name so we search by id
-                for (CoverageInfo info : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {
-                    layers( info, layers );
-                }
-            }
-            else {
-                Filter filter = and(equal("namespace.prefix", ws.getName()),equal("nativeName", resource));
-                try (
-                    CloseableIterator<ResourceInfo> published = cat.list(ResourceInfo.class, filter);
-                ) {
-                    while (published.hasNext()) {
-                        ResourceInfo info = published.next();
-                        if (!info.getStore().getId().equals(store.getId())) {
-                            continue; // native name is not enough, double check store id
-                        }
-                        layers( info, layers );
-                    }
-                }
-            }
+            resource( list.addObject(), store, resource, req);
         }
         return list;
     }
     
+    private JSONObj resource(JSONObj obj, StoreInfo store, String name, HttpServletRequest req) throws IOException {
+        obj.put("name", name);
+        if(store instanceof DataStoreInfo){
+            DataStoreInfo data = (DataStoreInfo) store;
+            
+            @SuppressWarnings("rawtypes")
+            DataAccess dataStore = data.getDataStore(new NullProgressListener());
+            FeatureType schema;
+            org.geotools.data.ResourceInfo info;
+            if (dataStore instanceof DataStore) {
+                schema = ((DataStore) dataStore).getSchema(name);
+                info = ((DataStore) dataStore).getFeatureSource(name).getInfo();
+            } else {
+                NameImpl qname = new NameImpl(name);
+                schema = dataStore.getSchema(qname);
+                info = dataStore.getFeatureSource(qname).getInfo();
+            }
+            String title = info.getTitle() == null
+                    ? WordUtils.capitalize(name)
+                    : info.getTitle();
+            String description = info.getDescription() == null ? "" : info.getDescription();
+            obj.put("title", title);
+            obj.put("description", description);
+            
+            JSONArr keywords = obj.putArray("keywords");
+            keywords.raw().addAll( info.getKeywords() );
+            IO.bounds(obj.putObject("bounds"),info.getBounds());
+            IO.schema(obj.putObject("schema"), schema, false);
+        }
+        if(store instanceof CoverageStoreInfo){
+            CoverageStoreInfo data = (CoverageStoreInfo) store;
+            GridCoverageReader r = data.getGridCoverageReader(null, null);
+            obj.put("title", WordUtils.capitalize(name));
+            obj.put("description", "");
+            if( r instanceof GridCoverage2DReader){
+                GridCoverage2DReader reader = (GridCoverage2DReader) r;
+                CoordinateReferenceSystem crs = reader.getCoordinateReferenceSystem(name);
+                IO.schemaGrid(obj.putObject("schema"), crs, false);
+            }
+            else {
+                IO.schemaGrid( obj.putObject("schema"), AbstractGridFormat.getDefaultCRS(), false);
+            }
+        }
+        
+        JSONArr layers = obj.putArray("layers");
+        Catalog cat = geoServer.getCatalog();
+        if (store instanceof CoverageStoreInfo) {
+            // coverage store does not respect native name so we search by id
+            for (CoverageInfo info : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {
+                layers( info, layers );
+            }
+        }
+        else {
+            Filter filter = and(equal("namespace.prefix", store.getWorkspace().getName()),equal("nativeName", name));
+            try (
+                CloseableIterator<ResourceInfo> published = cat.list(ResourceInfo.class, filter);
+            ) {
+                while (published.hasNext()) {
+                    ResourceInfo info = published.next();
+                    if (!info.getStore().getId().equals(store.getId())) {
+                        continue; // native name is not enough, double check store id
+                    }
+                    layers( info, layers );
+                }
+            }
+        }
+        return obj;
+    }
+
     private JSONObj resource( JSONObj json, ResourceInfo info, boolean details){
         json.put("name", info.getName())
             .put("workspace", info.getStore().getWorkspace().getName() );
@@ -525,7 +545,7 @@ import com.google.common.collect.Iterables;
 
     private JSONObj layer(JSONObj json, LayerInfo info, boolean details) {
         if (details) {
-            IO.layer(json, info);
+            IO.layer(json, info, null);
         } else {
             json.put("name", info.getName()).put("workspace",
                     info.getResource().getStore().getWorkspace().getName());
