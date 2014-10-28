@@ -60,6 +60,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
         GeoServer.map.delete($scope.workspace, map.name, {'name': map.name})
         .then(function(result) {
             if (result.success) {
+              $rootScope.$broadcast(AppEvent.MapsAllUpdated, result.data);
               $rootScope.alerts = [{
                 type: 'success',
                 message: 'Map ' + map.name + ' successfully deleted.',
