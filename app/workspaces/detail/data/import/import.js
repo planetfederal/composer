@@ -95,8 +95,14 @@ angular.module('gsApp.workspaces.data.import', [
       var wsName = $stateParams.workspace;
       $scope.maps = $stateParams.maps;
 
+      $scope.initProgress = function() {
+        $scope.progress = {percent: 0};
+      };
+
       $scope.onFileSelect = function(files) {
         $scope.file = files[0];
+        $scope.setImportResult(null);
+        $scope.initProgress();
       };
       $scope.upload = function() {
         $upload.upload({
@@ -110,7 +116,7 @@ angular.module('gsApp.workspaces.data.import', [
           $scope.storeAdded();
         });
       };
-      $scope.progress = {percent: 0};
+      $scope.initProgress();
     }])
 .controller('DataImportDbCtrl', ['$scope', '$state', '$stateParams', '$log',
     'GeoServer', '_',
