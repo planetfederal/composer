@@ -52,6 +52,7 @@ angular.module('gsApp.workspaces.maps.new', [
                 map.layers.length + ' layer(s).',
               fadeout: true
             }];
+            map.layergroupname = $scope.workspace + ':' + map.name;
             $scope.maps.push(map);
             $rootScope.$broadcast(AppEvent.MapUpdated, {
               'new': map

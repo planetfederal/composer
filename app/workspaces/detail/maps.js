@@ -47,7 +47,7 @@ angular.module('gsApp.workspaces.maps', [
               var layers = '';
               $scope.maps[i].workspace = $scope.workspace;
               $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
-              var bbox = $scope.maps[i].bbox = '&bbox=' + map.bbox.west +
+              var bbox = $scope.maps[i].bboxString = '&bbox=' + map.bbox.west +
                ',' + map.bbox.south + ',' + map.bbox.east + ',' +
                map.bbox.north;
               var url = GeoServer.map.thumbnail.get(map.workspace,
@@ -123,19 +123,34 @@ angular.module('gsApp.workspaces.maps', [
         });
       };
 
+      $rootScope.$on(AppEvent.MapsAllUpdated, function(scope, maps) {
+        if (maps) {
+          $scope.maps = maps;
+        }
+      });
+
       $rootScope.$on(AppEvent.MapUpdated, function(scope, maps) {
         // Update thumbnail if name chanaged
         var _new = maps.new;
         var _original = maps.original;
-        if (_original && _new.name !== _original.name) {
+        if (!_original || _new.name !== _original.name) {
           var url = GeoServer.map.thumbnail.get(_new.workspace,
             _new.layergroupname, $scope.mapThumbsWidth, $scope.mapThumbsHeight);
+          var bbox;
+          if (_new.bboxString) {
+            bbox = _new.bboxString;
+          } else {
+            bbox = '&bbox=' + _new.bbox.west + ',' + _new.bbox.south + ',' +
+              _new.bbox.east + ',' + _new.bbox.north;
+          }
 
-          $scope.thumbnails[_new.name] = url + _new.bbox +
+          $scope.thumbnails[_new.name] = url + bbox +
             '&format=image/png' + '&srs=' + _new.proj.srs;
 
           // remove old thumbnail
-          $scope.thumbnails[_original.name] = null;
+          if (_original) {
+            $scope.thumbnails[_original.name] = null;
+          }
         }
 
       });

@@ -56,7 +56,11 @@ angular.module('gsApp.core.event', [])
    */
   ImportData: 'import-data',
   /**
-   * Fired when map settings are updated
+   * Fired when a single map's settings are updated
    */
-  MapUpdated: 'map-updated'
+  MapUpdated: 'map-updated',
+  /**
+   * Fired when all maps are updated
+   */
+  MapsAllUpdated: 'maps-all-updated'
 });
