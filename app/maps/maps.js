@@ -47,8 +47,8 @@ angular.module('gsApp.maps', [
         var modalInstance = $modal.open({
           templateUrl: '/maps/addnewmap-modal.tpl.html',
           backdrop: 'static',
-          controller: ['$scope', '$window', '$modalInstance',
-            function($scope, $window, $modalInstance) {
+          controller: ['$scope', '$window', '$modalInstance', '$state',
+            function($scope, $window, $modalInstance, $state) {
               $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
               $scope.workspace = ws;
               $scope.mapInfo = {
@@ -73,8 +73,8 @@ angular.module('gsApp.maps', [
               $scope.totalServerItems = [];
 
               $scope.pagingOptions = {
-                pageSizes: [25, 50, 100],
-                pageSize: 25,
+                pageSizes: [10, 50, 100],
+                pageSize: 10,
                 currentPage: 1
               };
 
@@ -89,6 +89,7 @@ angular.module('gsApp.maps', [
 
                 GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
                   function(result) {
+                    $modalInstance.dismiss('cancel');
                     if (result.success) {
                       $rootScope.alerts = [{
                         type: 'success',
@@ -98,12 +99,14 @@ angular.module('gsApp.maps', [
                       }];
                       $scope.maps.push(result.data);
                     } else {
+                      modalInstance.dismiss('cancel');
                       $rootScope.alerts = [{
                         type: 'danger',
                         message: 'Could not create map.',
                         fadeout: true
                       }];
                     }
+                    //$window.location.reload();
                   });
               }; // end createMap
 
@@ -112,6 +115,7 @@ angular.module('gsApp.maps', [
                   workspace: $scope.workspace,
                   maps: [$scope.mapInfo]
                 });
+                $modalInstance.dismiss('cancel');
               };
 
               $scope.cancel = function() {
@@ -127,7 +131,7 @@ angular.module('gsApp.maps', [
                   mapName);
 
                 //Check to see if the incoming mapName already exists for this
-                //  workspace. If it does, show the error, if not, keep going.
+                //workspace. If it does, show the error, if not, hide the error.
                 GeoServer.map.get($scope.workspace, mapName).then(
                   function(result) {
                     if (result.success) {
@@ -165,13 +169,127 @@ angular.module('gsApp.maps', [
               };
               $scope.loadLayers();
 
+              $scope.gridOptions = {
+                data: 'layers',
+                enableCellSelection: false,
+                enableRowSelection: true,
+                enableCellEdit: false,
+                checkboxHeaderTemplate:
+                  '<input class="ngSelectionHeader" type="checkbox"' +
+                    'ng-model="allSelected"' +
+                    'ng-change="toggleSelectAll(allSelected)"/>',
+                sortInfo: {fields: ['name'], directions: ['asc']},
+                showSelectionCheckbox: true,
+                selectWithCheckboxOnly: true,
+                selectedItems: $scope.layerSelections,
+                multiSelect: true,
+                columnDefs: [
+                  {field: 'name', displayName: 'Map Name', width: '150'},
+                  {field: 'title',
+                    displayName: 'Title',
+                    enableCellEdit: true,
+                    cellTemplate:
+                      '<div class="grid-text-padding"' +
+                        'alt="{{row.entity.description}}"' +
+                        'title="{{row.entity.description}}">'+
+                        '{{row.entity.title}}' +
+                      '</div>',
+                    width: '200'
+                  },
+                  {field: 'geometry',
+                    displayName: 'Type',
+                    cellClass: 'text-center',
+                    cellTemplate:
+                      '<div class="grid-text-padding">' +
+                        '{{row.entity.geometry}}' +
+                      '</div>',
+                    width: '100'
+                  },
+                  {field: 'srs',
+                    displayName: 'SRS',
+                    cellClass: 'text-center',
+                    cellTemplate:
+                      '<div class="grid-text-padding">' +
+                        '{{row.entity.proj.srs}}' +
+                      '</div>',
+                    width: '150'
+                  }
+                ],
+                enablePaging: true,
+                enableColumnResize: false,
+                showFooter: true,
+                footerTemplate: '/components/grid/footer.tpl.html',
+                totalServerItems: 'totalServerItems',
+                pagingOptions: $scope.pagingOptions,
+                filterOptions: {
+                  filterText: '',
+                  useExternalFilter: true
+                }
+              };
+
               $scope.setMap = function(map) {
                 $scope.selectedMap = map;
               };
 
               $scope.mapsToCreate = [$scope.mapInfo];
+
+              $scope.setPage = function (page) {
+                $scope.pagingOptions.currentPage = page;
+              };
+
+              $scope.$watch('pagingOptions', function (newVal, oldVal) {
+                if (newVal != null) {
+                  var ws = $scope.workspace.selected;
+                  if (ws != null) {
+                    $scope.refreshLayers(ws);
+                  }
+                }
+              }, true);
             }],
           size: 'lg'
+        });
+      };
+
+      $scope.deleteMap = function(map, ws) {
+        var modalInstance = $modal.open({
+          templateUrl: '/maps/deletemap-modal.tpl.html',
+          controller: ['$scope', '$window', '$modalInstance', '$state',
+            function($scope, $window, $modalInstance, $state) {
+              $scope.workspace = ws.name;
+              $scope.map = map.name;
+
+              $scope.ok = function() {
+                GeoServer.map.remove($scope.workspace, $scope.map).then(
+                  function(result) {
+                    $modalInstance.dismiss('cancel');
+                    if (result.success) {
+                      $rootScope.alerts = [{
+                        type: 'success',
+                        message: 'Map "' + $scope.map + '"" has been deleted ' +
+                          'from the workspace "' + $scope.workspace + '".',
+                        fadeout: true
+                      }];
+                    } else {
+                      $rootScope.alerts = [{
+                        type: 'danger',
+                        message: 'Map "' + $scope.map + '"" could not be ' +
+                          'deleted from the workspace "' +
+                          $scope.workspace + '".',
+                        fadeout: true
+                      }];
+                    }
+                    if ($scope.mapNameCheck.name) {$scope.mapNameError = true;}
+                    else {$scope.mapNameError = false;}
+                  });
+                //$window.location.reload();
+              };
+
+              $scope.cancel = function() {
+                $modalInstance.dismiss('cancel');
+              };
+            }],
+          backdrop: 'static',
+          size: 'med'
         });
       };
 
@@ -193,8 +311,8 @@ angular.module('gsApp.maps', [
       });
 
       $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
-        pageSize: 25
+        pageSizes: [15, 50, 100],
+        pageSize: 15
       };
       $scope.gridSelections = [];
       $scope.gridOptions = {
@@ -259,12 +377,24 @@ angular.module('gsApp.maps', [
               '</div>',
             width: '10%'
           },
-          {field: '', displayName: '', width: '*'},
+          {field: '',
+            displayName: '',
+            cellClass: 'text-center',
+            sortable: false,
+            cellTemplate:
+              '<div ng-class="col.colIndex()">' +
+                '<a ng-click="deleteMap(row.entity, workspace.selected)">' +
+                  '<img ng-src="images/delete.png" alt="Remove Map"' +
+                    'title="Remove Map" />' +
+                '</a>' +
+              '</div>',
+            width: '*'
+          }
         ],
         enablePaging: true,
         enableColumnResize: false,
         showFooter: true,
-        footerTemplate: '/components/grid/ngGrid.custom.footer.tpl.html',
+        footerTemplate: '/components/grid/footer.tpl.html',
         totalServerItems: 'totalServerItems',
         pagingOptions: $scope.pagingOptions,
         filterOptions: {
