@@ -1,6 +1,6 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title">Map Settings for {{ map.name }}</h4>
+    <h4 class="modal-title"><i class="icon-map"></i> {{ map.name }} <i class="fa fa-angle-right" style="padding: 0 5px;"></i> Map Settings</h4>
     <small class="pull-right">* = Required</small>
   </div>
   <div class="modal-body">
@@ -32,7 +32,8 @@
   </div>
   <div class="modal-footer">
     <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
+    <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
+    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty">Update Map Settings</button>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
-    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty">Update Map</button>
   </div>
 </div>

@@ -4,6 +4,27 @@
 
 .new-map {
 
+  .options {
+    margin: 20px auto;
+
+    .lead {
+      .gray {
+        color: @gray;
+      }
+    }
+  }
+
+  .divider {
+    border-left: 1px solid @gray;
+    height: 110px;
+
+    .or {
+      margin-left: -25px;
+      background: #fff;
+      margin-top: 40px;
+    }
+  }
+
   form.new-map-form {
 
     &.form-1 {
@@ -13,12 +34,17 @@
       width: 100%;
     }
 
-    .centered {
-      text-align: center;
-    }
-
     label {
       font-weight: bold;
+
+      .avail-layers {
+        padding:none;
+        dispay: block;
+        float: none;
+        margin-top: 0px;
+        padding: 0px;
+        white-space: normal;
+      }
     }
 
     [name='create-new-layers'] {
@@ -27,6 +53,10 @@
       p {
         margin: 10px auto;
       }
+    }
+
+    #avail-layers-grid {
+      width: 500px;
     }
 
     .crs-warning {

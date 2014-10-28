@@ -275,10 +275,11 @@ angular.module('gsApp.core.backend',[])
             });
           },
 
-          remove: function(workspace, name) {
+          delete: function(workspace, name, data) {
             return http({
               method: 'DELETE',
-              url: apiRoot+'/maps/'+workspace+'/'+name
+              url: apiRoot+'/maps/'+workspace+'/'+name,
+              data: data
             });
           },
 

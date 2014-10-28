@@ -17,7 +17,7 @@
           <p><a ng-click="editMapSettings(map);">Map Settings</a></p>
           <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
         </div>
-        <p ng-if="map.modified.pretty"><strong>Edited:</strong> {{ map.modified.pretty }}</p>
+        <p ng-if="map.modified.pretty"><strong>Last edited:</strong> {{ map.modified.pretty }}</p>
         <p class="abstract" ng-if="map.description"><strong>Description:</strong> {{sanitizeHTML(map.description)}}</p>
       </div>
     </div>
