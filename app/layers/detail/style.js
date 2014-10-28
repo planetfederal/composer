@@ -12,8 +12,9 @@ angular.module('gsApp.layers.style', [
         controller: 'LayerStyleCtrl'
       });
     }])
-.controller('LayerStyleCtrl', ['$scope', '$stateParams', 'GeoServer', '$log',
-    function($scope, $stateParams, GeoServer, $log) {
+.controller('LayerStyleCtrl', ['$scope', '$rootScope', '$stateParams',
+    'GeoServer', '$log',
+    function($scope, $rootScope, $stateParams, GeoServer, $log) {
       var wsName = $stateParams.workspace;
       var layerName = $stateParams.name;
 
@@ -33,7 +34,7 @@ angular.module('gsApp.layers.style', [
             if (result.success == true) {
               $scope.style = result.data;
             } else {
-              $scope.alerts = [{
+              $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Could not retrieve style for layer: ' + layerName
               }];
@@ -41,7 +42,7 @@ angular.module('gsApp.layers.style', [
           });
 
         } else {
-          $scope.alerts = [{
+          $rootScope.alerts = [{
             type: 'danger',
             message: 'Could not retrieve layer info for : ' + layerName
           }];
@@ -56,7 +57,7 @@ angular.module('gsApp.layers.style', [
         GeoServer.style.put(wsName, layerName, content).then(function(result) {
           if (result.success == true) {
             $scope.markers = null;
-            $scope.alerts = [{
+            $rootScope.alerts = [{
               type: 'success',
               message: 'Styled saved.',
               fadeout: true
@@ -67,13 +68,13 @@ angular.module('gsApp.layers.style', [
             if (result.status == 400) {
               // validation error
               $scope.markers = result.data.errors;
-              $scope.alerts = [{
+              $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Style not saved due to error: ' + result.data.message
+                message: 'Style not saved due to validation error'
               }];
             }
             else {
-              $scope.alerts = [{
+              $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Error occurred saving style: ' + result.data.message,
                 details: result.data.trace

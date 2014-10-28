@@ -66,7 +66,7 @@ angular.module('gsApp.maps.compose', [
           .then(function(result) {
             if (result.success == true) {
               $scope.markers = null;
-              $scope.alerts = [{
+              $rootScope.alerts = [{
                 type: 'success',
                 message: 'Styled saved.',
                 fadeout: true
@@ -77,13 +77,13 @@ angular.module('gsApp.maps.compose', [
               if (result.status == 400) {
                 // validation error
                 $scope.markers = result.data.errors;
-                $scope.alerts = [{
+                $rootScope.alerts = [{
                   type: 'danger',
-                  message: 'Style not saved due to errors.'
+                  message: 'Style not saved due to validation error.'
                 }];
               }
               else {
-                $scope.alerts = [{
+                $rootScope.alerts = [{
                   type: 'danger',
                   message: 'Error occurred saving style: ' +
                     result.data.message,

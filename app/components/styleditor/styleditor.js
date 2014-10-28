@@ -70,6 +70,7 @@ angular.module('gsApp.styleditor', [
               newVal.forEach(function(mark) {
                 var html = '<i class="icon-warning" ' +
                   'popover="' + $sanitize(mark.problem) + '" ' +
+                  'popover-placement="left" ' +
                   'popover-trigger="mouseenter" ' +
                   'popover-append-to-body="true"></i>';
 
