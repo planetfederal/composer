@@ -77,6 +77,12 @@ import com.vividsolutions.jts.geom.Geometry;
 public class IO {
 
     static public enum Type {FILE,DATABASE,WEB,GENERIC;
+        public String toString() {
+            return name().toLowerCase();
+        }
+        static Type of( ResourceInfo resource){
+            return of( resource.getStore());
+        }
         static Type of( DataAccessFactory format){
             Set<String> params = new HashSet<String>();
             for (Param info : format.getParametersInfo()) {
@@ -111,13 +117,16 @@ public class IO {
                 }
             }
             Map<String, Serializable> params = store.getConnectionParameters();
-            if( params.containsKey("dbtype")){
+            if(params == null ){
+                return Type.GENERIC;
+            }
+            else if( params.containsKey("dbtype")){
                 return Type.DATABASE;
             }
-            if( store instanceof WMSStoreInfo){
+            else if( store instanceof WMSStoreInfo){
                 return Type.WEB;
             }
-            if( params.keySet().contains("directory") ||
+            else if( params.keySet().contains("directory") ||
                 params.keySet().contains("file") ){
                 
                 return Type.FILE;
@@ -316,6 +325,16 @@ public class IO {
         return obj;
     }
     
+    static Object title(LayerInfo layer) {
+        ResourceInfo r = layer.getResource();
+        return layer.getTitle() != null ? layer.getTitle() : r != null ? r.getTitle() : null;
+    }
+
+    static Object description(LayerInfo layer) {
+        ResourceInfo r = layer.getResource();
+        return layer.getAbstract() != null ? layer.getAbstract() : r != null ? r.getAbstract() : null;
+    }
+
     public static JSONObj layer(JSONObj obj, PublishedInfo layer) {
         if( layer == null ){
             return obj;
@@ -357,8 +376,8 @@ public class IO {
         
         obj.put("name", layer.getName())
                 .put("workspace", wsName)
-                .put("title", layer.getTitle() != null ? layer.getTitle() : r.getTitle())
-                .put("description", layer.getAbstract() != null ? layer.getAbstract() : r.getAbstract())
+                .put("title", title(layer))
+                .put("description", description(layer))
                 .put("type", kind.toString());
         
         JSONArr keywords = new JSONArr();
