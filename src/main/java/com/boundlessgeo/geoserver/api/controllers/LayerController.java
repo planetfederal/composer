@@ -23,6 +23,7 @@ import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
@@ -47,6 +48,7 @@ import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
 import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,6 +58,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.yaml.snakeyaml.error.Mark;
@@ -84,7 +87,10 @@ public class LayerController extends ApiController {
 
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
     public @ResponseBody
-    JSONObj list(@PathVariable String wsName, HttpServletRequest req) {
+    JSONObj list(@PathVariable String wsName, 
+            @RequestParam(value="sort", required=false) String sort, 
+            @RequestParam(value="filter", required=false) String textFilter, 
+            HttpServletRequest req) {
         JSONObj obj = new JSONObj();
 
         Catalog cat = geoServer.getCatalog();
@@ -95,11 +101,31 @@ public class LayerController extends ApiController {
                 wsName = def.getName();
             }
         }
-
         Filter filter = equal("resource.namespace.prefix", wsName);
+        if (textFilter != null) {
+            filter = Predicates.and(
+                equal("resource.namespace.prefix", wsName), 
+                Predicates.fullTextSearch(textFilter));
+        }
         Integer total = cat.count(LayerInfo.class, filter);
         Integer page = page(req);
         Integer count = count(req);
+
+        SortBy sortBy = null;
+        if (sort != null) {
+            String[] sortArr = sort.split(":", 2);
+            if (sortArr.length == 2) {
+                if (sortArr[1].equals("asc")) {
+                    sortBy = Predicates.asc(sortArr[0]);
+                } else if (sortArr[1].equals("desc")) {
+                    sortBy = Predicates.desc(sortArr[0]);
+                } else {
+                    throw new BadRequestException("Sort order must be \"asc\" or \"desc\"");
+                }
+            } else {
+                sortBy = Predicates.asc(sortArr[0]);
+            }
+        }
 
         obj.put("total", total);
         obj.put("page", page != null ? page : 0);
@@ -107,7 +133,7 @@ public class LayerController extends ApiController {
 
         JSONArr arr = obj.putArray("layers");
         try (
-            CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, filter, offset(req), count, null);
+            CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, filter, offset(req), count, sortBy);
         ) {
             while (it.hasNext()) {
                 IO.layer(arr.addObject(), it.next());
