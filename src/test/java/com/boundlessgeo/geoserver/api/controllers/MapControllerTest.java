@@ -63,7 +63,6 @@ public class MapControllerTest {
     public void testCreate() throws Exception {
         MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
-                .vector("sample").workspace()
                 .layer("one").featureType().defaults().store("sample")
             .geoServer().build(geoServer);
 
@@ -163,8 +162,6 @@ public class MapControllerTest {
           .geoServer()
             .catalog()
               .workspace("foo", "http://scratch.org", true)
-                .vector("shape")
-              .workspace()
                 .map("map")
                   .defaults()
                   .info("The map", "This map is cool!")
@@ -213,10 +210,9 @@ public class MapControllerTest {
         @SuppressWarnings("unused")
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
-                .vector("store").source("directory").workspace()
                 .map("map")
                     .defaults()
-                    .layer("one").featureType().defaults().store("store").map()
+                    .layer("one").coverage().defaults().store("store").map()
                     .layer("two").featureType().defaults().store("store")
             .geoServer().build(geoServer);
 
@@ -234,7 +230,7 @@ public class MapControllerTest {
 
         obj = arr.object(1);
         assertEquals("one", obj.str("name"));
-        assertEquals("vector", obj.str("type"));
+        assertEquals("raster", obj.str("type"));
     }
 
     @Test
@@ -242,7 +238,6 @@ public class MapControllerTest {
         @SuppressWarnings("unused")
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
-                .vector("store").workspace()
                 .map("map")
                     .defaults()
                     .layer("one")
