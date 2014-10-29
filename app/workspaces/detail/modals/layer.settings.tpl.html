@@ -1,39 +1,39 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title"><i class="icon-map"></i> {{ map.name }} <i class="fa fa-angle-right" style="padding: 0 5px;"></i> Map Settings</h4>
+    <h4 class="modal-title"><i class="icon-stack"></i> {{ layer.name }} <i class="fa fa-angle-right" style="padding: 0 5px;"></i> Layer Settings</h4>
     <small class="pull-right">* = Required</small>
   </div>
   <div class="modal-body">
     <form name="form.mapSettings" role="form" class="mapSettings">
       <div class="form-group">
-        <label for="mapName">Map Name *</label>
-        <input name="form.mapSettings.name" type="text" class="form-control input-sm" id="mapName" ng-model="map.name">
+        <label for="mapName">Layer Name *</label>
+        <input name="form.mapSettings.name" type="text" class="form-control input-sm" id="mapName" ng-model="layer.name">
         <small>(No spaces, max 10 characters, for web URLs.)</small>
       </div>
       <div class="form-group">
         <label for="mapTitle">Title</label>
-        <input name="form.mapSettings.title" type="text" class="form-control input-sm" id="mapTitle" ng-model="map.title">
+        <input name="form.mapSettings.title" type="text" class="form-control input-sm" id="mapTitle" ng-model="layer.title">
         <small>(Spaces ok, for humans.)</small>
       </div>
       <div class="form-group" id="mapProj">
         <label for="form.mapSettings.crs">
           Projection * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
         </label>
-        <proj-field name="crs" proj="map.proj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
+        <proj-field name="crs" proj="layer.proj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
         <span ng-show="form.mapSettings.crs.$dirty && !form.mapSettings.crs.$error.pattern && !mapSettings.proj.srs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
         <span ng-show="form.mapSettings.crs.$dirty && !form.mapSettings.crs.$error.pattern && mapSettings.crs.$error.required" class="error">Required</span>
         <small>(e.g. EPSG:4326)</small>
       </div>
       <div class="form-group">
         <label for="proj">Description</label>
-        <textarea rows="4" cols="40" class="form-control abstract" name="description" ng-model="map.description"></textarea>
+        <textarea rows="4" cols="40" class="form-control abstract" name="description" ng-model="layer.description"></textarea>
       </div>
     </form>
   </div>
   <div class="modal-footer">
     <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
-    <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
-    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty">Update Map Settings</button>
+    <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Layer</button>
+    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty">Update Layer Settings</button>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
   </div>
 </div>

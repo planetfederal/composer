@@ -1,0 +1,40 @@
+<div class="layers-tab-inner">
+  <h3>Layers</h3>
+  <div class="layers-count">
+    <strong>{{ layers.length }}</strong> Layers<span ng-if="maps.length==0 || maps.length>1">s</span> in <strong>{{ workspace }}</strong>
+  </div>
+  <div class="layers-summary">
+    <div class="row" ng-repeat="row in layers | partition:3">
+      <div class="col-sm-4" ng-repeat="layer in row">
+        <div class="layer-summary-detail">
+          <div class="layer-icon">
+            <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString', 'icon-checkbox-unchecked': layer.geometry=='MultiPolygon', 'icon-delicious': layer.geometry=='raster'}"></i>
+          </div>
+          <div class="detail">
+            <div><strong>{{ layer.name }}</strong></div>
+            <div ng-if="layer.title"><strong>Title:</strong> {{ layer.title }}</div>
+            <div><strong>Projection:</strong> {{ layer.proj.srs }}</div>
+            <div><strong>Last edited:</strong> {{ layer.modified.pretty }}</div>
+            <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
+          </div>
+          <div class="layer-settings">
+            <a ng-click="editLayerSettings(layer);">{{ layer.type | firstCaps }}</a>
+            <a ng-click="showAttrs(layer.name, layer.schema.attributes)">{{ layer.schema.attributes.length }} Attributes</a>
+            <a ng-click="editLayerSettings(layer);"><i class="fa fa-gear"></i> Settings</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div ng-show="layers.length==0">
+    <div class="row">
+      <div class="col-sm-6">
+        <a ng-click="createMap();">
+          <div class="new-layer-box">New Layer
+            <div class="plus">+ <i class="icon-map"></i></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

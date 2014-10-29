@@ -1,5 +1,6 @@
 angular.module('gsApp.workspaces.home', [
   'gsApp.workspaces.maps',
+  'gsApp.workspaces.layers',
   'gsApp.workspaces.data',
   'gsApp.workspaces.settings',
   'gsApp.alertpanel',
@@ -15,12 +16,20 @@ angular.module('gsApp.workspaces.home', [
         });
     }])
 .controller('WorkspaceHomeCtrl', ['$scope','$state', '$stateParams', '$log',
-  '$modal', 'GeoServer', 'AppEvent', '$timeout',
+  '$modal', 'GeoServer', 'AppEvent', '$timeout', '$location',
     function($scope, $state, $stateParams, $log, $modal, GeoServer, AppEvent,
-      $timeout) {
+      $timeout, $location) {
       var wsName = $stateParams.workspace;
 
       $scope.workspace = wsName;
+
+      var loc = $location.path();
+      function isActive(tab) {
+        if (loc.indexOf(tab) > -1) {
+          return true;
+        }
+        return false;
+      }
 
       GeoServer.workspace.get(wsName).then(function(result) {
         $scope.title = wsName;
@@ -29,11 +38,15 @@ angular.module('gsApp.workspaces.home', [
           { heading: 'Maps',
             routeCategory: 'workspace.maps',
             route: 'workspace.maps.main',
-            active: true},
+            active: isActive('maps')},
+          { heading: 'Layers',
+            routeCategory: 'workspace.layers',
+            route: 'workspace.layers.main',
+            active: isActive('layers')},
           { heading: 'Data',
             routeCategory: 'workspace.data',
             route: 'workspace.data.main',
-            active: false},
+            active: isActive('data')}
         ];
 
         $scope.go = function(route) {
