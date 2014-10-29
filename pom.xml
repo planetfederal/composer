@@ -258,7 +258,7 @@
             <resource>
               <directory>target</directory>
               <includes>
-                <include>app/**/*</include>
+                <include>composer/**/*</include>
               </includes>
             </resource>
           </webResources>
