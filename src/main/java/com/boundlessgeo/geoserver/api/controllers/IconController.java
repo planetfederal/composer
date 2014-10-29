@@ -34,7 +34,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.ows.URLMangler.URLType;
-import org.geoserver.ows.util.ResponseUtils;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -157,18 +156,15 @@ public class IconController extends ApiController {
     }
     
 
-    JSONObj icon(JSONObj obj, WorkspaceInfo ws, Resource r, HttpServletRequest request) {
+    JSONObj icon(JSONObj obj, WorkspaceInfo ws, Resource r, HttpServletRequest req) {
         String filename = r.name();
         String ext = fileExt(filename);
         Object format = ICON_FORMATS.get(ext.toLowerCase());
-
-        String baseUrl = ResponseUtils.baseURL(request);
-        String url = ResponseUtils.buildURL(baseUrl, "app/api/icons/"+ws.getName()+"/"+filename, null, URLType.RESOURCE );
         
         obj.put("name", filename)
             .put("format",ext)
             .put("mime",format)
-            .put("url", url);
+            .put("url", IO.url( req,  "app/api/icons/%s/%s", ws.getName(),filename ));
 
         IO.date(obj.putObject("modified"), new Date(r.lastmodified()));
         return obj;

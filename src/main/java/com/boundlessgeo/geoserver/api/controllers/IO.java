@@ -386,11 +386,12 @@ public class IO {
         
         StoreInfo store = r.getStore();
         if( req != null ){
-            String baseURL = ResponseUtils.baseURL(req);
             obj.putObject("resource")
                 .put("name",r.getName())
+                .put("store",store.getName())
+                .put("workspace",wsName)
                 .put("url",
-                     ResponseUtils.buildURL(baseURL, "/geoserver/api/stores/"+wsName+"/"+store.getName()+"/"+r.getName(), null,  URLType.SERVICE )
+                     IO.url(req, "/app/api/stores/%s/%s/%s",wsName, store.getName(),r.getName())
                 );
         }
         
@@ -701,5 +702,15 @@ public class IO {
             return zone.getDisplayName();
         }
         return value.toString();
+    }
+
+    public static Object url(HttpServletRequest req, String path, Object ... args) {
+        if (req == null) {
+            return null;
+        }
+        String baseURL = ResponseUtils.baseURL(req);
+        String relative = String.format(path, args );
+        String resolved = ResponseUtils.buildURL(baseURL, relative, null, URLType.SERVICE);
+        return resolved;
     }
 }

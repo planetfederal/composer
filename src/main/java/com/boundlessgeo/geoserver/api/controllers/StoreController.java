@@ -38,7 +38,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
 import org.geoserver.ows.URLMangler.URLType;
-import org.geoserver.ows.util.ResponseUtils;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Files;
 import org.geoserver.platform.resource.Paths;
@@ -122,8 +121,7 @@ import com.google.common.collect.Iterables;
         JSONObj obj = resource( new JSONObj(), store, name, req);
         obj.putObject("store")
             .put("name", stName )
-            // http://localhost:8080/geoserver/app/api/stores/medford/med_shp/zoning
-            .put("url", ResponseUtils.buildURL( ResponseUtils.baseURL(req), "app/api/stores/"+wsName+"/"+stName, null, URLType.SERVICE));
+            .put("url", IO.url(req, "/app/api/stores/%s/%s",wsName,stName));
         return obj;
     }
     
@@ -421,7 +419,6 @@ import com.google.common.collect.Iterables;
             Catalog cat = geoServer.getCatalog();
             for (LayerInfo l : cat.getLayers(r)) {
                 JSONObj obj = layer(list.addObject(), l, true);
-                
             }
         }
         return list;
@@ -546,9 +543,10 @@ import com.google.common.collect.Iterables;
     private JSONObj layer(JSONObj json, LayerInfo info, boolean details) {
         if (details) {
             IO.layer(json, info, null);
+            // Todo add URL
         } else {
-            json.put("name", info.getName()).put("workspace",
-                    info.getResource().getStore().getWorkspace().getName());
+            json.put("name", info.getName())
+                .put("workspace", info.getResource().getStore().getWorkspace().getName());
         }
         return json;
     }
