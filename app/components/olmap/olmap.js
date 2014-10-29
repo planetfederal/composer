@@ -116,8 +116,8 @@ angular.module('gsApp.olmap', [])
         }, options || {}));
 
         map.getView().on('change:resolution', function(evt) {
-          var res = evt.target.get('resolution');
-          var units = map.getView().get('projection').getUnits();
+          var res = evt.target.getResolution();
+          var units = map.getView().getProjection().getUnits();
           var dpi = 25.4 / 0.28;
           var mpu = ol.proj.METERS_PER_UNIT[units];
           var scale = Math.round(res * mpu * 39.37 * dpi);
