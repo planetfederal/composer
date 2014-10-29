@@ -357,7 +357,7 @@ public class MapController extends ApiController {
                 JSONObj obj = layer(new JSONObj(), l, req);
                 obj.putObject("map")
                     .put("name",  mpName )
-                    .put("url",IO.url(req,"/app/api/maps/%s/%s",wsName,mpName));
+                    .put("url",IO.apiUrl(req,"/maps/%s/%s",wsName,mpName));
                 return obj;
             }
         }
@@ -439,7 +439,7 @@ public class MapController extends ApiController {
             obj.put("workspace", wsName);
             obj.put("name", info.getName());
             obj.put("url",
-                    IO.url(req,"/app/api/layers/%s/%s",wsName,r.getName())
+                    IO.url(req,"/layers/%s/%s",wsName,r.getName())
             );
             obj.put("title", IO.title(info));
             obj.put("description", IO.description(info));
@@ -449,7 +449,7 @@ public class MapController extends ApiController {
             obj.putObject("resource")
                 .put("name",r.getName())
                 .put("url",
-                        IO.url( req, "/app/api/stores/%s/%s/%s",wsName,store.getName(),r.getName())
+                        IO.apiUrl( req, "/stores/%s/%s/%s",wsName,store.getName(),r.getName())
                 );
 
         } else if (l instanceof LayerGroupInfo) {
@@ -457,7 +457,7 @@ public class MapController extends ApiController {
             String wsName = group.getWorkspace().getName();
             obj.put("workspace", wsName);
             obj.put("name", group.getName());
-            obj.put("url", IO.url(req,"/api/layers/%s/%s",wsName,group.getName()) );
+            obj.put("url", IO.apiUrl(req,"/layers/%s/%s",wsName,group.getName()) );
             obj.put("title", group.getTitle());
             obj.put("description", group.getAbstract());
             obj.put("group", group.getMode().name());

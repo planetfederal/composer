@@ -391,7 +391,7 @@ public class IO {
                 .put("store",store.getName())
                 .put("workspace",wsName)
                 .put("url",
-                     IO.url(req, "/app/api/stores/%s/%s/%s",wsName, store.getName(),r.getName())
+                     apiUrl(req, "/stores/%s/%s/%s",wsName, store.getName(),r.getName())
                 );
         }
         
@@ -702,6 +702,10 @@ public class IO {
             return zone.getDisplayName();
         }
         return value.toString();
+    }
+
+    public static Object apiUrl(HttpServletRequest req, String path, Object ... args) {
+        return url(req, "/api" + path , args);
     }
 
     public static Object url(HttpServletRequest req, String path, Object ... args) {
