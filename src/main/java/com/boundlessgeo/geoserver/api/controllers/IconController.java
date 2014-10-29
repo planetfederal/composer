@@ -164,7 +164,7 @@ public class IconController extends ApiController {
         obj.put("name", filename)
             .put("format",ext)
             .put("mime",format)
-            .put("url", IO.apiUrl( req,  "/icons/%s/%s", ws.getName(),filename ));
+            .put("url", IO.url( req,  "/icons/%s/%s", ws.getName(),filename ));
 
         IO.date(obj.putObject("modified"), new Date(r.lastmodified()));
         return obj;
