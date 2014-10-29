@@ -30,8 +30,8 @@ angular.module('gsApp.workspaces.data', [
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
   '$stateParams', '$modal', '$window', '$log', 'GeoServer', '_',
   'AppEvent',
-    function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
-      GeoServer, _, AppEvent) {
+    function($scope, $rootScope, $state, $stateParams, $modal, $log,
+      $window, GeoServer, _, AppEvent) {
 
       var workspace = $scope.workspace;
 
@@ -95,8 +95,7 @@ angular.module('gsApp.workspaces.data', [
 
       $scope.importData = function() {
         $state.go('workspace.data.import', {
-          workspace: $scope.workspace,
-          maps: $scope.maps
+          workspace: $scope.workspace
         });
       };
       $scope.$on(AppEvent.ImportData, function() {
@@ -105,8 +104,7 @@ angular.module('gsApp.workspaces.data', [
 
       $scope.addNewStore = function() {
         $state.go('workspace.data.import.file', {
-          workspace: $scope.workspace,
-          maps: $scope.maps
+          workspace: $scope.workspace
         });
       };
 
@@ -128,7 +126,6 @@ angular.module('gsApp.workspaces.data', [
         if (!$state.is('workspace.data.main')) {
           $state.go('workspace.data.main', {workspace:$scope.workspace});
         }
-
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/data.delete.tpl.html',
           controller: 'WorkspaceDeleteDataCtrl',

@@ -43,7 +43,7 @@ angular.module('gsApp.workspaces.home', [
             routeCategory: 'workspace.layers',
             route: 'workspace.layers.main',
             active: isActive('layers')},
-          { heading: 'Data Stores',
+          { heading: 'Stores',
             routeCategory: 'workspace.data',
             route: 'workspace.data.main',
             active: isActive('data')}

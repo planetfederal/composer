@@ -25,9 +25,9 @@ angular.module('gsApp.workspaces.maps', [
       });
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$log', 'GeoServer', 'AppEvent',
+  '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'mapsListModel',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent) {
+      GeoServer, AppEvent, mapsListModel) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
@@ -40,6 +40,7 @@ angular.module('gsApp.workspaces.maps', [
         function(result) {
           if (result.success) {
             $scope.maps = result.data;
+            mapsListModel.setMaps(result.data);
 
             // load all map thumbnails & metadata
             for (var i=0; i < $scope.maps.length; i++) {
@@ -81,9 +82,8 @@ angular.module('gsApp.workspaces.maps', [
       });
 
     }])
-.controller('MapsMainCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$log', 'GeoServer', '$modal', '$rootScope',
-  'AppEvent', '_',
+.controller('MapsMainCtrl', ['$scope', '$state', '$stateParams', '$sce',
+  '$window', '$log', 'GeoServer', '$modal', '$rootScope', 'AppEvent', '_',
     function($scope, $state, $stateParams, $sce, $window, $log,
       GeoServer, $modal, $rootScope, AppEvent, _) {
 
@@ -154,4 +154,25 @@ angular.module('gsApp.workspaces.maps', [
         }
 
       });
-    }]);
+    }])
+.service('mapsListModel', function(GeoServer) {
+  var _this = this;
+  this.maps = null;
+
+  this.getMaps = function() {
+    return this.maps;
+  };
+
+  this.setMaps = function(maps) {
+    this.maps = maps;
+  };
+
+  this.fetchMaps = function(workspace) {
+    GeoServer.maps.get(workspace).then(
+      function(result) {
+        if (result.success) {
+          _this.setMaps(result.data);
+        }
+      });
+  };
+});
