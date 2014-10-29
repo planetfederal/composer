@@ -130,7 +130,7 @@ angular.module('gsApp.workspaces.maps', [
       });
 
       $rootScope.$on(AppEvent.MapUpdated, function(scope, maps) {
-        // Update thumbnail if name chanaged
+        // Update thumbnail if name changed
         var _new = maps.new;
         var _original = maps.original;
         if (!_original || _new.name !== _original.name) {
@@ -165,6 +165,10 @@ angular.module('gsApp.workspaces.maps', [
 
   this.setMaps = function(maps) {
     this.maps = maps;
+  };
+
+  this.addMap = function(map) {
+    this.maps.push(map);
   };
 
   this.fetchMaps = function(workspace) {

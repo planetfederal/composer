@@ -1,0 +1,54 @@
+<div class="import-newmap">
+  <div class="row">
+    <div class="col-sm-12">
+      <h5 class="title">Create New Map with <strong>{{ selectedLayers.length }} Selected Layers:</strong></h5>
+      <span class="layers-list" ng-repeat="layer in selectedLayers">{{ layer.name }}{{$last ? '' : ', '}}</span>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <form name="newMap" role="form" class="new-map-form">
+        <div class="form-group" name="newMapName">
+          <label for="name">Map Name *</label>
+          <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
+          <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
+          <span ng-show="newMap.name.$error.maxlength" class="error">Max 10 characters allowed.</span>
+          <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
+          <small>(No spaces, max 10 characters, for web URLs.)</small>
+        </div>
+        <div class="form-group" name="newMapTitle">
+          <label for="title">Title</label>
+          <input type="text" class="form-control input-sm" name="title" ng-model="mapInfo.title" ng-model-options="{updateOn: 'blur'}">
+          <small>(Spaces ok, for humans.)</small>
+        </div>
+        <div class="form-group" name="newMapCrs">
+          <label for="map.crs">
+            Projection * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
+          </label>
+          <proj-field name="crs" proj="mapInfo.proj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
+          <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
+          <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
+          <small>(e.g. EPSG:4326)</small>
+        </div>
+        <div class="form-group" name="newMapAbstract">
+          <label for="abstract">Abstract</label>
+          <textarea rows="4" cols="40" class="form-control abstract" name="abstract" ng-model="mapInfo.abstract">Description for map</textarea>
+        </div>
+      </form>
+      <div ng-hide="mapCreated" style="margin-top:15px;"></div>
+      <div ng-show="mapCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Map Created.</div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-10">
+      <div class="form-footer">
+        <small class="pull-left">* = Required</small>
+        <div class="submit-buttons pull-right">
+          <button class="btn btn-default btn-sm">&larr; Back</button>
+          <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+          <button class="btn btn-success btn-sm" ng-click="createMap();" ng-disabled="!newMap.name.$valid && !newMap.crs.$valid">Create New Map</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
