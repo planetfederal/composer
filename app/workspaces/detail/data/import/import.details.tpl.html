@@ -27,13 +27,11 @@
           </ui-select-choices>
         </ui-select>
       </div>
-      <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap(layerSelections)">
-        <span ng-if="!createMap">+ Add to Map</span>
-      </button>
+      <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap(layerSelections)">Add to Map</button>
     </div>
     <div class="col-sm-6 text-center divider">
       <span class="pull-left or">OR</span>
-      <p class="lead"><i class="fa fa-plus gray"></i> Create a New Map:</p>
+      <p class="lead" style="line-height: 3em;">Create a New Map:</p>
       <button class="btn btn-primary btn-sm" ng-click="">New Map &rarr;</button>
     </div>
   </div>

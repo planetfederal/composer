@@ -112,7 +112,7 @@ angular.module('gsApp.workspaces.layers', [
               $scope.formats[formats[i].kind.toLowerCase()].push(formats[i]);
             }
           }
-      });
+        });
 
       $scope.layerType = function(layer) {
         var modalInstance = $modal.open({

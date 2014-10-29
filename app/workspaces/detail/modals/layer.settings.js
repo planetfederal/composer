@@ -35,8 +35,8 @@ angular.module('gsApp.workspaces.layers.settings', [])
             patch.description = $scope.layer.description;
           }
 
-          GeoServer.layer.update($scope.workspace, originalLayer.name, patch).then(
-            function(result) {
+          GeoServer.layer.update($scope.workspace, originalLayer.name, patch)
+          .then(function(result) {
               if (result.success) {
                 $scope.form.layerSettings.saved = true;
                 $scope.form.layerSettings.$setPristine();
@@ -60,7 +60,6 @@ angular.module('gsApp.workspaces.layers.settings', [])
         GeoServer.layer.delete($scope.workspace, layer.name)
         .then(function(result) {
             if (result.success) {
-              console.log(result.data);
               $rootScope.$broadcast(AppEvent.LayersAllUpdated, result.data);
               $rootScope.alerts = [{
                 type: 'success',
