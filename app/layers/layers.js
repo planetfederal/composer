@@ -58,8 +58,7 @@ angular.module('gsApp.layers', [
 })
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state',
     '$log', '$modal', '$window', '$rootScope',
-    function($scope, GeoServer, $state, $log, $modal, $window,
-      $rootScope) {
+    function($scope, GeoServer, $state, $log, $modal, $window, $rootScope) {
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
       $scope.dropdownBoxSelected = '';
@@ -98,7 +97,6 @@ angular.module('gsApp.layers', [
           controller: ['$scope', '$window', '$modalInstance',
             function($scope, $window, $modalInstance) {
               $scope.datastores = GeoServer.datastores.get('ws');
-              $scope.projections = [{name: 'EPSG: 4326'}, {name: 'EPSG: 9999'}];
               $scope.types = [
                 {name: 'line'},
                 {name: 'multi-line'},
@@ -109,7 +107,20 @@ angular.module('gsApp.layers', [
                 {name: 'raster'}
               ];
               $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
+              $scope.crsTooltip =
+              '<h5>Add a projection in EPSG</h5>' +
+              '<p>Coordinate Reference System (CRS) info is available at ' +
+                '<a href="http://prj2epsg.org/search" target="_blank">' +
+                  'http://prj2epsg.org' +
+                '</a>' +
+              '</p>';
               $scope.ws = ws;
+              $scope.mapInfo = {
+                'abstract': ''
+              };
+              $scope.layerInfo = {
+                'abstract': ''
+              };
 
               // Get all of the data stores
               GeoServer.datastores.get(ws).then(
@@ -125,26 +136,41 @@ angular.module('gsApp.layers', [
                   }
                 });
 
-              $scope.ok = function(name, datastore, title, projection, type,
-                extentType, extent) {
-                var layerInfo = {
-                  name: name,
-                  datastore: datastore,
-                  title: title,
-                  projection: projection,
-                  type: type,
-                  extentType: extentType,
-                  extent: extent
-                };
+              $scope.createLayer = function(layer, data, proj, types,
+                extents) {
+                var layerInfo = [];
+                layerInfo.push({
+                  'name': layer.name,
+                  'workspace': $scope.ws,
+                  'datastore': data,
+                  'title': layer.title,
+                  'crs': proj,
+                  'type': types,
+                  'extentType': extents,
+                  'extent': layer.extent
+                });
 
-                $window.alert('TODO: add the new layer: ' + name +
-                  ' to the workspace: ' + $scope.ws + '.');
-                GeoServer.layer.create(
-                  $scope.ws,
-                  layerInfo
-                );
-                $modalInstance.dismiss('cancel');
-              };
+                GeoServer.layer.create($scope.ws, layerInfo).then(
+                  function(result) {
+                    if (result.success) {
+                      $rootScope.alerts = [{
+                        type: 'success',
+                        message: 'Layer ' + result.data.name + ' created.',
+                        fadeout: true
+                      }];
+                      $scope.layers.push(result.data);
+                    } else {
+                      $modalInstance.dismiss('cancel');
+                      $rootScope.alerts = [{
+                        type: 'danger',
+                        message: 'Could not create layer.',
+                        fadeout: true
+                      }];
+                    }
+                    $modalInstance.dismiss('cancel');
+                    //$window.location.reload();
+                  });
+              }; // end createLayer
 
               $scope.cancel = function() {
                 $modalInstance.dismiss('cancel');
@@ -181,8 +207,7 @@ angular.module('gsApp.layers', [
               //      Is this even required here as the user is creating the
               //      layer for the first time and thus there won't be a
               //      thumbnail of this layer yet?
-              $window.alert($scope.Layer.name);
-              if ($scope.layerForm.Layer.name) {
+              /*if ($scope.layerForm.Layer.name) {
                 $scope.thumbnail = GeoServer.map.thumbnail.get($scope.ws,
                   $scope.layer.name, 400, 200);
 
@@ -205,17 +230,40 @@ angular.module('gsApp.layers', [
                       $scope.thumbnail = '';
                     }
                   });
-              }
+              }*/
             }],
           size: 'lg'
         });
       };
 
-      $scope.addSelectedLayerToMap = function(ws, map, gridSelections) {
-        $window.alert('TODO: Add selected layers: ' + gridSelections + ' to ' +
-          ' the map: ' + map + ' and workspace: ' + ws);
-        GeoServer.layer
-          .update({ workspace: ws, name: map}, gridSelections);
+      $scope.addSelectedLayerToMap = function(ws, map, layerSelections) {
+        var layers = [];
+        for (var i=0; i< layerSelections.length; i++) {
+          layers.push({
+            'name': layerSelections[i].name,
+            'workspace': ws
+          });
+        }
+
+        GeoServer.layer.update(ws, map, layers)
+          .then(function(result) {
+            if (result.success) {
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'Map ' + result.data.name + ' updated  with ' +
+                  result.data.layers.length + ' layer(s).',
+                fadeout: true
+              }];
+              $scope.maps.push(result.data);
+            } else {
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Could not add layers to map.',
+                fadeout: true
+              }];
+            }
+            //$window.location.reload();
+          });
       };
 
       $scope.deleteLayer = function(layer) {
@@ -226,7 +274,8 @@ angular.module('gsApp.layers', [
               $scope.layer = layer.name;
 
               $scope.ok = function() {
-                $window.alert('TODO: remove the layer "' + layer.name + '".');
+                $window.alert('TODO: remove the layer "' + layer.name + '"' +
+                  'from the workspace: ' + $scope.workspace.selected + '.');
                 //GeoServer.layer.remove(layer.name);
                 $modalInstance.dismiss('cancel');
               };
@@ -405,13 +454,20 @@ angular.module('gsApp.layers', [
           $scope.pagingOptions.currentPage-1,
           $scope.pagingOptions.pageSize,
           $scope.gridOptions.sortInfo.fields,
-          $scope.gridOptions.sortInfo.directions
+          $scope.gridOptions.sortInfo.directions,
+          $scope.filterOptions.filterText
         ).then(function(result) {
           if (result.success) {
             $scope.layerData = result.data.layers;
             $scope.totalServerItems = result.data.total;
             $scope.itemsPerPage = $scope.pagingOptions.pageSize;
-            $scope.totalItems = $scope.totalServerItems;
+
+            if ($scope.filterOptions.filterText.length > 0) {
+              $scope.totalItems = $scope.gridOptions.ngGrid.filteredRows.length;
+            }
+            else {
+              $scope.totalItems = $scope.totalServerItems;
+            }
           } else {
             $rootScope.alerts = [{
               type: 'warning',
@@ -437,6 +493,11 @@ angular.module('gsApp.layers', [
             }];
           }
         });
+      };
+
+      $scope.updatePaging = function () {
+        var ws = $scope.workspace.selected;
+        $scope.refreshLayers(ws);
       };
 
       $scope.setPage = function (page) {
