@@ -6,6 +6,8 @@ angular.module('gsApp.olmap', [])
       function OLMap(mapOpts, element, options) {
         var self = this;
         this.mapOpts = mapOpts;
+        var progress = mapOpts.progress || function() {};
+        var error = mapOpts.error || function() {};
 
         var layerNames  = this.visibleLayerNames().reverse().join(',');
         var mapLayer = new ol.layer.Image({
@@ -13,6 +15,18 @@ angular.module('gsApp.olmap', [])
             url: GeoServer.baseUrl()+'/'+mapOpts.workspace+'/wms',
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1'},
             serverType: 'geoserver',
+            imageLoadFunction: function(image, src) {
+              var img = image.getImage();
+              img.onload = function() {
+                progress('end');
+              };
+              img.onerror = function() {
+                progress('end');
+                error();
+              };
+              progress('start');
+              img.src = src;
+            }
           })
         });
 
