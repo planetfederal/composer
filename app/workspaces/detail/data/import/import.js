@@ -310,6 +310,12 @@ angular.module('gsApp.workspaces.data.import', [
               '<div class="ngCellText" ng-show="row.entity.success == true">'+
                 '<i class="fa fa-check-circle"></i> Layer imported.' +
               '</div>'
+          },
+          {
+            displayName: '',
+            cellTemplate:
+              '<button ng-click="reimport()" ng-disabled="row.entity.success == true" class="btn btn-success btn-xs">' +
+                '<i class="fa fa-refresh"></i> Re-import</button>'
           }
         ]
       }, baseGridOpts);

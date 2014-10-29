@@ -43,7 +43,7 @@ angular.module('gsApp.workspaces.home', [
             routeCategory: 'workspace.layers',
             route: 'workspace.layers.main',
             active: isActive('layers')},
-          { heading: 'Data',
+          { heading: 'Data Stores',
             routeCategory: 'workspace.data',
             route: 'workspace.data.main',
             active: isActive('data')}
@@ -80,7 +80,7 @@ angular.module('gsApp.workspaces.home', [
         };
 
         $scope.importData = function() {
-          $scope.selectTab($scope.tabs[1]);
+          $scope.selectTab($scope.tabs[2]);
           $scope.tabs[2].active = true;
           $timeout(function() {
             $scope.$broadcast(AppEvent.ImportData);
