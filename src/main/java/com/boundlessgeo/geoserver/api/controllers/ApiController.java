@@ -45,23 +45,8 @@ public abstract class ApiController {
         return new GeoServerDataDirectory(geoServer.getCatalog().getResourceLoader());
     }
 
-    protected Integer page(HttpServletRequest req) {
-        String page = req.getParameter("page");
-        return page != null ? Integer.parseInt(page) : null;
-    }
-
-    protected Integer pageSize(HttpServletRequest req, Integer def) {
-        String size = req.getParameter("pagesize");
-        return size != null ? Integer.parseInt(size) : def;
-    }
-
-    protected Integer offset(HttpServletRequest req) {
-        Integer page = page(req);
-        return page != null ? page * count(req) : null;
-    }
-
-    protected Integer count(HttpServletRequest req) {
-        return pageSize(req, 25);
+    protected Integer offset(Integer page, Integer count) {
+        return page != null ? page * (count != null ? count : DEFAULT_PAGESIZE) : null;
     }
 
     protected WorkspaceInfo findWorkspace(String wsName, Catalog cat) {
