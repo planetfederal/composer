@@ -139,5 +139,13 @@ angular.module('gsApp.core.utilities', [])
     var i = Math.floor(Math.log(bytes) / Math.log(k));
     return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
   };
+})
+.filter('firstCaps', function() {
+  return function(str) {
+    if (str == null) {
+      return null;
+    }
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
 });
 

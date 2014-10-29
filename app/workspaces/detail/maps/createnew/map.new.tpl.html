@@ -19,8 +19,9 @@
             <label for="name">Map Name *</label>
             <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
             <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
+            <span ng-show="newMap.name.$error.maxlength" class="error">Max 10 characters allowed.</span>
             <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
-            <small>(No spaces, max 10 characters.)</small>
+            <small>(No spaces, max 10 characters, for web URLs.)</small>
           </div>
           <div class="form-group" name="newMapTitle">
             <label for="title">Title</label>
@@ -63,7 +64,7 @@
           <div class="submit-buttons pull-right">
             <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
             <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-            <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="step=2;" ng-disabled="!newMap.$valid">Add Layers &rarr;</button>
+            <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="step=2;" ng-disabled="!newMap.name.$valid && !newMap.crs.$valid">Add Layers &rarr;</button>
           </div>
         </div>
       </div>
