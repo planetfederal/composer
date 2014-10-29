@@ -14,8 +14,10 @@ import com.google.common.collect.Iterables;
 
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleHandler;
+import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.resource.Resource;
@@ -30,6 +32,9 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import org.opengis.filter.sort.SortBy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,7 +46,9 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
+import static com.boundlessgeo.geoserver.api.controllers.ApiController.DEFAULT_PAGESIZE;
 import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -89,7 +96,21 @@ public class LayerControllerTest {
                   .featureType().defaults().store("two").workspace()
             .geoServer().build(geoServer);
 
-
+        Catalog catalog = geoServer.getCatalog();
+        final List<LayerInfo> layers = catalog.getLayers();
+        Answer<CloseableIteratorAdapter<LayerInfo>> a = new Answer<CloseableIteratorAdapter<LayerInfo>>() {
+            @Override
+            public CloseableIteratorAdapter<LayerInfo> answer(InvocationOnMock invocation) throws Throwable {
+                return new CloseableIteratorAdapter<LayerInfo>(layers.iterator());
+            }
+        };
+        
+        when(catalog.list(eq(LayerInfo.class), eq(Predicates.and(Predicates.equal("resource.namespace.prefix",
+                "foo"), Predicates.fullTextSearch("o"))), isA(Integer.class), isA(Integer.class), isA(SortBy.class))).thenAnswer(a);
+        
+        when(catalog.count(eq(LayerInfo.class), eq(Predicates.and(Predicates.equal("resource.namespace.prefix",
+                "foo"), Predicates.fullTextSearch(""))))).thenReturn(layers.size());
+        
         MvcResult result = mvc.perform(get("/api/layers/foo"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -115,6 +136,17 @@ public class LayerControllerTest {
                 return "two".equals(JSONWrapper.wrap(o).toObject().str("name"));
             }
         });
+        
+        //Meaningless to test sort order here, since iterator is provided by mockup
+        result = mvc.perform(get("/api/layers/foo?page=0&count=10&sort=name:asc&filter=o"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        
+        result = mvc.perform(get("/api/layers/foo?page=0&count=10&sort=invalidparameter:badrequest&filter=o"))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
     }
 
     @SuppressWarnings("unused")
