@@ -103,9 +103,7 @@ public class LayerController extends ApiController {
         }
         Filter filter = equal("resource.namespace.prefix", wsName);
         if (textFilter != null) {
-            filter = Predicates.and(
-                equal("resource.namespace.prefix", wsName), 
-                Predicates.fullTextSearch(textFilter));
+            filter = Predicates.and(filter, Predicates.fullTextSearch(textFilter));
         }
         Integer total = cat.count(LayerInfo.class, filter);
         Integer page = page(req);
