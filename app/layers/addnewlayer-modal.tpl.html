@@ -3,106 +3,122 @@
     <h4 class="modal-title">Layers > New Layer</h4>
   </div>
   <div class="modal-body">
-    <form name="layerForm" role="form" class="settings">
-      <div class="container">
-        <div class="col-xs-1"><label for="layerName">Layer Name: </label></div>
-        <div class="col-xs-3">
-          <input type="text" class="form-control input-xs" id="layerName" placeholder="Layer Name" ng-model="Layer.name" ng-change="checkName(Layer.name);" required>
-        </div>
-        <div class="col-xs-5">
-          <div ng-if="layerNameError" class="alert-danger">Another layer already has the name '{{Layer.name}}'.</div>
-        </div>
-      </div>
-      <div class="container">
-        <div class="col-xs-9"><fieldset><legend>Data Source</legend></fieldset></div>
-      </div>
-      <div class="container">
-        <div class="col-xs-2"><label for="dataSource">Select an Existing Data Source:</label></div>
-        <div class="col-xs-3">
-          <ui-select ng-model="datastores.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
-            <ui-select-match placeholder="Select a data store...">
-              {{$select.selected.name}}
-            </ui-select-match>
-            <ui-select-choices repeat="datastore in datastores">
-              <span ng-bind-html="datastore.name | highlight: $select.search"></span>
-            </ui-select-choices>
-          </ui-select>
-        </div>
-        <div class="col-xs-1 center-column">OR</div>
-        <div class="col-xs-3">
-          <button type="button" class="btn btn-default" ng-click="addDataSource()" 
-            alt="Add New Data Source" title="Add New Data Source">
-            + New Data Source
-          </button>
-        </div>
-      </div>
-      <div class="container">
-        <div class="col-xs-9"><fieldset><legend>Properties</legend></fieldset></div>
-      </div>
-      <div class="container">
-        <div class="col-xs-1"><label for="layerTitle">Title: </label></div>
-        <div class="col-xs-3">
-          <input type="text" class="form-control input-xs" id="layerTitle" placeholder="(Display Title)" ng-model="Layer.title" required>
-        </div>
-        <div class="col-xs-1"><label for="projection">Projection SRS:</label></div>
-        <div class="col-xs-3">
-          <ui-select ng-model="projections.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
-            <ui-select-match placeholder="Select a projection...">
-              {{$select.selected.name}}
-            </ui-select-match>
-            <ui-select-choices repeat="projection in projections">
-              <span ng-bind-html="projection.name | highlight: $select.search"></span>
-            </ui-select-choices>
-          </ui-select>
-        </div>
-      </div>
-      <div class="container">
-        <div class="col-xs-1"><label for="type">Type:</label></div>
-        <div class="col-xs-3">
-          <ui-select ng-model="types.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
-            <ui-select-match placeholder="Select a layer type...">
-              {{$select.selected.name}}
-            </ui-select-match>
-            <ui-select-choices repeat="type in types">
-              <span ng-bind-html="type.name | highlight: $select.search"></span>
-            </ui-select-choices>
-          </ui-select>
-        </div>
-        <div class="col-xs-5">
-          <button class="btn btn-default btn-sm" ng-click="editOtherSettings()"><img src="images/settings.png" alt="Edit Other Settings" title="Edit Other Settings" /> Edit Other Settings</button>
-          <i>Default settings will be applied.</i>
-        </div>
-      </div>
-      <div class="container">
-        <div class="col-xs-1"><label for="projection">Extent:</label></div>
-        <div class="col-xs-5">
-          <div class="input-group">
-            <div class="input-group-btn">
-              <ui-select class="small-control" ng-model="extents.selected" theme="bootstrap" reset-search-input="false" required>
-                <ui-select-match placeholder="Select an extent...">
+    <div class="row">
+      <div class="col-sm-12">
+        <form name="newLayer" role="form" class="new-map-form form-1">
+          <div class="container">
+            <div class="col-xs-1"><label for="layerName">Layer Name: </label></div>
+            <div class="col-xs-3">
+              <input type="text" class="form-control input-sm" name="name" placeholder="Layer Name" ng-model="layerInfo.name" ng-maxlength="10" ng-minlength="1" ng-change="checkName(layerInfo.name);" ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}" required>
+              <small>(No spaces, max 10 characters.)</small>
+            </div>
+            <div class="col-xs-5">
+              <span ng-show="newLayer.name.$error.pattern" class="alert-danger">No spaces allowed.</span>
+              <span ng-show="newLayer.name.$dirty && newLayer.name.$error.required" class="alert-danger">Required</span>
+              <div ng-if="layerNameError" class="alert-danger">Another layer already has the name '{{layerInfo.name}}'.</div>
+            </div>
+          </div>
+          <div class="container">
+            <div class="col-xs-9"><fieldset><legend>Data Source</legend></fieldset></div>
+          </div>
+          <div class="container">
+            <div class="col-xs-2"><label for="dataSource">Select an Existing Data Source:</label></div>
+            <div class="col-xs-3">
+              <ui-select ng-model="datastores.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
+                <ui-select-match placeholder="Select a data store...">
                   {{$select.selected.name}}
                 </ui-select-match>
-                <ui-select-choices repeat="extent in extents">
-                  <span ng-bind-html="extent.name | highlight: $select.search"></span>
+                <ui-select-choices repeat="datastore in datastores">
+                  <span ng-bind-html="datastore.name | highlight: $select.search"></span>
                 </ui-select-choices>
               </ui-select>
             </div>
-            <input ng-if="extents.selected.name=='Custom'" type="text" class="form-control" id="layerExtent" placeholder="[lower corner, upper corner]" ng-model="Layer.extent" ng-bind-html>
+            <div class="col-xs-1 center-column">OR</div>
+            <div class="col-xs-3">
+              <button type="button" class="btn btn-default" ng-click="addDataSource()"
+                alt="Add New Data Source" title="Add New Data Source">
+                + New Data Source
+              </button>
+            </div>
           </div>
-          <div class="custom-extent-type-warning" ng-if="extents.selected.name=='Custom'" class="alert-warning">'Custom' enables a region on the map to be selected or direct entry.</div>
-        </div>
+          <div class="container">
+            <div class="col-xs-9"><fieldset><legend>Properties</legend></fieldset></div>
+          </div>
+          <div class="container">
+            <div class="col-xs-1"><label for="layerTitle">Title: </label></div>
+            <div class="col-xs-3">
+              <input type="text" class="form-control input-sm" name="title" placeholder="Display title" ng-model="layerInfo.title" ng-model-options="{updateOn: 'blur'}" required>
+            </div>
+            <div class="col-xs-2">
+              <label for="projection">Projection SRS <span class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></span>: </label>
+            </div>
+            <div class="col-xs-3">
+              <proj-field name="crs" proj="layerInfo.proj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
+              <small>(e.g. EPSG:4326)</small>
+            </div>
+            <div class="col-xs-7">
+              <div ng-show="newLayer.crs.$dirty && !newLayer.crs.$error.pattern && !newLayer.crs.$error.required" class="alert-success"><i class="fa fa-check-circle"></i> Valid CRS.</div>
+              <div ng-show="newLayer.crs.$dirty && !newLayer.crs.$error.pattern && newLayer.crs.$error.required" class="alert-danger">Required</div>
+            </div>
+          </div>
+          <br />
+          <div class="container">
+            <div class="col-xs-1"><label for="type">Type:</label></div>
+            <div class="col-xs-3">
+              <ui-select ng-model="types.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false">
+                <ui-select-match placeholder="Select a layer type...">
+                  {{$select.selected.name}}
+                </ui-select-match>
+                <ui-select-choices repeat="type in types">
+                  <span ng-bind-html="type.name | highlight: $select.search"></span>
+                </ui-select-choices>
+              </ui-select>
+            </div>
+            <div class="col-xs-5">
+              <button class="btn btn-default btn-sm" ng-click="editOtherSettings()"><img src="images/settings.png" alt="Edit Other Settings" title="Edit Other Settings" /> Edit Other Settings</button>
+              <i>Default settings will be applied.</i>
+            </div>
+          </div>
+          <br />
+          <div class="container">
+            <div class="col-xs-1"><label for="projection">Extent:</label></div>
+            <div class="col-xs-5">
+              <div class="input-group">
+                <div class="input-group-btn">
+                  <ui-select class="small-control" ng-model="extents.selected" theme="bootstrap" reset-search-input="false" required>
+                    <ui-select-match placeholder="Select an extent...">
+                      {{$select.selected.name}}
+                    </ui-select-match>
+                    <ui-select-choices repeat="extent in extents">
+                      <span ng-bind-html="extent.name | highlight: $select.search"></span>
+                    </ui-select-choices>
+                  </ui-select>
+                </div>
+                <input ng-if="extents.selected.name=='Custom'" type="text" class="form-control" name="layerExtent" placeholder="[lower corner, upper corner]" ng-model="layerInfo.extent" ng-bind-html>
+              </div>
+            </div>
+          </div>
+          <div class="container">
+            <!--TODO: grab a thumbnail if it exists-->
+            <!--<div class="col-xs-4 col-xs-offset-1">
+              <img ng-hide="thumbnail == ''" class="thumbnail" ng-model="thumbnail" ng-src="{{thumbnail}}" alt="Thumbnail View" title="Thumbnail View" />
+            </div>
+          </div>-->
+        </form>
       </div>
-      <div class="container">
-        <!--TODO: grab a thumbnail if it exists-->
-        <div class="col-xs-4 col-xs-offset-1">
-          <img ng-hide="thumbnail == ''" class="thumbnail" ng-model="thumbnail" ng-src="{{thumbnail}}" alt="Thumbnail View" title="Thumbnail View" />
-        </div>
+      <div class="row">
+        <div class="col-sm-8 col-sm-offset-2">
+          <div class="form-footer">
+            <div class="submit-buttons pull-right">
+              <!--<div>Layer Info: {{layerInfo}}</div>-->
+              <!--<button class="btn btn-success btn-sm" ng-click="ok(Layer.name, datastores.selected.name, Layer.title, projections.selected.name, types.selected.name, extents.selected.name, Layer.extent)" ng-disabled="layerForm.$invalid || layerNameError">Save</button>
+              <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>-->
+
+              <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+              <button class="btn btn-success btn-sm" ng-click="createLayer(layerInfo, datastores.selected.name, layerInfo.proj, types.selected.name, extents.selected.name)" ng-disabled="!newLayer.$valid || layerNameError">Create Layer</button>
+            </div>
+          </div>
       </div>
-    </form>
-  </div>
-  <div class="modal-footer">
-    <!--<div>Layer Info: {{layerInfo}}</div>-->
-    <button class="btn btn-success btn-sm" ng-click="ok(Layer.name, datastores.selected.name, Layer.title, projections.selected.name, types.selected.name, extents.selected.name, Layer.extent)" ng-disabled="layerForm.$invalid || layerNameError">Save</button>
-    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    </div>
   </div>
 </div>
