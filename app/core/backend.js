@@ -160,23 +160,6 @@ angular.module('gsApp.core.backend',[])
           }
         },
 
-        formats: {
-          get: function() {
-            return http({
-              method: 'GET',
-              url: apiRoot+'/formats/'
-            });
-          },
-
-          get: function(format) {
-            return http({
-              method: 'GET',
-              url: apiRoot+'/formats/'+format
-            });
-          },
-
-        },
-
         layers: {
           get: function(workspace, page, pagesize) {
             workspace = workspace? workspace : 'default';
@@ -360,9 +343,15 @@ angular.module('gsApp.core.backend',[])
           get: function() {
             return http({
               method: 'GET',
-              url: apiRoot + '/formats'
+              url: apiRoot + '/formats/'
             });
-          }
+          },
+          getFormat: function(format) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/formats/'+format
+            });
+          },
         },
 
         format: {
