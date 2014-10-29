@@ -24,7 +24,7 @@ angular.module('gsApp.workspaces.data', [
         url: '/import',
         templateUrl: '/workspaces/detail/data/import/import.tpl.html',
         controller: 'DataImportCtrl',
-        params: { workspace: {}, maps: { value: null } }
+        params: { workspace: {} }
       });
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
