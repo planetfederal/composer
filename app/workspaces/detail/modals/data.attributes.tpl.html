@@ -1,7 +1,7 @@
 <div>
   <div class="modal-header">
   <h4 class="modal-title"><strong>{{ title }}</strong></h4>
-  <small>{{ attributes.length }} Attributes in this Resource</small>
+  <small>{{ attributes.length }} Attributes</small>
   </div>
   <div class="modal-body">
     <div class="row" ng-if="attributes.length > 20" ng-repeat="row in attributes | partition:3 ">
@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="row" ng-if="attributes.length < 20" ng-repeat="attr in attributes">
-      <div class="col-xs-4 col-xs-offset-4 attr-cols">
+      <div class="col-xs-6 col-xs-offset-3 attr-cols">
         <span class="attr-name">{{ attr.name }}</span>
         <span class="attr-type pull-right">{{ attr.type }}</span>
       </div>

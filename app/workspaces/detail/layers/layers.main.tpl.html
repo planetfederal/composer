@@ -18,7 +18,7 @@
             <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
           </div>
           <div class="layer-settings">
-            <a ng-click="editLayerSettings(layer);">{{ layer.type | firstCaps }}</a>
+            <a ng-click="layerType(layer);">{{ layer.type | firstCaps }}</a>
             <a ng-click="showAttrs(layer.name, layer.schema.attributes)">{{ layer.schema.attributes.length }} Attributes</a>
             <a ng-click="editLayerSettings(layer);"><i class="fa fa-gear"></i> Settings</a>
           </div>
