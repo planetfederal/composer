@@ -27,7 +27,6 @@ import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
-import org.geoserver.ows.URLMangler.URLType;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -280,91 +279,141 @@ public class MapController extends ApiController {
     
     private JSONArr mapLayerList(LayerGroupInfo map, HttpServletRequest req){
         JSONArr arr = new JSONArr();
-        for (PublishedInfo l : layers(map)) {
+        for (PublishedInfo l : Lists.reverse(map.getLayers())) {
             layer(arr.addObject(), l, req);
         }
         return arr;
     }
     @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.GET)
     public @ResponseBody
-    JSONArr mapLayerList(@PathVariable String wsName, @PathVariable String name,
-            HttpServletRequest req) {
-        
+    JSONArr mapLayerListGet(@PathVariable String wsName,
+                            @PathVariable String name, HttpServletRequest req) {
         LayerGroupInfo m = findMap(wsName, name);
         return mapLayerList(m,req);
     }
 
     @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.PUT)
-    public @ResponseBody JSONArr mapLayerList(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONArr layers, HttpServletRequest req) {
+    public @ResponseBody JSONArr mapLayerListPut(@PathVariable String wsName,
+                                                 @PathVariable String name,
+                                                 @RequestBody JSONArr layers, HttpServletRequest req) {
+        Catalog cat = geoServer.getCatalog();
         LayerGroupInfo m = findMap(wsName, name);
 
-        List<MapLayer> mapLayers = new ArrayList<MapLayer>();
-        for (int i = 0; i < m.getLayers().size(); i++) {
-            mapLayers.add(new MapLayer(m.getLayers().get(i), m.getStyles().get(i)));
-        }
-
-        Map<String,MapLayer> map = Maps.uniqueIndex(mapLayers, new Function<MapLayer, String>() {
+        // original
+        List<MapLayer> mapLayers = MapLayer.list(m);
+        Map<String,MapLayer> lookup = Maps.uniqueIndex(mapLayers, new Function<MapLayer, String>() {
             @Nullable
-            @Override
             public String apply(@Nullable MapLayer input) {
                 return input.layer.getName();
             }
         });
-
-        Catalog cat = geoServer.getCatalog();
+        // modified
         List<PublishedInfo> reLayers = new ArrayList<PublishedInfo>();
+        Map<String,PublishedInfo> check = Maps.uniqueIndex(reLayers, new Function<PublishedInfo, String>() {
+            @Nullable
+            public String apply(@Nullable PublishedInfo input) {
+                return input.getName();
+            }
+        });
         List<StyleInfo> reStyles = new ArrayList<StyleInfo>();
-
         for (JSONObj l : Lists.reverse(Lists.newArrayList(layers.objects()))) {
             String layerName = l.str("name");
-            String layerWorkspace = l.str("worskpace");
-
-            MapLayer mapLayer = map.get(layerName);
+            String layerWorkspace = l.str("workspace");
+            MapLayer mapLayer = lookup.get(layerName);
             if (mapLayer == null) {
-                LayerInfo layer = layerWorkspace != null ? cat.getLayerByName(new NameImpl(layerWorkspace, layerName))
-                    : cat.getLayerByName(layerName);
+                LayerInfo layer = findLayer( layerWorkspace, layerName);
                 if (layer != null) {
                     mapLayer = new MapLayer(layer, layer.getDefaultStyle());
                 }
             }
-
             if (mapLayer == null) {
                 throw new NotFoundException("No such layer: " + l.toString());
             }
-
+            if(check.containsKey(layerName)){
+                throw new BadRequestException("Duplicate layer: " + l.toString() );
+            }
             reLayers.add(mapLayer.layer);
             reStyles.add(mapLayer.style);
         }
-
         m.getLayers().clear();
         m.getLayers().addAll(reLayers);
-
         m.getStyles().clear();
         m.getStyles().addAll(reStyles);
-
         cat.save(m);
         return mapLayerList(m,req);
     }
-
-    @RequestMapping(value="/{wsName}/{mpName}/layers/{name}", method = RequestMethod.GET)
-    public @ResponseBody JSONObj mapLayer(@PathVariable String wsName,
-                                          @PathVariable String mpName,
-                                          @PathVariable String name,
-                                          HttpServletRequest req) {
-        LayerGroupInfo map = findMap(wsName, mpName);
-        for (PublishedInfo l : layers(map)) {
-            if( name.equals(l.getName())){
-                JSONObj obj = layer(new JSONObj(), l, req);
-                obj.putObject("map")
-                    .put("name",  mpName )
-                    .put("url",IO.apiUrl(req,"/maps/%s/%s",wsName,mpName));
-                return obj;
+    @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.POST)
+    public @ResponseBody JSONArr mapLayerListPost(@PathVariable String wsName,
+                                                  @PathVariable String name,
+                                                  @RequestBody JSONArr layers, HttpServletRequest req) {
+        Catalog cat = geoServer.getCatalog();
+        LayerGroupInfo m = findMap(wsName, name);
+        List<PublishedInfo> appendLayers = new ArrayList<PublishedInfo>();
+        Map<String,PublishedInfo> check = Maps.uniqueIndex(appendLayers, new Function<PublishedInfo, String>() {
+            @Nullable
+            public String apply(@Nullable PublishedInfo input) {
+                return input.getName();
             }
+        });
+        List<StyleInfo> appendStyles = new ArrayList<StyleInfo>();
+        for (JSONObj l : Lists.reverse(Lists.newArrayList(layers.objects()))) {
+            String layerName = l.str("name");
+            String layerWorkspace = l.str("worskpace");
+            if( check.containsKey(layerName)){
+                throw new BadRequestException("Duplicate layer: " + l.toString() );
+            }
+            LayerInfo layer = findLayer(layerWorkspace, layerName);
+            if (layer == null) {
+                throw new NotFoundException("No such layer: " + l.toString());
+            }
+            appendLayers.add(layer);
+            appendStyles.add(layer.getDefaultStyle());
         }
-        String message = String.format("Unable to locate %s/$s/%s",wsName,mpName,name);
-        throw new NotFoundException(message);
+        m.getLayers().addAll(appendLayers);
+        m.getStyles().addAll(appendStyles);
+        cat.save(m);
+        return mapLayerList(m,req);
     }
+    
+    @RequestMapping(value="/{wsName}/{mpName}/layers/{name}", method = RequestMethod.GET)
+    public @ResponseBody JSONObj mapLayerGet(@PathVariable String wsName,
+                                             @PathVariable String mpName,
+                                             @PathVariable String name, HttpServletRequest req) {
+        LayerGroupInfo map = findMap(wsName, mpName);
+        PublishedInfo layer = findMapLayer( map, name );
         
+        JSONObj obj = layer(new JSONObj(), layer, req);
+        obj.putObject("map")
+            .put("name",  mpName )
+            .put("url",IO.url(req,"/maps/%s/%s",wsName,mpName));
+        return obj;
+    }
+
+    @RequestMapping(value="/{wsName}/{mpName}/layers/{name}", method = RequestMethod.DELETE)
+    public @ResponseBody JSONObj mapLayerDelete(@PathVariable String wsName,
+                                                @PathVariable String mpName,
+                                                @PathVariable String name, HttpServletRequest req) {
+        LayerGroupInfo map = findMap(wsName, mpName);
+        PublishedInfo layer = findMapLayer( map, name );
+        int index = map.layers().indexOf(layer);
+        boolean removed = map.getLayers().remove(layer);
+        if( removed ){
+            map.getStyles().remove(index);
+            Catalog cat = geoServer.getCatalog();
+            cat.save(map);
+            JSONObj delete = new JSONObj()
+                .put("name", layer.getName())
+                .put("removed", removed );
+            return delete;
+        }
+        String message = String.format("Unable to remove map layer %s/$s/%s",map.getWorkspace().getName(),map.getName(),name);
+        throw new IllegalStateException(message);
+    }
+    /**
+     * Confirm layer group matches composer definition of a Map.
+     * @param map
+     * @return true if layergroup can be handled by composer
+     */
     private boolean checkMap(LayerGroupInfo map) {
         if( map.getMode() != Mode.SINGLE ) {
             return false;
@@ -384,11 +433,6 @@ public class MapController extends ApiController {
         return true;
     }
 
-    List<PublishedInfo> layers(LayerGroupInfo map) {
-        List<PublishedInfo> layers = map.getLayers();
-        return Lists.reverse(layers);
-    }
-    
     /** Quick map description suitable for display in a list */
     JSONObj map(JSONObj obj, LayerGroupInfo map, String wsName) {
         obj.put("name", map.getName())
@@ -405,7 +449,7 @@ public class MapController extends ApiController {
             IO.metadata(obj, map);
         }
         else {
-            // Generate metadatabased on resource timestamp
+            // Generate metadata based on resource timestamp
             String path = Paths.path("workspaces", wsName, "layergroups",
                     String.format("%s.xml", map.getName()));
             GeoServerResourceLoader resourceLoader = geoServer.getCatalog().getResourceLoader();
@@ -423,7 +467,7 @@ public class MapController extends ApiController {
     JSONObj mapDetails(JSONObj obj, LayerGroupInfo map, String wsName, HttpServletRequest req) {
         map(obj,map,wsName);
         
-        List<PublishedInfo> published = layers(map);
+        List<PublishedInfo> published = Lists.reverse(map.getLayers());
         JSONArr layers = obj.putArray("layers");
         for (PublishedInfo l : published) {
             layer( layers.addObject(), l, req);
@@ -438,34 +482,56 @@ public class MapController extends ApiController {
             String wsName = r.getNamespace().getPrefix();
             obj.put("workspace", wsName);
             obj.put("name", info.getName());
-            obj.put("url",
-                    IO.url(req,"/layers/%s/%s",wsName,r.getName())
-            );
+            obj.put("url",IO.url(req,"/layers/%s/%s",wsName,r.getName()));
             obj.put("title", IO.title(info));
             obj.put("description", IO.description(info));
             obj.put("type",IO.Type.of(info.getResource()).toString());
-            
             StoreInfo store = r.getStore();
             obj.putObject("resource")
-                .put("name",r.getName())
-                .put("url",
-                        IO.apiUrl( req, "/stores/%s/%s/%s",wsName,store.getName(),r.getName())
+                .put("name",r.getNativeName())
+                .put("workspace",wsName)
+                .put("store",store.getName())
+                    .put("url",
+                         IO.url(req, "/stores/%s/%s/%s", wsName, store.getName(),r.getNativeName())
                 );
-
         } else if (l instanceof LayerGroupInfo) {
             LayerGroupInfo group = (LayerGroupInfo) l;
             String wsName = group.getWorkspace().getName();
             obj.put("workspace", wsName);
             obj.put("name", group.getName());
-            obj.put("url", IO.apiUrl(req,"/layers/%s/%s",wsName,group.getName()) );
+            obj.put("url", IO.url(req,"/layers/%s/%s",wsName,group.getName()) );
             obj.put("title", group.getTitle());
             obj.put("description", group.getAbstract());
+            obj.put("type", "map");
             obj.put("group", group.getMode().name());
             obj.put("layer_count", group.getLayers().size());
         }
         return obj;
     }
     
+    private PublishedInfo findMapLayer( LayerGroupInfo map, String name ){
+        List<PublishedInfo> layers = Lists.reverse(map.getLayers());
+        if( name.matches("\\d+")){
+            try {
+                int index = Integer.parseInt(name);
+                return layers.get(index);
+            }
+            catch(NumberFormatException ignore){
+            }
+            catch(IndexOutOfBoundsException ignore){
+            }
+        }
+        else {
+            for (PublishedInfo l : layers) {
+                if( name.equals(l.getName())){
+                    return l;
+                }
+            }
+        }
+        String message = String.format("Unable to locate map layer %s/$s/%s",map.getWorkspace().getName(),map.getName(),name);
+        throw new NotFoundException(message);
+    }
+
     LayerGroupInfo findMap(String wsName, String name) {
         Catalog cat = geoServer.getCatalog();
         LayerGroupInfo m = cat.getLayerGroupByName(wsName, name);
@@ -474,7 +540,12 @@ public class MapController extends ApiController {
         }
         return m;
     }
-
+    
+    LayerInfo findLayer(String wsName, String name) {
+        Catalog cat = geoServer.getCatalog();
+        return wsName != null ? cat.getLayerByName(new NameImpl(wsName, name)) :
+            cat.getLayerByName(name);
+    }
     static class MapLayer {
         PublishedInfo layer;
         StyleInfo style;
@@ -482,6 +553,47 @@ public class MapController extends ApiController {
         public MapLayer(PublishedInfo layer, StyleInfo style) {
             this.layer = layer;
             this.style = style;
+        }
+        
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((layer == null) ? 0 : layer.getId().hashCode());
+            result = prime * result + ((style == null) ? 0 : style.getId().hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
+            MapLayer other = (MapLayer) obj;
+            if (layer == null) {
+                if (other.layer != null)
+                    return false;
+            } else if (!layer.getId().equals(other.layer.getId()))
+                return false;
+            if (style == null) {
+                if (other.style != null)
+                    return false;
+            } else if (!style.getId().equals(other.style.getId()))
+                return false;
+            return true;
+        }
+
+        static List<MapLayer> list( LayerGroupInfo map ){
+            List<StyleInfo> styles = map.getStyles();
+            List<PublishedInfo> layers = map.getLayers();
+            List<MapLayer> l = new ArrayList<MapLayer>();
+            for (int i = 0; i < map.getLayers().size(); i++) {
+                l.add(new MapLayer(layers.get(i),styles.get(i)));
+            }
+            return l;
         }
     }
 }

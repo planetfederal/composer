@@ -354,16 +354,18 @@ public class IO {
         }
     }
     
-    public static JSONObj layer(JSONObj obj, LayerGroupInfo layer) {
-        String wsName = layer.getWorkspace().getName();
-        obj.put("name", layer.getName())
+    public static JSONObj layer(JSONObj obj, LayerGroupInfo group, HttpServletRequest req) {
+        String wsName = group.getWorkspace().getName();
+        obj.put("name", group.getName())
            .put("workspace", wsName)
-           .put("title", layer.getTitle() )
-           .put("description", layer.getAbstract() )
-           .put("type", layer.getMode().toString() );
+           .put("url", IO.url(req,"/maps/%s/%s",wsName,group.getName()) )
+           .put("title", group.getTitle() )
+           .put("description", group.getAbstract() )
+           .put("type", "map" )
+           .put("group", group.getMode().name());
         
-        proj(obj.putObject("proj"), layer.getBounds().getCoordinateReferenceSystem(), null);
-        bbox(obj.putObject("bbox"), layer);
+        proj(obj.putObject("proj"), group.getBounds().getCoordinateReferenceSystem(), null);
+        bbox(obj.putObject("bbox"), group);
         
         return obj;
     }
@@ -391,7 +393,7 @@ public class IO {
                 .put("store",store.getName())
                 .put("workspace",wsName)
                 .put("url",
-                     apiUrl(req, "/stores/%s/%s/%s",wsName, store.getName(),r.getName())
+                     url(req, "/stores/%s/%s/%s",wsName, store.getName(),r.getName())
                 );
         }
         
@@ -704,16 +706,12 @@ public class IO {
         return value.toString();
     }
 
-    public static Object apiUrl(HttpServletRequest req, String path, Object ... args) {
-        return url(req, "/api" + path , args);
-    }
-
     public static Object url(HttpServletRequest req, String path, Object ... args) {
         if (req == null) {
             return null;
         }
         String baseURL = ResponseUtils.baseURL(req);
-        String relative = String.format(path, args );
+        String relative = String.format("/api"+path, args );
         String resolved = ResponseUtils.buildURL(baseURL, relative, null, URLType.SERVICE);
         return resolved;
     }

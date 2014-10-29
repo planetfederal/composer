@@ -122,7 +122,7 @@ import com.google.common.collect.Iterables;
         JSONObj obj = resource( new JSONObj(), store, name, req);
         obj.putObject("store")
             .put("name", stName )
-            .put("url", IO.apiUrl(req, "/stores/%s/%s",wsName,stName));
+            .put("url", IO.url(req, "/stores/%s/%s",wsName,stName));
         return obj;
     }
     
