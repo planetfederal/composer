@@ -65,6 +65,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.boundlessgeo.geoserver.json.JSONArr;
@@ -127,8 +128,10 @@ import com.google.common.collect.Iterables;
     
     @RequestMapping(value = "/{wsName}/{name}", method = RequestMethod.DELETE)
     public @ResponseBody
-    JSONObj delete(@PathVariable String wsName, @PathVariable String name, HttpServletRequest req) {
-        boolean recurse = "true".equals(req.getParameter("recurse"));
+    JSONObj delete(@PathVariable String wsName,
+                   @PathVariable String name,
+                   @RequestParam(value="recurse",defaultValue="false") boolean recurse,
+                   HttpServletRequest req) {
         StoreInfo store = findStore(wsName, name, geoServer.getCatalog());
         Catalog cat = geoServer.getCatalog();
         
