@@ -13,8 +13,8 @@
     <exec executable="npm" failonerror="true">
        <arg line="install"/>
     </exec>
-    <mkdir dir="target/app"/>
-    <copy todir="target/app">
+    <mkdir dir="target/composer"/>
+    <copy todir="target/composer">
       <fileset dir="build" includes="**/*"/>
     </copy>
   </target>
