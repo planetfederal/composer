@@ -45,6 +45,10 @@
               <style-editor-undo editor="editor"></style-editor-undo>
               <style-editor-atts editor="editor" layer="activeLayer"></style-editor-atts>
             </ul>
+            <span ng-show="isRendering" class="pull-right">
+              <i class="fa fa-spinner fa-spin"></i>
+              Rendering...
+            </span>
           </div>
           <style-editor layer="activeLayer" style="style" editor="editor" markers="markers"></style-editor>
         </div>
