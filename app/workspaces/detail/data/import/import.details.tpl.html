@@ -18,21 +18,28 @@
     </p>
     <div ng-grid="completedGridOpts"></div>
   </div>
-  <div class="map-choice">
-    <div class="map-label">Add Layers above to Map: </div>
-    <div class="map-picker">
-      <ui-select ng-model="map.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false" ng-change="setMap(map.selected);">
-        <ui-select-match placeholder="Select a map...">
-          {{$select.selected.name}}
-        </ui-select-match>
-        <ui-select-choices repeat="map in maps">
-          <span ng-bind-html="map.name | highlight: $select.search"></span>
-        </ui-select-choices>
-      </ui-select>
+
+  <div class="row map-choice">
+    <div class="col-sm-6 text-center">
+      <div class="lead">Add Selected Layers above<br/>to an Existing Map: </div>
+      <div class="map-picker">
+        <ui-select ng-model="map.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false" ng-change="setMap(map.selected);">
+          <ui-select-match placeholder="Select a map...">
+            {{$select.selected.name}}
+          </ui-select-match>
+          <ui-select-choices repeat="map in maps">
+            <span ng-bind-html="map.name | highlight: $select.search"></span>
+          </ui-select-choices>
+        </ui-select>
+      </div>
+      <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap(layerSelections)">
+        <span ng-if="!createMap">+ Add to Map</span>
+      </button>
     </div>
-    <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap(layerSelections)">
-      <span ng-if="!createMap">+ Add to Map</span>
-      <span ng-if="createMap">Create Map with Selected</span>
-    </button>
+    <div class="col-sm-6 text-center divider">
+      <span class="pull-left or">OR</span>
+      <p class="lead"><i class="fa fa-plus gray"></i> Create a New Map:</p>
+      <button class="btn btn-primary btn-sm" ng-click="">New Map &rarr;</button>
+    </div>
   </div>
 </div>

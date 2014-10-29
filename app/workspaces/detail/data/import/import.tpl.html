@@ -16,10 +16,10 @@
       </button>
     </div>
   </div>
-  
+
   <div ui-view></div>
 
-  <div class="import-result text-center" ng-show="importResult != null">
+  <div class="import-result text-center" ng-show="importResult!==null && is('file')">
     <alert ng-if="importResult.imported.length > 0" type="success">
     {{ importResult.imported.length }} layers were successfully imported.
     </alert>
