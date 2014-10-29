@@ -81,7 +81,7 @@ angular.module('gsApp.workspaces.home', [
 
         $scope.importData = function() {
           $scope.selectTab($scope.tabs[1]);
-          $scope.tabs[1].active = true;
+          $scope.tabs[2].active = true;
           $timeout(function() {
             $scope.$broadcast(AppEvent.ImportData);
           }, 100);
