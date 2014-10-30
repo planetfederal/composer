@@ -44,7 +44,7 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         JSONArray arr = obj.getJSONArray("layers");
         assertEquals(3, arr.size());
 
-        obj = (JSONObject) getAsJSON(("/app/api/layers/sf?page=1&pagesize=1"));
+        obj = (JSONObject) getAsJSON(("/app/api/layers/sf?page=1&count=1"));
         arr = obj.getJSONArray("layers");
         assertEquals(1, arr.size());
     }
