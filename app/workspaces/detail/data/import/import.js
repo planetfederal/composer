@@ -323,6 +323,12 @@ angular.module('gsApp.workspaces.data.import', [
               t.success = false;
               return t;
             });
+          } else {
+            $rootScope.alerts = [{
+              type: 'error',
+              message: 'Could not import file.',
+              fadeout: true
+            }];
           }
         });
 
