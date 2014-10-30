@@ -37,6 +37,7 @@ angular.module('gsApp.workspaces.new', [])
                 message: 'Workspace '+ workspace.name +' created.',
                 fadeout: true
               }];
+              $state.go('workspace', {workspace: $scope.workspace.name});
             } else {
               var msg = result.data.message?
                 result.data.message : result.data;
