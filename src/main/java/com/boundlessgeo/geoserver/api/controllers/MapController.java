@@ -478,14 +478,17 @@ public class MapController extends ApiController {
     private JSONObj layer(JSONObj obj, PublishedInfo l, HttpServletRequest req) {
         if (l instanceof LayerInfo) {
             LayerInfo info = (LayerInfo) l;
+            
+            IO.layer(obj, info, req);
+            
             ResourceInfo r = info.getResource();
             String wsName = r.getNamespace().getPrefix();
-            obj.put("workspace", wsName);
-            obj.put("name", info.getName());
+//            obj.put("workspace", wsName);
+//            obj.put("name", info.getName());
             obj.put("url",IO.url(req,"/layers/%s/%s",wsName,r.getName()));
-            obj.put("title", IO.title(info));
-            obj.put("description", IO.description(info));
-            obj.put("type",IO.Type.of(info.getResource()).toString());
+//            obj.put("title", IO.title(info));
+//            obj.put("description", IO.description(info));
+//            obj.put("type",IO.Type.of(info.getResource()).toString());
             StoreInfo store = r.getStore();
             obj.putObject("resource")
                 .put("name",r.getNativeName())
@@ -494,17 +497,20 @@ public class MapController extends ApiController {
                     .put("url",
                          IO.url(req, "/stores/%s/%s/%s", wsName, store.getName(),r.getNativeName())
                 );
+            
         } else if (l instanceof LayerGroupInfo) {
             LayerGroupInfo group = (LayerGroupInfo) l;
-            String wsName = group.getWorkspace().getName();
-            obj.put("workspace", wsName);
-            obj.put("name", group.getName());
-            obj.put("url", IO.url(req,"/layers/%s/%s",wsName,group.getName()) );
-            obj.put("title", group.getTitle());
-            obj.put("description", group.getAbstract());
-            obj.put("type", "map");
-            obj.put("group", group.getMode().name());
-            obj.put("layer_count", group.getLayers().size());
+            
+            IO.layer(obj, group, req);
+//            String wsName = group.getWorkspace().getName();
+//            obj.put("workspace", wsName);
+//            obj.put("name", group.getName());
+//            obj.put("url", IO.url(req,"/layers/%s/%s",wsName,group.getName()) );
+//            obj.put("title", group.getTitle());
+//            obj.put("description", group.getAbstract());
+//            obj.put("type", "map");
+//            obj.put("group", group.getMode().name());
+//            obj.put("layer_count", group.getLayers().size());
         }
         return obj;
     }
