@@ -472,14 +472,16 @@ angular.module('gsApp.workspaces.data.import', [
         GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
           function(result) {
             if (result.success) {
+              var map = result.data;
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Map ' + result.data.name + ' created  with ' +
-                  result.data.layers.length + ' layer(s).',
+                message: 'Map ' + map.name + ' created  with ' +
+                  map.layers.length + ' layer(s).',
                 fadeout: true
               }];
-              mapsListModel.addMap(result.data);
-              $state.go('workspace.maps.main', { workspace: $scope.workspace });
+              mapsListModel.addMap(map);
+              $state.go('map.compose', {workspace: $scope.workspace,
+                name: map.name});
             } else {
               $rootScope.alerts = [{
                 type: 'danger',

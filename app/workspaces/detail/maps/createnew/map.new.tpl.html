@@ -38,13 +38,13 @@
             <small>(e.g. EPSG:4326)</small>
           </div>
           <div class="form-group" name="newMapAbstract">
-            <label for="abstract">Abstract</label>
+            <label for="abstract">Description</label>
             <textarea rows="4" cols="40" class="form-control abstract" name="abstract" ng-model="mapInfo.abstract">Description for map</textarea>
           </div>
         </form>
         <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form form-2">
           <div class="form-group new-layers-group" name="create-new-layers" ng-show="layers.length==0">
-            <p>Available Layers in this workspace: {{ layers.length}}</p>
+            <p>No data in this workspace.</p>
             <button class="btn btn-success btn-sm" ng-click="createNewLayers();">Import Data to Create New Layers &rarr;</button>
           </div>
           <div class="form-group" name="available-layers" ng-show="layers.length > 0">
@@ -58,7 +58,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-sm-8 col-sm-offset-2">
+      <div class="col-sm-10">
         <div class="form-footer">
           <small class="pull-left" ng-show="step==1">* = Required</small>
           <div class="submit-buttons pull-right">

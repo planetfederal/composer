@@ -25,7 +25,7 @@ angular.module('gsApp.sidenav', [
         $scope.sideBottom = {'position': 'relative'};
       } else {
         $scope.sideStyle = {'position': 'absolute'};
-        $scope.sideBottom = {'top': (windowHeight-40) + 'px'};
+        $scope.sideBottom = {'top': (windowHeight-15) + 'px'};
       }
     };
     $scope.onWindowResize();

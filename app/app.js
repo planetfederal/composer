@@ -13,8 +13,7 @@ angular.module('gsApp', [
   'gsApp.home',
   'gsApp.layers',
   'gsApp.workspaces',
-  'gsApp.maps',
-  'gsApp.data'
+  'gsApp.maps'
 ])
 .controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window',
     function($scope, $state, AppEvent, AppSession, $window) {
