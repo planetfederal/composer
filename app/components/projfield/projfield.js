@@ -2,8 +2,8 @@ angular.module('gsApp.projfield', [
   'ui.bootstrap',
   'gsApp.core.backend'
 ])
-.directive('projField', ['$log', '$timeout', '$modal', 'GeoServer',
-    function($log, $timeout, $modal, GeoServer) {
+.directive('projField', ['$log', '$timeout', '$modal', 'GeoServer', '_',
+    function($log, $timeout, $modal, GeoServer, _) {
       return {
         restrict: 'EA',
         scope: {
@@ -13,6 +13,10 @@ angular.module('gsApp.projfield', [
         controller: function($scope, $element) {
           GeoServer.proj.recent().then(function(result) {
             $scope.projList = result.data;
+            var index = _.findIndex($scope.projList, function(proj) {
+              return proj.srs === 'EPSG:4326';
+            });
+            $scope.proj = $scope.projList[index];
           });
 
           $scope.validateProj = function() {

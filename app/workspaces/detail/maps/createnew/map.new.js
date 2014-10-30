@@ -57,7 +57,8 @@ angular.module('gsApp.workspaces.maps.new', [
             $rootScope.$broadcast(AppEvent.MapUpdated, {
               'new': map
             });
-            $state.go('workspace.maps.main');
+            $state.go('map.compose', {workspace: $scope.workspace,
+                name: map.name});
           } else {
             $rootScope.alerts = [{
               type: 'danger',
@@ -109,7 +110,7 @@ angular.module('gsApp.workspaces.maps.new', [
       selectedItems: $scope.layerSelections,
       multiSelect: true,
       columnDefs: [
-        {field: 'name', displayName: 'Layer', width: '20%'},
+        {field: 'name', displayName: 'Layer', width: '30%'},
         {field: 'title',
           displayName: 'Title',
           enableCellEdit: true,
@@ -119,7 +120,7 @@ angular.module('gsApp.workspaces.maps.new', [
               'title="{{row.entity.description}}">' +
               '{{row.entity.title}}' +
             '</div>',
-          width: '20%'
+          width: '30%'
         },
         {field: 'geometry',
           displayName: 'Type',
@@ -128,35 +129,12 @@ angular.module('gsApp.workspaces.maps.new', [
             '<div get-type ' +
               'geometry="{{row.entity.geometry}}">' +
             '</div>',
-          width: '5%'
-        },
-        {field: 'srs',
-          displayName: 'SRS',
-          cellClass: 'text-center',
-          cellTemplate:
-            '<div class="grid-text-padding">' +
-              '{{row.entity.proj.srs}}' +
-            '</div>',
-          width: '7%'
-        },
-        {field: 'settings',
-          displayName: 'Settings',
-          cellClass: 'text-center',
-          sortable: false,
-          cellTemplate:
-            '<div ng-class="col.colIndex()">' +
-              '<a ng-click="onStyleEdit(row.entity)">' +
-                '<i class="fa fa-gear grid-icons" ' +
-                  'alt="Edit Layer Settings" ' +
-                  'title="Edit Layer Settings"></i>' +
-              '</a>' +
-            '</div>',
           width: '10%'
         }
       ],
-      enablePaging: false,
+      enablePaging: true,
       enableColumnResize: false,
-      showFooter: false,
+      showFooter: true,
       totalServerItems: 'totalServerItems',
       pagingOptions: $scope.pagingOptions
     };

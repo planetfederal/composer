@@ -1,6 +1,11 @@
 <div>
   <div class="container-fluid">
-    <h3 class="page-title">{{title}}</h3>
+    <h3 class="page-title"><i class="icon-lg icon-folder-open"></i> {{title}}</h3>
+    <div class="row">
+      <div class="col-sm-6">
+        <p style="margin-top: 20px;">A workspace is a project container which organizes your maps, layers and data together.</p>
+      </div>
+    </div>
     <div class="row">
       <div class="col-sm-6">
         <form name="createform.settings" role="form" class="settings">
@@ -10,12 +15,6 @@
             <span ng-show="createform.settings.name.$error.pattern" class="error">No spaces allowed.</span>
             <span ng-show="createform.settings.name.$error.maxlength" class="error">Max 10 characters.</span>
             <small>(Max 10 characters, no spaces.)</small>
-          </div>
-          <div class="form-group" name="createWorkspace">
-            <label for="workspaceUri">Namespace URI</label>
-            <input type="url" class="form-control input-sm" name="uri" ng-model="workspace.uri" ng-minlength="1" http-prefix>
-            <span ng-show="createform.settings.uri.$error.required" class="error">Required</span>
-            <small>(A unique resource identifier internal to GeoServer)</small>
           </div>
           <div class="checkbox">
             <label>
