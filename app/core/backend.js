@@ -161,14 +161,14 @@ angular.module('gsApp.core.backend',[])
         },
 
         layers: {
-          get: function(workspace, page, pagesize) {
+          get: function(workspace, page, count) {
             workspace = workspace? workspace : 'default';
             page = page? page : 0;
-            pagesize = pagesize? pagesize : 25;
+            count = count? count : 25;
             return http({
               method: 'GET',
               url: apiRoot+'/layers/'+workspace+'?page='+page+
-                '&pagesize='+pagesize
+                '&count='+count
             });
           },
           getAll: function(workspace) {
