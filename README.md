@@ -46,3 +46,17 @@ same directory as `gruntfile.js`. For example:
        "host": "localhost",
        "port": 8080
     }
+
+### Tips and Tricks
+
+Ant build targets:
+
+    Main targets:
+
+     build  Builds project
+     help   Print help
+     serve  Runs GeoServer
+ 
+Use the following to update client side dependencies:
+
+    npn install
