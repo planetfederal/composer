@@ -470,11 +470,19 @@ public class IO {
         }
         else {
             // check if the crs is geographic, if so use lat lon
-            if (r.getCRS() instanceof GeographicCRS) {
+            if (r.getCRS() instanceof GeographicCRS && r.getLatLonBoundingBox() != null) {
                 bounds(bbox.putObject("native"), r.getLatLonBoundingBox());
             }
         }
-        bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());       
+
+        if (r.getLatLonBoundingBox() != null) {
+            bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
+        }
+        else {
+            if (r.getNativeCRS() instanceof GeographicCRS && r.getLatLonBoundingBox() != null) {
+                bounds(bbox.putObject("lonlat"), r.getLatLonBoundingBox());
+            }
+        }
         return bbox;
     }
     
