@@ -58,18 +58,10 @@ angular.module('gsApp.layers', [
 })
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state',
     '$log', '$modal', '$window', '$rootScope',
-    function($scope, GeoServer, $state, $log, $modal, $window,
-      $rootScope) {
+    function($scope, GeoServer, $state, $log, $modal, $window, $rootScope) {
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
       $scope.dropdownBoxSelected = '';
-
-      //Show me an error...just for fun.
-      /*$rootScope.alerts = [{
-        type: 'warning',
-        message: 'Critical error.',
-        fadeout: false
-      }];*/
 
       $scope.onStyleEdit = function(layer) {
         $state.go('layer.style', {
