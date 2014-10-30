@@ -11,11 +11,13 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.icons'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
-    function($compile, $sanitize, $timeout, $log) {
+    'YsldHinter',
+    function($compile, $sanitize, $timeout, $log, YsldHinter) {
       return {
         restrict: 'EA',
         scope: {
-          style: '=?',
+          layer: '=?',
+          style: '=',
           markers: '=?',
           editor: '=?'
         },
@@ -40,7 +42,15 @@ angular.module('gsApp.styleditor', [
             foldGutter: true,
             gutters: ['markers', 'CodeMirror-foldgutter'],
             extraKeys: {
-              'Ctrl-Space': 'autocomplete',
+              'Ctrl-Space': function(cm) {
+                cm.showHint({
+                  hint: function(cm, options) {
+                    return YsldHinter.hints(cm, angular.extend(options, {
+                      layer: $scope.layer
+                    }));
+                  }
+                });
+              },
               'Ctrl-F': function(cm) {
                 var pos = cm.getCursor();
                 while(pos.line > 0 && cm.isFolded(pos)) {
@@ -61,9 +71,6 @@ angular.module('gsApp.styleditor', [
             tabMode: 'spaces'
           };
 
-          $scope.$watch('style', function(newVal) {
-            $scope.style = newVal;
-          });
           $scope.$watch('markers', function(newVal) {
             $scope.editor.clearGutter('markers');
             if (newVal != null) {
@@ -82,8 +89,8 @@ angular.module('gsApp.styleditor', [
         }
       };
     }])
-.run(['YsldHinter', '$log',
-    function(YsldHinter, $log) {
+.run(['$log',
+    function($log) {
       CodeMirror.prototype.insertOrReplace = function(value) {
         if (this.somethingSelected()) {
           // replace the selection
@@ -93,12 +100,5 @@ angular.module('gsApp.styleditor', [
           // insert
           this.replaceRange(value, this.getCursor());
         }
-      };
-      CodeMirror.commands.autocomplete = function(cm) {
-        cm.showHint({
-          hint: function(cm, options) {
-            return YsldHinter.hints(cm, options);
-          }
-        });
       };
     }]);

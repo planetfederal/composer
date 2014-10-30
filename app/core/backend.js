@@ -177,13 +177,6 @@ angular.module('gsApp.core.backend',[])
               method: 'GET',
               url: apiRoot+'/layers/'+workspace
             });
-          },
-          put: function(workspace, map, layers) {
-            return http({
-              method: 'PUT',
-              url: apiRoot+'/maps/'+workspace+'/'+map+'/layers',
-              data: JSON.stringify(layers)
-            });
           }
         },
 
@@ -285,6 +278,13 @@ angular.module('gsApp.core.backend',[])
 
           /* map.layers - For modifying layers in a specific map */
           layers: {
+            get: function(workspace, map, layer) {
+              return http({
+                method: 'GET',
+                url: apiRoot+'/maps/'+workspace+'/'+map+'/layers'
+              });
+            },
+
             add: function(workspace, map, layerData) { // adds to top
               return http({
                 method: 'POST',
@@ -297,6 +297,14 @@ angular.module('gsApp.core.backend',[])
               return http({
                 method: 'DELETE',
                 url: apiRoot+'/maps/'+workspace+'/'+map+'/layers/'+layerName
+              });
+            },
+
+            put: function(workspace, map, layers) {
+              return http({
+                method: 'PUT',
+                url: apiRoot+'/maps/'+workspace+'/'+map+'/layers',
+                data: JSON.stringify(layers)
               });
             }
           },

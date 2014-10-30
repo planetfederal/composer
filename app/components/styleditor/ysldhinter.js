@@ -187,6 +187,14 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'radius'
           ]
         };
+
+        this.values = {
+          'label': function(state, cm) {
+            return state.options.layer.schema.attributes.map(function(att) {
+              return {displayText: att.name, text: '[' + att.name + ']'};
+            });
+          }
+        };
       };
 
       YsldHinter.prototype.strip = function(line) {
@@ -230,15 +238,29 @@ angular.module('gsApp.styleditor.ysldhinter', [])
               });
             }
 
+            if (children.length == 1 && children[0] == state.line) {
+              // look for a value mapping
+              var complete = self.values[state.line];
+              return complete ? complete(state, cm) : [];
+            }
+
             return children.map(function(child) {
               var complete = self.completions[child];
               var text = complete ? complete(child, state, cm) : child;
               if (state.line.length > 0) {
+                // strip off the current element prefix to complete only
+                // the rest
                 text = text.replace(new RegExp('^'+state.line), '');
               }
+              // if (text.match(/^\s*:\s*$/)) {
+              //   // full completion, just return null
+              //   return null;
+              // }
+
               return {displayText: child, text: text};
+            }).filter(function(child) {
+              return child != null;
             });
-            
           }
         }
         return [];
@@ -251,7 +273,8 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         var line = cm.getLine(cursor.line);
         var state = {
           line: this.strip(line),
-          indent: this.indent(line)
+          indent: this.indent(line),
+          options: options
         };
 
         if (cursor.ch == 0) {
@@ -268,7 +291,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
               line: this.strip(parentLine),
               indent: this.indent(parentLine)
             };
-            
+
             hints = this.lookupHints(state, cm);
           }
         }
