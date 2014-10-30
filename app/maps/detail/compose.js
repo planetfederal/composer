@@ -13,10 +13,10 @@ angular.module('gsApp.maps.compose', [
       });
     }])
 .controller('MapComposeCtrl',
-    ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log',
+    ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log', '$state',
     'AppEvent', '$rootScope',
-    function($scope, $stateParams, GeoServer, $timeout, $log, AppEvent,
-      $rootScope) {
+    function($scope, $stateParams, GeoServer, $timeout, $log, $state,
+      AppEvent, $rootScope) {
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;
@@ -125,5 +125,9 @@ angular.module('gsApp.maps.compose', [
           }, 5000);
         }
       });
+
+      $scope.viewWorkspace = function(workspace) {
+        $state.go('workspace', {workspace: workspace});
+      };
 
     }]);

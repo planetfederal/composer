@@ -7,7 +7,7 @@
     <div class="row" ng-repeat="row in maps | partition:2">
       <div class="col-sm-6" ng-repeat="map in row">
         <a href="" ng-click="onEdit(map)">
-          <img ng-src="{{ thumbnails[map.name] }}" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
+          <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
         </a>
         <div class="map-summary-detail">
           <h4>{{ map.name }}</h4>

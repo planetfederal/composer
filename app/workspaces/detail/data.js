@@ -41,24 +41,31 @@ angular.module('gsApp.workspaces.data', [
       function getDataStores() {
         GeoServer.datastores.get($scope.workspace).then(
           function(result) {
-            $scope.datastores = result.data;
+            if (result.success) {
+              $scope.datastores = result.data;
 
-            $scope.datastores.forEach(function(ds) {
-              var format = ds.format.toLowerCase();
-              if (format === 'shapefile') {
-                ds.sourcetype = 'shp';
-              } else if (ds.kind.toLowerCase() === 'raster') {
-                ds.sourcetype = 'raster';
-              } else if (ds.type.toLowerCase() === 'database') {
-                ds.sourcetype = 'database';
-              } else if (format.indexOf('directory of spatial files')!==-1) {
-                ds.sourcetype = 'shp_dir';
+              $scope.datastores.forEach(function(ds) {
+                var format = ds.format.toLowerCase();
+                if (format === 'shapefile') {
+                  ds.sourcetype = 'shp';
+                } else if (ds.kind.toLowerCase() === 'raster') {
+                  ds.sourcetype = 'raster';
+                } else if (ds.type.toLowerCase() === 'database') {
+                  ds.sourcetype = 'database';
+                } else if (format.indexOf('directory of spatial files')!==-1) {
+                  ds.sourcetype = 'shp_dir';
+                }
+              });
+              // select first store as default to show
+              if ($scope.datastores.length > 0) {
+                $scope.selectStore($scope.datastores[0]);
               }
-            });
-
-            // select first store as default to show
-            if ($scope.datastores.length > 0) {
-              $scope.selectStore($scope.datastores[0]);
+            } else {
+              $rootScope.alerts = [{
+                type: 'error',
+                message: 'Stores could not be loaded.',
+                fadeout: true
+              }];
             }
           });
       }
