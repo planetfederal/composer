@@ -88,6 +88,8 @@ public class LayerController extends ApiController {
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
     public @ResponseBody
     JSONObj list(@PathVariable String wsName, 
+            @RequestParam(value="page", required=false) Integer page,
+            @RequestParam(value="count", required=false, defaultValue=""+DEFAULT_PAGESIZE) Integer count,
             @RequestParam(value="sort", required=false) String sort, 
             @RequestParam(value="filter", required=false) String textFilter, 
             HttpServletRequest req) {
@@ -106,8 +108,6 @@ public class LayerController extends ApiController {
             filter = Predicates.and(filter, Predicates.fullTextSearch(textFilter));
         }
         Integer total = cat.count(LayerInfo.class, filter);
-        Integer page = page(req);
-        Integer count = count(req);
 
         SortBy sortBy = null;
         if (sort != null) {
@@ -131,7 +131,7 @@ public class LayerController extends ApiController {
 
         JSONArr arr = obj.putArray("layers");
         try (
-            CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, filter, offset(req), count, sortBy);
+            CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, filter, offset(page, count), count, sortBy);
         ) {
             while (it.hasNext()) {
                 IO.layer(arr.addObject(), it.next(), req);
