@@ -283,6 +283,25 @@ angular.module('gsApp.core.backend',[])
             });
           },
 
+          /* map.layers - For modifying layers in a specific map */
+          layers: {
+            add: function(workspace, map, layerData) { // adds to top
+              return http({
+                method: 'POST',
+                url: apiRoot+'/maps/'+workspace+'/'+map+'/layers',
+                data: layerData
+              });
+            },
+
+            remove: function(workspace, map, layerName) {
+              return http({
+                method: 'DELETE',
+                url: apiRoot+'/maps/'+workspace+'/'+map+'/layers/'+layerName
+              });
+            }
+          },
+
+          // map.thumbnail
           thumbnail: {
             get: function(workspace, layers, width, height) {
               var url = gsRoot + '/wms/reflect?&layers=' + layers;
@@ -296,6 +315,7 @@ angular.module('gsApp.core.backend',[])
             }
           },
 
+          // map.openlayers
           // return an openlayers map URL
           // TODO - not showing getFeatureInfo information as on
           // geoserver OpenLayers template, try to copy that template
@@ -308,7 +328,7 @@ angular.module('gsApp.core.backend',[])
                '&srs=EPSG:4326&format=application/openlayers';
               return url;
             }
-          }
+          },
         },
 
         icons: {
