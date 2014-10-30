@@ -25,17 +25,21 @@ angular.module('gsApp.maps.compose', [
       GeoServer.map.get(wsName, name).then(function(result) {
         var map = result.data;
 
-        $scope.map = map;
-        $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
+        //hack, get the detailed version of the layers
+        GeoServer.map.layers.get(wsName, map.name).then(function(result) {
+          map.layers = result.data;
+          $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
 
-        // map options, extend map obj and add visible flag to layers
-        $scope.mapOpts = angular.extend(map, {
-          layers: map.layers.map(function(l) {
-            l.visible = true;
-            return l;
-          })
+          // map options, extend map obj and add visible flag to layers
+          $scope.map = map;
+          $scope.mapOpts = angular.extend(map, {
+            layers: map.layers.map(function(l) {
+              l.visible = true;
+              return l;
+            })
+          });
+          $scope.numLayers = map.layers.length;
         });
-        $scope.numLayers = map.layers.length;
       });
 
       $scope.toggle = true;
