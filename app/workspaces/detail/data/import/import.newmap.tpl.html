@@ -44,7 +44,7 @@
       <div class="form-footer">
         <small class="pull-left">* = Required</small>
         <div class="submit-buttons pull-right">
-          <button class="btn btn-default btn-sm">&larr; Back</button>
+          <button class="btn btn-default btn-sm" ng-click="back()">&larr; Back</button>
           <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
           <button class="btn btn-success btn-sm" ng-click="createMap();" ng-disabled="!newMap.name.$valid && !newMap.crs.$valid">Create New Map</button>
         </div>
