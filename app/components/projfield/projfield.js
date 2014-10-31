@@ -3,7 +3,8 @@ angular.module('gsApp.projfield', [
   'gsApp.core.backend'
 ])
 .directive('projField', ['$log', '$timeout', '$modal', 'GeoServer', '_',
-    function($log, $timeout, $modal, GeoServer, _) {
+  'projectionModel',
+    function($log, $timeout, $modal, GeoServer, _, projectionModel) {
       return {
         restrict: 'EA',
         scope: {
@@ -13,14 +14,9 @@ angular.module('gsApp.projfield', [
         },
         templateUrl: '/components/projfield/projfield.tpl.html',
         controller: function($scope, $element) {
-          GeoServer.proj.recent().then(function(result) {
-            $scope.projList = result.data;
-            if ($scope.defaultProj) {
-              var index = _.findIndex($scope.projList, function(proj) {
-                return proj.srs === 'EPSG:4326';
-              });
-              $scope.proj = $scope.projList[index];
-            }
+
+          projectionModel.fetchProjections().then(function() {
+            $scope.projList = projectionModel.getProjections();
           });
 
           $scope.validateProj = function() {
@@ -45,9 +41,6 @@ angular.module('gsApp.projfield', [
                 proj: function() {
                   return $scope.proj;
                 },
-                defaultProj: function() {
-                  return $scope.defaultProj;
-                },
                 placeholder: function() {
                   return $scope.placeholder;
                 }
@@ -71,4 +64,49 @@ angular.module('gsApp.projfield', [
           });
         }
       };
-    }]);
+    }])
+.service('projectionModel', function(GeoServer, _) {
+  var _this = this;
+  this.projections = [];
+  this.defaultProjections = [];
+
+  this.getProjections = function() {
+    return this.projections.concat(this.defaultProjections);
+  };
+
+  this.getDefaults = function() {
+    return this.defaultProjections;
+  };
+
+  this.fetchProjections = function() {
+    GeoServer.proj.get('EPSG:4326').then(function(result) {
+      _this.defaultProjections.push(result.data);
+    });
+    GeoServer.proj.get('EPSG:3857').then(function(result) {
+      _this.defaultProjections.push(result.data);
+    });
+    // non-default recently used projections
+    return GeoServer.proj.recent().then(function(result) {
+      _this.projections = _.remove(result.data,
+        function(prj) {
+          return (prj.srs.toLowerCase() !== 'epsg:4326' &&
+            prj.srs.toLowerCase() !== 'epsg:3857');
+        });
+    });
+  };
+})
+.directive('focusMe', function($timeout) {
+  return {
+    scope: { trigger: '=focusMe' },
+    link: function(scope, element) {
+      scope.$watch('trigger', function(value) {
+        if(value === true) {
+          $timeout(function() {
+            element[0].focus();
+            scope.trigger = false;
+          });
+        }
+      });
+    }
+  };
+});

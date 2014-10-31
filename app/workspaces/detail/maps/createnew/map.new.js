@@ -7,13 +7,13 @@ angular.module('gsApp.workspaces.maps.new', [
   'ngGrid'
 ])
 .controller('NewMapCtrl', ['$scope', '$state', '$stateParams', '$rootScope',
-  '$log', 'GeoServer', '$window', 'AppEvent',
-  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer, $window,
-    AppEvent) {
+  '$log', 'GeoServer', '$window', 'AppEvent', 'projectionModel', '_',
+  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
+    $window, AppEvent, projectionModel, _) {
 
     $scope.workspace = $stateParams.workspace;
     $scope.mapInfo = {
-      'abstract': ''
+      'description': ''
     };
     $scope.selectedLayers = [];
     $scope.newMap = {};
@@ -41,6 +41,18 @@ angular.module('gsApp.workspaces.maps.new', [
           'name': layerSelections[i].name,
           'workspace': $scope.workspace
         });
+      }
+      var projs = projectionModel.getDefaults();
+      if ($scope.proj==='mercator') {
+        $scope.mapInfo.proj = _.find(projs, function(proj) {
+          return proj.srs === 'EPSG:3857';
+        });
+      } else if ($scope.proj==='latlon') {
+        $scope.mapInfo.proj = _.find(projs, function(proj) {
+          return proj.srs === 'EPSG:4326';
+        });
+      } else if ($scope.proj==='other') {
+        $scope.mapInfo.proj = $scope.customproj;
       }
 
       GeoServer.map.create($scope.workspace, $scope.mapInfo).then(

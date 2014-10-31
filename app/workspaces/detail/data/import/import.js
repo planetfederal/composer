@@ -187,7 +187,7 @@ angular.module('gsApp.workspaces.data.import', [
               'ng-change="toggleSelectAll(allSelected)"/>',
         sortInfo: {fields: ['name'], directions: ['asc']},
         columnDefs: [
-          {field: 'name', displayName: 'Layer', width: '20%'},
+          {field: 'name', displayName: 'Layer', width: '25%'},
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,
@@ -197,7 +197,7 @@ angular.module('gsApp.workspaces.data.import', [
                 'title="{{row.entity.description}}">' +
                 '{{row.entity.title}}' +
               '</div>',
-            width: '20%'
+            width: '30%'
           },
           {field: 'geometry',
             displayName: 'Type',
@@ -205,29 +205,6 @@ angular.module('gsApp.workspaces.data.import', [
             cellTemplate:
               '<div get-type ' +
                 'geometry="{{row.entity.geometry}}">' +
-              '</div>',
-            width: '5%'
-          },
-          {field: 'srs',
-            displayName: 'SRS',
-            cellClass: 'text-center',
-            cellTemplate:
-              '<div class="grid-text-padding">' +
-                '{{row.entity.proj.srs}}' +
-              '</div>',
-            width: '7%'
-          },
-          {field: 'settings',
-            displayName: 'Settings',
-            cellClass: 'text-center',
-            sortable: false,
-            cellTemplate:
-              '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onStyleEdit(row.entity)">' +
-                  '<i class="fa fa-gear grid-icons" ' +
-                    'alt="Edit Layer Settings" ' +
-                    'title="Edit Layer Settings"></i>' +
-                '</a>' +
               '</div>',
             width: '10%'
           },
@@ -240,7 +217,7 @@ angular.module('gsApp.workspaces.data.import', [
                 'ng-class="col.colIndex()">' +
                 '<a ng-click="onStyleEdit(row.entity)">Edit</a>' +
               '</div>',
-            width: '7%'
+            width: '10%'
           },
           {field: '',
             displayName: '',
@@ -259,7 +236,7 @@ angular.module('gsApp.workspaces.data.import', [
         ],
         enablePaging: true,
         enableColumnResize: false,
-        showFooter: false,
+        showFooter: true,
         totalServerItems: 'importedLayers.length',
         pagingOptions: {
           pageSize: 10,

@@ -20,9 +20,9 @@ angular.module('gsApp.workspaces.layers', [
       });
     }])
 .controller('WorkspaceLayersCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$log', 'GeoServer', 'AppEvent',
+  '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'layersListModel',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent) {
+      GeoServer, AppEvent, layersListModel) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
@@ -33,7 +33,9 @@ angular.module('gsApp.workspaces.layers', [
       GeoServer.layers.get($scope.workspace).then(
         function(result) {
           if (result.success) {
-            $scope.layers = result.data.layers;
+            var layers = result.data.layers;
+            layersListModel.setLayers(layers);
+            $scope.layers = layers;
           } else {
             $scope.alerts = [{
               type: 'danger',
@@ -98,6 +100,10 @@ angular.module('gsApp.workspaces.layers', [
         });
       };
 
+      $scope.createLayer = function() {
+        $state.go('workspace.data.import.file', {workspace: $scope.workspace});
+      };
+
       // Get Formats Info
       $scope.formats = {
         'vector': [],
@@ -132,35 +138,41 @@ angular.module('gsApp.workspaces.layers', [
         });
       };
 
-      $rootScope.$on(AppEvent.MapsAllUpdated, function(scope, maps) {
-        if (maps) {
-          $scope.maps = maps;
+      $rootScope.$on(AppEvent.LayersAllUpdated, function(scope, layers) {
+        if (layers) {
+          $scope.layers = layers;
         }
       });
 
-      $rootScope.$on(AppEvent.MapUpdated, function(scope, maps) {
-        // Update thumbnail if name chanaged
-        var _new = maps.new;
-        var _original = maps.original;
-        if (!_original || _new.name !== _original.name) {
-          var url = GeoServer.map.thumbnail.get(_new.workspace,
-            _new.layergroupname, $scope.mapThumbsWidth, $scope.mapThumbsHeight);
-          var bbox;
-          if (_new.bboxString) {
-            bbox = _new.bboxString;
-          } else {
-            bbox = '&bbox=' + _new.bbox.west + ',' + _new.bbox.south + ',' +
-              _new.bbox.east + ',' + _new.bbox.north;
-          }
+    }])
+.service('layersListModel', function(GeoServer, _) {
+  var _this = this;
+  this.layers = null;
 
-          $scope.thumbnails[_new.name] = url + bbox +
-            '&format=image/png' + '&srs=' + _new.proj.srs;
+  this.getLayers = function() {
+    return this.layers;
+  };
 
-          // remove old thumbnail
-          if (_original) {
-            $scope.thumbnails[_original.name] = null;
-          }
+  this.setLayers = function(layers) {
+    this.layers = layers;
+  };
+
+  this.addLayer = function(layer) {
+    this.layers.push(layer);
+  };
+
+  this.removeLayer = function(layer) {
+    _.remove(_this.layers, function(_layer) {
+      return _layer.name === layer.name;
+    });
+  };
+
+  this.fetchLayers = function(workspace) {
+    GeoServer.layers.get(workspace).then(
+      function(result) {
+        if (result.success) {
+          _this.setLayers(result.data);
         }
-
       });
-    }]);
+  };
+});

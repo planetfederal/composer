@@ -1,8 +1,9 @@
 angular.module('gsApp.workspaces.layers.settings', [])
 .controller('EditLayerSettingsCtrl', ['workspace', 'layer', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer', 'AppEvent',
+  'layersListModel',
     function(workspace, layer, $scope, $rootScope, $state, $log, $modalInstance,
-      GeoServer, AppEvent) {
+      GeoServer, AppEvent, layersListModel) {
 
       $scope.workspace = workspace;
       $scope.layer = layer;
@@ -56,11 +57,13 @@ angular.module('gsApp.workspaces.layers.settings', [])
         }
       };
 
-      $scope.deleteLayer = function (layer) {
+      $scope.removeLayer = function (layer) {
         GeoServer.layer.delete($scope.workspace, layer.name)
         .then(function(result) {
             if (result.success) {
-              $rootScope.$broadcast(AppEvent.LayersAllUpdated, result.data);
+              layersListModel.removeLayer(layer);
+              $rootScope.$broadcast(AppEvent.LayersAllUpdated,
+                layersListModel.getLayers());
               $rootScope.alerts = [{
                 type: 'success',
                 message: 'Layer ' + layer.name + ' successfully deleted.',
