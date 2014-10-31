@@ -145,6 +145,7 @@ angular.module('gsApp.core.utilities', [])
     if (str == null) {
       return null;
     }
+    str = str.toLowerCase();
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
 });
