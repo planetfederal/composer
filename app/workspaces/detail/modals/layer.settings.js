@@ -1,9 +1,9 @@
 angular.module('gsApp.workspaces.layers.settings', [])
 .controller('EditLayerSettingsCtrl', ['workspace', 'layer', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer', 'AppEvent',
-  'layersListModel',
-    function(workspace, layer, $scope, $rootScope, $state, $log, $modalInstance,
-      GeoServer, AppEvent, layersListModel) {
+  'layersListModel', '$sce',
+    function(workspace, layer, $scope, $rootScope, $state, $log,
+      $modalInstance, GeoServer, AppEvent, layersListModel, $sce) {
 
       $scope.workspace = workspace;
       $scope.layer = layer;
@@ -19,6 +19,12 @@ angular.module('gsApp.workspaces.layers.settings', [])
           'http://prj2epsg.org' +
         '</a>' +
       '</p>';
+
+      $scope.getGeoServerLink = function() {
+        var url = GeoServer.baseUrl() +'/web/?wicket:bookmarkablePage=:org.' + 'geoserver.web.data.resource.ResourceConfigurationPage&name=' + layer.name + '&wsName=' + $scope.workspace;
+        $scope.layer.link = url;
+      };
+      $scope.getGeoServerLink();
 
       $scope.saveChanges = function() {
         if ($scope.form.layerSettings.$dirty) {
