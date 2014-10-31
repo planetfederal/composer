@@ -14,7 +14,9 @@
           required ng-pattern="/^(epsg|EPSG):[0-9]+$/"
           typeahead="p.srs for p in projList | filter:$viewValue"
           placeholder="e.g. EPSG:2263"
-          ></input>
+          ng-focus="$parent.proj = 'other'"
+          focus-me="$parent.custom.proj"
+          />
           <span class="success" ng-show="valid === true">
             <i class="fa fa-check-circle"></i>
             <a ng-click="showProjWKT()">Valid CRS</a>

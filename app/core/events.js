@@ -62,5 +62,9 @@ angular.module('gsApp.core.event', [])
   /**
    * Fired when all maps are updated
    */
-  MapsAllUpdated: 'maps-all-updated'
+  MapsAllUpdated: 'maps-all-updated',
+  /**
+   * Fire when layers list in a workspace is updated
+   */
+  LayersAllUpdated: 'layers-all-updated'
 });
