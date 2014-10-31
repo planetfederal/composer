@@ -21,7 +21,9 @@ angular.module('gsApp.workspaces.layers.settings', [])
       '</p>';
 
       $scope.getGeoServerLink = function() {
-        var url = GeoServer.baseUrl() +'/web/?wicket:bookmarkablePage=:org.' + 'geoserver.web.data.resource.ResourceConfigurationPage&name=' + layer.name + '&wsName=' + $scope.workspace;
+        var url = GeoServer.baseUrl() +'/web/?wicket:bookmarkablePage=:org.' +
+          'geoserver.web.data.resource.ResourceConfigurationPage&name=' +
+          layer.name + '&wsName=' + $scope.workspace;
         $scope.layer.link = url;
       };
       $scope.getGeoServerLink();

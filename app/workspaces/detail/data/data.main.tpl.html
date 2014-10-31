@@ -31,19 +31,19 @@
   <div class="col-sm-6">
     <div>
       <p class="x-imported">
-        <span style="float:left;" ng-show="selectedStore && selectedStore.enabled"><strong>Resources:</strong> {{ selectedStore.layers.length }} / {{ selectedStore.resources.length }} imported as layers</span>
-        <span style="float:left;" ng-show="selectedStore && !selectedStore.enabled">Store is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</span>
+        <div><strong>Type:</strong> <a ng-click="getTypeDetails(selectedStore)">{{ selectedStore.format }}</a></div>
+        <div ng-show="selectedStore && !selectedStore.enabled">Store is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
       </p>
       <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Source:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
       <div class="resources">
         <ul class="list-unstyled">
           <li class="singleResource" ng-repeat="rsrc in selectedStore.resources">
-            <h5>Resource: {{ rsrc.name }}</h5>
-            <div class="rsrc_info"><strong>Data Schema:</strong><a ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);"> {{ rsrc.schema.attributes.length }} Attributes <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i></a></div>
+            <div>Resource: <strong>{{ rsrc.name }}</strong></div>
+            <div class="rsrc_info">Data Schema: <a ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);"> {{ rsrc.schema.attributes.length }} Attributes <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i></a></div>
             <div ng-if="rsrc.proj.srs" class="rsrc_info"><strong>Projection:</strong> {{ rsrc.proj.srs }}</div>
             <div ng-if="rsrc.layers.length > 0">
-              <div class="info">Used in Layers:
-                <span ng-repeat="layer in rsrc.layers"> {{ layer }}{{$last ? '' : ', '}}</span>
+              <div class="info">Layers Using:
+                <span style="margin-left: 5px;" ng-repeat="layer in rsrc.layers"> {{ layer.name }}{{$last ? '' : ', '}}</span>
               </div>
             </div>
             <div ng-if="rsrc.layers.length==0">

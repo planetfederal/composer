@@ -1,6 +1,5 @@
 angular.module('gsApp.workspaces.layers', [
   'gsApp.workspaces.layers.settings',
-  'gsApp.workspaces.layers.type',
   'gsApp.alertpanel',
   'gsApp.core.utilities',
   'ngSanitize'
@@ -151,40 +150,6 @@ angular.module('gsApp.workspaces.layers', [
               }];
             }
           });
-      };
-
-      // Get Formats Info
-      $scope.formats = {
-        'vector': [],
-        'raster': [],
-        'service': []
-      };
-      GeoServer.formats.get().then(
-        function(result) {
-          if (result.success) {
-            var formats = result.data;
-            for (var i=0; i < formats.length; i++) {
-              $scope.formats[formats[i].kind.toLowerCase()].push(formats[i]);
-            }
-          }
-        });
-
-      $scope.layerType = function(layer) {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.type.tpl.html',
-          controller: 'LayerTypeInfoCtrl',
-          backdrop: 'static',
-          size: 'md',
-          resolve: {
-            formats: function() {
-              return $scope.formats;
-            },
-            layer: function() {
-              return layer;
-            },
-
-          }
-        });
       };
 
       $rootScope.$on(AppEvent.LayersAllUpdated, function(scope, layers) {

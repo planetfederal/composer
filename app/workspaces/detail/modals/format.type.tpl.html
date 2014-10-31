@@ -1,0 +1,13 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">{{ resource.format }}</h4>
+  </div>
+  <div class="modal-body">
+    <p><strong>Kind:</strong> {{ format.kind | firstCaps }}</p>
+    <p><strong>Type:</strong> {{ format.type | firstCaps }}</p>
+    <p><strong>Description:</strong> {{ format.description }}</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+  </div>
+</div>

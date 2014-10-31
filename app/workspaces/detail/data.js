@@ -2,6 +2,7 @@ angular.module('gsApp.workspaces.data', [
   'gsApp.workspaces.data.delete',
   'gsApp.workspaces.data.update',
   'gsApp.workspaces.data.import',
+  'gsApp.workspaces.formats.type',
   'gsApp.workspaces.data.attributes',
   'gsApp.core.utilities',
   'gsApp.alertpanel',
@@ -205,6 +206,37 @@ angular.module('gsApp.workspaces.data', [
             }
           }
         });
+      };
 
+       // Get Formats Info
+      $scope.formats = {
+        'vector': [],
+        'raster': [],
+        'service': []
+      };
+      GeoServer.formats.get().then(
+        function(result) {
+          if (result.success) {
+            var formats = result.data;
+            for (var i=0; i < formats.length; i++) {
+              $scope.formats[formats[i].kind.toLowerCase()].push(formats[i]);
+            }
+          }
+        });
+      $scope.getTypeDetails = function(resource) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/format.type.tpl.html',
+          controller: 'FormatTypeInfoCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            formats: function() {
+              return $scope.formats;
+            },
+            resource: function() {
+              return resource;
+            }
+          }
+        });
       };
     }]);
