@@ -28,6 +28,10 @@
         <label for="proj">Description</label>
         <textarea rows="4" cols="40" class="form-control abstract" name="description" ng-model="layer.description"></textarea>
       </div>
+      <div class="form-group">
+        <label for="more-settings">Advanced Settings</label>
+        <div><a type="button" class="btn btn-default btn-sm" ng-href="{{ layer.link }}" target="_blank">GeoServer Admin Layer Settings</a></div>
+      </div>
     </form>
   </div>
   <div class="modal-footer">
