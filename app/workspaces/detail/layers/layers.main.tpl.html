@@ -32,12 +32,14 @@
           </div>
           <div class="detail">
             <div><strong>{{ layer.name }}</strong></div>
-            <div ng-if="layer.title"><strong>Title:</strong> {{ layer.title }}</div>
+            <div ng-if="layer.title">{{ layer.title }}</div>
             <div><strong>Last edited:</strong> {{ layer.modified.pretty }}</div>
             <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
           </div>
           <div class="layer-settings">
-            <a ng-click="layerType(layer);">{{ layer.type | firstCaps }}</a>
+            <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})">
+              <i class="fa fa-paint-brush"></i> Style
+            </a>
             <a ng-click="showAttrs(layer.name, layer.schema.attributes)">{{ layer.schema.attributes.length }} Attributes</a>
             <a ng-click="editLayerSettings(layer);"><i class="fa fa-gear"></i> Settings</a>
           </div>

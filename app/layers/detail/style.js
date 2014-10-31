@@ -13,11 +13,12 @@ angular.module('gsApp.layers.style', [
       });
     }])
 .controller('LayerStyleCtrl', ['$scope', '$rootScope', '$stateParams',
-    'GeoServer', '$log',
-    function($scope, $rootScope, $stateParams, GeoServer, $log) {
+    'GeoServer', 'AppEvent', '$log',
+    function($scope, $rootScope, $stateParams, GeoServer, AppEvent, $log) {
       var wsName = $stateParams.workspace;
       var layerName = $stateParams.name;
 
+      $rootScope.$broadcast(AppEvent.ToggleSidenav);
       GeoServer.layer.get(wsName, layerName).then(function(result) {
         if (result.success == true) {
           $scope.layer = result.data;
