@@ -56,12 +56,12 @@
 
   .map-layers {
     padding-top: 5px;
-    width: 0px;
+    max-width: 0px;
     box-shadow: inset -5px -1px 5px -3px @dark-gray;
     overflow: hidden;
     position: relative;
     float: left;
-    .transition(width, 0.4s, ease-in-out);
+    .transition(max-width, 0.4s, ease-in-out);
 
     h6.title {
       color: @white;
@@ -98,7 +98,8 @@
   }
 
   .map-layers.show {
-    width: 20%;
+    width: auto;
+    max-width: 50%;
     height: 100%;
     margin-left: 5px;
   }
