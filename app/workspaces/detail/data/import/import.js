@@ -302,7 +302,7 @@ angular.module('gsApp.workspaces.data.import', [
             });
           } else {
             $rootScope.alerts = [{
-              type: 'error',
+              type: 'danger',
               message: 'Could not import file.',
               fadeout: true
             }];
@@ -395,8 +395,8 @@ angular.module('gsApp.workspaces.data.import', [
             }
           }
         }
-        GeoServer.map.layers.add($scope.workspace, mapInfo.name, mapInfo.layers)
-        .then(function(result) {
+        GeoServer.map.layers.add($scope.workspace,
+          mapInfo.name, mapInfo.layers).then(function(result) {
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
@@ -409,9 +409,9 @@ angular.module('gsApp.workspaces.data.import', [
                 name: mapInfo.name});
             } else {
               $rootScope.alerts = [{
-                type: 'error',
-                message: 'Layer(s) could not be added to map ' + mapInfo.name +
-                  '.',
+                type: 'danger',
+                message: 'Layer(s) could not be added to map ' +
+                  mapInfo.name + '.',
                 fadeout: true
               }];
             }
@@ -435,7 +435,6 @@ angular.module('gsApp.workspaces.data.import', [
             'http://prj2epsg.org' +
           '</a>' +
         '</p>';
-
 
       $scope.back = function() {
         $state.go('workspace.data.import.details', {

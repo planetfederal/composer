@@ -4,7 +4,26 @@
 
 .layers-tab-inner {
   .layers-count {
+    display: inline-block;
+  }
+  .add-to-map {
+    display: inline-block;
+    margin-top: -25px;
     margin-bottom: 20px;
+
+    .add-label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .map-picker {
+      display: inline-block;
+      margin-right: 10px;
+
+      .ui-select-bootstrap {
+        width: 200px;
+      }
+    }
   }
   .layers-summary {
     margin-bottom: 40px;
@@ -27,6 +46,7 @@
       box-shadow: 2px 2px 4px #999;
       margin-bottom: 10px;
       width: 100%;
+      cursor: pointer;
 
       .layer-icon {
         display: inline-block;
@@ -45,7 +65,7 @@
       }
       .detail {
         display: inline-block;
-        padding: 5px 10px 5px 0;
+        padding: 10px 10px 5px 0;
         div {
           line-height: 20px;
         }

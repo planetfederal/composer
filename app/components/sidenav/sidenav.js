@@ -115,7 +115,7 @@ angular.module('gsApp.sidenav', [
     $rootScope.$on(AppEvent.ServerError,
       function(scope, error) {
         $scope.alerts.push({
-          type: 'error',
+          type: 'danger',
           message: 'Server not responding ' + error.status + ': ' +
            error.data,
           fadeout: true

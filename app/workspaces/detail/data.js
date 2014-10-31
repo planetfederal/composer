@@ -62,7 +62,7 @@ angular.module('gsApp.workspaces.data', [
               }
             } else {
               $rootScope.alerts = [{
-                type: 'error',
+                type: 'danger',
                 message: 'Stores could not be loaded.',
                 fadeout: true
               }];
