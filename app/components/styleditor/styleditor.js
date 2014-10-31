@@ -61,12 +61,38 @@ angular.module('gsApp.styleditor', [
                   scanUp: true
                 });
               },
-              'Tab': function(cm) {
-                // replace tabs with spaces
-                var spaces =
-                  new Array(cm.getOption('indentUnit') + 1).join(' ');
-                cm.replaceSelection(spaces);
+              // tab remapping taken from:
+              //   https://gist.github.com/danieleds/326903084a196055a7c3
+              'Tab': function (cm) {
+                if (cm.somethingSelected()) {
+                  var sel = cm.getSelection('\n');
+                  var cur = cm.getCursor();
+
+                  // Indent only if there are multiple lines selected,
+                  // or if the selection spans a full line
+                  if (sel.length > 0 && (sel.indexOf('\n') > -1 ||
+                    sel.length === cm.getLine(cur.line).length)) {
+                    cm.indentSelection('add');
+                    return;
+                  }
+                }
+
+                if (cm.options.indentWithTabs) {
+                  cm.execCommand('insertTab');
+                }
+                else {
+                  cm.execCommand('insertSoftTab');
+                }
+              },
+              'Shift-Tab': function (cm) {
+                cm.indentSelection('subtract');
               }
+              // 'Tab': function(cm) {
+              //   // replace tabs with spaces
+              //   var spaces =
+              //     new Array(cm.getOption('indentUnit') + 1).join(' ');
+              //   cm.replaceSelection(spaces);
+              // }
             },
             tabMode: 'spaces'
           };
