@@ -9,7 +9,7 @@
     description="Builds project">
   </target>
 
-  <target name="build-client">
+  <target name="build-client" description="builds client">
     <exec executable="npm" failonerror="true">
        <arg line="install"/>
     </exec>
@@ -18,7 +18,7 @@
       <fileset dir="build" includes="**/*"/>
     </copy>
   </target>
-  <target name="build-server">
+  <target name="build-server" description="builds and installs server">
     <antcall target="mvn">
         <param name="goals" value="install"/>
     </antcall>
