@@ -172,7 +172,7 @@ angular.module('gsApp.workspaces.maps', [
   };
 
   this.fetchMaps = function(workspace) {
-    GeoServer.maps.get(workspace).then(
+    return GeoServer.maps.get(workspace).then(
       function(result) {
         if (result.success) {
           _this.setMaps(result.data);

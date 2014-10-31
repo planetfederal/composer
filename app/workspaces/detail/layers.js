@@ -61,11 +61,14 @@ angular.module('gsApp.workspaces.layers', [
     }])
 .controller('LayersMainCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', '$modal', '$rootScope',
-  'AppEvent', '_',
+  'AppEvent', '_', 'mapsListModel',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, $modal, $rootScope, AppEvent, _) {
+      GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel) {
 
       $scope.workspace = $stateParams.workspace;
+      mapsListModel.fetchMaps($scope.workspace).then(function() {
+        $scope.maps = mapsListModel.getMaps();
+      });
 
       $scope.showAttrs = function(layerOrResource, attributes) {
         var modalInstance = $modal.open({
@@ -101,7 +104,53 @@ angular.module('gsApp.workspaces.layers', [
       };
 
       $scope.createLayer = function() {
-        $state.go('workspace.data.import.file', {workspace: $scope.workspace});
+        $state.go('workspace.data.import.file', {
+          workspace: $scope.workspace
+        });
+      };
+
+      $scope.setMap = function(map) {
+        $scope.selectedMap = map;
+      };
+
+      $scope.addSelectedToMap = function() {
+        var map = $scope.selectedMap;
+        var mapInfo = {
+          'name': map.name,
+          'proj': map.proj,
+          'description': map.description
+        };
+        mapInfo.layers = [];
+        for (var k=0; k < $scope.layers.length; k++) {
+          var layer = $scope.layers[k];
+          if (layer.selected) {
+            mapInfo.layers.push({
+              'name': layer.name,
+              'workspace': $scope.workspace
+            });
+          }
+        }
+        GeoServer.map.layers.add($scope.workspace, mapInfo.name,
+          mapInfo.layers).then(function(result) {
+            if (result.success) {
+              $rootScope.alerts = [{
+                type: 'success',
+                message: result.data.length + ' layer(s) added to map ' +
+                  mapInfo.name + '.',
+                fadeout: true
+              }];
+              mapsListModel.addMap(result.data);
+             // $state.go('map.compose', {workspace: map.workspace,
+              //  name: mapInfo.name});
+            } else {
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Layer(s) could not be added to map ' +
+                  mapInfo.name + '.',
+                fadeout: true
+              }];
+            }
+          });
       };
 
       // Get Formats Info
