@@ -20,6 +20,7 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.map = {};
     $scope.title = 'New Map';
     $scope.step = 1;
+    $scope.proj = 'mercator';
 
     $scope.crsTooltip =
       '<h5>Add a projection in EPSG</h5>' +

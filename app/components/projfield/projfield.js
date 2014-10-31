@@ -7,16 +7,20 @@ angular.module('gsApp.projfield', [
       return {
         restrict: 'EA',
         scope: {
-          proj: '='
+          proj: '=',
+          defaultProj: '=',
+          placeholder: '='
         },
         templateUrl: '/components/projfield/projfield.tpl.html',
         controller: function($scope, $element) {
           GeoServer.proj.recent().then(function(result) {
             $scope.projList = result.data;
-            var index = _.findIndex($scope.projList, function(proj) {
-              return proj.srs === 'EPSG:4326';
-            });
-            $scope.proj = $scope.projList[index];
+            if ($scope.defaultProj) {
+              var index = _.findIndex($scope.projList, function(proj) {
+                return proj.srs === 'EPSG:4326';
+              });
+              $scope.proj = $scope.projList[index];
+            }
           });
 
           $scope.validateProj = function() {
@@ -40,6 +44,12 @@ angular.module('gsApp.projfield', [
               resolve: {
                 proj: function() {
                   return $scope.proj;
+                },
+                defaultProj: function() {
+                  return $scope.defaultProj;
+                },
+                placeholder: function() {
+                  return $scope.placeholder;
                 }
               }
             });
