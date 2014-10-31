@@ -30,7 +30,10 @@ angular.module('gsApp.olmap', [])
         var size = [element.width(),element.height()];
 
         // scale control
-        var scaleControl = $('<div>').addClass('ol-scale')[0];
+        var scaleControl = $('<div>')
+          .addClass('ol-scale')
+          .prop('title', 'Copy scale denominator')
+          [0];
         new ZeroClipboard(scaleControl).on('copy', function(event) {
           var clipboard = event.clipboardData;
           clipboard.setData('text/plain',
