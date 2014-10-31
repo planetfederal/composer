@@ -96,6 +96,22 @@ angular.module('gsApp.olmap', [])
             $(boundsButton).click();
           });
 
+          var ZoomLevelControl = function() {
+            ol.control.Control.call(this, {
+              element: $('<div>')
+                .addClass('zoomlevel')
+                .prop('title', 'Current zoom level')
+                [0]
+            });
+          };
+          ol.inherits(ZoomLevelControl, ol.control.Control);
+          ZoomLevelControl.prototype.setMap = function(map) {
+            map.on('postrender', function() {
+              $(this.element).html('Z' + map.getView().getZoom());
+            }, this);
+            ol.control.Control.prototype.setMap.call(this, map);
+          };
+
         var map = new ol.Map(angular.extend({
           target: element[0],
           view: new ol.View({
@@ -111,7 +127,8 @@ angular.module('gsApp.olmap', [])
               element: extentControl,
               extent: extent
             }),
-            new ol.control.Control({element: boundsControl})
+            new ol.control.Control({element: boundsControl}),
+            new ZoomLevelControl()
           ])
         }, options || {}));
 
