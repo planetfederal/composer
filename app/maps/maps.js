@@ -191,7 +191,7 @@ angular.module('gsApp.maps', [
         enablePaging: true,
         enableColumnResize: false,
         showFooter: true,
-        footerTemplate: '/components/grid/ngGrid.custom.footer.tpl.html',
+        footerTemplate: '/components/grid/footer.tpl.html',
         totalServerItems: 'totalServerItems',
         pagingOptions: $scope.pagingOptions,
         filterOptions: {
