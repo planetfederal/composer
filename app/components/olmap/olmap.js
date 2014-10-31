@@ -1,4 +1,4 @@
-/*global window, document, ZeroClipboard, $ */
+/*global window, document, ZeroClipboard, XMLHttpRequest, Uint8Array, $ */
 angular.module('gsApp.olmap', [])
 .factory('MapFactory',
     ['GeoServer', 'AppEvent', '$timeout', '$rootScope', '$log',
@@ -38,7 +38,7 @@ angular.module('gsApp.olmap', [])
                       error(data);
                     }
                   } else {
-                    error(this.statusText)
+                    error(this.statusText);
                   }
                   progress('end');
                 };
@@ -259,6 +259,10 @@ angular.module('gsApp.olmap', [])
             $scope.map.update();
           }, true);
 
+          $scope.$watch('mapOpts.bounds', function(newVal) {
+            // TODO: Andreas, zoom the map the specified bounds, but it might 
+            // be in a different projection than the map
+          });
           $scope.$on('olmap-refresh', function() {
             $scope.map.refresh();
           });
