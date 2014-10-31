@@ -13,10 +13,10 @@ angular.module('gsApp.maps.compose', [
       });
     }])
 .controller('MapComposeCtrl',
-    ['$scope', '$stateParams', 'GeoServer', '$timeout', '$log', '$state',
-    'AppEvent', '$rootScope',
-    function($scope, $stateParams, GeoServer, $timeout, $log, $state,
-      AppEvent, $rootScope) {
+    ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$compile',
+    '$log', 'AppEvent', 'GeoServer',
+    function($scope, $rootScope, $state, $stateParams, $timeout, $compile,
+      $log, AppEvent, GeoServer) {
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;
@@ -51,6 +51,7 @@ angular.module('gsApp.maps.compose', [
               if (state == 'end') {
                 $scope.isRendering = false;
               }
+              $scope.$apply();
             }
           });
         });
@@ -72,6 +73,26 @@ angular.module('gsApp.maps.compose', [
           layerState[activeLayer.name].style = $scope.style;
         }
         $scope.activeLayer = layer;
+      };
+
+      $scope.zoomToLayer = function(layer) {
+        $scope.mapOpts.bounds = layer.bbox.native;
+      };
+      $scope.removeLayer = function(layer, index) {
+        GeoServer.map.layers.delete(wsName, $scope.map.name, layer.name)
+          .then(function(result) {
+            if (result.success) {
+              $scope.map.layers.splice(index, 1);
+            }
+            else {
+              var err = result.data;
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Unable to delete layer from map: ' + err.message,
+                details: err
+              }];
+            }
+          });
       };
 
       $scope.refreshMap = function() {
