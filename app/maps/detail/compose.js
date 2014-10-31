@@ -30,28 +30,29 @@ angular.module('gsApp.maps.compose', [
           map.layers = result.data;
           $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
 
-        // map options, extend map obj and add visible flag to layers
-        $scope.map = map;
-        $scope.mapOpts = angular.extend(map, {
-          layers: map.layers.map(function(l) {
-            l.visible = true;
-            return l;
-          }),
-          error: function(err) {
-            $rootScope.alerts = [{
-               type: 'danger',
-               message: 'Map rendering error',
-               details: err
-            }];
-          },
-          progress: function(state) {
-            if (state == "start") {
-              $scope.isRendering = true;
+          // map options, extend map obj and add visible flag to layers
+          $scope.map = map;
+          $scope.mapOpts = angular.extend(map, {
+            layers: map.layers.map(function(l) {
+              l.visible = true;
+              return l;
+            }),
+            error: function(err) {
+              $rootScope.alerts = [{
+                 type: 'danger',
+                 message: 'Map rendering error',
+                 details: err
+              }];
+            },
+            progress: function(state) {
+              if (state == 'start') {
+                $scope.isRendering = true;
+              }
+              if (state == 'end') {
+                $scope.isRendering = false;
+              }
             }
-            if (state == "end") {
-              $scope.isRendering = false;
-            }
-          }
+          });
         });
       });
 
