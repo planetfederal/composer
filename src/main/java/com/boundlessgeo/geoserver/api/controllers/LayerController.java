@@ -16,19 +16,24 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.WordUtils;
 import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.CoverageStoreInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
@@ -38,17 +43,24 @@ import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
+import org.geotools.data.DataAccess;
+import org.geotools.data.DataStore;
+import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.ResourceLocator;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
+import org.geotools.util.NullProgressListener;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
+import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -70,6 +82,7 @@ import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.google.common.io.ByteSource;
+import com.vividsolutions.jts.geom.Envelope;
 
 @Controller
 @RequestMapping("/api/layers")
@@ -186,17 +199,106 @@ public class LayerController extends ApiController {
                 }
                 // restore name in case it was replaced by duplicate
                 l.setName(name);
-                build.updateLayer( l,  origional );
+                l.getResource().setName(name);
+                build.updateLayer( l, origional );
                 return update(l, obj,req);
             }
             catch( NotFoundException notFound ){
                 throw new BadRequestException("Layer "+wsName+":"+name+" from "+from+": "+notFound); 
             }
         }
+        else if (obj.has("resource")){
+            JSONObj reference = obj.object("resource");
+            
+            String stWorkspace = reference.has("workspace") ? reference.str("workspace") : wsName;
+            String stName = reference.str("store");
+            String stResource = reference.str("name");
+            
+            StoreInfo store = findStore( stWorkspace, stName, cat );
+            if( store instanceof DataStoreInfo){
+                FeatureTypeInfo r = factory.createFeatureType();
+                l.setResource(r);
+                
+                // Create from raw FeatureSource
+                DataStoreInfo storeInfo = (DataStoreInfo) store;                
+                @SuppressWarnings("rawtypes")
+                DataAccess dataStore = null;
+                FeatureType schema = null;
+                org.geotools.data.ResourceInfo info = null;
+                try {
+                    storeInfo.getDataStore(new NullProgressListener());
+                    if (dataStore instanceof DataStore) {
+                        schema = ((DataStore) dataStore).getSchema(stName);
+                        info = ((DataStore) dataStore).getFeatureSource(stName).getInfo();
+                    } else {
+                        NameImpl qname = new NameImpl(stName);
+                        schema = dataStore.getSchema(qname);
+                        info = dataStore.getFeatureSource(qname).getInfo();
+                    }
+                } catch (IOException e) {
+                    throw new NotFoundException("Resource "+stWorkspace+":"+stName+":"+stResource);
+                }
+                r.setName(name);
+                l.setName(name);
+                r.setNativeName(stName);
+                
+                String title = info.getTitle() == null
+                        ? WordUtils.capitalize(name)
+                        : info.getTitle();
+                r.setTitle(title);
+                r.setTitle(title);
+                        
+                String description = info.getDescription() == null ? "" : info.getDescription();
+                r.setAbstract(description);
+                r.setDescription(description);
+                l.setAbstract(description);
+                
+                if( info.getKeywords() != null ){
+                    r.keywordValues().addAll( info.getKeywords() );
+                }
+                
+                if( obj.has("latLonBounds")){
+                    // bbox
+                }
+                else if( info.getBounds() != null ){
+                    ReferencedEnvelope bbox = info.getBounds();
+                    r.setNativeBoundingBox( bbox );
+                    try {
+                        ReferencedEnvelope world = bbox.transform(DefaultGeographicCRS.WGS84, true );
+                        r.setLatLonBoundingBox(world);
+                    }
+                    catch (TransformException help){
+                        throw new BadRequestException("LatLonBounds required, could not generate from "+bbox,help);
+                    }
+                    catch (FactoryException help){
+                        throw new BadRequestException("LatLonBounds required, could not generate from "+bbox,help);
+                    }
+                }
+                else {
+                    throw new BadRequestException("LatLonBounds required, could not generate from "+stResource);
+                }
+                if( info.getCRS() != null ){
+                    String srs = CRS.toSRS( info.getCRS() );
+                    if( srs != null ){
+                        r.setSRS(srs);
+                    }
+                }
+                return update(l, obj,req);
+            }
+            else if ( store instanceof CoverageStoreInfo){
+                // TODO Create from raw CoverageReader
+                throw new UnsupportedOperationException("Publish raster layer");
+            }
+            else if (store instanceof WMSStoreInfo){
+                // TODO Create from raw WMSLayer
+                throw new UnsupportedOperationException("Publish WMS Layer");
+            }
+        }
+        else {
+            throw new BadRequestException("Layer create requies from (to create from existing layer) or resource (to create from store data)");
+        }
         // Create appropriate resource - by looking up store?
         // Create layer
-        
-        
         
         cat.save(l.getResource());
         cat.save(l);
