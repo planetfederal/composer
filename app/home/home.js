@@ -11,7 +11,7 @@ angular.module('gsApp.home', [])
 .controller('HomeCtrl', ['$scope', 'GeoServer',
     function($scope, GeoServer) {
       $scope.title = 'Home';
-      GeoServer.serverInfo.get().$promise.then(function(serverInfo) {
+      GeoServer.serverInfo.get().then(function(serverInfo) {
         $scope.serverInfo = serverInfo;
         $scope.server = serverInfo.server;
         //$scope.serverInfo = serverInfo;
