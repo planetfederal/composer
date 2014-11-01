@@ -4,6 +4,8 @@ angular.module('gsApp.workspaces.data', [
   'gsApp.workspaces.data.import',
   'gsApp.workspaces.formats.type',
   'gsApp.workspaces.data.attributes',
+  'gsApp.workspaces.layers.import',
+  'gsApp.workspaces.layers.duplicate',
   'gsApp.core.utilities',
   'gsApp.alertpanel',
   'ngSanitize'
@@ -161,15 +163,32 @@ angular.module('gsApp.workspaces.data', [
       // See utilities.js pop directive - 1 popover open at a time
       var openPopoverStore;
       $scope.closePopovers = function(store) {
-        if (openPopoverStore) {
+        if (openPopoverStore || openPopoverStore===store) {
           openPopoverStore.showSourcePopover = false;
-        }
-        if (openPopoverStore===store) {
-          openPopoverStore.showSourcePopover = false;
+          openPopoverStore = null;
         } else {
           store.showSourcePopover = true;
           openPopoverStore = store;
         }
+      };
+      var openPopoverPublished;
+      $scope.closeResourcePopovers = function(resource) {
+        if (openPopoverPublished || openPopoverPublished===resource) {
+          openPopoverPublished.publishedPopover = false;
+          openPopoverPublished = null;
+        } else {
+          resource.publishedPopover = true;
+          openPopoverPublished = resource;
+        }
+      };
+
+      $scope.getLayersForResource = function(resource) {
+        var layers = resource.layers;
+        var returnString = '';
+        for (var t=0; t < layers.length; t++) {
+          returnString += layers[t].name + ' ';
+        }
+        return returnString;
       };
 
       $scope.showLayer = function(layer) {
@@ -208,7 +227,42 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
-       // Get Formats Info
+      $scope.copyToNewLayer = function(resource) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/layer.duplicate.tpl.html',
+          controller: 'DuplicateLayerCtrl',
+          size: 'md',
+          resolve: {
+            resource: function() {
+              return resource;
+            },
+            workspace: function() {
+              return $scope.workspace;
+            }
+          }
+        });
+      };
+
+      $scope.importAsNewLayer = function(resource, store) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/layer.import.tpl.html',
+          controller: 'ImportLayerCtrl',
+          size: 'md',
+          resolve: {
+            resource: function() {
+              return resource;
+            },
+            workspace: function() {
+              return $scope.workspace;
+            },
+            store: function() {
+              return store;
+            }
+          }
+        });
+      };
+
+      // Get Formats Info
       $scope.formats = {
         'vector': [],
         'raster': [],

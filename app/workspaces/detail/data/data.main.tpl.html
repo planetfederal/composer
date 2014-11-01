@@ -30,26 +30,34 @@
   </div>
   <div class="col-sm-6">
     <div>
-      <p class="x-imported">
+      <div>
         <div><strong>Type:</strong> <a ng-click="getTypeDetails(selectedStore)">{{ selectedStore.format }}</a></div>
         <div ng-show="selectedStore && !selectedStore.enabled">Store is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
-      </p>
+      </div>
       <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Source:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
       <div class="resources">
         <ul class="list-unstyled">
           <li class="singleResource" ng-repeat="rsrc in selectedStore.resources">
-            <div>Resource: <strong>{{ rsrc.name }}</strong></div>
-            <div class="rsrc_info">Data Schema: <a ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);"> {{ rsrc.schema.attributes.length }} Attributes <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i></a></div>
-            <div ng-if="rsrc.proj.srs" class="rsrc_info"><strong>Projection:</strong> {{ rsrc.proj.srs }}</div>
+            <div>
+              <span class="label-tag">Resource:</span>
+              <strong> {{ rsrc.name }}</strong>
+            </div>
+            <div class="rsrc_info pull-right">
+              <a title="Copy to New Layer" ng-click="copyToNewLayer(rsrc);">
+                <i class="fa fa-copy fa-lg" style="padding-right: 5px;"></i>
+              </a>
+              <a title="Attributes" ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);">
+                <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i>
+              </a>
+            </div>
+            <div ng-if="rsrc.proj.srs" class="rsrc_info">
+              <span class="label-tag">Projection:</span> {{ rsrc.proj.srs }}
+            </div>
             <div ng-if="rsrc.layers.length > 0">
-              <div class="info">Layers Using:
-                <span style="margin-left: 5px;" ng-repeat="layer in rsrc.layers"> {{ layer.name }}{{$last ? '' : ', '}}</span>
-              </div>
+              <div class="info"><a pop="{{ getLayersForResource(rsrc); }}" pop-show="{{ rsrc.publishedPopover }}" pop-placement="left" ng-click="closeResourcePopovers(rsrc);" pop-title="Resource {{rsrc.name}} used in layers:">Published</a></div>
             </div>
             <div ng-if="rsrc.layers.length==0">
-              <div class="info">
-                <p>Not yet imported as a layer</p>
-                <p><a href="">Import Now &rarr;</a></p>
+              <div class="info"><strong>Not Published</strong> <span style="margin-left:10px;"><a class="btn btn-default btn-xs" ng-click="importAsNewLayer(rsrc, selectedStore);">Import Now &rarr;</a></span>
               </div>
             </div>
           </li>

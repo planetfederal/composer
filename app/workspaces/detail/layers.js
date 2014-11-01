@@ -1,5 +1,6 @@
 angular.module('gsApp.workspaces.layers', [
   'gsApp.workspaces.layers.settings',
+  'gsApp.workspaces.layers.import',
   'gsApp.alertpanel',
   'gsApp.core.utilities',
   'ngSanitize'
