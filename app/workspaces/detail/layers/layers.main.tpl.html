@@ -33,7 +33,7 @@
           <div class="detail">
             <div><strong>{{ layer.name }}</strong></div>
             <div ng-if="layer.title">{{ layer.title }}</div>
-            <div><strong>Last edited:</strong> {{ layer.modified.pretty }}</div>
+            <div ng-if="layer.modified"><small>Modified {{ layer.modified.pretty }}</small></div>
             <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
           </div>
           <div class="layer-settings">
