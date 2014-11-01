@@ -326,7 +326,7 @@ public class IO {
             obj.put("uri", namespace.getURI());
         }
         obj.put("default", isDefault);
-        return obj;
+        return metadata(obj, workspace);
     }
     
     static Object title(LayerInfo layer) {

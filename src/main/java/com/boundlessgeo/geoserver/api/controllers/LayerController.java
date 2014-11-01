@@ -8,6 +8,7 @@ import static org.geoserver.catalog.Predicates.equal;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -299,7 +300,6 @@ public class LayerController extends ApiController {
         }
         // Create appropriate resource - by looking up store?
         // Create layer
-        
         cat.save(l.getResource());
         cat.save(l);
         return IO.layer(new JSONObj(), l, req);
@@ -363,6 +363,8 @@ public class LayerController extends ApiController {
                 resource.setSRS(srs);
             }
         }
+
+        Metadata.modified(layer, new Date());
         Catalog cat = geoServer.getCatalog();
         cat.save(resource);
         cat.save(layer);
@@ -423,6 +425,9 @@ public class LayerController extends ApiController {
         else {
             cat.save(s);
         }
+
+        Metadata.modified(l, new Date());
+        cat.save(l);
     }
 
 
