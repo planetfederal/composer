@@ -72,10 +72,11 @@ public class WorkspaceController extends ApiController {
                 }
 
                 NamespaceInfo ns = namespaceFor(ws);
-                arr.addObject()
+                JSONObj wsObj = arr.addObject()
                    .put("name", ws.getName())
                    .put("default", false)
                    .put("uri", ns.getURI());
+                IO.metadata(wsObj, ws);
             }
         }
         finally {

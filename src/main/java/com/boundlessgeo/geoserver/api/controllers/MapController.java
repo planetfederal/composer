@@ -74,6 +74,8 @@ public class MapController extends ApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody
     JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj, HttpServletRequest req) {
+        WorkspaceInfo ws = findWorkspace(wsName, catalog());
+
         String name = obj.str("name");
 
         if (name == null) {
@@ -129,7 +131,7 @@ public class MapController extends ApiController {
         map.setAbstract( description );
         map.setTitle( title );
         map.setMode( Mode.SINGLE );
-        map.setWorkspace( findWorkspace(wsName, cat) );
+        map.setWorkspace(ws);
 
         for (Object o : obj.array("layers")) {
             JSONObj l = (JSONObj) o;
@@ -152,8 +154,10 @@ public class MapController extends ApiController {
 
         Metadata.created(map, created);
         Metadata.modified(map, created);
+        Metadata.modified(ws, created);
 
         cat.add( map );
+        cat.save(ws);
         return mapDetails(new JSONObj(), map, wsName, req);
     }
 
@@ -197,6 +201,8 @@ public class MapController extends ApiController {
                                      @RequestBody JSONObj obj,
                                      HttpServletRequest req) {
         LayerGroupInfo map = findMap(wsName, name);
+        WorkspaceInfo ws = map.getWorkspace();
+
         Catalog cat = geoServer.getCatalog();
         
         if(obj.has("name")){
@@ -236,7 +242,11 @@ public class MapController extends ApiController {
         // update configuration history        
         String user = SecurityContextHolder.getContext().getAuthentication().getName();
         map.getMetadata().put("user", user );
-        map.getMetadata().put("modified", new Date() );
+
+        Date modified = new Date();
+        Metadata.modified(map, modified);
+        Metadata.modified(ws, modified);
+
         if(obj.has("change")){
             map.getMetadata().put("change", obj.str("change") );
         }
@@ -244,6 +254,7 @@ public class MapController extends ApiController {
             map.getMetadata().put("change", "modified "+obj.keys() );
         }
         cat.save(map);
+        cat.save(ws);
         
         return mapDetails(new JSONObj(), map, wsName, req);
     }
@@ -339,7 +350,15 @@ public class MapController extends ApiController {
         m.getLayers().addAll(reLayers);
         m.getStyles().clear();
         m.getStyles().addAll(reStyles);
+
+        WorkspaceInfo ws = m.getWorkspace();
+
+        Date modified = new Date();
+        Metadata.modified(m, modified);
+        Metadata.modified(ws, modified);
+
         cat.save(m);
+        cat.save(ws);
         return mapLayerList(m,req);
     }
     @RequestMapping(value="/{wsName}/{name}/layers", method = RequestMethod.POST)
@@ -348,6 +367,8 @@ public class MapController extends ApiController {
                                                   @RequestBody JSONArr layers, HttpServletRequest req) {
         Catalog cat = geoServer.getCatalog();
         LayerGroupInfo m = findMap(wsName, name);
+        WorkspaceInfo ws = m.getWorkspace();
+
         List<PublishedInfo> appendLayers = new ArrayList<PublishedInfo>();
         Map<String,PublishedInfo> check = Maps.uniqueIndex(appendLayers, new Function<PublishedInfo, String>() {
             @Nullable
@@ -371,7 +392,13 @@ public class MapController extends ApiController {
         }
         m.getLayers().addAll(appendLayers);
         m.getStyles().addAll(appendStyles);
+
+        Date modified = new Date();
+        Metadata.modified(m, modified);
+        Metadata.modified(ws, modified);
+
         cat.save(m);
+        cat.save(ws);
         return mapLayerList(m,req);
     }
     
@@ -394,13 +421,18 @@ public class MapController extends ApiController {
                                                 @PathVariable String mpName,
                                                 @PathVariable String name, HttpServletRequest req) {
         LayerGroupInfo map = findMap(wsName, mpName);
+        WorkspaceInfo ws = map.getWorkspace();
+
         PublishedInfo layer = findMapLayer( map, name );
         int index = map.layers().indexOf(layer);
         boolean removed = map.getLayers().remove(layer);
         if( removed ){
             map.getStyles().remove(index);
+
+
             Catalog cat = geoServer.getCatalog();
             cat.save(map);
+
             JSONObj delete = new JSONObj()
                 .put("name", layer.getName())
                 .put("removed", removed );
@@ -470,7 +502,7 @@ public class MapController extends ApiController {
         List<PublishedInfo> published = Lists.reverse(map.getLayers());
         JSONArr layers = obj.putArray("layers");
         for (PublishedInfo l : published) {
-            layer( layers.addObject(), l, req);
+            layer(layers.addObject(), l, req);
         }
         return obj;
     }
