@@ -86,12 +86,14 @@ angular.module('gsApp.core.backend',[])
           });
         },
 
-        serverInfo: $resource(apiRoot+'/serverInfo', {}, {
-          get: {
-            method: 'GET',
-            responseType: 'json'
+        serverInfo: {
+          get: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot + '/serverInfo'
+            });
           }
-        }),
+        },
 
         workspaces: {
           get: function() {
