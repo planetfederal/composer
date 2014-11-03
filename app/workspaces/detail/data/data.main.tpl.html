@@ -1,8 +1,8 @@
 <h3>
   Data Stores
 </h3>
-<div>
-  <strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in project <strong>{{ workspace }}</strong>
+<div class="stores-count">
+  <strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in Project <strong>{{ workspace }}</strong>
 </div>
 <div class="row datastores">
   <div class="col-sm-6">
@@ -37,11 +37,11 @@
       <div class="resources">
         <div class="resources-header">
           <span>Store Resources</span>
-          <span class="pull-right">
+          <small class="sort-by">
             Sort by
             <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
             <a class="sort-options" ng-click="predicate='layers.length'; reverse=!reverse;">Published</a>
-          </span>
+          </small>
         </div>
         <ul class="list-unstyled">
           <li class="singleResource" ng-repeat="rsrc in selectedStore.resources | orderBy:predicate:reverse">
