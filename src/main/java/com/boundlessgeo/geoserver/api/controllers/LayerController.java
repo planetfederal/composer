@@ -5,6 +5,8 @@ package com.boundlessgeo.geoserver.api.controllers;
 
 import static org.geoserver.catalog.Predicates.equal;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -15,6 +17,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.WordUtils;
@@ -37,6 +40,7 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
 import org.geoserver.importer.Importer;
+import org.geoserver.importer.StyleGenerator;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -174,7 +178,8 @@ public class LayerController extends ApiController {
             } else if (obj.has("resource")) {
                 l = createLayerFromResource(obj.object("resource"), ws, cat);
             } else {
-                throw new BadRequestException("Layer create requies from (to create from existing layer) or resource (to create from store data)");
+                throw new BadRequestException("Layer create requires from (to create from existing layer) or resource " +
+                    "(to create from store data)");
             }
         }
         catch(IOException e) {
@@ -201,9 +206,17 @@ public class LayerController extends ApiController {
             l.setAbstract(desc);
         }
 
+        // copy the style into it's own unique
+        try {
+            l.setDefaultStyle(copyStyle(l, ws, cat));
+        } catch (IOException e) {
+            throw new RuntimeException("Error copying style: " + e.getMessage(), e);
+        }
+
         Date created = new Date();
         Metadata.created(l, created);
 
+        cat.add(l.getDefaultStyle());
         cat.add(l.getResource());
         cat.add(l);
 
@@ -245,6 +258,7 @@ public class LayerController extends ApiController {
             throw new BadRequestException("Unable to copy layer from " + origResource.getClass().getSimpleName());
         }
 
+        l.setDefaultStyle(orig.getDefaultStyle());
         //builder.updateLayer( l, orig );
         return l;
     }
@@ -286,6 +300,48 @@ public class LayerController extends ApiController {
             throw new UnsupportedOperationException("Copy for non vector layer currently unsupported");
         }
     }
+
+    StyleInfo copyStyle(LayerInfo l, WorkspaceInfo ws, Catalog cat) throws IOException {
+        StyleInfo orig = l.getDefaultStyle();
+        StyleInfo dup = cat.getFactory().createStyle();
+
+        new CatalogBuilder(cat).updateStyle(dup, orig);
+        dup.setWorkspace(ws);
+
+        // find a unique name for the style
+        String name = findUniqueStyleName(l.getName(), ws, cat);
+        dup.setName(name);
+
+        // update it's file name
+        dup.setFilename(name + "." + FilenameUtils.getExtension(orig.getFilename()));
+
+        // copy over the style contents
+        try (
+            BufferedReader reader = cat.getResourcePool().readStyle(orig);
+        ) {
+            cat.getResourcePool().writeStyle(dup, new ByteArrayInputStream(IOUtils.toByteArray(reader)));
+        }
+
+        return dup;
+    }
+
+    String findUniqueStyleName(String name, WorkspaceInfo ws, Catalog cat) {
+        StyleInfo style = cat.getStyleByName(ws, name);
+        if (style == null) {
+            return name;
+        }
+
+        String styleName = null;
+        int i = 1;
+        while (style != null) {
+            styleName = name + i;
+            style = cat.getStyleByName(ws, styleName);
+            i++;
+        }
+        return styleName;
+    }
+
+
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name, HttpServletRequest req) {
