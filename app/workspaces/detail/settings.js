@@ -19,8 +19,8 @@ angular.module('gsApp.workspaces.settings', [
       $scope.form = {};
       var originalForm;
 
-      $scope.defaultDesc = 'If no project is specified in a GeoServer request,'+
-        'the DEFAULT is used. In map or layer requests, for example.';
+      $scope.defaultDesc = 'If a project is not specified ' +
+        'in a GeoServer request, the DEFAULT project is used.';
       $scope.showDefaultDesc = false;
 
       GeoServer.workspace.get($scope.workspace).then(
