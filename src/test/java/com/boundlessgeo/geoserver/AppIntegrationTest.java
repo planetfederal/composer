@@ -16,7 +16,9 @@ import org.geoserver.importer.Importer;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.test.GeoServerSystemTestSupport;
+import org.junit.Before;
 import org.junit.Test;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -37,6 +39,12 @@ import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 public class AppIntegrationTest extends GeoServerSystemTestSupport {
+
+    @Before
+    public void removeFoo() {
+        removeLayer("gs", "foo");
+        removeLayer("sf", "foo");
+    }
 
     @Test
     public void testPageLayers() throws Exception {
@@ -154,5 +162,42 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         body.writeTo(bout);
         request.setContent(bout.toByteArray());
+    }
+
+    @Test
+    public void testCreateLayerFromCopy() throws Exception {
+        Catalog catalog = getCatalog();
+        assertNull(catalog.getLayerByName("sf:foo"));
+
+        JSONObj obj = new JSONObj();
+        obj.put("name", "foo");
+        obj.putObject("layer")
+            .put("name", "PrimitiveGeoFeature")
+            .put("workspace", "sf");
+
+        com.mockrunner.mock.web.MockHttpServletResponse resp =
+            postAsServletResponse("/app/api/layers/sf", obj.toString(), MediaType.APPLICATION_JSON_VALUE);
+        assertEquals(resp.getStatusCode(), 201);
+
+        assertNotNull(catalog.getLayerByName("sf:foo"));
+    }
+
+    @Test
+    public void testCreateLayerFromResource() throws Exception {
+        Catalog catalog = getCatalog();
+        assertNull(catalog.getLayerByName("sf:foo"));
+
+        JSONObj obj = new JSONObj();
+        obj.put("name", "foo");
+        obj.putObject("resource")
+            .put("name", "PrimitiveGeoFeature")
+            .put("store", "sf")
+            .put("workspace", "sf");
+
+        com.mockrunner.mock.web.MockHttpServletResponse resp =
+                postAsServletResponse("/app/api/layers/sf", obj.toString(), MediaType.APPLICATION_JSON_VALUE);
+        assertEquals(resp.getStatusCode(), 201);
+
+        assertNotNull(catalog.getLayerByName("sf:foo"));
     }
 }

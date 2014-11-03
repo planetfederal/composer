@@ -23,7 +23,6 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CoverageInfo;
-import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -34,7 +33,6 @@ import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WMSLayerInfo;
-import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
@@ -45,7 +43,7 @@ import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
 import org.geotools.data.DataAccess;
-import org.geotools.data.DataStore;
+import org.geotools.data.FeatureSource;
 import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -53,15 +51,11 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.ResourceLocator;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
-import org.geotools.util.NullProgressListener;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
-import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.operation.TransformException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -83,7 +77,6 @@ import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.google.common.io.ByteSource;
-import com.vividsolutions.jts.geom.Envelope;
 
 @Controller
 @RequestMapping("/api/layers")
@@ -159,6 +152,9 @@ public class LayerController extends ApiController {
     @ResponseStatus(HttpStatus.CREATED)
     public @ResponseBody JSONObj create(@PathVariable String wsName, @RequestBody JSONObj obj, HttpServletRequest req) {
         Catalog cat = geoServer.getCatalog();
+
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
+
         String name = obj.str("name");
         if (name == null) {
             throw new BadRequestException("Layer object requires name");
@@ -170,141 +166,127 @@ public class LayerController extends ApiController {
                     + "' already exists");
         } catch (NotFoundException good) {
         }
-        CatalogBuilder build = new CatalogBuilder( cat );
-        CatalogFactory factory = cat.getFactory();
-        LayerInfo l = factory.createLayer();
-        if( obj.has("from")){
-            String from = obj.str("from");
-            try {
-                LayerInfo origional = findLayer(wsName, from,cat);
-                if( origional.getResource() instanceof FeatureTypeInfo){
-                    FeatureTypeInfo resource = (FeatureTypeInfo) origional.getResource();
-                    FeatureTypeInfo data = factory.createFeatureType();
-                    build.updateFeatureType( data,  resource);
-                    l.setResource(data);
-                }
-                else if( origional.getResource() instanceof CoverageInfo){
-                    CoverageInfo resource = (CoverageInfo) origional.getResource();
-                    CoverageInfo data = factory.createCoverage();
-                    build.updateCoverage( data,  resource);
-                    l.setResource(data);
-                }
-                else if( origional.getResource() instanceof WMSLayerInfo){
-                    WMSLayerInfo resource = (WMSLayerInfo) origional.getResource();
-                    WMSLayerInfo data = factory.createWMSLayer();
-                    build.updateWMSLayer( data,  resource);
-                    l.setResource(data);
-                }
-                else {
-                    throw new NotFoundException("Could not copy resource for "+wsName+":"+wsName+" "+origional.getResource().getName() );
-                }
-                // restore name in case it was replaced by duplicate
-                l.setName(name);
-                l.getResource().setName(name);
-                build.updateLayer( l, origional );
-                return update(l, obj,req);
-            }
-            catch( NotFoundException notFound ){
-                throw new BadRequestException("Layer "+wsName+":"+name+" from "+from+": "+notFound); 
+
+        LayerInfo l = null;
+        try {
+            if (obj.has("layer")) {
+                l = createLayerFromLayer(obj.object("layer"), ws, cat);
+            } else if (obj.has("resource")) {
+                l = createLayerFromResource(obj.object("resource"), ws, cat);
+            } else {
+                throw new BadRequestException("Layer create requies from (to create from existing layer) or resource (to create from store data)");
             }
         }
-        else if (obj.has("resource")){
-            JSONObj reference = obj.object("resource");
-            
-            String stWorkspace = reference.has("workspace") ? reference.str("workspace") : wsName;
-            String stName = reference.str("store");
-            String stResource = reference.str("name");
-            
-            StoreInfo store = findStore( stWorkspace, stName, cat );
-            if( store instanceof DataStoreInfo){
-                FeatureTypeInfo r = factory.createFeatureType();
-                l.setResource(r);
-                
-                // Create from raw FeatureSource
-                DataStoreInfo storeInfo = (DataStoreInfo) store;                
-                @SuppressWarnings("rawtypes")
-                DataAccess dataStore = null;
-                FeatureType schema = null;
-                org.geotools.data.ResourceInfo info = null;
-                try {
-                    storeInfo.getDataStore(new NullProgressListener());
-                    if (dataStore instanceof DataStore) {
-                        schema = ((DataStore) dataStore).getSchema(stName);
-                        info = ((DataStore) dataStore).getFeatureSource(stName).getInfo();
-                    } else {
-                        NameImpl qname = new NameImpl(stName);
-                        schema = dataStore.getSchema(qname);
-                        info = dataStore.getFeatureSource(qname).getInfo();
-                    }
-                } catch (IOException e) {
-                    throw new NotFoundException("Resource "+stWorkspace+":"+stName+":"+stResource);
-                }
-                r.setName(name);
-                l.setName(name);
-                r.setNativeName(stName);
-                
-                String title = info.getTitle() == null
-                        ? WordUtils.capitalize(name)
-                        : info.getTitle();
-                r.setTitle(title);
-                r.setTitle(title);
-                        
-                String description = info.getDescription() == null ? "" : info.getDescription();
-                r.setAbstract(description);
-                r.setDescription(description);
-                l.setAbstract(description);
-                
-                if( info.getKeywords() != null ){
-                    r.keywordValues().addAll( info.getKeywords() );
-                }
-                
-                if( obj.has("latLonBounds")){
-                    // bbox
-                }
-                else if( info.getBounds() != null ){
-                    ReferencedEnvelope bbox = info.getBounds();
-                    r.setNativeBoundingBox( bbox );
-                    try {
-                        ReferencedEnvelope world = bbox.transform(DefaultGeographicCRS.WGS84, true );
-                        r.setLatLonBoundingBox(world);
-                    }
-                    catch (TransformException help){
-                        throw new BadRequestException("LatLonBounds required, could not generate from "+bbox,help);
-                    }
-                    catch (FactoryException help){
-                        throw new BadRequestException("LatLonBounds required, could not generate from "+bbox,help);
-                    }
-                }
-                else {
-                    throw new BadRequestException("LatLonBounds required, could not generate from "+stResource);
-                }
-                if( info.getCRS() != null ){
-                    String srs = CRS.toSRS( info.getCRS() );
-                    if( srs != null ){
-                        r.setSRS(srs);
-                    }
-                }
-                return update(l, obj,req);
-            }
-            else if ( store instanceof CoverageStoreInfo){
-                // TODO Create from raw CoverageReader
-                throw new UnsupportedOperationException("Publish raster layer");
-            }
-            else if (store instanceof WMSStoreInfo){
-                // TODO Create from raw WMSLayer
-                throw new UnsupportedOperationException("Publish WMS Layer");
-            }
+        catch(IOException e) {
+            throw new RuntimeException("Failed to create layer: " + e.getMessage(), e);
         }
-        else {
-            throw new BadRequestException("Layer create requies from (to create from existing layer) or resource (to create from store data)");
+
+        // restore name in case it was replaced by duplicate
+        l.getResource().setName(name);
+        l.setName(name);
+
+        // title
+        String title = obj.str("title");
+        if (title == null) {
+            title = WordUtils.capitalize(name);
         }
-        // Create appropriate resource - by looking up store?
-        // Create layer
-        cat.save(l.getResource());
-        cat.save(l);
+
+        l.getResource().setTitle(title);
+        l.setTitle(title);
+
+        // description
+        String desc = obj.str("description");
+        if (desc != null) {
+            l.getResource().setAbstract(desc);
+            l.setAbstract(desc);
+        }
+
+        Date created = new Date();
+        Metadata.created(l, created);
+
+        cat.add(l.getResource());
+        cat.add(l);
+
+        Metadata.modified(ws, created);
+        cat.save(ws);
+
         return IO.layer(new JSONObj(), l, req);
     }
-    
+
+    LayerInfo createLayerFromLayer(JSONObj from, WorkspaceInfo ws, Catalog cat) {
+        LayerInfo orig = findLayer(ws.getName(), from.str("name"), cat);
+        ResourceInfo origResource = orig.getResource();
+
+        CatalogFactory factory = cat.getFactory();
+
+        CatalogBuilder builder = new CatalogBuilder(cat);
+        builder.setWorkspace(ws);
+
+        LayerInfo l = factory.createLayer();
+        if (origResource instanceof FeatureTypeInfo){
+            FeatureTypeInfo resource = (FeatureTypeInfo) origResource;
+            FeatureTypeInfo data = factory.createFeatureType();
+            builder.updateFeatureType(data, resource);
+            l.setResource(data);
+        }
+        else if (origResource instanceof CoverageInfo){
+            CoverageInfo resource = (CoverageInfo) origResource;
+            CoverageInfo data = factory.createCoverage();
+            builder.updateCoverage( data,  resource);
+            l.setResource(data);
+        }
+        else if (origResource instanceof WMSLayerInfo){
+            WMSLayerInfo resource = (WMSLayerInfo) origResource;
+            WMSLayerInfo data = factory.createWMSLayer();
+            builder.updateWMSLayer( data,  resource);
+            l.setResource(data);
+        }
+        else {
+            throw new BadRequestException("Unable to copy layer from " + origResource.getClass().getSimpleName());
+        }
+
+        //builder.updateLayer( l, orig );
+        return l;
+    }
+
+    LayerInfo createLayerFromResource(JSONObj ref, WorkspaceInfo ws, Catalog cat) throws IOException {
+        String storeName = ref.str("store");
+        String resourceName = ref.str("name");
+
+        StoreInfo store = findStore(ws.getName(), storeName, cat);
+
+        CatalogBuilder builder = new CatalogBuilder(cat);
+
+        if( store instanceof DataStoreInfo){
+            DataStoreInfo dataStore = (DataStoreInfo) store;
+            builder.setStore(dataStore);
+
+            // create from the resource
+            FeatureTypeInfo ft = null;
+            try {
+                ft = builder.buildFeatureType(new NameImpl(resourceName));
+            }
+            catch(Exception e) {
+                if (e instanceof IOException) {
+                    throw (IOException) e;
+                }
+                else {
+                    throw new IOException(e);
+                }
+            }
+
+            DataAccess data = dataStore.getDataStore(null);
+
+            FeatureSource source = data.getFeatureSource(new NameImpl(resourceName));
+            builder.setupBounds(ft, source);
+
+            return builder.buildLayer(ft);
+        }
+        else {
+            throw new UnsupportedOperationException("Copy for non vector layer currently unsupported");
+        }
+    }
+
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name, HttpServletRequest req) {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
