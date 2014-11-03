@@ -5,10 +5,10 @@
   </div>
   <small class="sort-by">
     Sort by
-    <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
-    <a class="sort-options" ng-click="predicate='title'; reverse=!reverse;">Title</a> |
-    <a class="sort-options" ng-click="predicate='modified.pretty'; reverse=!reverse;">Modified</a> |
-    <a class="sort-options" ng-click="predicate='layer_count'; reverse=!reverse;"># Layers</a>
+    <a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a> |
+    <a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a> |
+    <a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Last Modified</a> |
+    <a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a>
   </small>
   <div class="map-summary" ng-show="maps.length > 0">
     <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2">

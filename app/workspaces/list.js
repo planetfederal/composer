@@ -43,4 +43,21 @@ angular.module('gsApp.workspaces.list', [
           }
         });
 
+      $scope.onWorkspaceInfo = function(workspace) {
+        $scope.selected = workspace;
+        GeoServer.workspace.get(workspace.name).then(
+          function(result) {
+            if (result.success) {
+              $scope.selected.workspaceInfo = result.data;
+              $scope.selected.showInfo = true;
+            } else {
+              $scope.alerts = [{
+                  type: 'warning',
+                  message: 'Could not get workspace ' + workspace.name + '.',
+                  fadeout: true
+                }];
+            }
+          });
+      };
+
     }]);

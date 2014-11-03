@@ -1,23 +1,40 @@
 <div class="container-fluid">
   <h3 class="page-title">{{title}}</h3>
   <div class="row">
-    <div class="col-sm-4">
-      <div class="layers-count">
+    <div class="col-sm-5">
+      <div class="workspaces-count">
         <strong>{{ workspaces.length }}</strong> Project<span ng-if="workspaces.length==0 || workspaces.length > 1">s</span> Total
+      </div>
+      <small class="sort-by">
+        Sort by
+        <a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a> |
+        <a class="sort-options" ng-click="predicate='modified.timestamp';  reverse = (last=='modified')? !reverse : reverse; last='modified';">Last Modified</a>
+      </small>
+    </div>
+    <div class="col-sm-4 col-sm-offset-2">
+      <div class="panel panel-default single-workspace-info" ng-show="selected.showInfo">
+        <p>Workspace: <strong>{{ selected.workspaceInfo.name }}</strong></p>
+        <p>{{ selected.workspaceInfo.maps }} Maps, {{ selected.workspaceInfo.layers }} Layers, {{ selected.workspaceInfo.stores }} Stores</p>
       </div>
     </div>
   </div>
   <div class="row">
     <div class="col-sm-12">
       <div class="workspaces-summary">
-        <div class="row" ng-repeat="row in workspaces | partition:3">
+        <div class="row" ng-repeat="row in workspaces | orderBy:predicate:reverse | partition:3">
           <div class="col-sm-4" ng-repeat="workspace in row">
             <a class="workspace-summary-detail">
-              <div class="workspace-icon" ng-click="onWorkspaceClick(workspace)">
+              <div class="workspace-icon" ng-mouseover="mouse=true" ng-mouseleave="mouse=false" ng-init="mouse=false">
                 <i class="icon-folder"></i>
+                <div class="workspace-details in-folder" ng-show="mouse">
+                  <span class="view" ng-click="onWorkspaceClick(workspace)">Open</span>
+                  <span class="dash">&mdash;</span>
+                  <span class="view" ng-init="showInfo=false" ng-click="onWorkspaceInfo(workspace);">Info</span>
+                </div>
               </div>
               <div class="workspace-info">
                 <h4 class="workspace-name" ng-click="onWorkspaceClick(workspace)">{{ workspace.name }}</h4>
+                <small class="modified" ng-if="workspace.modified">Last modified {{ workspace.modified.pretty }}</small>
                 <div class="workspace-default" ng-if="workspace.default" pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="bottom" ng-click="showDefaultDesc=!showDefaultDesc;">Default</div>
               </div>
             </a>
