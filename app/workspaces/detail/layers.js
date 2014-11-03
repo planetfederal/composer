@@ -166,6 +166,33 @@ angular.module('gsApp.workspaces.layers', [
         }
       });
 
+      var openPopoverLayer;
+      $scope.closeLayerTPopovers = function(layer) {
+        if (layer.title.length < 33) {
+          return;
+        }
+        if (openPopoverLayer || openPopoverLayer===layer) {
+          openPopoverLayer.layerTitle = false;
+          openPopoverLayer = null;
+        } else {
+          layer.layerTitle = true;
+          openPopoverLayer = layer;
+        }
+      };
+
+      $scope.closeLayerNPopovers = function(layer) {
+        if (layer.name.length < 33) {
+          return;
+        }
+        if (openPopoverLayer || openPopoverLayer===layer) {
+          openPopoverLayer.layerName = false;
+          openPopoverLayer = null;
+        } else {
+          layer.layerName = true;
+          openPopoverLayer = layer;
+        }
+      };
+
     }])
 .service('layersListModel', function(GeoServer, _) {
   var _this = this;

@@ -31,9 +31,9 @@
             <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString', 'icon-checkbox-unchecked': layer.geometry=='MultiPolygon', 'icon-delicious': layer.geometry=='raster'}"></i>
           </div>
           <div class="detail">
-            <div><strong>{{ layer.name }}</strong></div>
-            <div ng-if="layer.title">{{ layer.title }}</div>
-            <div ng-if="layer.modified"><small>Modified {{ layer.modified.pretty }}</small></div>
+            <div pop="{{ layer.name }}" pop-show="{{ layer.layerName }}" pop-placement="bottom" ng-click="closeLayerNPopovers(layer);"><strong>{{ layer.name | truncate:false:33:true }}</strong></div>
+            <div ng-if="layer.title" pop="{{ layer.title }}" pop-show="{{ layer.layerTitle }}" pop-placement="bottom" ng-click="closeLayerTPopovers(layer);">{{ layer.title | truncate:false:33:true }}</div>
+            <div><strong>Modified:</strong> {{ layer.modified.pretty }}</div>
             <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
           </div>
           <div class="layer-settings">
