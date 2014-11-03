@@ -12,6 +12,7 @@ import com.boundlessgeo.geoserver.json.JSONWrapper;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
+import junit.framework.Assert;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.Predicates;
@@ -47,6 +48,7 @@ import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static com.boundlessgeo.geoserver.api.controllers.ApiController.DEFAULT_PAGESIZE;
 import static junit.framework.TestCase.assertNotNull;
@@ -189,6 +191,9 @@ public class LayerControllerTest {
 
         assertNotNull(obj.get("modified"));
         assertNotNull(obj.get("created"));
+
+        String mod = obj.object("modified").str("timestamp");
+        assertTrue(Pattern.compile(".*\\d{2}:\\d{2}").matcher(mod).matches());
     }
 
     @Test

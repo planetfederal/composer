@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
@@ -79,6 +80,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * Helper for encoding/decoding objects to/from JSON.
  */
 public class IO {
+
+    static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssXXX";
+
     /** Kind of provider */
     static public enum Kind {FILE,DATABASE,WEB,GENERIC;
         public String toString() {
@@ -615,7 +619,7 @@ public class IO {
     private static PrettyTime PRETTY_TIME = new PrettyTime();
 
     static JSONObj date(JSONObj obj, Date date) {
-        String timestamp = DateUtil.formatDate( date );
+        String timestamp = new SimpleDateFormat(DATE_FORMAT).format(date);
         return obj.put("timestamp", timestamp).put("pretty", PRETTY_TIME.format(date));
     }
 
