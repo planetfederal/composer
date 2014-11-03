@@ -16,20 +16,15 @@ angular.module('gsApp.workspaces.list', [
     function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
       $scope.title = 'All Projects';
 
-      $scope.onWorkspaceClick = function(ws) {
-        $state.go('workspace', {
-          workspace: ws
-        });
-      };
-
       $scope.onWorkspaceClick = function(workspace) {
         var params = {workspace: workspace.name};
         var state = 'workspace';
         $state.go(state, params);
+        $rootScope.$broadcast(AppEvent.WorkspaceSelected, workspace.name);
       };
 
-      $scope.defaultDesc = 'If no project is specified in a GeoServer request,'+
-        'the DEFAULT is used. In map or layer requests, for example.';
+      $scope.defaultDesc = 'If a project is not specified ' +
+        'in a GeoServer request, the DEFAULT project is used.';
       $scope.showDefaultDesc = false;
 
       GeoServer.workspaces.get().then(

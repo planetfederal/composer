@@ -20,17 +20,6 @@ angular.module('gsApp.sidenav', [
     $scope.toggleWkspc = {}; // workspaces in wide sidenav
     $scope.toggleWkspc2 = {}; // workspaces in collapse sidenav
 
-    // open any open workspace folders on refresh
-    var alreadyOpen_ws = null, loc = $location.path();
-    var index = loc.indexOf('workspace/');
-    if (index > -1) {
-      var workspaceSubstr = loc.substring(index+10);
-      var lastindex = workspaceSubstr.indexOf('/');
-      if (lastindex > -1) {
-        alreadyOpen_ws = workspaceSubstr.substring(0, lastindex);
-      }
-    }
-
     // Hug partial menu to sidebar bottom if height's enough
     $scope.onWindowResize = function() {
       var windowHeight = $window.innerHeight - 150;
@@ -53,15 +42,35 @@ angular.module('gsApp.sidenav', [
       }
     });
 
+    // open any open workspace folders on refresh
+    function checkPath () {
+      $scope.alreadyOpen_ws = null;
+      var loc = $location.path();
+      var index = loc.indexOf('workspace/');
+      if (index > -1) {
+        var workspaceSubstr = loc.substring(index+10);
+        var lastindex = workspaceSubstr.indexOf('/');
+        if (lastindex > -1) {
+          $scope.alreadyOpen_ws = workspaceSubstr.substring(0, lastindex);
+          if ($scope.workspaces) { // only open if workspaces already fetched
+            reopenWorkspaceFolder();
+          }
+        }
+      }
+    }
+
+    function reopenWorkspaceFolder () {
+      if ($scope.alreadyOpen_ws !== null) { // reopen sidenav ws folder
+        $scope.closeOthers($scope.alreadyOpen_ws);
+      }
+    }
+
     $scope.openWorkspaces = function() {
       if (!$scope.workspaces) {
-        GeoServer.workspaces.get().then(
-        function(result) {
+        GeoServer.workspaces.get().then(function(result) {
           if (result.success) {
             $scope.workspaces = result.data;
-            if (alreadyOpen_ws !== null) {
-              $scope.closeOthers(alreadyOpen_ws);
-            }
+            reopenWorkspaceFolder();
             $rootScope.$broadcast(AppEvent.WorkspacesFetched,
               $scope.workspaces);
           } else {
@@ -173,6 +182,12 @@ angular.module('gsApp.sidenav', [
     $rootScope.$on(AppEvent.WorkspacesFetched,
       function(scope, workspaces) {
         $scope.workspaces = workspaces;
+        checkPath();
+      });
+
+    $rootScope.$on(AppEvent.WorkspaceSelected,
+      function(scope, workspaceName) {
+        $scope.closeOthers(workspaceName);
       });
 
     $rootScope.$on(AppEvent.WorkspaceNameChanged,

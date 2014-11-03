@@ -32,6 +32,10 @@ angular.module('gsApp.core.event', [])
    */
   WorkspacesFetched: 'workspaces-fetched',
   /**
+   * Fired when a workspace is selected.
+   */
+  WorkspaceSelected: 'workspaces-selected',
+  /**
    * Fired when a workspace name is changed.
    */
   WorkspaceNameChanged: 'workspace-name-changed',
