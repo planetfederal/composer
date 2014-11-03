@@ -35,7 +35,9 @@ angular.module('gsApp.workspaces.maps', [
       $scope.olmaps = {};
 
       $timeout(function() {
-        $scope.$parent.tabs[0].active = true;
+        if ($scope.$parent.tabs) {
+          $scope.$parent.tabs[0].active = true;
+        }
       }, 300);
 
       $scope.mapThumbsWidth = 175;

@@ -9,7 +9,11 @@ angular.module('gsApp.workspaces.formats.type', [])
       $scope.resource = resource;
       var formatsByType = $scope.formats[resource.kind.toLowerCase()];
       $scope.format = _.find(formatsByType, function(format) {
-        return format.name===resource.format.toLowerCase();
+        // 'directory' vs. 'directory of shapefiles'
+        if (format.name.indexOf('directory') > -1) {
+          return (resource.format.toLowerCase().indexOf('directory') > -1);
+        }
+        return resource.format.toLowerCase()===format.name;
       });
 
       $scope.close = function () {

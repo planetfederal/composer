@@ -32,7 +32,9 @@ angular.module('gsApp.workspaces.layers', [
       $scope.layerThumbsHeight = 175;
 
       $timeout(function() {
-        $scope.$parent.tabs[1].active = true;
+        if ($scope.$parent.tabs) {
+          $scope.$parent.tabs[1].active = true;
+        }
       }, 300);
 
       GeoServer.layers.get($scope.workspace).then(
