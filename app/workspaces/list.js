@@ -20,7 +20,8 @@ angular.module('gsApp.workspaces.list', [
         var params = {workspace: workspace.name};
         var state = 'workspace';
         $state.go(state, params);
-        $rootScope.$broadcast(AppEvent.WorkspaceSelected, workspace.name);
+        $rootScope.$broadcast(AppEvent.WorkspaceSelected,
+          workspace.name);
       };
 
       $scope.defaultDesc = 'If a project is not specified ' +
