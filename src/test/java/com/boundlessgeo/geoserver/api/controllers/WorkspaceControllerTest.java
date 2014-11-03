@@ -77,7 +77,8 @@ public class WorkspaceControllerTest {
     @Test
     public void testGet() throws Exception {
         MockGeoServer.get().catalog()
-            .workspace("foo", "http://scratch.org", true).catalog()
+            .workspace("foo", "http://scratch.org", true)
+                .layer("foo").workspace().catalog()
             .workspace("bar", "http://bar.org", false).catalog()
             .geoServer().build(geoServer);
 
@@ -90,6 +91,10 @@ public class WorkspaceControllerTest {
         assertEquals("foo", obj.str("name"));
         assertEquals("http://scratch.org", obj.str("uri"));
         assertTrue(obj.bool("default"));
+
+        assertEquals(0, obj.integer("maps").intValue());
+        assertEquals(1, obj.integer("layers").intValue());
+        assertEquals(0, obj.integer("stores").intValue());
 
         result = mvc.perform(get("/api/workspaces/bar"))
                 .andExpect(status().isOk())
