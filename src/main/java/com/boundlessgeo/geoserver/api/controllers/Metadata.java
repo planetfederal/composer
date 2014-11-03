@@ -19,7 +19,9 @@ public class Metadata {
     static final String MODIFIED = "modified";
 
     public static void created(Info obj, Date created) {
-        map(obj).put(CREATED, created);
+        MetadataMap map = map(obj);
+        map.put(CREATED, created);
+        map.put(MODIFIED, created);
     }
 
     public static Date created(Info obj) {
