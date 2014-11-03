@@ -1,0 +1,43 @@
+/* list.less */
+
+@import "../variables.less";
+
+.workspace-summary-detail {
+  margin-top: 30px;
+  display: inline-block;
+  pointer: cursor;
+
+  .workspace-icon {
+    display: inline-block;
+    i.icon-folder {
+       font-size: 80px;
+       color: @light-gray;
+    }
+  }
+
+  .workspace-info {
+    display: inline-block;
+    vertical-align: top;
+
+    .workspace-name {
+      vertical-align: top;
+      margin: 20px auto auto 10px;
+      color: @gray;
+      font-weight: bold;
+    }
+    .workspace-default {
+      margin: 10px auto auto 10px;
+    }
+  }
+
+  &:hover {
+    text-decoration: none;
+
+    .workspace-icon i.icon-folder {
+      color: @gray;
+    }
+    .workspace-info .workspace-name {
+      color: @black;
+    }
+  }
+}

@@ -14,7 +14,7 @@ angular.module('gsApp.workspaces.list', [
 .controller('WorkspacesListCtrl', ['$scope', 'GeoServer', '$state', '$log',
   '$rootScope', 'AppEvent',
     function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
-      $scope.title = 'All Workspaces';
+      $scope.title = 'All Projects';
 
       $scope.onWorkspaceClick = function(ws) {
         $state.go('workspace', {
@@ -22,41 +22,22 @@ angular.module('gsApp.workspaces.list', [
         });
       };
 
-      $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
-        pageSize: 25
+      $scope.onWorkspaceClick = function(workspace) {
+        var params = {workspace: workspace.name};
+        var state = 'workspace';
+        $state.go(state, params);
       };
 
-      $scope.gridOptions = {
-        data: 'workspaceData',
-        columnDefs: [
-          {
-            field: 'name',
-            displayName: 'Name',
-            cellTemplate: '<a ng-click="onWorkspaceClick(row.getProperty(' +
-              '\'name\'))">{{row.getProperty(\'name\')}}</a>'
-          },
-          {
-            field: 'default',
-            displayName: 'Default?'
-          }
-        ],
-        enablePaging: true,
-        enableColumnResize: false,
-        showFooter: true,
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: {
-          filterText: '',
-          useExternalFilter: true
-        }
-      };
+      $scope.defaultDesc = 'If no project is specified in a GeoServer request,'+
+        'the DEFAULT is used. In map or layer requests, for example.';
+      $scope.showDefaultDesc = false;
 
       GeoServer.workspaces.get().then(
         function(result) {
           if (result.success) {
-            $scope.workspaceData = result.data;
+            $scope.workspaces = result.data;
             $rootScope.$broadcast(AppEvent.WorkspacesFetched,
-              $scope.workspaceData);
+              $scope.workspaces);
           } else {
             $scope.alerts = [{
                 type: 'warning',

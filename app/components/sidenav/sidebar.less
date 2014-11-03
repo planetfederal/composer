@@ -31,6 +31,7 @@
     margin: 0;
     padding: 0;
     list-style: none;
+    background: @sidebar-bg;
 
     .more {
         margin-left: 8px;
@@ -41,21 +42,21 @@
         margin-bottom: 20px;
     }
 
-    li.dropdown ul {
-        margin-left: 15px;
-        box-shadow: 0 5px 10px rgba(0,0,0,.2);
-        padding-left: 0;
-        li {
-            margin-right: 5px;
-            a {
-                color: #333;
-                &:hover {
-                    color: #28728d;
-                    background-color: #ccc;
-                }
-            }
+    .all-workspaces {
+        color: #999999;
+        margin-left: 4px;
+        i.icon-folder-open {
+            font-size: 1.33333333em;
+            line-height: 0.75em;
+            margin-left: 4px;
+            margin-right: 4px;
         }
-
+        .projects-header {
+            font-size: 1.1em;
+            margin-bottom: 3px;
+            margin-left: 4px;
+            cursor: pointer;
+        }
     }
 
     li.divider {
@@ -64,7 +65,8 @@
 
     li {
         text-indent: 5px;
-        line-height: 25px;
+        line-height: 27px;
+        background: @sidebar-bg;
         a {
             display: block;
             text-decoration: none;
@@ -89,13 +91,53 @@
                     line-height: 0.75em;
                     display: inline-block;
                 }
+
+                &[class^="icon-stack"]:before {
+                    vertical-align: middle;
+                }
+
+                &.fa-md {
+                    font-size: 1.15em;
+                    margin-left: 2px;
+                    margin-top: 0;
+                }
             }
         }
         ul {
             list-style: none;
             padding-left: 17px;
-            padding-top: 5px;
+            padding-top: 3px;
             padding-bottom: 5px;
+
+            &.workspace-items {
+
+                li.in-workspace {
+                    line-height: 23px;
+                    font-size: .9em;
+                    margin-left: 8px;
+                }
+            }
+        }
+        &.dropdown {
+            background: none;
+
+            ul {
+                margin-left: 15px;
+                box-shadow: 0 5px 10px rgba(0,0,0,.2);
+                padding-left: 0;
+                li {
+                    margin-right: 5px;
+                    background: none;
+
+                    a {
+                        color: #333;
+                        &:hover {
+                            color: #28728d;
+                            background-color: #ccc;
+                        }
+                    }
+                }
+            }
         }
     }
     & > .sidebar-toggle {

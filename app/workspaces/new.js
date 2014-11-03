@@ -12,11 +12,15 @@ angular.module('gsApp.workspaces.new', [])
     '$stateParams', '$log', 'GeoServer',
     function($scope, $rootScope, $state, $stateParams, $log, GeoServer) {
 
-      $scope.title = 'New Workspace';
+      $scope.title = 'New Project';
       $scope.workspace = {
         default: false
       };
       $scope.workspaceCreated = false;
+
+      $scope.defaultDesc = 'If no project is specified in a GeoServer request,'+
+        'the DEFAULT is used. In map or layer requests, for example.';
+      $scope.showDefaultDesc = false;
 
       $scope.cancel = function() {
         $state.go('workspaces.list');

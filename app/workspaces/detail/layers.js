@@ -21,14 +21,19 @@ angular.module('gsApp.workspaces.layers', [
     }])
 .controller('WorkspaceLayersCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'layersListModel',
+  '$timeout',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent, layersListModel) {
+      GeoServer, AppEvent, layersListModel, $timeout) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
 
       $scope.layerThumbsWidth = 175;
       $scope.layerThumbsHeight = 175;
+
+      $timeout(function() {
+        $scope.$parent.tabs[1].active = true;
+      }, 300);
 
       GeoServer.layers.get($scope.workspace).then(
         function(result) {
