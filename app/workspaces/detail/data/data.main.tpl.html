@@ -14,7 +14,6 @@
         </div>
         <div class="info-column">
           <p><strong>Store:</strong> {{ ds.name }}</p>
-          <p><strong>Type:</strong> {{ ds.format }}</p>
           <p>
             <div class="btn-group toggle-group">
               <label class="btn btn-xs" ng-class="{'btn-success': ds.enabled, 'btn-default': !ds.enabled}" ng-click="enableDisableStore(ds)" ng-model="ds.enabled">Enabled</label>
@@ -31,13 +30,21 @@
   <div class="col-sm-6">
     <div>
       <div>
-        <div><strong>Type:</strong> <a ng-click="getTypeDetails(selectedStore)">{{ selectedStore.format }}</a></div>
+        <div><strong>Store Type:</strong> <a ng-click="getTypeDetails(selectedStore)">{{ selectedStore.format }}</a></div>
         <div ng-show="selectedStore && !selectedStore.enabled">Store is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
       </div>
-      <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Source:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
+      <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Store Source:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
       <div class="resources">
+        <div class="resources-header">
+          <span>Store Resources</span>
+          <span class="pull-right">
+            Sort by
+            <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
+            <a class="sort-options" ng-click="predicate='layers.length'; reverse=!reverse;">Published</a>
+          </span>
+        </div>
         <ul class="list-unstyled">
-          <li class="singleResource" ng-repeat="rsrc in selectedStore.resources">
+          <li class="singleResource" ng-repeat="rsrc in selectedStore.resources | orderBy:predicate:reverse">
             <div>
               <span class="label-tag">Resource:</span>
               <strong> {{ rsrc.name }}</strong>
