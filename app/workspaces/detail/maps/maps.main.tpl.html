@@ -1,10 +1,17 @@
 <div class="map-tab-inner">
   <h3>Maps</h3>
   <div class="maps-count">
-    <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length==0 || maps.length>1">s</span> in project <strong>{{ workspace }}</strong>
+    <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length==0 || maps.length>1">s</span> in Project <strong>{{ workspace }}</strong>
   </div>
+  <small class="sort-by">
+    Sort by
+    <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
+    <a class="sort-options" ng-click="predicate='title'; reverse=!reverse;">Title</a> |
+    <a class="sort-options" ng-click="predicate='modified.pretty'; reverse=!reverse;">Modified</a> |
+    <a class="sort-options" ng-click="predicate='layer_count'; reverse=!reverse;"># Layers</a>
+  </small>
   <div class="map-summary" ng-show="maps.length > 0">
-    <div class="row" ng-repeat="row in maps | partition:2">
+    <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2">
       <div class="col-sm-6" ng-repeat="map in row">
         <a href="" ng-click="onEdit(map)">
           <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
