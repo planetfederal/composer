@@ -148,5 +148,20 @@ angular.module('gsApp.core.utilities', [])
     str = str.toLowerCase();
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
+})
+.directive('focusInit', function($timeout) {
+  return {
+    scope: { trigger: '=focusInit' },
+    link: function(scope, element) {
+      scope.$watch('trigger', function(value) {
+        if (value === true) {
+          $timeout(function() {
+            element[0].focus();
+            scope.trigger = false;
+          });
+        }
+      });
+    }
+  };
 });
 
