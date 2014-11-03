@@ -27,10 +27,13 @@ angular.module('gsApp.workspaces.layers.duplicate', [])
       var fromLayer = resource.layers[0].name;
 
       $scope.layer = {
-        'title': resource.title,
-        'workspace': workspace,
-        'proj': findProj(resource.schema.attributes),
-        'from': fromLayer
+        title: resource.title,
+        workspace: workspace,
+        proj: findProj(resource.schema.attributes),
+        layer: {
+          name: fromLayer,
+          workspace: $scope.workspace
+        }
       };
 
       $scope.importAsLayer = function() {
