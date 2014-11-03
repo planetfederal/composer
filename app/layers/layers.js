@@ -56,9 +56,10 @@ angular.module('gsApp.layers', [
       '</div>'
   };
 })
-.controller('LayersCtrl', ['$scope', 'GeoServer', '$state',
+.controller('LayersCtrl', ['$scope', 'GeoServer', '$state', 'AppEvent',
     '$log', '$modal', '$window', '$rootScope',
-    function($scope, GeoServer, $state, $log, $modal, $window, $rootScope) {
+    function($scope, GeoServer, $state, AppEvent, $log, $modal, $window,
+      $rootScope) {
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
       $scope.dropdownBoxSelected = '';
@@ -448,6 +449,8 @@ angular.module('gsApp.layers', [
         if (newVal != null) {
           $scope.refreshLayers(newVal);
           $scope.refreshMaps(newVal.name);
+          $rootScope.$broadcast(AppEvent.WorkspaceSelected,
+            newVal.name);
         }
       });
 

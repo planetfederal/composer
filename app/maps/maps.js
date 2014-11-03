@@ -18,11 +18,15 @@ angular.module('gsApp.maps', [
         });
     }])
 .controller('MapsCtrl', ['$scope', 'GeoServer', '$state', '$log', '$rootScope',
-    '$modal', '$window',
-    function($scope, GeoServer, $state, $log, $rootScope, $modal, $window) {
+    '$modal', '$window', 'AppEvent',
+    function($scope, GeoServer, $state, $log, $rootScope, $modal, $window,
+      AppEvent) {
       $scope.title = 'All Maps';
 
       $scope.workspaceChanged = function(ws) {
+        $rootScope.$broadcast(AppEvent.WorkspaceSelected,
+          ws.name);
+
         GeoServer.maps.get(ws.name).then(
           function(result) {
             if (result.success) {
@@ -56,7 +60,7 @@ angular.module('gsApp.maps', [
                   extentType: extentType,
                   extent: extent
                 };
-                
+
                 $window.alert('TODO: add the new map: ' + name +
                   ' to the workspace: ' + $scope.ws + '.');
                 GeoServer.map.create(

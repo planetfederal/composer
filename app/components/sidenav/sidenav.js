@@ -115,6 +115,9 @@ angular.module('gsApp.sidenav', [
     };
 
     $scope.closeAll = function () {
+      if (!$scope.workspaces) {
+        return;
+      }
       var ws = $scope.workspaces;
       for (var t=0; t < ws.length; t++) {
         $scope.toggleWkspc[ws[t].name] = false;
