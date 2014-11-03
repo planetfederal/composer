@@ -2,6 +2,16 @@
 
 @import "../variables.less";
 
+.workspaces-count {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.single-workspace-info {
+  padding: 8px 12px 0 12px;
+  margin-bottom: 0;
+}
+
 .workspace-summary-detail {
   margin-top: 30px;
   display: inline-block;
@@ -9,9 +19,30 @@
 
   .workspace-icon {
     display: inline-block;
+
     i.icon-folder {
-       font-size: 80px;
-       color: @light-gray;
+      font-size: 96px;
+      color: @light-gray;
+      .transition(.2s, ease);
+    }
+    .workspace-details.in-folder {
+      margin-top: -65px;
+
+      .view {
+        display: block;
+        text-align: center;
+        color: @white;
+        &:hover {
+          color:@skyblue;
+        }
+      }
+      .dash {
+        display: block;
+        text-align: center;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        color: @white;
+      }
     }
   }
 
@@ -21,20 +52,28 @@
 
     .workspace-name {
       vertical-align: top;
-      margin: 20px auto auto 10px;
+      margin: 20px auto 10px 10px;
       color: @gray;
       font-weight: bold;
     }
+    .modified {
+      color: @gray;
+      margin: 10px auto 10px 10px;
+    }
     .workspace-default {
-      margin: 10px auto auto 10px;
+      margin: 10px auto 10px 10px;
     }
   }
 
   &:hover {
     text-decoration: none;
 
-    .workspace-icon i.icon-folder {
-      color: @gray;
+    .workspace-icon {
+      i.icon-folder {
+        color: @gray;
+        font-size: 102px;
+        .transition(.2s, ease);
+      }
     }
     .workspace-info .workspace-name {
       color: @black;

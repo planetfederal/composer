@@ -7,10 +7,10 @@
       </div>
       <small class="sort-by">
         Sort by
-        <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
-        <a class="sort-options" ng-click="predicate='title'; reverse=!reverse;">Title</a> |
-        <a class="sort-options" ng-click="predicate='modified.pretty'; reverse=!reverse;">Modified</a> |
-        <a class="sort-options" ng-click="predicate='geometry'; reverse=!reverse;">Type</a>
+        <a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a> |
+        <a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a> |
+        <a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Last Modified</a> |
+        <a class="sort-options" ng-click="predicate='geometry'; reverse = (last=='geometry')? !reverse : reverse; last='geometry';">Type</a>
       </small>
     </div>
     <div class="col-sm-5">
