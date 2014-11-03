@@ -10,8 +10,11 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.geoserver.catalog.CascadeDeleteVisitor;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.Predicates;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
@@ -125,7 +128,24 @@ public class WorkspaceController extends ApiController {
         WorkspaceInfo ws = findWorkspace(wsName, cat);
         WorkspaceInfo def = cat.getDefaultWorkspace();
 
-        return IO.workspace(new JSONObj(), ws, namespaceFor(ws), def != null && def.equals(ws));
+        JSONObj obj = IO.workspace(new JSONObj(), ws, namespaceFor(ws), def != null && def.equals(ws));
+
+        obj.put("maps", countMaps(ws, cat));
+        obj.put("layers", countLayers(ws, cat));
+        obj.put("stores", countStores(ws, cat));
+        return obj;
+    }
+
+    Integer countMaps(WorkspaceInfo ws, Catalog cat) {
+        return cat.count(LayerGroupInfo.class, Predicates.equal("workspace.name", ws.getName()));
+    }
+
+    Integer countLayers(WorkspaceInfo ws, Catalog cat) {
+        return cat.count(LayerInfo.class, Predicates.equal("resource.namespace.prefix", ws.getName()));
+    }
+
+    Integer countStores(WorkspaceInfo ws, Catalog cat) {
+        return cat.count(StoreInfo.class, Predicates.equal("workspace.name", ws.getName()));
     }
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.PATCH)
