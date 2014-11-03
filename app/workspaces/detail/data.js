@@ -32,14 +32,18 @@ angular.module('gsApp.workspaces.data', [
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
   '$stateParams', '$modal', '$window', '$log', 'GeoServer', '_',
-  'AppEvent',
+  'AppEvent', '$timeout',
     function($scope, $rootScope, $state, $stateParams, $modal, $log,
-      $window, GeoServer, _, AppEvent) {
+      $window, GeoServer, _, AppEvent, $timeout) {
 
       var workspace = $scope.workspace;
 
       // Set stores list to window height
       $scope.storesListHeight = {'height': $window.innerHeight-250};
+
+      $timeout(function() {
+        $scope.$parent.tabs[2].active = true;
+      }, 300);
 
       function getDataStores() {
         GeoServer.datastores.get($scope.workspace).then(

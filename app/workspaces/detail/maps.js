@@ -26,12 +26,17 @@ angular.module('gsApp.workspaces.maps', [
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'mapsListModel',
+  '$timeout',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent, mapsListModel) {
+      GeoServer, AppEvent, mapsListModel, $timeout) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
       $scope.olmaps = {};
+
+      $timeout(function() {
+        $scope.$parent.tabs[0].active = true;
+      }, 300);
 
       $scope.mapThumbsWidth = 175;
       $scope.mapThumbsHeight = 175;

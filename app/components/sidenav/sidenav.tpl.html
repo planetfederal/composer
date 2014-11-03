@@ -1,8 +1,7 @@
 <div id="sidebar-wrapper" ng-show="session.active">
   <ul class="sidebar-nav" ng-style="sideStyle">
     <li class="sidebar-toggle">
-      <a href="" ng-click="toggleSide=!toggleSide;onResize();" id="menu-toggle"
-        ng-class="{'f-right': !toggleSide}"
+      <a ng-click="openWorkspace(); toggleSide=!toggleSide; onResize();" id="menu-toggle" ng-class="{'f-right': !toggleSide}"
         alt="{{toggleSide ? 'Open' : 'Close'}} sidebar"
         title="{{toggleSide ? 'Open' : 'Close'}} sidebar">
         <i class="toggleIcon fa fa-2x"
@@ -16,40 +15,40 @@
         <span class="txt">New <span class="caret"></span></span>
       </a>
       <ul id="dropdown-new" class="dropdown-menu" role="menu">
-        <li><a ng-click="newWorkspace();">New Workspace</a></li>
+        <li><a ng-click="newWorkspace();">New Project</a></li>
         <li><a href="#">New Map</a></li>
       </ul>
     </li>
     <li role="presentation" class="divider"></li>
     <li id="projects_t" ng-show="!toggleSide">
-      <a class="all-workspaces" ng-init="openWorkspaces();toggleProjs=true;"
-        ng-click="toggleProjs=!toggleProjs; openWorkspaces();" ui-sref="workspaces.list"
+      <div class="all-workspaces" ng-init="openWorkspaces();" ui-sref="workspaces.list"
         alt="Project Workspaces" title="Project Workspaces">
-        <i ng-class="{'icon-folder-open': toggleProjs,
-          'icon-folder': !toggleProjs}"></i> <span class="txt">
-          Workspaces</span>
-      </a>
-      <ul class="workspaces" collapse="!toggleProjs" role="menu">
+        <span class="projects-header">Projects</span>
+      </div>
+      <ul class="workspaces" role="menu">
         <li class="single-workspace" ng-repeat="workspace in workspaces |
-          limitTo: 5" ng-class="{'open': toggleWkspc}"
-          ng-init="toggleWkspc=false">
-          <a href="" ng-click="toggleWkspc=!toggleWkspc;
-            onWorkspaceClick(workspace);" alt="{{ workspace.name }}"
-            title="{{ workspace.name }}">
-            <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open':
-              toggleWkspc,}"></i> <span class="txt">{{ workspace.name }}</span>
+          limitTo: 5" ng-class="{'open': toggleWkspc[workspace.name]}">
+          <a href="" ng-click="onWorkspaceClick(workspace);" alt="{{ workspace.name }}">
+            <i ng-class="{'icon-folder': !toggleWkspc[workspace.name], 'icon-folder-open': toggleWkspc[workspace.name]}"></i> <span class="txt">{{ workspace.name }}</span>
           </a>
-          <ul class="workspace-items" collapse="!toggleWkspc" role="menu">
-            <li>
-              <a ng-click="onWorkspaceClick(workspace,'maps.main');"
-                alt="Maps" title="Maps">
+          <ul class="workspace-items" collapse="!toggleWkspc[workspace.name]" role="menu">
+            <li class="in-workspace">
+              <a ng-click="onWorkspaceTabClick(workspace,'maps.main');"
+                alt="Maps">
                 <i class="icon-map"></i> <span class="txt">Maps</span>
               </a>
             </li>
-            <li>
-              <a ng-click="onWorkspaceClick(workspace,'data.main');"
-                alt="Data" title="Data">
-                <i class="fa fa-database fa-lg"></i> <span class="txt">Data
+            <li class="in-workspace">
+              <a ng-click="onWorkspaceTabClick(workspace,'layers.main');"
+                alt="Layers">
+                <i class="icon-stack"></i> <span class="txt">Layers
+                </span>
+              </a>
+            </li>
+            <li class="in-workspace">
+              <a ng-click="onWorkspaceTabClick(workspace,'data.main');"
+                alt="Data">
+                <i class="fa fa-database fa-md"></i> <span class="txt" style="margin-left: 1px;"> Stores
                 </span>
               </a>
             </li>
@@ -63,22 +62,18 @@
       </ul>
     </li>
     <li id="projects" ng-show="toggleSide" class="dropdown">
-      <a ng-click="openWorkspaces();" ng-show="toggleSide" class="dropdown-toggle"
+      <a ng-click="openWorkspaces();" class="dropdown-toggle"
         data-toggle="tgdropdown" alt="Project Workspaces"
         title="Project Workspaces">
-        <i ng-class="{'icon-folder-open': toggleProjs, 'icon-folder':
-          !toggleProjs}"></i> <span class="txt">Project Workspaces</span>
+        <i class="icon-folder-open"></i> <span class="txt">Project Workspaces</span>
       </a>
-      <ul ng-show="toggleSide" id="tgdropdown" class="dropdown-menu"
+      <ul id="tgdropdown" class="dropdown-menu"
         role="menu">
         <li class="single-workspace" ng-repeat="workspace in workspaces |
-          limitTo: 5" ng-class="{'open': toggleWkspc}"
-          ng-init="toggleWkspc=false">
-          <a href="" ng-click="toggleWkspc=!toggleWkspc;
-            onWorkspaceClick(workspace);" alt="{{ workspace.name }}"
+          limitTo: 5" ng-class="{'open': toggleWkspc2[workspace.name]}">
+          <a href="" ng-click="onWorkspaceClick2(workspace);" alt="{{ workspace.name }}"
             title="{{ workspace.name }}">
-            <i ng-class="{'icon-folder': !toggleWkspc, 'icon-folder-open':
-              toggleWkspc,}"></i> {{ workspace.name }}
+            <i ng-class="{'icon-folder': !toggleWkspc2[workspace.name], 'icon-folder-open': toggleWkspc2[workspace.name]}"></i> {{ workspace.name }}
           </a>
         </li>
         <li ng-show="workspaces.length > 2" class="more">

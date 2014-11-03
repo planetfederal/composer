@@ -3,14 +3,14 @@
     <h3 class="page-title"><i class="icon-lg icon-folder-open"></i> {{title}}</h3>
     <div class="row">
       <div class="col-sm-6">
-        <p style="margin-top: 20px;">A workspace is a project container which organizes your maps, layers and data together.</p>
+        <p style="margin-top: 20px;">A project is a container for organizing your maps, layers and data together.</p>
       </div>
     </div>
     <div class="row">
       <div class="col-sm-6">
         <form name="createform.settings" role="form" class="settings">
           <div class="form-group">
-            <label for="workspaceName">Workspace Name</label>
+            <label for="workspaceName">Project Name</label>
             <input type="text" class="form-control input-sm" name="name" ng-model="workspace.name" ng-maxlength="10" ng-minlength="1" required ng-blur="updateUri(this)" ng-pattern="/^[^\s]+$/">
             <span ng-show="createform.settings.name.$error.pattern" class="error">No spaces allowed.</span>
             <span ng-show="createform.settings.name.$error.maxlength" class="error">Max 10 characters.</span>
@@ -18,8 +18,9 @@
           </div>
           <div class="checkbox">
             <label>
-              <input type="checkbox" ng-model="workspace.default" name="default"> Default Workspace?
+            <input type="checkbox" ng-model="workspace.default" name="default"> Default?
             </label>
+            <span pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="bottom" ng-click="showDefaultDesc=!showDefaultDesc;"><i class="fa fa-info-circle"></i></span>
           </div>
         </form>
         <div ng-hide="workspaceCreated" style="margin-top:15px;"></div>
