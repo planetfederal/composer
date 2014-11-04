@@ -21,7 +21,7 @@ angular.module('gsApp.workspaces.home', [
       AppEvent, $timeout, $location) {
 
       var wsName = $stateParams.workspace;
-
+      
       $scope.workspace = wsName;
 
       var loc = $location.path();

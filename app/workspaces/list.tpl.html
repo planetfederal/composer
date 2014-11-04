@@ -8,7 +8,7 @@
       <small class="sort-by">
         Sort by
         <a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a> |
-        <a class="sort-options" ng-click="predicate='modified.timestamp';  reverse = (last=='modified')? !reverse : reverse; last='modified';">Last Modified</a>
+        <a class="sort-options" ng-click="predicate='modified.timestamp';  reverse = (last=='modified')? !reverse : reverse; last='modified';">Modified</a>
       </small>
     </div>
     <div class="col-sm-4 col-sm-offset-3">
@@ -32,7 +32,7 @@
               </div>
               <div class="workspace-info">
                 <h4 class="workspace-name" ng-click="onWorkspaceClick(workspace)">{{ workspace.name }}</h4>
-                <small class="modified" ng-if="workspace.modified">Last modified {{ workspace.modified.pretty }}</small>
+                <small class="modified" ng-if="workspace.modified">Modified {{ workspace.modified.pretty }}</small>
                 <small class="settings" ng-click="go('workspace.settings', workspace);"><i class="fa fa-gear"></i> Settings</small>
                 <small class="view" ng-init="showInfo=false" ng-click="onWorkspaceInfo(workspace);"> Info</small>
                 <div class="workspace-default" ng-if="workspace.default" pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="bottom" ng-click="showDefaultDesc=!showDefaultDesc;">Default</div>

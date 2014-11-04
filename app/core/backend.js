@@ -96,8 +96,9 @@ angular.module('gsApp.core.backend',[])
         },
 
         workspaces: {
-          get: function() {
+          get: function(cacheBool) {
             return http({
+              cache: cacheBool,
               method: 'GET',
               url: apiRoot+'/workspaces'
             });
