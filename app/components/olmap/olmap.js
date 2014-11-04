@@ -13,7 +13,8 @@ angular.module('gsApp.olmap', [])
         var mapLayer = new ol.layer.Image({
           source: new ol.source.ImageWMS({
             url: GeoServer.baseUrl()+'/'+mapOpts.workspace+'/wms',
-            params: {'LAYERS': layerNames, 'VERSION': '1.1.1'},
+            params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
+                'EXCEPTIONS': 'application/json'},
             serverType: 'geoserver',
             imageLoadFunction: function(image, src) {
               progress('start');
@@ -35,7 +36,7 @@ angular.module('gsApp.olmap', [])
                     if (type.indexOf('image') === 0) {
                       img.src = 'data:' + type + ';base64,' + window.btoa(data);
                     } else {
-                      error(data);
+                      error($.parseJSON(data));
                     }
                   } else {
                     error(this.statusText);
