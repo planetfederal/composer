@@ -22,6 +22,9 @@ import com.boundlessgeo.geoserver.bundle.BundleExporter;
 import com.boundlessgeo.geoserver.bundle.BundleImporter;
 import com.boundlessgeo.geoserver.bundle.ExportOpts;
 import com.boundlessgeo.geoserver.bundle.ImportOpts;
+import org.geoserver.config.GeoServerDataDirectory;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.Iterator;
 
 @Controller
@@ -59,12 +63,12 @@ public class WorkspaceController extends ApiController {
 
         WorkspaceInfo def = cat.getDefaultWorkspace();
         if (def != null) {
-           IO.workspace(arr.addObject(), def, namespaceFor(def), true);
+           workspace(arr.addObject(), def, namespaceFor(def), true);
         }
 
-        CloseableIterator<WorkspaceInfo> list = cat.list(WorkspaceInfo.class, Predicates.acceptAll());
-
-        try {
+        try (
+            CloseableIterator<WorkspaceInfo> list = cat.list(WorkspaceInfo.class, Predicates.acceptAll());
+        ) {
             while(list.hasNext()) {
                 WorkspaceInfo ws = list.next();
                 if (def != null && ws.getName().equals(def.getName())) {
@@ -72,15 +76,8 @@ public class WorkspaceController extends ApiController {
                 }
 
                 NamespaceInfo ns = namespaceFor(ws);
-                JSONObj wsObj = arr.addObject()
-                   .put("name", ws.getName())
-                   .put("default", false)
-                   .put("uri", ns.getURI());
-                IO.metadata(wsObj, ws);
+                workspace(arr.addObject(), ws, ns, false);
             }
-        }
-        finally {
-            list.close();
         }
 
         return arr;
@@ -111,6 +108,8 @@ public class WorkspaceController extends ApiController {
         ns.setPrefix(wsName);
         ns.setURI(nsUri);
 
+        Metadata.created(ws, new Date());
+
         cat.add(ws);
         cat.add(ns);
 
@@ -119,7 +118,7 @@ public class WorkspaceController extends ApiController {
             cat.setDefaultNamespace(ns);
         }
 
-        return IO.workspace(new JSONObj(), ws, ns, isDefault);
+        return workspace(new JSONObj(), ws, ns, isDefault);
     }
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.GET)
@@ -134,6 +133,19 @@ public class WorkspaceController extends ApiController {
         obj.put("maps", countMaps(ws, cat));
         obj.put("layers", countLayers(ws, cat));
         obj.put("stores", countStores(ws, cat));
+
+        return obj;
+    }
+
+    JSONObj workspace(JSONObj obj, WorkspaceInfo ws, NamespaceInfo ns, boolean isDefault) {
+        IO.workspace(obj, ws, ns, isDefault);
+        if (!obj.has(Metadata.MODIFIED)) {
+            // derive from resource
+            Resource r = dataDir().config(ws);
+            if (r.getType() != Type.UNDEFINED) {
+                IO.date(obj.putObject("modified"), new Date(r.lastmodified()));
+            }
+        }
         return obj;
     }
 
