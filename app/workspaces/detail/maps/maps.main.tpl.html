@@ -3,15 +3,23 @@
   <div class="maps-count">
     <strong>{{ maps.length }}</strong> Map<span ng-if="maps.length==0 || maps.length>1">s</span> in Project <strong>{{ workspace }}</strong>
   </div>
-  <small class="sort-by">
-    Sort by
-    <a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a> |
-    <a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a> |
-    <a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Last Modified</a> |
-    <a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a>
-  </small>
+  <div class="row">
+    <div class="col-sm-7">
+      <small class="sort-by">
+        Sort by
+        <a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a> |
+        <a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a> |
+        <a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Last Modified</a> |
+        <a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a>
+      </small>
+    </div>
+    <div class="col-sm-5 filter-box">
+      <input type="text" class="form-control grid-filter" ng-model="filterText" placeholder="Filter by name, title, description..." size="25" focus-init />
+    </div>
+  </div>
+</div>
   <div class="map-summary" ng-show="maps.length > 0">
-    <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2">
+    <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2 | filter:filterText">
       <div class="col-sm-6" ng-repeat="map in row">
         <a href="" ng-click="onEdit(map)">
           <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
