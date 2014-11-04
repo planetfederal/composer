@@ -1,6 +1,7 @@
 angular.module('gsApp.workspaces.layers', [
   'gsApp.workspaces.layers.settings',
   'gsApp.workspaces.layers.import',
+  'gsApp.workspaces.layers.duplicate',
   'gsApp.alertpanel',
   'gsApp.core.utilities',
   'ngSanitize'
@@ -58,9 +59,10 @@ angular.module('gsApp.workspaces.layers', [
     }])
 .controller('LayersMainCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', '$modal', '$rootScope',
-  'AppEvent', '_', 'mapsListModel',
+  'AppEvent', '_', 'mapsListModel', 'layersListModel',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel) {
+      GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel,
+      layersListModel) {
 
       $scope.workspace = $stateParams.workspace;
       mapsListModel.fetchMaps($scope.workspace).then(function() {
@@ -168,6 +170,14 @@ angular.module('gsApp.workspaces.layers', [
         }
       });
 
+      $rootScope.$on(AppEvent.LayerAdded, function(scope, layer) {
+        if (layer) {
+          layersListModel.addLayer(layer);
+          $scope.layers =
+            layersListModel.sortByTime(layersListModel.getLayers());
+        }
+      });
+
       var openPopoverLayer;
       $scope.closeLayerTPopovers = function(layer) {
         if (layer.title.length < 33) {
@@ -195,6 +205,22 @@ angular.module('gsApp.workspaces.layers', [
         }
       };
 
+      $scope.copyToNewLayer = function(layer) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/layer.duplicate.tpl.html',
+          controller: 'DuplicateLayerCtrl',
+          size: 'md',
+          resolve: {
+            layer: function() {
+              return layer;
+            },
+            workspace: function() {
+              return $scope.workspace;
+            }
+          }
+        });
+      };
+
     }])
 .service('layersListModel', function(GeoServer, _, $rootScope) {
   var _this = this;
@@ -218,6 +244,16 @@ angular.module('gsApp.workspaces.layers', [
     });
   };
 
+  this.sortByTime = function(layers) {
+    // sort by timestamp
+    var sorted = _.sortBy(layers, function(lyr) {
+      if (lyr.modified) {
+        return lyr.modified.timestamp;
+      }
+    });
+    return sorted.reverse();
+  };
+
   this.fetchLayers = function(workspace) {
     return GeoServer.layers.get(workspace).then(
       function(result) {
@@ -233,13 +269,8 @@ angular.module('gsApp.workspaces.layers', [
                 return layer;
               }
             });
-            // sort by timestamp
-          layers = _.sortBy(layers, function(lyr) {
-              if (lyr.modified) {
-                return lyr.modified.timestamp;
-              }
-            });
-          _this.setLayers(layers.reverse());
+          // sort by timestamp
+          _this.setLayers(_this.sortByTime(layers));
         } else {
           $rootScope.alerts = [{
             type: 'warning',

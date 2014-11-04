@@ -49,6 +49,9 @@
             </a>
             <a ng-click="showAttrs(layer.name, layer.schema.attributes)">{{ layer.schema.attributes.length }} Attributes</a>
             <a ng-click="editLayerSettings(layer);"><i class="fa fa-gear"></i> Settings</a>
+            <a title="Copy to New Layer" ng-click="copyToNewLayer(layer);">
+              <i class="fa fa-copy"></i> Copy
+            </a>
           </div>
         </div>
       </div>
