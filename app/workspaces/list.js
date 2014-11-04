@@ -1,6 +1,7 @@
 angular.module('gsApp.workspaces.list', [
   'ngGrid',
-  'gsApp.core.utilities'
+  'gsApp.core.utilities',
+  'ngAnimate'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -12,8 +13,9 @@ angular.module('gsApp.workspaces.list', [
         });
     }])
 .controller('WorkspacesListCtrl', ['$scope', 'GeoServer', '$state', '$log',
-  '$rootScope', 'AppEvent',
-    function($scope, GeoServer, $state, $log, $rootScope, AppEvent) {
+  '$rootScope', 'AppEvent', '_', 'workspacesListModel', '$timeout',
+    function($scope, GeoServer, $state, $log, $rootScope, AppEvent, _,
+      workspacesListModel, $timeout) {
       $scope.title = 'All Projects';
 
       $scope.onWorkspaceClick = function(workspace) {
@@ -28,20 +30,15 @@ angular.module('gsApp.workspaces.list', [
         'in a GeoServer request, the DEFAULT project is used.';
       $scope.showDefaultDesc = false;
 
-      GeoServer.workspaces.get().then(
-        function(result) {
-          if (result.success) {
-            $scope.workspaces = result.data;
+      $scope.workspaces = workspacesListModel.getWorkspaces();
+      if (!$scope.workspaces) {
+        workspacesListModel.fetchWorkspaces().then(
+          function(result) {
+            $scope.workspaces = workspacesListModel.getWorkspaces();
             $rootScope.$broadcast(AppEvent.WorkspacesFetched,
               $scope.workspaces);
-          } else {
-            $scope.alerts = [{
-                type: 'warning',
-                message: 'Could not get workspaces.',
-                fadeout: true
-              }];
-          }
-        });
+          });
+      }
 
       $scope.onWorkspaceInfo = function(workspace) {
         $scope.selected = workspace;
@@ -50,14 +47,78 @@ angular.module('gsApp.workspaces.list', [
             if (result.success) {
               $scope.selected.workspaceInfo = result.data;
               $scope.selected.showInfo = true;
+              $timeout(function() {
+                $scope.selected.showInfo = false;
+              }, 2000);
             } else {
               $scope.alerts = [{
-                  type: 'warning',
-                  message: 'Could not get workspace ' + workspace.name + '.',
-                  fadeout: true
-                }];
+                type: 'warning',
+                message: 'Could not get workspace ' + workspace.name + '.',
+                fadeout: true
+              }];
             }
           });
       };
 
-    }]);
+      $scope.go = function(route, workspace) {
+        $state.go(route, {workspace: workspace.name});
+      };
+
+    }])
+.service('workspacesListModel', function(GeoServer, _, $rootScope) {
+  var _this = this;
+  this.workspaces = null;
+
+  this.getWorkspaces = function() {
+    return this.workspaces;
+  };
+
+  this.setWorkspaces= function(workspaces) {
+    this.workspaces = workspaces;
+  };
+
+  this.addWorkspace = function(workspace) {
+    this.workspaces.push(workspace);
+  };
+
+  this.removeWorkspace = function(workspace) {
+    _.remove(_this.workspaces, function(_workspace) {
+      return _workspace.name === workspace.name;
+    });
+  };
+
+  this.fetchWorkspaces = function() {
+    return GeoServer.workspaces.get().then(
+      function(result) {
+        if (result.success) {
+          var workspaces = _.map(result.data,
+            function(ws) {
+              if (ws.modified) {  // convert time strings to Dates
+                return _.assign(ws, {'modified': {
+                  'timestamp': new Date(ws.modified.timestamp),
+                  'pretty': ws.modified.pretty
+                }});
+              } else {
+                return ws;
+              }
+            });
+            // sort by timestamp
+          workspaces = _.sortBy(workspaces, function(ws) {
+            if (ws.modified) {
+              return ws.modified.timestamp;
+            }
+          });
+          _this.setWorkspaces(workspaces);
+        } else {
+          // special case, check for 401 Unauthorized, if so be quiet
+          if (result.status != 401) {
+            $rootScope.alerts = [{
+              type: 'warning',
+              message: 'Could not get workspaces.',
+              fadeout: true
+            }];
+          }
+        }
+      });
+  };
+});

@@ -32,24 +32,14 @@ angular.module('gsApp.workspaces.layers', [
       $scope.layerThumbsHeight = 175;
 
       $timeout(function() {
-        if ($scope.$parent.tabs) {
+        if ($scope.$parent && $scope.$parent.tabs) {
           $scope.$parent.tabs[1].active = true;
         }
       }, 300);
 
-      GeoServer.layers.get($scope.workspace).then(
-        function(result) {
-          if (result.success) {
-            var layers = result.data.layers;
-            layersListModel.setLayers(layers);
-            $scope.layers = layers;
-          } else {
-            $scope.alerts = [{
-              type: 'danger',
-              message: 'Unable to load workspace layers.',
-              fadeout: true
-            }];
-          }
+      layersListModel.fetchLayers($scope.workspace).then(
+        function() {
+          $scope.layers = layersListModel.getLayers();
         });
 
       $scope.mapsHome = function() {
@@ -194,7 +184,7 @@ angular.module('gsApp.workspaces.layers', [
       };
 
     }])
-.service('layersListModel', function(GeoServer, _) {
+.service('layersListModel', function(GeoServer, _, $rootScope) {
   var _this = this;
   this.layers = null;
 
@@ -217,10 +207,33 @@ angular.module('gsApp.workspaces.layers', [
   };
 
   this.fetchLayers = function(workspace) {
-    GeoServer.layers.get(workspace).then(
+    return GeoServer.layers.get(workspace).then(
       function(result) {
         if (result.success) {
-          _this.setLayers(result.data);
+          var layers = _.map(result.data.layers,
+            function(layer) {
+              if (layer.modified) {  // convert time strings to Dates
+                return _.assign(layer, {'modified': {
+                  'timestamp': new Date(layer.modified.timestamp),
+                  'pretty': layer.modified.pretty
+                }});
+              } else {
+                return layer;
+              }
+            });
+            // sort by timestamp
+          layers = _.sortBy(layers, function(lyr) {
+              if (lyr.modified) {
+                return lyr.modified.timestamp;
+              }
+            });
+          _this.setLayers(layers.reverse());
+        } else {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Unable to load workspace layers.',
+            fadeout: true
+          }];
         }
       });
   };

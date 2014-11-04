@@ -12,8 +12,8 @@ angular.module('gsApp.workspaces.settings', [
     }])
 .controller('WorkspaceSettingsCtrl', ['$scope', '$rootScope', '$state',
     '$stateParams', '$modal', '$log', 'GeoServer', 'AppEvent',
-    function($scope, $rootScope, $state, $stateParams, $modal, $log, GeoServer,
-      AppEvent) {
+    function($scope, $rootScope, $state, $stateParams, $modal, $log,
+      GeoServer, AppEvent) {
 
       $scope.wsSettings = {};
       $scope.form = {};

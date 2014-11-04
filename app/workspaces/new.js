@@ -9,8 +9,9 @@ angular.module('gsApp.workspaces.new', [])
         });
     }])
 .controller('WorkspaceNewCtrl', ['$scope', '$rootScope', '$state',
-    '$stateParams', '$log', 'GeoServer',
-    function($scope, $rootScope, $state, $stateParams, $log, GeoServer) {
+    '$stateParams', '$log', 'GeoServer', 'workspacesListModel',
+    function($scope, $rootScope, $state, $stateParams, $log, GeoServer,
+      workspacesListModel) {
 
       $scope.title = 'New Project';
       $scope.workspace = {
@@ -36,6 +37,7 @@ angular.module('gsApp.workspaces.new', [])
           function(result) {
             if (result.success || result.status===201) {
               $scope.workspaceCreated = true;
+              workspacesListModel.addWorkspace($scope.workspace);
               $rootScope.alerts = [{
                 type: 'success',
                 message: 'Workspace '+ workspace.name +' created.',

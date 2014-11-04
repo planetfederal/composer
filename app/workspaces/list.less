@@ -10,6 +10,13 @@
 .single-workspace-info {
   padding: 8px 12px 0 12px;
   margin-bottom: 0;
+  position: fixed;
+  z-index: 100;
+  .transition(.5s, ease-out);
+
+  &.ng-hide {
+    opacity: 0;
+  }
 }
 
 .workspace-summary-detail {
@@ -23,18 +30,15 @@
     i.icon-folder {
       font-size: 96px;
       color: @light-gray;
-      .transition(.2s, ease);
+      .transition(.2s, ease-in);
     }
     .workspace-details.in-folder {
-      margin-top: -65px;
+      margin-top: -45px;
 
       .view {
         display: block;
         text-align: center;
-        color: @white;
-        &:hover {
-          color:@skyblue;
-        }
+        color: @skyblue;
       }
       .dash {
         display: block;
@@ -52,13 +56,16 @@
 
     .workspace-name {
       vertical-align: top;
-      margin: 20px auto 10px 10px;
+      margin: 10px auto 10px 10px;
       color: @gray;
       font-weight: bold;
     }
-    .modified {
+    .modified, .view , .settings{
       color: @gray;
       margin: 10px auto 10px 10px;
+    }
+    .modified {
+      display: block;
     }
     .workspace-default {
       margin: 10px auto 10px 10px;
@@ -71,8 +78,7 @@
     .workspace-icon {
       i.icon-folder {
         color: @gray;
-        font-size: 102px;
-        .transition(.2s, ease);
+        .transition(.5s, ease);
       }
     }
     .workspace-info .workspace-name {

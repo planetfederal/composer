@@ -35,7 +35,7 @@ angular.module('gsApp.workspaces.maps', [
       $scope.olmaps = {};
 
       $timeout(function() {
-        if ($scope.$parent.tabs) {
+        if ($scope.$parent && $scope.$parent.tabs) {
           $scope.$parent.tabs[0].active = true;
         }
       }, 300);
@@ -43,35 +43,26 @@ angular.module('gsApp.workspaces.maps', [
       $scope.mapThumbsWidth = 175;
       $scope.mapThumbsHeight = 175;
 
-      GeoServer.maps.get($scope.workspace).then(
-        function(result) {
-          if (result.success) {
-            $scope.maps = result.data;
-            mapsListModel.setMaps(result.data);
+      mapsListModel.fetchMaps($scope.workspace).then(
+        function() {
+          $scope.maps = mapsListModel.getMaps();
 
-            // load all map thumbnails & metadata
-            for (var i=0; i < $scope.maps.length; i++) {
-              var map = $scope.maps[i];
-              var layers = '';
-              $scope.maps[i].workspace = $scope.workspace;
-              $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
-              var bbox = $scope.maps[i].bboxString = '&bbox=' + map.bbox.west +
-               ',' + map.bbox.south + ',' + map.bbox.east + ',' +
-               map.bbox.north;
-              var url = GeoServer.map.thumbnail.get(map.workspace,
-                map.layergroupname, $scope.mapThumbsWidth,
-                  $scope.mapThumbsHeight);
-              var srs = '&srs=' + map.proj.srs;
+          // load all map thumbnails & metadata
+          for (var i=0; i < $scope.maps.length; i++) {
+            var map = $scope.maps[i];
+            var layers = '';
+            $scope.maps[i].workspace = $scope.workspace;
+            $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
+            var bbox = $scope.maps[i].bboxString = '&bbox=' + map.bbox.west +
+             ',' + map.bbox.south + ',' + map.bbox.east + ',' +
+             map.bbox.north;
+            var url = GeoServer.map.thumbnail.get(map.workspace,
+              map.layergroupname, $scope.mapThumbsWidth,
+                $scope.mapThumbsHeight);
+            var srs = '&srs=' + map.proj.srs;
 
-              $scope.thumbnails[map.name] = url + bbox +
-                '&format=image/png' + srs;
-            }
-          } else {
-            $scope.alerts = [{
-              type: 'warning',
-              message: 'Unable to load workspace maps.',
-              fadeout: true
-            }];
+            $scope.thumbnails[map.name] = url + bbox +
+              '&format=image/png' + srs;
           }
         });
 
@@ -162,7 +153,7 @@ angular.module('gsApp.workspaces.maps', [
 
       });
     }])
-.service('mapsListModel', function(GeoServer) {
+.service('mapsListModel', function(GeoServer, _, $rootScope) {
   var _this = this;
   this.maps = null;
 
@@ -182,7 +173,30 @@ angular.module('gsApp.workspaces.maps', [
     return GeoServer.maps.get(workspace).then(
       function(result) {
         if (result.success) {
-          _this.setMaps(result.data);
+          var maps = _.map(result.data,
+            function(map) {
+              if (map.modified) {  // convert time strings to Dates
+                return _.assign(map, {'modified': {
+                  'timestamp': new Date(map.modified.timestamp),
+                  'pretty': map.modified.pretty
+                }});
+              } else {
+                return map;
+              }
+            });
+            // sort by timestamp
+          maps = _.sortBy(maps, function(map) {
+              if (map.modified) {
+                return map.modified.timestamp;
+              }
+            });
+          _this.setMaps(maps.reverse());
+        } else {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Unable to load workspace maps.',
+            fadeout: true
+          }];
         }
       });
   };
