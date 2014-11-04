@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Throwables;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.WordUtils;
@@ -25,6 +26,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.CatalogFactory;
 import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -44,6 +46,7 @@ import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.geoserver.ysld.YsldHandler;
+import org.geotools.coverage.grid.io.GridCoverage2DReader;
 import org.geotools.data.DataAccess;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.NameImpl;
@@ -56,6 +59,7 @@ import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.util.Version;
 import org.geotools.util.logging.Logging;
 import org.geotools.ysld.Ysld;
+import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -263,7 +267,7 @@ public class LayerController extends ApiController {
 
     LayerInfo createLayerFromResource(JSONObj ref, WorkspaceInfo ws, Catalog cat) throws IOException {
         String storeName = ref.str("store");
-        String resourceName = ref.str("name");
+        Name resourceName = new NameImpl(ref.str("name"));
 
         StoreInfo store = findStore(ws.getName(), storeName, cat);
 
@@ -276,23 +280,33 @@ public class LayerController extends ApiController {
             // create from the resource
             FeatureTypeInfo ft = null;
             try {
-                ft = builder.buildFeatureType(new NameImpl(resourceName));
+                ft = builder.buildFeatureType(resourceName);
             }
             catch(Exception e) {
-                if (e instanceof IOException) {
-                    throw (IOException) e;
-                }
-                else {
-                    throw new IOException(e);
-                }
+                Throwables.propagateIfInstanceOf(e, IOException.class);
+                Throwables.propagate(e);
             }
 
             DataAccess data = dataStore.getDataStore(null);
 
-            FeatureSource source = data.getFeatureSource(new NameImpl(resourceName));
+            FeatureSource source = data.getFeatureSource(resourceName);
             builder.setupBounds(ft, source);
 
             return builder.buildLayer(ft);
+        }
+        else if (store instanceof CoverageStoreInfo) {
+            CoverageStoreInfo covStore = (CoverageStoreInfo) store;
+            builder.setStore(covStore);
+
+            CoverageInfo cov = null;
+            try {
+                cov = builder.buildCoverage(resourceName.getLocalPart());
+            } catch (Exception e) {
+                Throwables.propagateIfInstanceOf(e, IOException.class);
+                Throwables.propagate(e);
+            }
+
+            return builder.buildLayer(cov);
         }
         else {
             throw new UnsupportedOperationException("Copy for non vector layer currently unsupported");
