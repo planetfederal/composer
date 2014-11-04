@@ -17,7 +17,6 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.io.ByteStreams;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.WordUtils;
@@ -40,7 +39,6 @@ import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
 import org.geoserver.importer.Importer;
-import org.geoserver.importer.StyleGenerator;
 import org.geoserver.platform.GeoServerResourceLoader;
 import org.geoserver.platform.resource.Paths;
 import org.geoserver.platform.resource.Resource;
@@ -145,7 +143,7 @@ public class LayerController extends ApiController {
             CloseableIterator<LayerInfo> it = cat.list(LayerInfo.class, filter, offset(page, count), count, sortBy);
         ) {
             while (it.hasNext()) {
-                IO.layer(arr.addObject(), it.next(), req);
+                layer(arr.addObject(), it.next(), req);
             }
         }
 
@@ -346,7 +344,7 @@ public class LayerController extends ApiController {
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
     public @ResponseBody JSONObj get(@PathVariable String wsName, @PathVariable String name, HttpServletRequest req) {
         LayerInfo l = findLayer(wsName, name, geoServer.getCatalog());
-        return IO.layer(new JSONObj(), l, req);
+        return layer(new JSONObj(), l, req);
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.DELETE)
@@ -525,6 +523,17 @@ public class LayerController extends ApiController {
             Mark mark = error.getProblemMark();
             if (mark != null) {
                 err.put("line", mark.getLine()).put("column", mark.getColumn());
+            }
+        }
+        return obj;
+    }
+
+    JSONObj layer(JSONObj obj, LayerInfo l, HttpServletRequest req) {
+        IO.layer(obj, l, req);
+        if (!obj.has("modified")) {
+            Resource r = dataDir().config(l);
+            if (r.getType() != Type.UNDEFINED) {
+                IO.date(obj.putObject("modified"), new Date(r.lastmodified()));
             }
         }
         return obj;

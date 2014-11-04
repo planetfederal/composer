@@ -475,24 +475,15 @@ public class MapController extends ApiController {
         IO.proj(obj.putObject("proj"), bounds.getCoordinateReferenceSystem(), null);
         IO.bounds(obj.putObject("bbox"), bounds);
         obj.put("layer_count", map.getLayers().size());
-        
-        // List date map was last modified
-        if( obj.has("modified") ){
-            IO.metadata(obj, map);
-        }
-        else {
-            // Generate metadata based on resource timestamp
-            String path = Paths.path("workspaces", wsName, "layergroups",
-                    String.format("%s.xml", map.getName()));
-            GeoServerResourceLoader resourceLoader = geoServer.getCatalog().getResourceLoader();
-            if( resourceLoader != null ){
-                Resource r = resourceLoader.get(path);
-                if (r != null && r.getType() == Type.RESOURCE) {
-                    long modified = r.lastmodified();
-                    IO.date(obj.putObject("modified"), new Date(modified));
-                }
+
+        IO.metadata(obj, map);
+        if (!obj.has("modified")) {
+            Resource r = dataDir().config(map);
+            if (r.getType() != Type.UNDEFINED) {
+                IO.date(obj.putObject("modified"), new Date(r.lastmodified()));
             }
         }
+
         return obj;
     }
     /** Complete map description suitable for editing. */
