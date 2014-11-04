@@ -70,5 +70,9 @@ angular.module('gsApp.core.event', [])
   /**
    * Fire when layers list in a workspace is updated
    */
-  LayersAllUpdated: 'layers-all-updated'
+  LayersAllUpdated: 'layers-all-updated',
+   /**
+   * Fire when a new layer is added
+   */
+  LayerAdded: 'layers-added'
 });

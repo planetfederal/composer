@@ -1,51 +1,40 @@
 angular.module('gsApp.workspaces.layers.duplicate', [])
-.controller('DuplicateLayerCtrl', ['resource', 'workspace', '$scope',
+.controller('DuplicateLayerCtrl', ['layer', 'workspace', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer',
   'AppEvent',
-    function(resource, workspace, $scope, $rootScope, $state, $log,
-      $modalInstance, GeoServer) {
+    function(layer, workspace, $scope, $rootScope, $state, $log,
+      $modalInstance, GeoServer, AppEvent) {
 
-      $scope.resource = resource;
+      $scope.fromLayer = layer;
       $scope.workspace = workspace;
 
-      // Iterate through resource attributes to find the_geom or geom or
-      // any geometry attribute to find the projection
-      var findProj = function(attributes) {
-        var proj;
-        for (var k=0; k < attributes.length; k++) {
-          var attr = attributes[k];
-          if (attr.property==='geometry') {
-            proj = attr.proj;
-            if (attr.name==='the_geom') {
-              return proj;
-            }
-          }
-        }
-        return proj;
-      };
-
-      var fromLayer = resource.layers[0].name;
-
       $scope.layer = {
-        title: resource.title,
-        workspace: workspace,
-        proj: findProj(resource.schema.attributes),
-        layer: {
-          name: fromLayer,
-          workspace: $scope.workspace
-        }
+        'layer': { // from layer
+          'name': $scope.fromLayer.name,
+          'workspace': $scope.workspace,
+        },
+        'title': $scope.fromLayer.title, // fill in defaults
+        'workspace': $scope.workspace,
+        'proj': $scope.fromLayer.proj,
+        'description': $scope.fromLayer.description,
+        'type': $scope.fromLayer.type
       };
-
       $scope.importAsLayer = function() {
         var layerInfo = $scope.layer;
         GeoServer.layer.create($scope.workspace, layerInfo)
           .then(function(result) {
             if (result.success) {
+              var layer = result.data;
+              $rootScope.$broadcast(AppEvent.LayerAdded, layer);
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'New layer ' + layer.name + ' successfully created.',
+                fadeout: true
+              }];
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Could not create duplicate layer from resource ' +
-                  $scope.resource.name + '.',
+                message: 'Could not copy layer ' + $scope.layer.name + '.',
                 fadeout: true
               }];
             }

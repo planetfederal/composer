@@ -5,7 +5,6 @@ angular.module('gsApp.workspaces.data', [
   'gsApp.workspaces.formats.type',
   'gsApp.workspaces.data.attributes',
   'gsApp.workspaces.layers.import',
-  'gsApp.workspaces.layers.duplicate',
   'gsApp.core.utilities',
   'gsApp.alertpanel',
   'ngSanitize'
@@ -226,30 +225,6 @@ angular.module('gsApp.workspaces.data', [
           resolve: {
             store: function() {
               return store;
-            },
-            workspace: function() {
-              return $scope.workspace;
-            }
-          }
-        });
-      };
-
-      $scope.copyToNewLayer = function(resource) {
-        if (resource.layers.length===0) {
-          $rootScope.alerts = [{
-            type: 'warning',
-            message: 'Please Import the resource first.',
-            fadeout: true
-          }];
-          return;
-        }
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.duplicate.tpl.html',
-          controller: 'DuplicateLayerCtrl',
-          size: 'md',
-          resolve: {
-            resource: function() {
-              return resource;
             },
             workspace: function() {
               return $scope.workspace;
