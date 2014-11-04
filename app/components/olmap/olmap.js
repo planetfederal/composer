@@ -199,6 +199,22 @@ angular.module('gsApp.olmap', [])
             }, 450);
           }
         });
+
+        if (mapOpts.featureInfo) {
+          map.on('click', function(evt) {
+            var view = map.getView();
+            var gfi = mapLayer.getSource().getGetFeatureInfoUrl(
+                evt.coordinate,
+                view.getResolution(), view.getProjection(),
+                {'INFO_FORMAT': 'application/json'});
+            $.ajax(gfi).then(function(response) {
+              if (response && response.features) {
+                mapOpts.featureInfo(JSON.parse(response));
+              }
+            });
+          });
+        }
+
       }
 
       OLMap.prototype.getNumLayers = function() {
