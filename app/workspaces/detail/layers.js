@@ -65,6 +65,8 @@ angular.module('gsApp.workspaces.layers', [
       $scope.workspace = $stateParams.workspace;
       mapsListModel.fetchMaps($scope.workspace).then(function() {
         $scope.maps = mapsListModel.getMaps();
+        $scope.mapOptions = $scope.maps.concat(
+          [{'name': 'Create New Map'}]);
       });
 
       $scope.showAttrs = function(layerOrResource, attributes) {
@@ -112,6 +114,16 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.addSelectedToMap = function() {
         var map = $scope.selectedMap;
+
+        if (map.name==='Create New Map') {
+          $rootScope.alerts = [{
+              type: 'danger',
+              message: 'This feature is not wired up yet!',
+              fadeout: true
+            }];
+          return;
+        }
+
         var mapInfo = {
           'name': map.name,
           'proj': map.proj,
