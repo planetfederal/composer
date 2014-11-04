@@ -88,7 +88,7 @@ angular.module('gsApp.workspaces.list', [
   };
 
   this.fetchWorkspaces = function() {
-    return GeoServer.workspaces.get().then(
+    return GeoServer.workspaces.get(true).then(
       function(result) {
         if (result.success) {
           var workspaces = _.map(result.data,
@@ -108,7 +108,7 @@ angular.module('gsApp.workspaces.list', [
               return ws.modified.timestamp;
             }
           });
-          _this.setWorkspaces(workspaces);
+          _this.setWorkspaces(workspaces.reverse());
         } else {
           // special case, check for 401 Unauthorized, if so be quiet
           if (result.status != 401) {
