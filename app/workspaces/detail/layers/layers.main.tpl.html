@@ -27,11 +27,14 @@
           </ui-select>
         </div>
         <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap()">Add</button>
+        <div class="filter-box">
+          <input type="text" class="form-control grid-filter" ng-model="filterText" placeholder="Filter by name, title, description..." size="25" focus-init />
+        </div>
       </div>
     </div>
   </div>
   <div class="layers-summary">
-    <div class="row" ng-repeat="row in layers | orderBy:predicate:reverse | partition:3">
+    <div class="row" ng-repeat="row in layers | orderBy:predicate:reverse | partition:3 | filter:filterText">
       <div class="col-sm-4" ng-repeat="layer in row">
         <div class="layer-summary-detail" ng-click="layer.selected = !layer.selected" ng-style="{'outline': layer.selected ? '3px #28728D solid' : ''}">
           <div class="layer-icon">
