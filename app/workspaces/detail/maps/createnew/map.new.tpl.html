@@ -1,84 +1,87 @@
-<h3>Create Map<span ng-show="step==2">:<strong> {{ mapInfo.name }}</strong></span></h3>
-<div class="new-map">
-  <div>
-    <div class="row options" ng-show="step==2 && layers.length > 0">
-      <div class="col-sm-5 text-center">
-        <p class="lead"><i class="fa fa-check-square-o gray"></i> Select available layers<br/>below for new map:</p>
-        <button class="btn btn-primary btn-sm" ng-disabled="layerSelections.length==0" ng-click="createMap(layerSelections);">Create Map with Selected</button>
-      </div>
-      <div class="col-sm-5 text-center divider">
-        <span class="pull-left or">OR</span>
-        <p class="lead"><i class="fa fa-share gray"></i> Import data to create<br/>new layers:</p>
-        <button class="btn btn-primary btn-sm" ng-click="createNewLayers();">Import New Data &rarr;</button>
-      </div>
+<div>
+  <div class="modal-header">
+    <div class="create-title">
+      Create Map<span ng-show="step==2">:<strong> {{ mapInfo.name }}</strong></span>
     </div>
-    <div class="row">
-      <div class="col-sm-12">
-        <form ng-hide="step==2" name="newMap" role="form" class="new-map-form form-1">
-          <div class="form-group" name="newMapName">
-            <label for="name">Map Name *</label>
-            <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
-            <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
-            <span ng-show="newMap.name.$error.maxlength" class="error">Max 10 characters allowed.</span>
-            <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
-            <small>(No spaces, max 10 characters, for web URLs.)</small>
-          </div>
-          <div class="form-group" name="newMapTitle">
-            <label for="title">Title</label>
-            <input type="text" class="form-control input-sm" name="title" ng-model="mapInfo.title" ng-model-options="{updateOn: 'blur'}">
-            <small>(Spaces ok, for humans.)</small>
-          </div>
-          <div class="form-group" name="newMapCrs">
-            <label for="map.crs">
-              Projection * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
-            </label>
-            <div class="projection-options">
-              <div class="proj-check">
-                <input type="radio" ng-model="proj" value="mercator"> Web Mercator
-              </div>
-              <div class="proj-check">
-                <input type="radio" ng-model="proj" value="latlon">
-                Lat/Lon (WGS)
-              </div>
-              <div class="proj-check other">
-                <input type="radio" ng-model="proj" value="other" ng-click="custom.proj = true"> Other
-                <proj-field name="crs" id="otherproj" proj="customproj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
-                <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
-                <span ng-show="!newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group" name="newMapAbstract">
-            <label for="abstract">Description</label>
-            <textarea rows="4" cols="40" class="form-control abstract" name="description" ng-model="mapInfo.description">Description for map</textarea>
-          </div>
-        </form>
-        <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form form-2">
-          <div class="form-group new-layers-group" name="create-new-layers" ng-show="layers.length==0">
-            <p>No data in this workspace.</p>
-            <button class="btn btn-success btn-sm" ng-click="createNewLayers();">Import Data to Create New Layers &rarr;</button>
-          </div>
-          <div class="form-group" name="available-layers" ng-show="layers.length > 0">
-            <label class="avail-layers" for="lyrs">Available Layers:</label>
-            <div name="lyrs" ng-grid="layerOptions" id="avail-layers-grid" ng-style="gridWidth"></div>
-            <br/>
-          </div>
-        </form>
-        <div ng-hide="mapCreated" style="margin-top:15px;"></div>
-        <div ng-show="mapCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Map Created.</div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-10">
-        <div class="form-footer">
-          <small class="pull-left" ng-show="step==1">* = Required</small>
-          <div class="submit-buttons pull-right">
-            <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
-            <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-            <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="step=2;" ng-disabled="!newMap.name.$valid && !newMap.crs.$valid">Add Layers &rarr;</button>
-          </div>
+  </div>
+  <div class="modal-body">
+    <div class="new-map">
+    <div>
+      <div class="row options" ng-show="step==2 && layers.length > 0">
+        <div class="col-sm-6 text-center">
+          <p class="lead"><i class="fa fa-check-square-o gray"></i> Select available layers<br/>below for new map:</p>
+          <button class="btn btn-primary btn-sm" ng-disabled="layerSelections.length==0" ng-click="createMap(layerSelections);">Create Map with Selected</button>
+        </div>
+        <div class="col-sm-6 text-center divider">
+          <span class="pull-left or">OR</span>
+          <p class="lead"><i class="fa fa-share gray"></i> Import data to create<br/>new layers:</p>
+          <button class="btn btn-primary btn-sm" ng-click="createNewLayers();">Import New Data &rarr;</button>
         </div>
       </div>
+      <div class="row">
+        <div class="col-sm-12">
+          <form ng-hide="step==2" name="newMap" role="form" class="new-map-form form-1">
+            <div class="form-group" name="newMapName">
+              <label for="name">Map Name *</label>
+              <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}">
+              <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
+              <span ng-show="newMap.name.$error.maxlength" class="error">Max 10 characters allowed.</span>
+              <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
+              <small>(No spaces, max 10 characters, for web URLs.)</small>
+            </div>
+            <div class="form-group" name="newMapTitle">
+              <label for="title">Title</label>
+              <input type="text" class="form-control input-sm" name="title" ng-model="mapInfo.title" ng-model-options="{updateOn: 'blur'}">
+              <small>(Spaces ok, for humans.)</small>
+            </div>
+            <div class="form-group" name="newMapCrs">
+              <label for="map.crs">
+                Projection * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="fa fa-info-circle"></i></div>
+              </label>
+              <div class="projection-options">
+                <div class="proj-check">
+                  <input type="radio" ng-model="proj" value="mercator"> Web Mercator
+                </div>
+                <div class="proj-check">
+                  <input type="radio" ng-model="proj" value="latlon">
+                  Lat/Lon (WGS)
+                </div>
+                <div class="proj-check other">
+                  <input type="radio" ng-model="proj" value="other" ng-click="custom.proj = true"> Other
+                  <proj-field name="crs" id="otherproj" proj="customproj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
+                  <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
+                  <span ng-show="!newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group" name="newMapAbstract">
+              <label for="abstract">Description</label>
+              <textarea rows="4" cols="40" class="form-control abstract" name="description" ng-model="mapInfo.description">Description for map</textarea>
+            </div>
+          </form>
+          <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form form-2">
+            <div class="form-group new-layers-group" name="create-new-layers" ng-show="layers.length==0">
+              <p>No data in this workspace.</p>
+              <button class="btn btn-success btn-sm" ng-click="createNewLayers();">Import Data to Create New Layers &rarr;</button>
+            </div>
+            <div class="form-group" name="available-layers" ng-show="layers.length > 0">
+              <label class="avail-layers" for="lyrs">Available Layers:</label>
+              <div name="lyrs" ng-grid="layerOptions" id="avail-layers-grid" ng-style="gridWidth"></div>
+              <br/>
+            </div>
+          </form>
+          <div ng-hide="mapCreated" style="margin-top:15px;"></div>
+          <div ng-show="mapCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Map Created.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <small class="pull-left" ng-show="step==1">* = Required</small>
+    <div class="submit-buttons pull-right">
+      <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
+      <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+      <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="step=2;" ng-disabled="!newMap.name.$valid && !newMap.crs.$valid">Add Layers &rarr;</button>
     </div>
   </div>
 </div>

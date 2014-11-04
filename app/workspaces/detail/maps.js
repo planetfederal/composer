@@ -26,9 +26,9 @@ angular.module('gsApp.workspaces.maps', [
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'mapsListModel',
-  '$timeout',
+  '$timeout', '$modal',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent, mapsListModel, $timeout) {
+      GeoServer, AppEvent, mapsListModel, $timeout, $modal) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
@@ -73,7 +73,17 @@ angular.module('gsApp.workspaces.maps', [
       };
 
       $scope.createMap = function() {
-        $state.go('workspace.maps.new', {workspace:$scope.workspace});
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/maps/createnew/map.new.tpl.html',
+          controller: 'NewMapCtrl',
+          backdrop: 'static',
+          size: 'lg',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            }
+          }
+        });
       };
       $scope.$on(AppEvent.CreateNewMap, function() {
         $scope.createMap();
@@ -82,8 +92,9 @@ angular.module('gsApp.workspaces.maps', [
     }])
 .controller('MapsMainCtrl', ['$scope', '$state', '$stateParams', '$sce',
   '$window', '$log', 'GeoServer', '$modal', '$rootScope', 'AppEvent', '_',
+  'mapsListModel',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, $modal, $rootScope, AppEvent, _) {
+      GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel) {
 
       $scope.workspace = $stateParams.workspace;
 
@@ -124,6 +135,14 @@ angular.module('gsApp.workspaces.maps', [
       $rootScope.$on(AppEvent.MapsAllUpdated, function(scope, maps) {
         if (maps) {
           $scope.maps = maps;
+          mapsListModel.setMaps(maps);
+        }
+      });
+      $rootScope.$on(AppEvent.MapAdded, function(scope, map) {
+        if (map) {
+          mapsListModel.addMap(map);
+          $scope.maps =
+            mapsListModel.sortByTime(mapsListModel.getMaps());
         }
       });
 
@@ -169,6 +188,16 @@ angular.module('gsApp.workspaces.maps', [
     this.maps.push(map);
   };
 
+  this.sortByTime = function(maps) {
+    // sort by timestamp
+    var sorted = _.sortBy(maps, function(map) {
+      if (map.modified) {
+        return map.modified.timestamp;
+      }
+    });
+    return sorted.reverse();
+  };
+
   this.fetchMaps = function(workspace) {
     return GeoServer.maps.get(workspace).then(
       function(result) {
@@ -184,13 +213,8 @@ angular.module('gsApp.workspaces.maps', [
                 return map;
               }
             });
-            // sort by timestamp
-          maps = _.sortBy(maps, function(map) {
-              if (map.modified) {
-                return map.modified.timestamp;
-              }
-            });
-          _this.setMaps(maps.reverse());
+          // sort by timestamp
+          _this.setMaps(_this.sortByTime(maps));
         } else {
           $rootScope.alerts = [{
             type: 'warning',

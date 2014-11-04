@@ -3,7 +3,7 @@
     <h4 class="modal-title"><i class="icon-map"></i> {{ map.name }} <i class="fa fa-angle-right" style="padding: 0 5px;"></i> Map Settings</h4>
     <small class="pull-right">* = Required</small>
   </div>
-  <div class="modal-body">
+  <div class="modal-body map-settings">
     <form name="form.mapSettings" role="form" class="mapSettings">
       <div class="form-group">
         <label for="mapName">Map Name *</label>
@@ -30,7 +30,7 @@
       </div>
     </form>
   </div>
-  <div class="modal-footer">
+  <div class="modal-footer map-settings-footer">
     <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
     <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
     <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty">Update Map Settings</button>

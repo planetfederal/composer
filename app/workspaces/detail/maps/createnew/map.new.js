@@ -6,12 +6,13 @@ angular.module('gsApp.workspaces.maps.new', [
   'ui.select',
   'ngGrid'
 ])
-.controller('NewMapCtrl', ['$scope', '$state', '$stateParams', '$rootScope',
-  '$log', 'GeoServer', '$window', 'AppEvent', 'projectionModel', '_',
-  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
-    $window, AppEvent, projectionModel, _) {
+.controller('NewMapCtrl', ['$modalInstance', '$scope', '$state', '$stateParams',
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', 'projectionModel',
+  '_', 'workspace',
+  function ($modalInstance, $scope, $state, $stateParams, $rootScope,
+    $log, GeoServer, $window, AppEvent, projectionModel, _, workspace) {
 
-    $scope.workspace = $stateParams.workspace;
+    $scope.workspace = workspace;
     $scope.mapInfo = {
       'description': ''
     };
@@ -30,8 +31,8 @@ angular.module('gsApp.workspaces.maps.new', [
         '</a>' +
       '</p>';
 
-    $scope.cancel = function() {
-      $state.go('workspace.maps.main', {workspace:$scope.workspace});
+    $scope.cancel = function () {
+      $modalInstance.dismiss('close');
     };
 
     $scope.createMap = function(layerSelections) {
@@ -66,10 +67,8 @@ angular.module('gsApp.workspaces.maps.new', [
               fadeout: true
             }];
             map.layergroupname = $scope.workspace + ':' + map.name;
-            $scope.maps.push(map);
-            $rootScope.$broadcast(AppEvent.MapUpdated, {
-              'new': map
-            });
+            $rootScope.$broadcast(AppEvent.MapAdded, map);
+            $modalInstance.dismiss('close');
             $state.go('map.compose', {workspace: $scope.workspace,
                 name: map.name});
           } else {
@@ -93,7 +92,9 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.layers = [];
     $scope.totalServerItems = [];
 
-    $scope.gridWidth = {'width': $window.innerWidth - 150};
+    var modalWidth = 800;
+
+    $scope.gridWidth = {'width': modalWidth};
 
     $scope.pagingOptions = {
       pageSizes: [25, 50, 100],
@@ -123,7 +124,7 @@ angular.module('gsApp.workspaces.maps.new', [
       selectedItems: $scope.layerSelections,
       multiSelect: true,
       columnDefs: [
-        {field: 'name', displayName: 'Layer', width: '30%'},
+        {field: 'name', displayName: 'Layer', width: '40%'},
         {field: 'title',
           displayName: 'Title',
           enableCellEdit: true,
@@ -133,7 +134,7 @@ angular.module('gsApp.workspaces.maps.new', [
               'title="{{row.entity.description}}">' +
               '{{row.entity.title}}' +
             '</div>',
-          width: '30%'
+          width: '50%'
         },
         {field: 'geometry',
           displayName: 'Type',
