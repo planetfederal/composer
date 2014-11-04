@@ -17,13 +17,15 @@ angular.module('gsApp.workspaces.home', [
     }])
 .controller('WorkspaceHomeCtrl', ['$scope','$state', '$stateParams', '$log',
   '$modal', 'GeoServer', 'AppEvent', '$timeout', '$location',
-    function($scope, $state, $stateParams, $log, $modal, GeoServer, AppEvent,
-      $timeout, $location) {
+    function($scope, $state, $stateParams, $log, $modal, GeoServer,
+      AppEvent, $timeout, $location) {
+
       var wsName = $stateParams.workspace;
 
       $scope.workspace = wsName;
 
       var loc = $location.path();
+
       function isActive(tab) {
         if (loc.indexOf(tab) > -1) {
           return true;
@@ -89,6 +91,12 @@ angular.module('gsApp.workspaces.home', [
 
         $scope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {
+            if(loc.indexOf('settings') > -1) {
+              $scope.showSettings = $state.go('workspace.settings', {
+                workspace: wsName
+              });
+            }
+
             $scope.tabs.forEach(function(tab) {
               if ($state.is(tab.routeCategory)) {
                 tab.active = $state.is(tab.routeCategory);

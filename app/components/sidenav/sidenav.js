@@ -13,9 +13,10 @@ angular.module('gsApp.sidenav', [
     };
   })
 .controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer', 'AppEvent',
-  '$state', '$log', '$timeout', '$window', 'AppSession', '$location',
+  '$state', '$log', '$timeout', '$window', 'AppSession', '$location', '_',
+  'workspacesListModel',
   function($scope, $rootScope, GeoServer, AppEvent, $state, $log,
-    $timeout, $window, AppSession, $location) {
+    $timeout, $window, AppSession, $location, _, workspacesListModel) {
 
     $scope.toggleWkspc = {}; // workspaces in wide sidenav
     $scope.toggleWkspc2 = {}; // workspaces in collapse sidenav
@@ -30,6 +31,7 @@ angular.module('gsApp.sidenav', [
         $scope.sideStyle = {'position': 'absolute'};
         $scope.sideBottom = {'top': (windowHeight-15) + 'px'};
       }
+      $scope.numWorkspaces = Math.floor(windowHeight - 230) / 30;
     };
     $scope.onWindowResize();
     var timer = null;
@@ -66,25 +68,16 @@ angular.module('gsApp.sidenav', [
     }
 
     $scope.openWorkspaces = function() {
+      $scope.workspaces = workspacesListModel.getWorkspaces();
       if (!$scope.workspaces) {
-        GeoServer.workspaces.get().then(function(result) {
-          if (result.success) {
-            $scope.workspaces = result.data;
-            reopenWorkspaceFolder();
-            $rootScope.$broadcast(AppEvent.WorkspacesFetched,
-              $scope.workspaces);
-          } else {
-            // special case, check for 401 Unauthorized, if so be quiet
-            if (result.status != 401) {
-              $scope.alerts = [{
-                type: 'warning',
-                message: 'Could not get workspaces.',
-                fadeout: true
-              }];
-            }
-          }
+        workspacesListModel.fetchWorkspaces().then(
+        function() {
+          $scope.workspaces = workspacesListModel.getWorkspaces();
+          $rootScope.$broadcast(AppEvent.WorkspacesFetched,
+            $scope.workspaces);
         });
       }
+      reopenWorkspaceFolder();
     };
 
     $scope.onResize = function() {

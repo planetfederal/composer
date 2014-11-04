@@ -42,7 +42,7 @@ angular.module('gsApp.workspaces.data', [
       $scope.storesListHeight = {'height': $window.innerHeight-250};
 
       $timeout(function() {
-        if ($scope.$parent.tabs) {
+        if ($scope.$parent && $scope.$parent.tabs) {
           $scope.$parent.tabs[2].active = true;
         }
       }, 300);
