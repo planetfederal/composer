@@ -21,7 +21,7 @@
             <ui-select-match placeholder="Select a map...">
               {{$select.selected.name}}
             </ui-select-match>
-            <ui-select-choices repeat="map in maps">
+            <ui-select-choices repeat="map in mapOptions">
               <span ng-bind-html="map.name | highlight: $select.search"></span>
             </ui-select-choices>
           </ui-select>
