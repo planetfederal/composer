@@ -46,9 +46,21 @@
     <antcall target="assemble-artifact">
       <param name="includes" value="*.war"/>
     </antcall>
+
+    <antcall target="assemble-artifact">
+      <param name="name" value="composer"/>
+      <param name="includes" value="composer/**/*"/>
+    </antcall>
+
   </target>
 
-  <target name="publish" depends="publish-artifact"/>
+  <target name="publish">
+    <antcall target="publish-artifact"/>
+    <antcall target="publish-artifact">
+      <param name="name" value="composer"/>
+      <param name="path" value="composer"/>
+    </antcall>
+  </target>
 
   <target name="serve" description="Runs GeoServer">
     <antcall target="mvn">
