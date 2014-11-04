@@ -2,7 +2,13 @@
 
 @import "../../../../variables.less";
 
+.create-title {
+  font-size: 1.5em;
+}
+
 .new-map {
+
+  margin-left: 20px;
 
   .options {
     margin: 20px auto;
@@ -28,7 +34,7 @@
   form.new-map-form {
 
     &.form-1 {
-      width: 60%;
+      width: 80%;
     }
     &.form-2 {
       width: 100%;
@@ -84,7 +90,16 @@
     }
 
     #avail-layers-grid {
-      width: 500px;
+      width: 800px;
+
+      .ngSortButtonDown {
+        position: absolute;
+        top: 11px;
+        left: 60px;
+        right: 0;
+        margin-left: 0;
+        margin-right: 0;
+      }
     }
 
     .crs-warning {
@@ -110,13 +125,10 @@
       font-size: 12px;
     }
   }
-  .form-footer {
-    margin: 20px 0;
 
-    .submit-buttons {
-      .btn {
-        margin-left: 10px;
-      }
+  .submit-buttons {
+    .btn {
+      margin-left: 10px;
     }
   }
 

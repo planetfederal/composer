@@ -68,6 +68,10 @@ angular.module('gsApp.core.event', [])
    */
   MapsAllUpdated: 'maps-all-updated',
   /**
+   * Fired when a map is added
+   */
+  MapAdded: 'map-added',
+  /**
    * Fire when layers list in a workspace is updated
    */
   LayersAllUpdated: 'layers-all-updated',

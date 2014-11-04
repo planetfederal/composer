@@ -3,7 +3,7 @@
     <h4 class="modal-title"><i class="icon-stack"></i> {{ layer.name }}</h4>
     <small class="pull-right">* = Required</small>
   </div>
-  <div class="modal-body">
+  <div class="modal-body layer-settings">
     <form name="form.layerSettings" role="form" class="layerSettings">
       <div class="form-group">
         <label for="layerName">Layer Name *</label>
@@ -34,7 +34,7 @@
       </div>
     </form>
   </div>
-  <div class="modal-footer">
+  <div class="modal-footer layer-settings-footer">
     <div ng-show="form.layerSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
     <button ng-click="removeLayer(layer)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Unpublish Layer</button>
     <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.layerSettings.$dirty">Update Layer Settings</button>
