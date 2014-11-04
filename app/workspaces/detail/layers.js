@@ -201,15 +201,15 @@ angular.module('gsApp.workspaces.layers', [
   this.layers = null;
 
   this.getLayers = function() {
-    return this.layers;
+    return _this.layers;
   };
 
   this.setLayers = function(layers) {
-    this.layers = layers;
+    _this.layers = layers;
   };
 
   this.addLayer = function(layer) {
-    this.layers.push(layer);
+    _this.layers.push(layer);
   };
 
   this.removeLayer = function(layer) {

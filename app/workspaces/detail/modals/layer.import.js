@@ -1,9 +1,9 @@
 angular.module('gsApp.workspaces.layers.import', [])
 .controller('ImportLayerCtrl', ['resource', 'workspace', 'store', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer',
-  'AppEvent',
+  'AppEvent', 'layersListModel',
     function(resource, workspace, store, $scope, $rootScope, $state, $log,
-      $modalInstance, GeoServer) {
+      $modalInstance, GeoServer, AppEvent, layersListModel) {
 
       $scope.resource = resource;
       $scope.workspace = workspace;
@@ -40,14 +40,24 @@ angular.module('gsApp.workspaces.layers.import', [])
 
       $scope.importAsLayer = function() {
         var layerInfo = $scope.layer;
-        GeoServer.layer.create($scope.workspace, layerInfo)
-          .then(function(result) {
+        GeoServer.layer.create($scope.workspace, layerInfo).then(
+          function(result) {
             if (result.success) {
+              $scope.resource = result.data.resource;
+              layersListModel.addLayer(result.data);
+              $rootScope.$broadcast(AppEvent.LayersAllUpdated,
+                layersListModel.getLayers());
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'Imported resource ' + $scope.resource.name +
+                  ' as layer ' + layerInfo.title + '.',
+                fadeout: true
+              }];
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Could not create layer from resource ' +
-                  $scope.resource.name + '.',
+                  $scope.resource.name + ': ' + result.data.message,
                 fadeout: true
               }];
             }
