@@ -12,6 +12,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.data.test.SystemTestData;
 import org.geoserver.importer.Importer;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.resource.Resource;
@@ -40,10 +41,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 public class AppIntegrationTest extends GeoServerSystemTestSupport {
 
+    @Override
+    protected void setUpTestData(SystemTestData testData) throws Exception {
+        super.setUpTestData(testData);
+        testData.setUpWcs10RasterLayers();
+    }
+
     @Before
     public void removeFoo() {
         removeLayer("gs", "foo");
         removeLayer("sf", "foo");
+        removeLayer("cdf", "foo");
     }
 
     @Test
@@ -199,5 +207,26 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         assertEquals(resp.getStatusCode(), 201);
 
         assertNotNull(catalog.getLayerByName("sf:foo"));
+    }
+
+    @Test
+    public void testCreateLayerFromRasterResource() throws Exception {
+        Catalog catalog = getCatalog();
+        assertNull(catalog.getLayerByName("cdf:foo"));
+        assertNotNull(catalog.getLayerByName("cdf:usa"));
+
+        JSONObj obj = new JSONObj();
+        obj.put("name", "foo");
+        obj.putObject("resource")
+                .put("name", "usa")
+                .put("store", "usa")
+                .put("workspace", "cdf");
+
+        com.mockrunner.mock.web.MockHttpServletResponse resp =
+            postAsServletResponse("/app/api/layers/cdf", obj.toString(), MediaType.APPLICATION_JSON_VALUE);
+        assertEquals(resp.getStatusCode(), 201);
+
+        assertNotNull(catalog.getLayerByName("cdf:foo"));
+
     }
 }
