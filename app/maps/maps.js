@@ -127,6 +127,9 @@ angular.module('gsApp.maps', [
         pageSizes: [25, 50, 100],
         pageSize: 25
       };
+      $scope.filterOptions = {
+        filterText: ''
+      };
       $scope.gridSelections = [];
       $scope.gridOptions = {
         data: 'mapData',
@@ -198,10 +201,7 @@ angular.module('gsApp.maps', [
         footerTemplate: '/components/grid/footer.tpl.html',
         totalServerItems: 'totalServerItems',
         pagingOptions: $scope.pagingOptions,
-        filterOptions: {
-          filterText: '',
-          useExternalFilter: true
-        }
+        filterOptions: $scope.filterOptions
       };
 
       $scope.workspace = {};

@@ -7,7 +7,7 @@
       <div class="container">
         <div class="col-xs-1"><label for="mapName">Map Name: </label></div>
         <div class="col-xs-3">
-          <input type="text" class="form-control input-xs" id="mapName" placeholder="Map Name" ng-model="Map.name" ng-change="checkName(Map.name);" required>
+          <input type="text" class="form-control input-xs" id="mapName" placeholder="Map Name" ng-model="Map.name" ng-change="checkName(Map.name);" required focus-init />
         </div>
         <div class="col-xs-5">
           <div ng-if="mapNameError" class="alert-danger">Another map already has the name '{{Map.name}}'.</div>
