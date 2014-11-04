@@ -163,8 +163,9 @@ angular.module('gsApp.workspaces.data', [
     }])
 .controller('DataMainCtrl', ['$scope', '$rootScope', '$state',
   '$stateParams', '$modal', '$window', '$log', 'GeoServer',
-    function($scope, $rootScope, $state, $stateParams, $modal, $log, $window,
-      GeoServer) {
+  'layersListModel',
+    function($scope, $rootScope, $state, $stateParams, $modal, $log,
+      $window, GeoServer, layersListModel) {
 
       // See utilities.js pop directive - 1 popover open at a time
       var openPopoverStore;
@@ -234,6 +235,14 @@ angular.module('gsApp.workspaces.data', [
       };
 
       $scope.copyToNewLayer = function(resource) {
+        if (resource.layers.length===0) {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Please Import the resource first.',
+            fadeout: true
+          }];
+          return;
+        }
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/layer.duplicate.tpl.html',
           controller: 'DuplicateLayerCtrl',

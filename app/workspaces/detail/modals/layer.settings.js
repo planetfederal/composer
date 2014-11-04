@@ -74,7 +74,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
                 layersListModel.getLayers());
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Layer ' + layer.name + ' successfully deleted.',
+                message: 'Layer ' + layer.name + ' successfully unpublished.',
                 fadeout: true
               }];
               $modalInstance.dismiss('close');
