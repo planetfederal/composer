@@ -306,7 +306,7 @@ public class IO {
      *
      * @throws java.lang.IllegalArgumentException If the object has no 'srs' property.
      */
-    public static String srs(JSONObj obj) throws Exception {
+    public static String srs(JSONObj obj) {
         String srs = obj.str("srs");
         if (srs == null) {
             throw new IllegalArgumentException("Projection must have an 'srs' property");

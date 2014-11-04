@@ -37,6 +37,7 @@ import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.Styles;
 import org.geoserver.catalog.WMSLayerInfo;
+import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
@@ -62,6 +63,7 @@ import org.geotools.ysld.Ysld;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -188,6 +190,25 @@ public class LayerController extends ApiController {
             throw new RuntimeException("Failed to create layer: " + e.getMessage(), e);
         }
 
+        // proj specified?
+        JSONObj proj = obj.object("proj");
+        if (proj != null) {
+            String srs = null;
+            try {
+                srs = IO.srs(proj);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException(e.getMessage(), e);
+            }
+
+            ResourceInfo r = l.getResource();
+            r.setSRS(srs);
+            try {
+                new CatalogBuilder(cat).setupBounds(r);
+            } catch (IOException e) {
+                throw new RuntimeException("Unable to set projection on resource: " + e.getMessage(), e);
+            }
+        }
+
         // restore name in case it was replaced by duplicate
         l.getResource().setName(name);
         l.setName(name);
@@ -269,9 +290,9 @@ public class LayerController extends ApiController {
         String storeName = ref.str("store");
         Name resourceName = new NameImpl(ref.str("name"));
 
-        StoreInfo store = findStore(ws.getName(), storeName, cat);
-
         CatalogBuilder builder = new CatalogBuilder(cat);
+
+        StoreInfo store = findStore(ws.getName(), storeName, cat);
 
         if( store instanceof DataStoreInfo){
             DataStoreInfo dataStore = (DataStoreInfo) store;
@@ -309,7 +330,7 @@ public class LayerController extends ApiController {
             return builder.buildLayer(cov);
         }
         else {
-            throw new UnsupportedOperationException("Copy for non vector layer currently unsupported");
+            throw new UnsupportedOperationException("Copy for non vector/raster layer currently unsupported");
         }
     }
 

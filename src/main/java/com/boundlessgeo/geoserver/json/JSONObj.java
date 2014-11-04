@@ -83,14 +83,16 @@ public class JSONObj extends JSONWrapper<JSONObject> {
      * Gets the property mapped to <tt>key</tt> as an object wrapper.
      */
     public JSONObj object(String key) {
-        return JSONWrapper.wrap(get(key)).toObject();
+        Object obj = get(key);
+        return obj != null ? JSONWrapper.wrap(obj).toObject() : null;
     }
 
     /**
      * Gets the property mapped to <tt>key</tt> as an array wrapper.
      */
     public JSONArr array(String key) {
-        return JSONWrapper.wrap(get(key)).toArray();
+        Object arr = get(key);
+        return arr != null ? JSONWrapper.wrap(arr).toArray() : null;
     }
 
     /**
