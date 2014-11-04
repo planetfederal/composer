@@ -2,12 +2,19 @@
   Data Stores
 </h3>
 <div class="stores-count">
-  <strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in Project <strong>{{ workspace }}</strong>
+  <div class="row">
+    <div class="col-sm-7">
+      <strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in Project <strong>{{ workspace }}</strong>
+    </div>
+    <div class="col-sm-5 text-right">
+      <input type="text" class="form-control grid-filter" ng-model="filterText" placeholder="Filter by name, title, description..." size="25" focus-init />
+    </div>
+  </div>
 </div>
 <div class="row datastores">
   <div class="col-sm-6">
     <ul class="list-unstyled stores-list" ng-style="storesListHeight">
-      <li class="store-row" ng-repeat="ds in $parent.datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
+      <li class="store-row" ng-repeat="ds in $parent.datastores | filter:filterText" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
         <div class="icon-column">
           <h3 class="datastore-icons"><i ng-class="{'icon-file': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
           <p class="datastore-label">{{ ds.sourcetype }}</p>
