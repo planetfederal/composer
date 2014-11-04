@@ -11,23 +11,32 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Resource;
+import org.geoserver.platform.resource.Resource.Type;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.util.Date;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -55,6 +64,13 @@ public class WorkspaceControllerTest {
             .workspace("bar", "http://bar.org", false).catalog()
             .geoServer().build(geoServer);
 
+        GeoServerResourceLoader resourceLoader = mock(GeoServerResourceLoader.class);
+        when(resourceLoader.get("workspaces/foo/workspace.xml")).thenAnswer(mockResource());
+        when(resourceLoader.get("workspaces/bar/workspace.xml")).thenAnswer(mockResource());
+
+        Catalog catalog = geoServer.getCatalog();
+        when(catalog.getResourceLoader()).thenReturn(resourceLoader);
+
         MvcResult result = mvc.perform(get("/api/workspaces"))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -67,11 +83,17 @@ public class WorkspaceControllerTest {
         assertEquals("foo", obj.str("name"));
         assertTrue(obj.bool("default"));
         assertEquals("http://scratch.org", obj.str("uri"));
+        assertTrue(obj.has("modified"));
+        assertTrue(obj.object("modified").has("timestamp"));
+        assertTrue(obj.object("modified").has("pretty"));
 
         obj = arr.object(1);
         assertEquals("bar", obj.str("name"));
         assertFalse(obj.bool("default"));
         assertEquals("http://bar.org", obj.str("uri"));
+        assertTrue(obj.has("modified"));
+        assertTrue(obj.object("modified").has("timestamp"));
+        assertTrue(obj.object("modified").has("pretty"));
     }
 
     @Test
@@ -81,6 +103,13 @@ public class WorkspaceControllerTest {
                 .layer("foo").workspace().catalog()
             .workspace("bar", "http://bar.org", false).catalog()
             .geoServer().build(geoServer);
+
+        GeoServerResourceLoader resourceLoader = mock(GeoServerResourceLoader.class);
+        when(resourceLoader.get("workspaces/foo/workspace.xml")).thenAnswer(mockResource());
+        when(resourceLoader.get("workspaces/bar/workspace.xml")).thenAnswer(mockResource());
+
+        Catalog catalog = geoServer.getCatalog();
+        when(catalog.getResourceLoader()).thenReturn(resourceLoader);
 
         MvcResult result = mvc.perform(get("/api/workspaces/foo"))
             .andExpect(status().isOk())
@@ -165,5 +194,17 @@ public class WorkspaceControllerTest {
 
         Catalog cat = geoServer.getCatalog();
         verify(cat, times(1)).remove(isA(WorkspaceInfo.class));
+    }
+
+    Answer<Resource> mockResource() {
+        return new Answer<Resource>() {
+            @Override
+            public Resource answer(InvocationOnMock invocation) throws Throwable {
+                Resource r = mock(Resource.class);
+                when(r.getType()).thenReturn(Type.RESOURCE);
+                when(r.lastmodified()).thenReturn(new Date().getTime());
+                return r;
+            }
+        };
     }
 }
