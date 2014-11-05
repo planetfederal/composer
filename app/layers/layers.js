@@ -416,11 +416,15 @@ angular.module('gsApp.layers', [
               '</a>',
             width: '7%'
           },
-          {field: 'lastEdited',
+          {field: 'modified.timestamp',
             displayName: 'Last Edited',
-            cellTemplate: '<div ng-class="col.colIndex()"></div>',
-            width: '10%'
-          },
+            cellTemplate:
+              '<div class="grid-text-padding">' +
+                '{{row.entity.modified.timestamp.substring(0, ' +
+                'row.entity.modified.timestamp.lastIndexOf("-"))' +
+                '.replace("T", " ")}}' +
+              '</div>',
+            width: '12%'},
           {field: '',
             displayName: '',
             cellClass: 'text-center',
@@ -444,13 +448,24 @@ angular.module('gsApp.layers', [
         filterOptions: $scope.filterOptions
       };
 
+      $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
+        $scope.refreshLayers($scope.workspace.selected);
+      }, true);
+
       $scope.refreshLayers = function(ws) {
+        $scope.sort = '';
+        if ($scope.gridOptions.sortInfo.directions == 'asc') {
+          $scope.sort = $scope.gridOptions.sortInfo.fields+':asc';
+        }
+        else {
+          $scope.sort = $scope.gridOptions.sortInfo.fields+':desc';
+        }
+
         GeoServer.layers.get(
           ws.name,
           $scope.pagingOptions.currentPage-1,
           $scope.pagingOptions.pageSize,
-          $scope.gridOptions.sortInfo.fields,
-          $scope.gridOptions.sortInfo.directions,
+          $scope.sort,
           $scope.filterOptions.filterText
         ).then(function(result) {
           if (result.success) {

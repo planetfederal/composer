@@ -19,8 +19,7 @@
       </button>
     </div>
     <div class="text-right">
-      <input type="text" class="input-sm form-control grid-filter" ng-model="filterOptions.filterText"
-        placeholder="Filter by name, title, description..." size="25" ng-change="updatePaging()" />
+      <input type="text" class="input-sm form-control grid-filter" ng-model="filterOptions.filterText" placeholder="Filter by name, title, description..." size="25" ng-change="refreshLayers()" />
     </div>
     <div ng-grid="gridOptions"></div>
     <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
