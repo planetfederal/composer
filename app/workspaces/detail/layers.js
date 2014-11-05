@@ -2,6 +2,7 @@ angular.module('gsApp.workspaces.layers', [
   'gsApp.workspaces.layers.settings',
   'gsApp.workspaces.layers.import',
   'gsApp.workspaces.layers.duplicate',
+  'gsApp.workspaces.layers.addtomap',
   'gsApp.alertpanel',
   'gsApp.core.utilities',
   'ngSanitize'

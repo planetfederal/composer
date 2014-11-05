@@ -14,9 +14,9 @@ angular.module('gsApp.maps.compose', [
     }])
 .controller('MapComposeCtrl',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$compile',
-    '$log', 'AppEvent', 'GeoServer',
+    '$log', 'AppEvent', 'GeoServer', '$modal',
     function($scope, $rootScope, $state, $stateParams, $timeout, $compile,
-      $log, AppEvent, GeoServer) {
+      $log, AppEvent, GeoServer, $modal) {
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;
@@ -167,6 +167,22 @@ angular.module('gsApp.maps.compose', [
 
       $scope.viewWorkspace = function(workspace) {
         $state.go('workspace', {workspace: workspace});
+      };
+
+      $scope.addMapLayer = function(workspace) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/layer.addtomap.tpl.html',
+          controller: 'AddToMapLayerCtrl',
+          size: 'lg',
+          resolve: {
+            map: function() {
+              return $scope.map;
+            },
+            workspace: function() {
+              return $scope.workspace;
+            }
+          }
+        });
       };
 
     }]);
