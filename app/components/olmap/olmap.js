@@ -1,4 +1,5 @@
-/*global window, document, ZeroClipboard, XMLHttpRequest, Uint8Array, $ */
+/*global window, document, ZeroClipboard, XMLHttpRequest, Uint8Array, proj4, $
+*/
 angular.module('gsApp.olmap', [])
 .factory('MapFactory',
     ['GeoServer', 'AppEvent', '$timeout', '$rootScope', '$log',
@@ -274,8 +275,17 @@ angular.module('gsApp.olmap', [])
           }, true);
 
           $scope.$watch('mapOpts.bounds', function(newVal) {
-            // TODO: Andreas, zoom the map the specified bounds, but it might 
-            // be in a different projection than the map
+            if (newVal) {
+              var map = $scope.map.olMap;
+              var bounds = newVal.bbox.lonlat;
+              var extent = ol.proj.transformExtent(
+                  [bounds.west, bounds.south, bounds.east, bounds.north],
+                  'EPSG:4326', map.getView().getProjection());
+              if (!isNaN(extent[0]) && !isNaN(extent[1]) &&
+                  !isNaN(extent[2]) && !isNaN(extent[3])) {
+                map.getView().fitExtent(extent, map.getSize());
+              }
+            }
           });
           $scope.$on('olmap-refresh', function() {
             $scope.map.refresh();
