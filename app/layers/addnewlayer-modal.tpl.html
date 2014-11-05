@@ -7,7 +7,7 @@
       <div class="container">
         <div class="col-xs-1"><label for="layerName">Layer Name: </label></div>
         <div class="col-xs-3">
-          <input type="text" class="form-control input-xs" id="layerName" placeholder="Layer Name" ng-model="Layer.name" ng-change="checkName(Layer.name);" required>
+          <input type="text" class="form-control input-xs" id="layerName" placeholder="Layer Name" ng-model="Layer.name" ng-change="checkName(Layer.name);" required focus-init />
         </div>
         <div class="col-xs-5">
           <div ng-if="layerNameError" class="alert-danger">Another layer already has the name '{{Layer.name}}'.</div>

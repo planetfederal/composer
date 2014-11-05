@@ -7,16 +7,6 @@ angular.module('gsApp.login', [])
         controller: 'LoginCtrl'
       });
     }])
-.directive('loginFocus', function($timeout) {
-  return {
-    restrict: 'A',
-    link: function(scope, element) {
-      $timeout(function() {
-        element[0].focus();
-      }, 0);
-    }
-  };
-})
 .controller(
     'LoginCtrl', ['$scope', '$rootScope', '$state', 'GeoServer', 'AppEvent',
     function($scope, $rootScope, $state, GeoServer, AppEvent) {
