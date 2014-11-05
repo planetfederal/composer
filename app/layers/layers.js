@@ -174,7 +174,7 @@ angular.module('gsApp.layers', [
               //      Is this even required here as the user is creating the
               //      layer for the first time and thus there won't be a
               //      thumbnail of this layer yet?
-              $window.alert($scope.Layer.name);
+              /*$window.alert($scope.Layer.name);
               if ($scope.layerForm.Layer.name) {
                 $scope.thumbnail = GeoServer.map.thumbnail.get($scope.ws,
                   $scope.layer.name, 400, 200);
@@ -198,7 +198,7 @@ angular.module('gsApp.layers', [
                       $scope.thumbnail = '';
                     }
                   });
-              }
+              }*/
             }],
           size: 'lg'
         });
@@ -364,11 +364,15 @@ angular.module('gsApp.layers', [
               '</a>',
             width: '7%'
           },
-          {field: 'lastEdited',
+          {field: 'modified.timestamp',
             displayName: 'Last Edited',
-            cellTemplate: '<div ng-class="col.colIndex()"></div>',
-            width: '10%'
-          },
+            cellTemplate:
+              '<div class="grid-text-padding">' +
+                '{{row.entity.modified.timestamp.substring(0, ' +
+                'row.entity.modified.timestamp.lastIndexOf("-"))' +
+                '.replace("T", " ")}}' +
+              '</div>',
+            width: '12%'},
           {field: '',
             displayName: '',
             cellClass: 'text-center',
@@ -392,19 +396,37 @@ angular.module('gsApp.layers', [
         filterOptions: $scope.filterOptions
       };
 
+      $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
+        $scope.refreshLayers($scope.workspace.selected);
+      }, true);
+
       $scope.refreshLayers = function(ws) {
+        $scope.sort = '';
+        if ($scope.gridOptions.sortInfo.directions == 'asc') {
+          $scope.sort = $scope.gridOptions.sortInfo.fields+':asc';
+        }
+        else {
+          $scope.sort = $scope.gridOptions.sortInfo.fields+':desc';
+        }
+
         GeoServer.layers.get(
           ws.name,
           $scope.pagingOptions.currentPage-1,
           $scope.pagingOptions.pageSize,
-          $scope.gridOptions.sortInfo.fields,
-          $scope.gridOptions.sortInfo.directions
+          $scope.sort,
+          $scope.filterOptions.filterText
         ).then(function(result) {
           if (result.success) {
             $scope.layerData = result.data.layers;
             $scope.totalServerItems = result.data.total;
             $scope.itemsPerPage = $scope.pagingOptions.pageSize;
-            $scope.totalItems = $scope.totalServerItems;
+
+            if ($scope.filterOptions.filterText.length > 0) {
+              $scope.totalItems = $scope.gridOptions.ngGrid.filteredRows.length;
+            }
+            else {
+              $scope.totalItems = $scope.totalServerItems;
+            }
           } else {
             $rootScope.alerts = [{
               type: 'warning',
