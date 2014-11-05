@@ -523,7 +523,7 @@ angular.module('gsApp.layers', [
               $scope.refreshLayers(ws);
             }
 
-            throw {
+            /*throw {
               message: 'Big time error.',
               cause: 'Network error: no packets sent.',
               trace: [
@@ -533,7 +533,7 @@ angular.module('gsApp.layers', [
                 {name: 'Error 4', error: 'Error #4.'},
                 {name: 'Error 5', error: 'You know...error #5.'}
               ]
-            };
+            };*/
           }
         }
       }, true);
