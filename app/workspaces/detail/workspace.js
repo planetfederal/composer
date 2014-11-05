@@ -16,12 +16,12 @@ angular.module('gsApp.workspaces.home', [
         });
     }])
 .controller('WorkspaceHomeCtrl', ['$scope','$state', '$stateParams', '$log',
-  '$modal', 'GeoServer', 'AppEvent', '$timeout', '$location',
+  '$modal', 'GeoServer', 'AppEvent', '$timeout', '$location', '$rootScope',
     function($scope, $state, $stateParams, $log, $modal, GeoServer,
-      AppEvent, $timeout, $location) {
+      AppEvent, $timeout, $location, $rootScope) {
 
       var wsName = $stateParams.workspace;
-      
+
       $scope.workspace = wsName;
 
       var loc = $location.path();
@@ -78,7 +78,7 @@ angular.module('gsApp.workspaces.home', [
           $scope.tabs[0].active = true;
           $timeout(function() {
             $scope.$broadcast(AppEvent.CreateNewMap);
-          }, 200);
+          }, 100);
         };
 
         $scope.importData = function() {

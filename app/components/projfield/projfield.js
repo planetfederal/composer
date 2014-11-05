@@ -71,11 +71,11 @@ angular.module('gsApp.projfield', [
   this.defaultProjections = [];
 
   this.getProjections = function() {
-    return this.projections.concat(this.defaultProjections);
+    return _this.projections.concat(_this.defaultProjections);
   };
 
   this.getDefaults = function() {
-    return this.defaultProjections;
+    return _this.defaultProjections;
   };
 
   this.fetchProjections = function() {

@@ -20,7 +20,7 @@
     "angular-resource": "~1.2.4",
     "angular-route": "~1.2.16",
     "angular-bootstrap": "~0.11.0",
-    "angular-grid": "~2.0.11",
+    "angular-grid": "~2.0.14",
     "angular-sanitize": "~1.2.20",
     "angular-ui-router": "~0.2.10",
     "angular-ui-codemirror": "~0.1.6",
