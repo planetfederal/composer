@@ -53,7 +53,6 @@ angular.module('gsApp.maps', [
           controller: ['$scope', '$window', '$modalInstance', '$state',
             function($scope, $window, $modalInstance, $state) {
               $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
-
               $scope.workspace = ws;
               $scope.mapInfo = {
                 'abstract': ''
@@ -63,7 +62,6 @@ angular.module('gsApp.maps', [
               $scope.map = {};
               $scope.title = 'New Map';
               $scope.step = 1;
-
               $scope.crsTooltip =
               '<h5>Add a projection in EPSG</h5>' +
               '<p>Coordinate Reference System (CRS) info is available at ' +
@@ -270,7 +268,7 @@ angular.module('gsApp.maps', [
               $scope.ok = function() {
                 GeoServer.map.remove($scope.workspace, $scope.map).then(
                   function(result) {
-                    //$modalInstance.dismiss('cancel');
+                    $modalInstance.dismiss('cancel');
                     if (result.success) {
                       $rootScope.alerts = [{
                         type: 'success',
@@ -326,9 +324,7 @@ angular.module('gsApp.maps', [
       $scope.filterOptions = {
         filterText: ''
       };
-      $scope.filterOptions = {
-        filterText: ''
-      };
+
       $scope.gridSelections = [];
       $scope.gridOptions = {
         data: 'mapData',
