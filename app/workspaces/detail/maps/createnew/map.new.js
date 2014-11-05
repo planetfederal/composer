@@ -6,19 +6,101 @@ angular.module('gsApp.workspaces.maps.new', [
   'ui.select',
   'ngGrid'
 ])
+.config(['$stateProvider',
+  function($stateProvider) {
+    $stateProvider.state('workspace.maps.new', {
+      url: '/data',
+      controller: 'NewMapCtrl',
+      params: { workspace: {} }
+    });
+    $stateProvider.state('workspace.maps.new.form', {
+      url: '/',
+      views: {
+        'newmap@': {
+          templateUrl:
+            '/workspaces/detail/maps/createnew/map.new.map.tpl.html',
+          controller: 'NewMapFormCtrl',
+        }
+      },
+      params: { workspace: {}, projs: {} }
+    });
+    $stateProvider.state('workspace.maps.new.import', {
+      url: '/',
+      views: {
+        'importnew@': {
+          templateUrl:
+            '/workspaces/detail/maps/createnew/map.new.importlayers.tpl.html',
+          controller: 'NewMapSelectCtrl',
+        }
+      },
+      params: { workspace: {}, layers: {}, mapInfo: {} }
+    });
+  }])
 .controller('NewMapCtrl', ['$modalInstance', '$scope', '$state', '$stateParams',
-  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', 'projectionModel',
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent',
   '_', 'workspace',
   function ($modalInstance, $scope, $state, $stateParams, $rootScope,
-    $log, GeoServer, $window, AppEvent, projectionModel, _, workspace) {
+    $log, GeoServer, $window, AppEvent, _, workspace) {
 
-    $scope.workspace = workspace;
-    $scope.mapInfo = {
-      'description': ''
+    $scope.mapInfo = {};
+    $scope.workspace = $stateParams.workspace;
+
+    $scope.close = function () {
+      $state.go('workspace.maps.main', {workspace: $scope.workspace});
+      $modalInstance.dismiss('close');
     };
-    $scope.selectedLayers = [];
-    $scope.newMap = {};
-    $scope.map = {};
+
+    $scope.pagingOptions = {
+      pageSizes: [25, 50, 100],
+      pageSize: 25,
+      currentPage: 1
+    };
+
+    $scope.loadLayers = function() {
+      GeoServer.layers.get(
+        $scope.workspace,
+        $scope.pagingOptions.currentPage-1,
+        $scope.pagingOptions.pageSize
+      ).then(function(result) {
+        if (result.success) {
+          $scope.layers = result.data.layers;
+          $scope.totalServerItems = result.data.total;
+        } else {
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Layers for workspace ' + $scope.workspace.name +
+              ' could not be loaded.',
+            fadeout: true
+          }];
+        }
+      });
+    };
+    $scope.loadLayers();
+
+    $scope.addLayers = function() {
+      $state.go('workspace.maps.new.import', {
+        workspace: $scope.workspace,
+        layers: $scope.layers,
+        mapInfo: $scope.mapInfo
+      });
+    };
+
+    $scope.is = function(route) {
+      return $state.is('workspace.maps.new'+(route!=null?'.'+route:''));
+    };
+
+    $state.go('workspace.maps.new.form', {
+      workspace: $scope.workspace,
+      projs: $scope.projs
+    });
+
+  }])
+.controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams',
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent',
+  '_', 'projectionModel',
+  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer, $window,
+    AppEvent, _, projectionModel) {
+    $scope.workspace = $stateParams.workspace;
     $scope.title = 'New Map';
     $scope.step = 1;
     $scope.proj = 'mercator';
@@ -31,9 +113,38 @@ angular.module('gsApp.workspaces.maps.new', [
         '</a>' +
       '</p>';
 
-    $scope.cancel = function () {
-      $modalInstance.dismiss('close');
-    };
+    $scope.projEnabled = false;
+
+    projectionModel.fetchProjections().then(function() {
+      $scope.projs = projectionModel.getDefaults();
+      $scope.projEnabled = true;
+      $scope.$watch('proj', function(newValue, oldValue) {
+        if (newValue==='mercator') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:3857';
+          });
+        } else if (newValue==='latlon') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:4326';
+          });
+        } else if (newValue==='other') {
+          $scope.mapInfo.proj = $scope.customproj;
+        }
+      });
+    });
+
+  }])
+.controller('NewMapSelectCtrl', ['$scope', '$state', '$stateParams',
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent',
+  '_',
+  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer, $window,
+    AppEvent, _) {
+
+    var modalWidth = 800;
+    $scope.selectedLayers = [];
+    $scope.newMap = {};
+    $scope.map = {};
+    $scope.workspace = $stateParams.workspace;
 
     $scope.createMap = function(layerSelections) {
       $scope.mapInfo.layers = [];
@@ -42,18 +153,6 @@ angular.module('gsApp.workspaces.maps.new', [
           'name': layerSelections[i].name,
           'workspace': $scope.workspace
         });
-      }
-      var projs = projectionModel.getDefaults();
-      if ($scope.proj==='mercator') {
-        $scope.mapInfo.proj = _.find(projs, function(proj) {
-          return proj.srs === 'EPSG:3857';
-        });
-      } else if ($scope.proj==='latlon') {
-        $scope.mapInfo.proj = _.find(projs, function(proj) {
-          return proj.srs === 'EPSG:4326';
-        });
-      } else if ($scope.proj==='other') {
-        $scope.mapInfo.proj = $scope.customproj;
       }
 
       GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
@@ -68,13 +167,13 @@ angular.module('gsApp.workspaces.maps.new', [
             }];
             map.layergroupname = $scope.workspace + ':' + map.name;
             $rootScope.$broadcast(AppEvent.MapAdded, map);
-            $modalInstance.dismiss('close');
+            $scope.close();
             $state.go('map.compose', {workspace: $scope.workspace,
                 name: map.name});
           } else {
             $rootScope.alerts = [{
               type: 'danger',
-              message: 'Could not create map.',
+              message: 'Could not create map: ' + result.data.message,
               fadeout: true
             }];
           }
@@ -89,10 +188,6 @@ angular.module('gsApp.workspaces.maps.new', [
     };
 
     // Available Layers Table
-    $scope.layers = [];
-    $scope.totalServerItems = [];
-
-    var modalWidth = 800;
 
     $scope.gridWidth = {'width': modalWidth};
 
@@ -112,6 +207,8 @@ angular.module('gsApp.workspaces.maps.new', [
       enableCellSelection: false,
       enableRowSelection: true,
       enableCellEdit: false,
+      enableRowReordering: false,
+      jqueryUIDraggable: false,
       checkboxHeaderTemplate:
         '<input class="ngSelectionHeader" type="checkbox"' +
           'ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
@@ -127,7 +224,7 @@ angular.module('gsApp.workspaces.maps.new', [
         {field: 'name', displayName: 'Layer', width: '40%'},
         {field: 'title',
           displayName: 'Title',
-          enableCellEdit: true,
+          enableCellEdit: false,
           cellTemplate:
             '<div class="grid-text-padding"' +
               'alt="{{row.entity.description}}"' +
@@ -152,27 +249,6 @@ angular.module('gsApp.workspaces.maps.new', [
       totalServerItems: 'totalServerItems',
       pagingOptions: $scope.pagingOptions
     };
-
-    $scope.loadLayers = function() {
-      GeoServer.layers.get(
-        $scope.workspace,
-        $scope.pagingOptions.currentPage-1,
-        $scope.pagingOptions.pageSize
-      ).then(function(result) {
-        if (result.success) {
-          $scope.layers = result.data.layers;
-          $scope.totalServerItems = result.data.total;
-        } else {
-          $rootScope.alerts = [{
-            type: 'danger',
-            message: 'Layers for workspace ' + $scope.workspace.name +
-              ' could not be loaded.',
-            fadeout: true
-          }];
-        }
-      });
-    };
-    $scope.loadLayers();
 
     $scope.setMap = function(map) {
       $scope.selectedMap = map;

@@ -8,38 +8,59 @@ angular.module('gsApp.workspaces.data.import', [
 .config(['$stateProvider',
     function($stateProvider) {
       $stateProvider.state('workspace.data.import.file', {
-        url: '/file',
-        templateUrl: '/workspaces/detail/data/import/import.file.tpl.html',
-        controller: 'DataImportFileCtrl',
-        params: { workspace: {} }
-      });
-      $stateProvider.state('workspace.data.import.db', {
-        url: '/db',
-        templateUrl: '/workspaces/detail/data/import/import.db.tpl.html',
-        controller: 'DataImportDbCtrl',
+        views: {
+          'importfile@': {
+            url: '/file',
+            templateUrl: '/workspaces/detail/data/import/import.file.tpl.html',
+            controller: 'DataImportFileCtrl'
+          },
+          'importdb@': {
+            url: '/db',
+            templateUrl:
+              '/workspaces/detail/data/import/import.db.tpl.html',
+            controller: 'DataImportDbCtrl'
+          }
+        },
         params: { workspace: {} }
       });
       $stateProvider.state('workspace.data.import.details', {
-        url: '/details',
-        templateUrl: '/workspaces/detail/data/import/import.details.tpl.html',
-        controller: 'DataImportDetailsCtrl',
-        params: {workspace: {}, import: {} }
+        views: {
+          'importdetails@': {
+            url: '/details',
+            templateUrl:
+              '/workspaces/detail/data/import/import.details.tpl.html',
+            controller: 'DataImportDetailsCtrl',
+          }
+        },
+        params: { workspace: {}, import: {} }
       });
       $stateProvider.state('workspace.data.import.newmap', {
-        url: '/newmap',
-        templateUrl: '/workspaces/detail/data/import/import.newmap.tpl.html',
-        controller: 'ImportNewMapCtrl',
-        params: {workspace: {}, import: {}, mapInfo: {} }
+        views: {
+          'newmap@': {
+            url: '/newmap',
+            templateUrl:
+              '/workspaces/detail/data/import/import.newmap.tpl.html',
+            controller: 'ImportNewMapCtrl'
+          }
+        },
+        params: { workspace: {}, import: {}, mapInfo: {} }
       });
     }])
 .controller('DataImportCtrl', ['$scope', '$state', '$stateParams', 'GeoServer',
-  'mapsListModel',
-    function($scope, $state, $stateParams, GeoServer, mapsListModel) {
+  '$modal', '$modalInstance',
+    function($scope, $state, $stateParams, GeoServer, $modal, $modalInstance) {
 
       $scope.title = 'Import Data';
 
+      $scope.showImportFile = true;
+      $scope.showImportDB = false;
+      $scope.showImportDetails = false;
       var wsName = $stateParams.workspace;
-      mapsListModel.fetchMaps($scope.workspace);
+
+      $scope.close = function() {
+        $state.go('workspace.data.main', {workspace: wsName});
+        $modalInstance.dismiss('close');
+      };
 
       $scope.is = function(route) {
         return $state.is('workspace.data.import'+(route!=null?'.'+route:''));
@@ -52,6 +73,8 @@ angular.module('gsApp.workspaces.data.import', [
       };
 
       $scope.next = function(imp) {
+        $scope.showImportFile = false;
+        $scope.showImportDetails = true;
         $state.go('workspace.data.import.details', {
           'workspace': wsName,
           'import': imp.id
@@ -78,8 +101,8 @@ angular.module('gsApp.workspaces.data.import', [
       };
     }])
 .controller('DataImportFileCtrl', ['$scope', '$state', '$upload', '$log',
-    'GeoServer', '$stateParams',
-    function($scope, $state, $upload, $log, GeoServer, $stateParams) {
+    'GeoServer', '$stateParams', 'AppEvent',
+    function($scope, $state, $upload, $log, GeoServer, $stateParams, AppEvent) {
 
       var wsName = $stateParams.workspace;
 
@@ -101,7 +124,7 @@ angular.module('gsApp.workspaces.data.import', [
           $scope.progress.percent = parseInt(100.0 * e.loaded / e.total);
         }).success(function(e) {
           $scope.setImportResult(e);
-          $scope.storeAdded();
+          $scope.$broadcast(AppEvent.StoreAdded, {workspace: $scope.workspace});
         });
       };
       $scope.initProgress();
@@ -154,20 +177,23 @@ angular.module('gsApp.workspaces.data.import', [
           });
         }
       });
-
-
     }])
 .controller('DataImportDetailsCtrl', ['$scope', '$state', '$stateParams',
-    '$log', 'GeoServer', '$rootScope', 'mapsListModel',
+    '$log', 'GeoServer', '$rootScope', 'AppEvent',
     function($scope, $state, $stateParams, $log, GeoServer, $rootScope,
-      mapsListModel) {
+      AppEvent) {
 
       $scope.createMap = false; // for a new map not yet created
       $scope.workspace = $stateParams.workspace;
       $scope.import = $stateParams.import;
-      $scope.maps = mapsListModel.getMaps();
-
       $scope.layerSelections = [];
+
+      GeoServer.maps.get($scope.workspace).then(
+        function(result) {
+          if (result.success) {
+            $scope.maps = result.data;
+          }
+        });
 
       var baseGridOpts = {
         enableCellSelection: false,
@@ -285,7 +311,7 @@ angular.module('gsApp.workspaces.data.import', [
         ]
       }, baseGridOpts);
 
-      GeoServer.import.get($stateParams.workspace, $stateParams.import)
+      GeoServer.import.get($scope.workspace, $scope.import)
         .then(function(result) {
           if (result.success) {
             var imp = result.data;
@@ -325,7 +351,7 @@ angular.module('gsApp.workspaces.data.import', [
             .then(function(result) {
               task.success = result.success && result.data.layer != null;
               if (result.success) {
-                $scope.storeAdded();
+                $scope.$broadcast(AppEvent.StoreAdded);
                 result.data.layer.source = result.data.file;
                 $scope.importedLayers.push(result.data.layer);
               }
@@ -400,11 +426,11 @@ angular.module('gsApp.workspaces.data.import', [
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
-                message: result.data.length + ' layer(s) added to map ' +
-                  mapInfo.name + '.',
+                message: $scope.importedLayers.length +
+                  ' layer(s) added to map ' + mapInfo.name + '.',
                 fadeout: true
               }];
-              mapsListModel.addMap(result.data);
+              $scope.close();
               $state.go('map.compose', {workspace: map.workspace,
                 name: mapInfo.name});
             } else {

@@ -15,13 +15,12 @@ angular.module('gsApp.workspaces.maps', [
       });
       $stateProvider.state('workspace.maps.main', {
         url: '/',
-        templateUrl: '/workspaces/detail/maps/maps.main.tpl.html',
-        controller: 'MapsMainCtrl'
-      });
-      $stateProvider.state('workspace.maps.new', {
-        url: '/new',
-        templateUrl: '/workspaces/detail/maps/createnew/map.new.tpl.html',
-        controller: 'NewMapCtrl'
+        views: {
+          'maps': {
+            templateUrl: '/workspaces/detail/maps/maps.main.tpl.html',
+            controller: 'MapsMainCtrl',
+          }
+        }
       });
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
@@ -46,7 +45,9 @@ angular.module('gsApp.workspaces.maps', [
       mapsListModel.fetchMaps($scope.workspace).then(
         function() {
           $scope.maps = mapsListModel.getMaps();
-
+          if (!$scope.maps) {
+            return;
+          }
           // load all map thumbnails & metadata
           for (var i=0; i < $scope.maps.length; i++) {
             var map = $scope.maps[i];
@@ -85,6 +86,7 @@ angular.module('gsApp.workspaces.maps', [
           }
         });
       };
+
       $scope.$on(AppEvent.CreateNewMap, function() {
         $scope.createMap();
       });
@@ -177,15 +179,15 @@ angular.module('gsApp.workspaces.maps', [
   this.maps = null;
 
   this.getMaps = function() {
-    return this.maps;
+    return _this.maps;
   };
 
   this.setMaps = function(maps) {
-    this.maps = maps;
+    _this.maps = maps;
   };
 
   this.addMap = function(map) {
-    this.maps.push(map);
+    _this.maps.push(map);
   };
 
   this.sortByTime = function(maps) {

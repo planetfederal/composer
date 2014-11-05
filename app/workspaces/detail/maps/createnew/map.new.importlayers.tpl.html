@@ -1,0 +1,26 @@
+<div class="new-map">
+  <div class="row options" ng-show="step==2 && layers.length > 0">
+    <div class="col-sm-6 text-center">
+      <p class="lead"><i class="fa fa-check-square-o gray"></i> Select available layers<br/>below for new map:</p>
+      <button class="btn btn-primary btn-sm" ng-disabled="layerSelections.length==0" ng-click="createMap(layerSelections);">Create Map with Selected</button>
+    </div>
+    <div class="col-sm-6 text-center divider">
+      <span class="pull-left or">OR</span>
+      <p class="lead"><i class="fa fa-share gray"></i> Import data to create<br/>new layers:</p>
+      <button class="btn btn-primary btn-sm" ng-disabled="true" ng-click="createNewLayers();">Import New Data &rarr;</button>
+    </div>
+  </div>
+  <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form form-2">
+    <div class="form-group new-layers-group" name="create-new-layers" ng-show="layers.length==0">
+      <p>No data in this workspace.</p>
+      <button class="btn btn-success btn-sm" ng-click="createNewLayers();">Import Data to Create New Layers &rarr;</button>
+    </div>
+    <div class="form-group" name="available-layers" ng-show="layers.length > 0">
+      <label class="avail-layers" for="lyrs">Available Layers:</label>
+      <div name="lyrs" ng-grid="layerOptions" id="avail-layers-grid" ng-style="gridWidth"></div>
+      <br/>
+    </div>
+  </form>
+  <div ng-hide="mapCreated" style="margin-top:15px;"></div>
+  <div ng-show="mapCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Map Created.</div>
+</div>
