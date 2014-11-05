@@ -31,6 +31,7 @@
 
   .stores-list {
     overflow-y: scroll;
+    max-height:90%;
     margin-top: 5px;
     display: inline-block;
     width: 100%;
@@ -88,6 +89,12 @@
   .datastore-label {
     text-align: center;
     font-size: 10px;
+  }
+
+  .icon-column:hover {
+    .datastore-icons, .datastore-label {
+      color: @monacoblue;
+    }
   }
 
   .green {

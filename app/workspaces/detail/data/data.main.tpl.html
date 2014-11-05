@@ -1,19 +1,19 @@
 <h3>
-  Data Stores
+  Data
 </h3>
 <div class="stores-count">
-  <strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in Project <strong>{{ workspace }}</strong>
+  <strong>{{ datastores.length }}</strong> Data Source<span ng-if="datastores.length > 1">s</span> in Project <strong>{{ workspace }}</strong>
 </div>
 <div class="row datastores">
   <div class="col-sm-6">
     <ul class="list-unstyled stores-list" ng-style="storesListHeight">
       <li class="store-row" ng-repeat="ds in $parent.datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
-        <div class="icon-column">
+        <div class="icon-column" ng-click="getTypeDetails(selectedStore)">
           <h3 class="datastore-icons"><i ng-class="{'icon-file': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
           <p class="datastore-label">{{ ds.sourcetype }}</p>
         </div>
         <div class="info-column">
-          <p><strong>Store:</strong> {{ ds.name }}</p>
+          <p><strong>{{ ds.name }}</strong></p>
           <p>
             <div class="btn-group toggle-group">
               <label class="btn btn-xs" ng-class="{'btn-success': ds.enabled, 'btn-default': !ds.enabled}" ng-click="enableDisableStore(ds)" ng-model="ds.enabled">Enabled</label>
@@ -30,13 +30,12 @@
   <div class="col-sm-6">
     <div>
       <div>
-        <div><strong>Store Type:</strong> <a ng-click="getTypeDetails(selectedStore)">{{ selectedStore.format }}</a></div>
-        <div ng-show="selectedStore && !selectedStore.enabled">Store is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
+        <div ng-show="selectedStore && !selectedStore.enabled">Source is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
       </div>
-      <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Store Source:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
+      <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Location:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
       <div class="resources">
         <div class="resources-header">
-          <span>Store Resources</span>
+          <span>Data Sets in {{ selectedStore.name }}</span>
           <small class="sort-by">
             Sort by
             <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
@@ -58,10 +57,10 @@
               <span class="label-tag">Projection:</span> {{ rsrc.proj.srs }}
             </div>
             <div ng-if="rsrc.layers.length > 0">
-              <div class="info"><a pop="{{ getLayersForResource(rsrc); }}" pop-show="{{ rsrc.publishedPopover }}" pop-placement="left" ng-click="closeResourcePopovers(rsrc);" pop-title="{{rsrc.name}} used in layers:">Published</a></div>
+              <div class="info"><a pop="{{ getLayersForResource(rsrc); }}" pop-show="{{ rsrc.publishedPopover }}" pop-placement="left" ng-click="closeResourcePopovers(rsrc);" pop-title="{{rsrc.name}} is used in layers:">Published</a></div>
             </div>
             <div ng-if="rsrc.layers.length==0">
-              <div class="info"><strong>Not Published</strong> <span style="margin-left:10px;"><a class="btn btn-default btn-xs" ng-click="importAsNewLayer(rsrc, selectedStore);">Import Now &rarr;</a></span>
+              <div class="info"><strong>Not Published</strong> <span style="margin-left:10px;"><a class="btn btn-default btn-xs" ng-click="importAsNewLayer(rsrc, selectedStore);">Publish &rarr;</a></span>
               </div>
             </div>
           </li>
