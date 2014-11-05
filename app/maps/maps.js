@@ -22,7 +22,7 @@ angular.module('gsApp.maps', [
         });
     }])
 .controller('MapsCtrl', ['$scope', 'GeoServer', '$state', '$log', '$rootScope',
-    '$modal', '$window', '$stateParams',
+    '$modal', '$window', '$stateParams', 'AppEvent',
     function($scope, GeoServer, $state, $log, $rootScope, $modal, $window,
       $stateParams, AppEvent) {
       $scope.title = 'All Maps';
