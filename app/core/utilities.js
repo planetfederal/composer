@@ -148,4 +148,14 @@ angular.module('gsApp.core.utilities', [])
     str = str.toLowerCase();
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
+})
+.directive('focusInit', function($timeout) {
+  return {
+    restrict: 'A',
+    link: function(scope, element) {
+      $timeout(function() {
+        element[0].focus();
+      }, 100);
+    }
+  };
 });

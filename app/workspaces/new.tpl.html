@@ -11,7 +11,7 @@
         <form name="createform.settings" role="form" class="settings">
           <div class="form-group">
             <label for="workspaceName">Project Name</label>
-            <input type="text" class="form-control input-sm" name="name" ng-model="workspace.name" ng-maxlength="10" ng-minlength="1" required ng-blur="updateUri(this)" ng-pattern="/^[^\s]+$/" focus-init="true">
+            <input type="text" class="form-control input-sm" name="name" ng-model="workspace.name" ng-maxlength="10" ng-minlength="1" required ng-blur="updateUri(this)" ng-pattern="/^[^\s]+$/" focus-init />
             <span ng-show="createform.settings.name.$error.pattern" class="error">No spaces allowed.</span>
             <span ng-show="createform.settings.name.$error.maxlength" class="error">Max 10 characters.</span>
             <small>(Max 10 characters, no spaces.)</small>
