@@ -2,7 +2,9 @@ angular.module('gsApp.layers', [
   'gsApp.workspaces.data',
   'ngGrid',
   'ui.select',
-  'gsApp.layers.style'
+  'gsApp.layers.style',
+  'gsApp.alertpanel',
+  'gsApp.errorpanel'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -91,7 +93,6 @@ angular.module('gsApp.layers', [
           controller: ['$scope', '$window', '$modalInstance',
             function($scope, $window, $modalInstance) {
               $scope.datastores = GeoServer.datastores.get('ws');
-              $scope.projections = [{name: 'EPSG: 4326'}, {name: 'EPSG: 9999'}];
               $scope.types = [
                 {name: 'line'},
                 {name: 'multi-line'},
@@ -438,9 +439,23 @@ angular.module('gsApp.layers', [
 
       $scope.$watch('pagingOptions', function (newVal, oldVal) {
         if (newVal != null) {
-          var ws = $scope.workspace.selected;
-          if (ws != null) {
-            $scope.refreshLayers(ws);
+          if ($scope.workspace.selected) {
+            var ws = $scope.workspace.selected;
+            if (ws != null) {
+              $scope.refreshLayers(ws);
+            }
+
+            throw {
+              message: 'Big time error.',
+              cause: 'Network error: no packets sent.',
+              trace: [
+                {name: 'Error 1', error: 'HTTP request could not be sent.'},
+                {name: 'Error 2', error: 'HTTP request could not be...'},
+                {name: 'Error 3', error: 'This is critical error #3.'},
+                {name: 'Error 4', error: 'Error #4.'},
+                {name: 'Error 5', error: 'You know...error #5.'}
+              ]
+            };
           }
         }
       }, true);
