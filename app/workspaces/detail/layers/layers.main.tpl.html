@@ -41,8 +41,8 @@
             <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString', 'icon-checkbox-unchecked': layer.geometry=='MultiPolygon', 'icon-delicious': layer.geometry=='raster'}"></i>
           </div>
           <div class="detail">
-            <div pop="{{ layer.name }}" pop-show="{{ layer.layerName }}" pop-placement="bottom" ng-click="closeLayerNPopovers(layer);"><strong>{{ layer.name | truncate:false:33:true }}</strong></div>
-            <div ng-if="layer.title" pop="{{ layer.title }}" pop-show="{{ layer.layerTitle }}" pop-placement="bottom" ng-click="closeLayerTPopovers(layer);">{{ layer.title | truncate:false:33:true }}</div>
+            <div pop="{{ layer.name }}" pop-show="{{ layer.layerName }}" pop-placement="bottom" ng-click="closeLayerNPopovers(layer);"><strong>{{ layer.name | truncate:false:28:true }}</strong></div>
+            <div ng-if="layer.title" pop="{{ layer.title }}" pop-show="{{ layer.layerTitle }}" pop-placement="bottom" ng-click="closeLayerTPopovers(layer);">{{ layer.title | truncate:false:28:true }}</div>
             <div><strong>Modified:</strong> <span ng-if="layer.modified.pretty">{{ layer.modified.pretty }}</span> <span ng-if="!layer.modified">N/A</span></div>
             <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
           </div>
