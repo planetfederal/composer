@@ -142,13 +142,23 @@ angular.module('gsApp.workspaces.layers', [
             });
           }
         }
+        if (mapInfo.layers.length==0) {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Select layers to add to a map below.',
+            fadeout: true
+          }];
+          return;
+        }
+
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,
           mapInfo.layers).then(function(result) {
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
-                message: result.data.length + ' layer(s) added to map ' +
-                  mapInfo.name + '.',
+                message: mapInfo.layers.length +
+                  ' layers added to ' + mapInfo.name +
+                  ', now with ' + result.data.length + ' total.',
                 fadeout: true
               }];
               mapsListModel.addMap(result.data);
