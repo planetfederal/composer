@@ -29,14 +29,14 @@
             </ui-select-choices>
           </ui-select>
         </div>
-        <button type="button" class="btn btn-success btn-sm map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap()">Add</button>
+        <button type="button" class="btn btn-default btn-sm map-button" ng-disabled="!selectedMap" ng-click="addSelectedToMap()">Add</button>
       </div>
     </div>
   </div>
   <div class="layers-summary">
     <div class="row" ng-repeat="row in layers | orderBy:predicate:reverse | partition:3 | filter:filterText">
       <div class="col-sm-4" ng-repeat="layer in row">
-        <div class="layer-summary-detail" ng-click="layer.selected = !layer.selected" ng-style="{'outline': layer.selected ? '3px #28728D solid' : ''}">
+        <div class="layer-summary-detail" ng-click="layer.selected = !layer.selected" ng-style="{'outline': layer.selected ? '4px #28728D solid' : ''}">
           <div class="layer-icon">
             <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString', 'icon-checkbox-unchecked': layer.geometry=='MultiPolygon', 'icon-delicious': layer.geometry=='raster'}"></i>
           </div>
