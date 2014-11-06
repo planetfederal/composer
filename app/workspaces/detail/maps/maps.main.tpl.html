@@ -9,15 +9,14 @@
         Sort by
         <a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a> |
         <a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a> |
-        <a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Last Modified</a> |
-        <a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a>
+        <a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Modified</a> |
+        <a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a> |
+        <div class="filter-box">
+          <input type="text" class="form-control input-sm grid-filter" ng-model="filterText" placeholder="Filter by..." size="25" />
+        </div>
       </small>
     </div>
-    <div class="col-sm-5 filter-box">
-      <input type="text" class="form-control grid-filter" ng-model="filterText" placeholder="Filter by name, title, description..." size="25" focus-init />
-    </div>
   </div>
-</div>
   <div class="map-summary" ng-show="maps.length > 0">
     <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2 | filter:filterText">
       <div class="col-sm-6" ng-repeat="map in row">

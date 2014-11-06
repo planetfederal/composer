@@ -10,29 +10,59 @@
   .sort-by {
     margin-top: 10px;
     display: block;
+    .filter-box {
+      margin-left: 3px;
+      display: inline-block;
+      vertical-align: middle;
+
+      input {
+        font-size: 95%;
+        width: 80px;
+        height: 20px;
+        padding: 3px 5px;
+      }
+    }
   }
   .add-to-map {
     display: inline-block;
-    margin-top: -25px;
+    margin-top: -45px;
     margin-bottom: 20px;
+    background-color: @almost-white;
+    padding: 20px 10px;
+    width: 100%;
+    text-align: center;
 
     .add-label {
       display: block;
       margin-bottom: 5px;
+      margin-left: 5%;
+      text-align: left;
     }
 
     .map-picker {
       display: inline-block;
-      margin-right: 10px;
+      width: 70%;
+      margin-right: 2%;
 
       .ui-select-bootstrap {
-        width: 200px;
+        width: 100%;
+
+        & > .ui-select-match {
+          height: 26px;
+          padding: 3px 10px;
+        }
+        & > .ui-select-choices {
+          font-size: 12px;
+        }
       }
     }
+    button.map-button {
+      display: inline-block;
+      height: 26px;
+      padding: 3px 6px;
+    }
   }
-  .filter-box {
-    margin-top: 5px;
-  }
+
   .layers-summary {
     margin-bottom: 40px;
     margin-top: 20px;
@@ -78,7 +108,7 @@
           line-height: 20px;
         }
       }
-      .layer-settings {
+      .layer-details-footer {
         outline: 1px solid @gray;
         clear: both;
         background-color: @gray;

@@ -168,10 +168,12 @@ angular.module('gsApp.core.backend',[])
             workspace = workspace? workspace : 'default';
             page = page? page : 0;
             count = count? count : 25;
+            sort = sort? '&sort='+sort : '';
+            filter = filter? '&filter='+filter : '';
             return http({
               method: 'GET',
               url: apiRoot+'/layers/'+workspace+'?page='+page+
-                '&count='+count+'&sort='+sort+'&filter='+filter
+                '&count='+count + sort + filter
             });
           },
           getAll: function(workspace) {
