@@ -26,6 +26,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'feature-styles': sequence,
           'rules': sequence,
           'scale': tuple,
+          'zoom': tuple,
           'filter': scalar,
           'else': scalar,
           'symbolizers': sequence,
@@ -83,6 +84,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           ],
           'rules': [
             'scale',
+            'zoom',
             'filter',
             'else',
             'symbolizers'
