@@ -142,16 +142,15 @@ angular.module('gsApp.workspaces.maps.new', [
     });
 
   }])
-.controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams',
-  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', '_',
-  'projectionModel',
+.controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams', '$rootScope',
+  '$log', 'GeoServer', '$window', 'AppEvent', '_', 'projectionModel',
   function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
     $window,
     AppEvent, _, projectionModel) {
     $scope.workspace = $stateParams.workspace;
     $scope.title = 'New Map';
     $scope.step = 1;
-    $scope.proj = 'mercator';
+    $scope.proj = 'latlon';
 
     $scope.crsTooltip =
       '<h5>Add a projection in EPSG</h5>' +

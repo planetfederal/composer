@@ -22,11 +22,11 @@
           </label>
           <div class="projection-options">
             <div class="proj-check">
-              <input type="radio" ng-model="proj" value="mercator"> Web Mercator
-            </div>
-            <div class="proj-check">
               <input type="radio" ng-model="proj" value="latlon">
               Lat/Lon (WGS)
+            </div>
+            <div class="proj-check">
+              <input type="radio" ng-model="proj" value="mercator"> Web Mercator
             </div>
             <div class="proj-check other">
               <input type="radio" ng-model="proj" value="other" ng-click="custom.proj = true"> Other
