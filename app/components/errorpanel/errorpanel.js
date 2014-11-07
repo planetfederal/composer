@@ -1,8 +1,8 @@
 angular.module('gsApp.errorpanel', [
   'ui.bootstrap'
 ])
-.factory('$exceptionHandler', ['$injector', '$log',
-  function ($injector, $log) {
+.factory('$exceptionHandler', ['$injector', '$log', '$window',
+  function ($injector, $log, $window) {
     return function (exception, cause) {
       if (exception) {
         var rScope = $injector.get('$rootScope');
@@ -16,7 +16,7 @@ angular.module('gsApp.errorpanel', [
         }];
 
         if (rScope) {
-          rScope.errors = this.errors;
+          //rScope.errors = this.errors;
           $log.log(this.errors);
         }
       }
