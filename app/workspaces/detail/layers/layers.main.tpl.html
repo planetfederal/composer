@@ -47,7 +47,7 @@
             <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
           </div>
           <div class="layer-details-footer">
-            <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})">
+            <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})" title="Edit Layer Style">
               <i class="fa fa-paint-brush"></i> Style
             </a>
             <a ng-click="showAttrs(layer.name, layer.schema.attributes)">{{ layer.schema.attributes.length }} Attributes</a>

@@ -47,6 +47,9 @@
   </div>
   <div class="modal-footer">
     <div class="submit-buttons pull-right">
+      <button class="btn btn-default btn-sm" ng-click="back()">&larr; Back</button>
       <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
+      <button class="btn btn-success btn-sm" ng-show="mapInfo && is('details')" ng-click="completeNewMap(selectedLayers)">Create Map {{ mapInfo.name }}</button>
     </div>
   </div>
+</div>

@@ -1,6 +1,6 @@
 angular.module('gsApp.workspaces.maps.new', [
   'ngSanitize',
-  'gsApp.alertpanel',
+ /* 'gsApp.alertpanel',*/
   'gsApp.projfield',
   'gsApp.core.utilities',
   'ui.select',
@@ -9,7 +9,7 @@ angular.module('gsApp.workspaces.maps.new', [
 .config(['$stateProvider',
   function($stateProvider) {
     $stateProvider.state('workspace.maps.new', {
-      url: '/data',
+      url: '/new',
       controller: 'NewMapCtrl',
       params: { workspace: {} }
     });
@@ -24,31 +24,53 @@ angular.module('gsApp.workspaces.maps.new', [
       },
       params: { workspace: {}, projs: {} }
     });
-    $stateProvider.state('workspace.maps.new.import', {
+    $stateProvider.state('workspace.maps.new.add', {
       url: '/',
       views: {
-        'importnew@': {
+        'addlayers@': {
           templateUrl:
-            '/workspaces/detail/maps/createnew/map.new.importlayers.tpl.html',
+            '/workspaces/detail/maps/createnew/map.new.addlayers.tpl.html',
           controller: 'NewMapSelectCtrl',
         }
       },
       params: { workspace: {}, layers: {}, mapInfo: {} }
     });
+    $stateProvider.state('workspace.maps.new.import', {
+      url: '/import',
+      views: {
+        'importnew@': {
+          templateUrl:
+            '/workspaces/detail/maps/createnew/map.new.importdata.tpl.html',
+          controller: 'NewMapImportCtrl',
+        }
+      },
+      params: { workspace: {}, maps: {} }
+    });
+    $stateProvider.state('workspace.maps.new.import.data', {
+      views: {
+        'importfile@': {
+          url: '/file',
+          templateUrl: '/workspaces/detail/data/import/import.file.tpl.html',
+          controller: 'DataImportFileCtrl'
+        },
+        'importdb@': {
+          url: '/db',
+          templateUrl:
+            '/workspaces/detail/data/import/import.db.tpl.html',
+          controller: 'DataImportDbCtrl'
+        }
+      },
+      params: { workspace: {}, maps: {} }
+    });
   }])
-.controller('NewMapCtrl', ['$modalInstance', '$scope', '$state', '$stateParams',
-  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent',
-  '_', 'workspace',
+.controller('NewMapCtrl', ['$modalInstance', '$scope', '$state',
+  '$stateParams', '$rootScope', '$log', 'GeoServer', '$window',
+  'AppEvent', '_', 'workspace', '$modal',
   function ($modalInstance, $scope, $state, $stateParams, $rootScope,
-    $log, GeoServer, $window, AppEvent, _, workspace) {
+    $log, GeoServer, $window, AppEvent, _, workspace, $modal) {
 
     $scope.mapInfo = {};
     $scope.workspace = $stateParams.workspace;
-
-    $scope.close = function () {
-      $state.go('workspace.maps.main', {workspace: $scope.workspace});
-      $modalInstance.dismiss('close');
-    };
 
     $scope.pagingOptions = {
       pageSizes: [25, 50, 100],
@@ -77,8 +99,32 @@ angular.module('gsApp.workspaces.maps.new', [
     };
     $scope.loadLayers();
 
+    $scope.close = function (closeOrImport) {
+      if (closeOrImport === 'import') {
+        // open new modal to import
+        $modalInstance.close({
+          importOrClose: 'import',
+          mapInfo: $scope.mapInfo
+        });
+      } else {
+        $state.go('workspace.maps.main', {
+          workspace: $scope.workspace
+        });
+        $modalInstance.close({importOrClose: 'close'});
+      }
+    };
+
+    $scope.stepBack = function () {
+      if ($state.is('workspace.maps.new.add')) {
+        $state.go('workspace.maps.new.form');
+      }
+      if ($state.is('workspace.maps.new.import')) {
+        $state.go('workspace.maps.new.add');
+      }
+    };
+
     $scope.addLayers = function() {
-      $state.go('workspace.maps.new.import', {
+      $state.go('workspace.maps.new.add', {
         workspace: $scope.workspace,
         layers: $scope.layers,
         mapInfo: $scope.mapInfo
@@ -86,7 +132,8 @@ angular.module('gsApp.workspaces.maps.new', [
     };
 
     $scope.is = function(route) {
-      return $state.is('workspace.maps.new'+(route!=null?'.'+route:''));
+      return $state.is('workspace.maps.new' +
+        (route!=null?'.'+route:''));
     };
 
     $state.go('workspace.maps.new.form', {
@@ -96,9 +143,10 @@ angular.module('gsApp.workspaces.maps.new', [
 
   }])
 .controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams',
-  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent',
-  '_', 'projectionModel',
-  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer, $window,
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', '_',
+  'projectionModel',
+  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
+    $window,
     AppEvent, _, projectionModel) {
     $scope.workspace = $stateParams.workspace;
     $scope.title = 'New Map';
@@ -135,10 +183,9 @@ angular.module('gsApp.workspaces.maps.new', [
 
   }])
 .controller('NewMapSelectCtrl', ['$scope', '$state', '$stateParams',
-  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent',
-  '_',
-  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer, $window,
-    AppEvent, _) {
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', '_', '$modal',
+  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
+    $window, AppEvent, _, $modal) {
 
     var modalWidth = 800;
     $scope.selectedLayers = [];
@@ -180,8 +227,8 @@ angular.module('gsApp.workspaces.maps.new', [
         });
     }; // end createMap
 
-    $scope.createNewLayers = function() {
-      $state.go('workspace.data.import.file', {
+    $scope.importNewLayers = function () {
+      $state.go('workspace.maps.new.import', {
         workspace: $scope.workspace,
         maps: [$scope.mapInfo]
       });
@@ -253,5 +300,11 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.setMap = function(map) {
       $scope.selectedMap = map;
     };
+
+  }])
+.controller('NewMapImportCtrl', ['$scope',
+  function ($scope) {
+
+    $scope.close('import');
 
   }]);
