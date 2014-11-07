@@ -3,7 +3,8 @@ angular.module('gsApp.workspaces.data.import', [
   'angularFileUpload',
   'ui.bootstrap',
   'gsApp.core.utilities',
-  'gsApp.projfield'
+  'gsApp.projfield',
+  'gsApp.inlineErrors'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -127,6 +128,8 @@ angular.module('gsApp.workspaces.data.import', [
               $state.go('map.compose', {workspace: wsName,
                 name: map.name});
             } else {
+              $scope.errors = result.data.cause?
+                result.data.cause: result.data; // show errors in modal
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Error creating new map.',
