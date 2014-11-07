@@ -37,7 +37,7 @@
 
     <mkdir dir="${war.dir}/data"/>
     <copy todir="${war.dir}/data">
-      <fileset dir="${data.dir}"/>
+      <fileset dir="${data.dir}" excludes="*.zip"/>
     </copy>
 
     <delete file="${war.file}"/>
