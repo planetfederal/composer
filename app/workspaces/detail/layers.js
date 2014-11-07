@@ -118,15 +118,6 @@ angular.module('gsApp.workspaces.layers', [
       $scope.addSelectedToMap = function() {
         var map = $scope.selectedMap;
 
-        if (map.name==='Create New Map') {
-          $rootScope.alerts = [{
-              type: 'danger',
-              message: 'This feature is not wired up yet!',
-              fadeout: true
-            }];
-          return;
-        }
-
         var mapInfo = {
           'name': map.name,
           'proj': map.proj,
@@ -151,6 +142,28 @@ angular.module('gsApp.workspaces.layers', [
           return;
         }
 
+        // 1. Create New map from Layers tab - selected layers
+        if (map.name==='Create New Map') {
+          mapInfo.name = null;
+          var createNewMapModal = $modal.open({
+            templateUrl:
+              '/workspaces/detail/maps/createnew/map.new.fromselected.tpl.html',
+            controller: 'NewMapFromSelectedCtrl',
+            backdrop: 'static',
+            size: 'lg',
+            resolve: {
+              workspace: function() {
+                return $scope.workspace;
+              },
+              mapInfo: function() {
+                return mapInfo;
+              }
+            }
+          });
+          return;
+        }
+
+        // 2. Create New map from anywhere - no selected layers
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,
           mapInfo.layers).then(function(result) {
             if (result.success) {
