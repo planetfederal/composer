@@ -90,21 +90,35 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
-      $scope.importData = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/data/import/import.tpl.html',
-          controller: 'DataImportCtrl',
-          backdrop: 'static',
-          size: 'lg',
-          resolve: {
-            workspace: function() {
-              return $scope.workspace;
+      // for some reason modal below's being called twice without this lock
+      $rootScope.importInitiated = false;
+
+      $scope.importNewData = function(mapInfo) {
+
+        if (!$scope.importInitiated) {
+          $rootScope.importInitiated = true;
+          $scope.mapInfo = mapInfo;
+          var importModalInstance = $modal.open({
+            templateUrl: '/workspaces/detail/data/import/import.tpl.html',
+            controller: 'DataImportCtrl',
+            backdrop: 'static',
+            size: 'lg',
+            resolve: {
+              workspace: function() {
+                return $scope.workspace;
+              },
+              mapInfo: function() {
+                return $scope.mapInfo;
+              }
             }
-          }
-        });
+          }).result.then(function() {
+            $rootScope.importInitiated = false;
+          });
+        }
       };
-      $scope.$on(AppEvent.ImportData, function(e) {
-        $scope.importData();
+
+      $rootScope.$on(AppEvent.ImportData, function(scope, mapInfo) {
+        $scope.importNewData(mapInfo);
       });
 
       $rootScope.$on(AppEvent.StoreAdded, function(scope, workspace) {

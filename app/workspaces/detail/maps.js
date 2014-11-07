@@ -1,7 +1,7 @@
 angular.module('gsApp.workspaces.maps', [
   'gsApp.workspaces.maps.new',
   'gsApp.workspaces.maps.settings',
-  'gsApp.alertpanel',
+ /* 'gsApp.alertpanel', */
   'gsApp.core.utilities',
   'ngSanitize'
 ])
@@ -25,9 +25,9 @@ angular.module('gsApp.workspaces.maps', [
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'mapsListModel',
-  '$timeout', '$modal',
+  '$timeout', '$modal', '$rootScope',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent, mapsListModel, $timeout, $modal) {
+      GeoServer, AppEvent, mapsListModel, $timeout, $modal, $rootScope) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
@@ -74,7 +74,7 @@ angular.module('gsApp.workspaces.maps', [
       };
 
       $scope.createMap = function() {
-        var modalInstance = $modal.open({
+        var createModalInstance = $modal.open({
           templateUrl: '/workspaces/detail/maps/createnew/map.new.tpl.html',
           controller: 'NewMapCtrl',
           backdrop: 'static',
@@ -83,6 +83,15 @@ angular.module('gsApp.workspaces.maps', [
             workspace: function() {
               return $scope.workspace;
             }
+          }
+        }).result.then(function(response) {
+          if (response.importOrClose==='import') {
+            var mapInfo = response.mapInfo;
+            $timeout(function() {
+              $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
+            }, 250);
+            // go to this state to initiate listener for broadcast above!
+            $state.go('workspace.data.main', $scope.workspace);
           }
         });
       };
