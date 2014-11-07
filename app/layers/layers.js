@@ -449,11 +449,12 @@ angular.module('gsApp.layers', [
       };
 
       $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
-        $scope.refreshLayers($scope.workspace.selected);
+        $scope.refreshLayers();
       }, true);
 
-      $scope.refreshLayers = function(ws) {
+      $scope.refreshLayers = function() {
         $scope.sort = '';
+        $scope.ws = $scope.workspace.selected;
         if ($scope.gridOptions.sortInfo.directions == 'asc') {
           $scope.sort = $scope.gridOptions.sortInfo.fields+':asc';
         }
@@ -461,33 +462,36 @@ angular.module('gsApp.layers', [
           $scope.sort = $scope.gridOptions.sortInfo.fields+':desc';
         }
 
-        GeoServer.layers.get(
-          ws.name,
-          $scope.pagingOptions.currentPage-1,
-          $scope.pagingOptions.pageSize,
-          $scope.sort,
-          $scope.filterOptions.filterText
-        ).then(function(result) {
-          if (result.success) {
-            $scope.layerData = result.data.layers;
-            $scope.totalServerItems = result.data.total;
-            $scope.itemsPerPage = $scope.pagingOptions.pageSize;
+        if ($scope.ws) {
+          GeoServer.layers.get(
+            $scope.ws.name,
+            $scope.pagingOptions.currentPage-1,
+            $scope.pagingOptions.pageSize,
+            $scope.sort,
+            $scope.filterOptions.filterText
+          ).then(function(result) {
+            if (result.success) {
+              $scope.layerData = result.data.layers;
+              $scope.totalServerItems = result.data.total;
+              $scope.itemsPerPage = $scope.pagingOptions.pageSize;
 
-            if ($scope.filterOptions.filterText.length > 0) {
-              $scope.totalItems = $scope.gridOptions.ngGrid.filteredRows.length;
+              if ($scope.filterOptions.filterText.length > 0) {
+                $scope.totalItems =
+                  $scope.gridOptions.ngGrid.filteredRows.length;
+              }
+              else {
+                $scope.totalItems = $scope.totalServerItems;
+              }
+            } else {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Layers for workspace ' + $scope.ws.name +
+                  ' could not be loaded.',
+                fadeout: true
+              }];
             }
-            else {
-              $scope.totalItems = $scope.totalServerItems;
-            }
-          } else {
-            $rootScope.alerts = [{
-              type: 'warning',
-              message: 'Layers for workspace ' + ws.name +
-                ' could not be loaded.',
-              fadeout: true
-            }];
-          }
-        });
+          });
+        }
       };
 
       $scope.refreshMaps = function(ws) {
@@ -507,8 +511,7 @@ angular.module('gsApp.layers', [
       };
 
       $scope.updatePaging = function () {
-        var ws = $scope.workspace.selected;
-        $scope.refreshLayers(ws);
+        $scope.refreshLayers();
       };
 
       $scope.setPage = function (page) {
@@ -518,10 +521,7 @@ angular.module('gsApp.layers', [
       $scope.$watch('pagingOptions', function (newVal, oldVal) {
         if (newVal != null) {
           if ($scope.workspace.selected) {
-            var ws = $scope.workspace.selected;
-            if (ws != null) {
-              $scope.refreshLayers(ws);
-            }
+            $scope.refreshLayers();
 
             /*throw {
               message: 'Big time error.',
@@ -540,7 +540,7 @@ angular.module('gsApp.layers', [
 
       $scope.$watch('workspace.selected', function(newVal) {
         if (newVal != null) {
-          $scope.refreshLayers(newVal);
+          $scope.refreshLayers();
           $scope.refreshMaps(newVal.name);
           $scope.$broadcast(AppEvent.WorkspaceSelected, newVal.name);
         }
@@ -562,7 +562,6 @@ angular.module('gsApp.layers', [
             });
             $scope.workspaces = workspaces;
           } else {
-            // TODO move alerts to top of header nav
             $scope.alerts = [{
               type: 'warning',
               message: 'Failed to get workspace list.',
