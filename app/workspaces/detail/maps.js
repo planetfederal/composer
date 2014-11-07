@@ -203,6 +203,9 @@ angular.module('gsApp.workspaces.maps', [
   };
 
   this.addMap = function(map) {
+    if (!_this.maps) {
+      _this.maps = [];
+    }
     _this.maps.push(map);
   };
 
