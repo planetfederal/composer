@@ -1,6 +1,6 @@
 angular.module('gsApp.workspaces.maps.new', [
   'ngSanitize',
- /* 'gsApp.alertpanel',*/
+  'gsApp.alertpanel',
   'gsApp.projfield',
   'gsApp.core.utilities',
   'ui.select',

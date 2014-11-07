@@ -68,7 +68,7 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.close = function() {
         $state.go('workspace.data.main', {workspace: wsName});
-        $modalInstance.dismiss('close');
+        $modalInstance.close('close');
       };
 
       $scope.is = function(route) {
