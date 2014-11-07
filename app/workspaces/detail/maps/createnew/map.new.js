@@ -142,6 +142,79 @@ angular.module('gsApp.workspaces.maps.new', [
     });
 
   }])
+// for creating a new map after selecting layers on the Layers tab
+.controller('NewMapFromSelectedCtrl', ['$scope', '$state', '$stateParams',
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', '_',
+  'projectionModel', 'workspace', 'mapInfo', '$modalInstance',
+  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
+    $window, AppEvent, _, projectionModel, workspace, mapInfo,
+    $modalInstance) {
+
+    $scope.workspace = workspace;
+    $scope.mapInfo = mapInfo;
+
+    $scope.title = 'New Map from Selected Layers';
+    $scope.step = 1;
+    $scope.proj = 'latlon';
+
+    $scope.crsTooltip =
+      '<h5>Add a projection in EPSG</h5>' +
+      '<p>Coordinate Reference System (CRS) info is available at ' +
+        '<a href="http://prj2epsg.org/search" target="_blank">' +
+          'http://prj2epsg.org' +
+        '</a>' +
+      '</p>';
+
+    $scope.projEnabled = false;
+
+    projectionModel.fetchProjections().then(function() {
+      $scope.projs = projectionModel.getDefaults();
+      $scope.projEnabled = true;
+      $scope.$watch('proj', function(newValue, oldValue) {
+        if (newValue==='mercator') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:3857';
+          });
+        } else if (newValue==='latlon') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:4326';
+          });
+        } else if (newValue==='other') {
+          $scope.mapInfo.proj = $scope.customproj;
+        }
+      });
+    });
+
+    $scope.close = function () {
+      $modalInstance.close('close');
+    };
+
+    $scope.createMap = function () {
+      GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
+        function(result) {
+          if (result.success) {
+            var map = result.data;
+            $rootScope.alerts = [{
+              type: 'success',
+              message: 'Map ' + $scope.mapInfo.name + ' created  with ' +
+                $scope.mapInfo.layers.length + ' layer(s).',
+              fadeout: true
+            }];
+            $rootScope.$broadcast(AppEvent.MapAdded, map);
+            $scope.close();
+            $state.go('map.compose', {workspace: $scope.workspace,
+                name: map.name});
+          } else {
+            $rootScope.alerts = [{
+              type: 'danger',
+              message: 'Could not create map: ' + result.data.message,
+              fadeout: true
+            }];
+          }
+        });
+    };
+
+  }])
 .controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams', '$rootScope',
   '$log', 'GeoServer', '$window', 'AppEvent', '_', 'projectionModel',
   function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
