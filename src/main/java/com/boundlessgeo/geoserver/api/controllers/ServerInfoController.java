@@ -5,6 +5,8 @@ package com.boundlessgeo.geoserver.api.controllers;
 
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
+import com.boundlessgeo.geoserver.util.RecentObjectCache.Ref;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
@@ -28,8 +30,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ServerInfoController extends ApiController {
 
     @Autowired
-    public ServerInfoController(GeoServer geoServer) {
-        super(geoServer);
+    public ServerInfoController(GeoServer geoServer, RecentObjectCache recent) {
+        super(geoServer, recent);
     }
 
     @RequestMapping(method= RequestMethod.GET)
@@ -54,10 +56,16 @@ public class ServerInfoController extends ApiController {
         }
 
         Catalog cat = geoServer.getCatalog();
-        obj.putObject("catalog")
-           .put("workspaces", cat.count(WorkspaceInfo.class, Filter.INCLUDE))
+        obj.put("workspaces", cat.count(WorkspaceInfo.class, Filter.INCLUDE))
            .put("layers", cat.count(LayerInfo.class, Filter.INCLUDE))
            .put("maps", cat.count(LayerGroupInfo.class, Filter.INCLUDE));
+
+        JSONObj cache = obj.putObject("recent");
+
+        JSONArr recentMaps = cache.putArray("maps");
+        for (Ref ref : recent.list(LayerGroupInfo.class)) {
+            IO.ref(recentMaps.addObject(), ref);
+        }
 
         return obj;
     }

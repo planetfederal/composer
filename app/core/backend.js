@@ -182,6 +182,12 @@ angular.module('gsApp.core.backend',[])
               method: 'GET',
               url: apiRoot+'/layers/'+workspace
             });
+          },
+          recent: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/layers/recent'
+            });
           }
         },
 
@@ -250,6 +256,12 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot+'/maps/'+workspace+'/'+name
             });
           },
+          recent: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/maps/recent'
+            });
+          }
         },
 
         map: {
