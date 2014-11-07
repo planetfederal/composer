@@ -111,7 +111,7 @@ angular.module('gsApp.workspaces.data', [
                 return $scope.mapInfo;
               }
             }
-          }).result.then(function() {
+          }).result.then(function(param) {
             $rootScope.importInitiated = false;
           });
         }
