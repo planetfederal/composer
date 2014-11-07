@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 import com.boundlessgeo.geoserver.util.RecentObjectCache;
+import com.boundlessgeo.geoserver.util.RecentObjectCache.Ref;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
@@ -159,7 +160,7 @@ public class MapController extends ApiController {
         cat.add( map );
         cat.save(ws);
 
-        recent.add(LayerGroupInfo.class, map.getId());
+        recent.add(LayerGroupInfo.class, map);
         return mapDetails(new JSONObj(), map, wsName, req);
     }
 
@@ -181,7 +182,7 @@ public class MapController extends ApiController {
         LayerGroupInfo map = findMap(wsName,name, cat);
         cat.remove(map);
 
-        recent.remove(LayerGroupInfo.class, map.getId());
+        recent.remove(LayerGroupInfo.class, map);
         return list(wsName);
     }
     
@@ -261,7 +262,7 @@ public class MapController extends ApiController {
         cat.save(map);
         cat.save(ws);
 
-        recent.add(LayerGroupInfo.class, map.getId());
+        recent.add(LayerGroupInfo.class, map);
         return mapDetails(new JSONObj(), map, wsName, req);
     }
     
@@ -366,7 +367,7 @@ public class MapController extends ApiController {
         cat.save(m);
         cat.save(ws);
 
-        recent.add(LayerGroupInfo.class, m.getId());
+        recent.add(LayerGroupInfo.class, m);
         return mapLayerList(m,req);
     }
 
@@ -409,7 +410,7 @@ public class MapController extends ApiController {
         cat.save(m);
         cat.save(ws);
 
-        recent.add(LayerGroupInfo.class, m.getId());
+        recent.add(LayerGroupInfo.class, m);
         return mapLayerList(m,req);
     }
     
@@ -432,8 +433,8 @@ public class MapController extends ApiController {
         JSONArr arr = new JSONArr();
         Catalog cat = geoServer.getCatalog();
 
-        for (String id : recent.list(LayerGroupInfo.class)) {
-            LayerGroupInfo map = cat.getLayerGroup(id);
+        for (Ref ref : recent.list(LayerGroupInfo.class)) {
+            LayerGroupInfo map = cat.getLayerGroup(ref.id);
             if( checkMap( map ) ){
                 JSONObj obj = arr.addObject();
                 map(obj, map, map.getWorkspace().getName());
@@ -458,7 +459,7 @@ public class MapController extends ApiController {
             map.getStyles().remove(index);
 
             cat.save(map);
-            recent.add(LayerGroupInfo.class, map.getId());
+            recent.add(LayerGroupInfo.class, map);
 
             JSONObj delete = new JSONObj()
                 .put("name", layer.getName())

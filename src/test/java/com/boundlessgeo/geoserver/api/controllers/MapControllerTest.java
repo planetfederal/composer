@@ -7,6 +7,8 @@ import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -30,6 +32,7 @@ import org.geoserver.security.impl.GeoServerUser;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -337,10 +340,18 @@ public class MapControllerTest {
             .content(obj.toString());
         mvc.perform(req).andExpect(status().isOk()).andReturn();
 
-        verify(recent, times(1)).add(LayerGroupInfo.class, "map3");
-        verify(recent, times(1)).add(LayerGroupInfo.class, "map2");
-        verify(recent, times(1)).add(LayerGroupInfo.class, "map1");
+        verify(recent, times(1)).add(eq(LayerGroupInfo.class), hasId("map3"));
+        verify(recent, times(1)).add(eq(LayerGroupInfo.class), hasId("map2"));
+        verify(recent, times(1)).add(eq(LayerGroupInfo.class), hasId("map1"));
+    }
 
+    LayerGroupInfo hasId(final String id) {
+        return argThat(new ArgumentMatcher<LayerGroupInfo>() {
+            @Override
+            public boolean matches(Object argument) {
+                return id.equals(((LayerGroupInfo)argument).getId());
+            }
+        });
     }
 
 }

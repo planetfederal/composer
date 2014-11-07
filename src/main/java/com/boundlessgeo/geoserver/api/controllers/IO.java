@@ -18,6 +18,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.boundlessgeo.geoserver.util.RecentObjectCache.Ref;
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.WordUtils;
 import org.geoserver.catalog.CoverageInfo;
@@ -726,5 +727,14 @@ public class IO {
         String relative = String.format("/api"+path, args );
         String resolved = ResponseUtils.buildURL(baseURL, relative, null, URLType.SERVICE);
         return resolved;
+    }
+
+    public static JSONObj ref(JSONObj obj, Ref ref) {
+        obj.put("name", ref.name);
+        if (ref.workspace != null) {
+            obj.put("workspace", ref.workspace);
+        }
+        date(obj.putObject("modified"), ref.modified);
+        return obj;
     }
 }

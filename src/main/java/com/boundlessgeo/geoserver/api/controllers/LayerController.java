@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.boundlessgeo.geoserver.util.RecentObjectCache;
+import com.boundlessgeo.geoserver.util.RecentObjectCache.Ref;
 import com.google.common.base.Throwables;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -385,7 +386,7 @@ public class LayerController extends ApiController {
     public @ResponseBody void delete(@PathVariable String wsName, @PathVariable String name) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
-        recent.remove(LayerInfo.class, layer.getId());
+        recent.remove(LayerInfo.class, layer);
         new CascadeDeleteVisitor(cat).visit(layer);
     }
 
@@ -393,7 +394,7 @@ public class LayerController extends ApiController {
     public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
-        recent.add(LayerInfo.class, layer.getId());
+        recent.add(LayerInfo.class, layer, wsName);
         return  update(layer, obj,req);
     }
 
@@ -401,7 +402,7 @@ public class LayerController extends ApiController {
     public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
-        recent.add(LayerInfo.class, layer.getId());
+        recent.add(LayerInfo.class, layer, wsName);
         return  update(layer, obj,req);
     }
     
@@ -508,12 +509,12 @@ public class LayerController extends ApiController {
         }
 
         cat.save(l);
-        recent.add(LayerInfo.class, l.getId());
+        recent.add(LayerInfo.class, l, wsName);
         if (map != null) {
             Metadata.modified(map, mod);
             cat.save(map);
 
-            recent.add(LayerGroupInfo.class, map.getId());
+            recent.add(LayerGroupInfo.class, map);
         }
     }
 
@@ -584,8 +585,8 @@ public class LayerController extends ApiController {
         Catalog cat = geoServer.getCatalog();
         JSONArr arr = new JSONArr();
         
-        for (String id : recent.list(LayerInfo.class)) {
-            LayerInfo layer = cat.getLayer(id);
+        for (Ref ref : recent.list(LayerInfo.class)) {
+            LayerInfo layer = cat.getLayer(ref.id);
             IO.layer(arr.addObject(), layer, req);
         }
         return arr;

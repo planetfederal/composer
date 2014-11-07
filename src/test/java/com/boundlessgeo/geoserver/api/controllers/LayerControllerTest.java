@@ -28,8 +28,12 @@ import org.geotools.styling.PointSymbolizer;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyledLayerDescriptor;
 import org.geotools.ysld.Ysld;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -365,8 +369,17 @@ public class LayerControllerTest {
             .content(obj.toString());
         mvc.perform(req).andExpect(status().isOk()).andReturn();
 
-        verify(recent, times(1)).add(LayerInfo.class, "layer3");
-        verify(recent, times(1)).add(LayerInfo.class, "layer2");
-        verify(recent, times(1)).add(LayerInfo.class, "layer1");
+        verify(recent, times(1)).add(eq(LayerInfo.class), hasId("layer3"), eq("foo"));
+        verify(recent, times(1)).add(eq(LayerInfo.class), hasId("layer2"), eq("foo"));
+        verify(recent, times(1)).add(eq(LayerInfo.class), hasId("layer1"), eq("foo"));
+    }
+
+    LayerInfo hasId(final String id) {
+        return argThat(new ArgumentMatcher<LayerInfo>() {
+            @Override
+            public boolean matches(Object argument) {
+                return id.equals(((LayerInfo)argument).getId());
+            }
+        });
     }
 }
