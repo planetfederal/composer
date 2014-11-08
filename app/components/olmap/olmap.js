@@ -207,7 +207,7 @@ angular.module('gsApp.olmap', [])
                 {'INFO_FORMAT': 'application/json'});
             $.ajax(gfi).then(function(response) {
               if (response && response.features) {
-                mapOpts.featureInfo(JSON.parse(response));
+                mapOpts.featureInfo(response.features);
               }
             });
           });
