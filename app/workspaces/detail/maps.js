@@ -98,7 +98,7 @@ angular.module('gsApp.workspaces.maps', [
                   $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
                 }
               });
-            $state.go('workspace.data.main', $scope.workspace);
+            $state.go('workspace.data.import', {workspace: $scope.workspace});
           }
         });
       };

@@ -126,7 +126,7 @@ angular.module('gsApp.workspaces.data.import', [
         });
       };
 
-      $scope.completeNewMap = function() { // complete New Map > Import Data
+      $scope.completeNewMap = function() { // New Map > Import Data
         var mapInfo = mapInfoModel.getMapInfo();
         GeoServer.map.create(wsName, mapInfo).then(
           function(result) {
@@ -154,7 +154,36 @@ angular.module('gsApp.workspaces.data.import', [
           });
       };
 
-      $scope.createNewMapwithImported = function() {
+      $scope.addNewLayersToExistingMap = function() { // Existing Map > Import
+        var mapInfo = mapInfoModel.getMapInfo();
+        var layers = mapInfo.newLayers? mapInfo.newLayers : mapInfo.layers;
+
+        GeoServer.map.layers.add(wsName, mapInfo.name, layers).then(
+          function(result) {
+            if (result.success) {
+              $rootScope.alerts = [{
+                type: 'success',
+                message: layers.length + ' new layer(s) added to map ' +
+                  mapInfo.name + '.',
+                fadeout: true
+              }];
+              $scope.close('close');
+              $state.go('map.compose', {workspace: wsName,
+                name: mapInfo.name});
+            } else {
+              $scope.errors = result.data.cause?
+                result.data.cause: result.data; // show errors in modal
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'New layer(s) could not be added to map ' +
+                  mapInfo.name + '.',
+                fadeout: true
+              }];
+            }
+          });
+      };
+
+      $scope.createNewMapwithImported = function() { // Import Data > New Map
         var mapInfo = mapInfoModel.getMapInfo();
         GeoServer.map.create(wsName, mapInfo).then(
           function(result) {
@@ -265,11 +294,9 @@ angular.module('gsApp.workspaces.data.import', [
     function($scope, $state, $stateParams, $log, GeoServer, $rootScope,
       AppEvent, mapInfoModel) {
 
-      $scope.createMap = false; // for a new map not yet created
       $scope.workspace = $stateParams.workspace;
       $scope.import = $stateParams.import;
       $scope.layerSelections = [];
-
 
       // if mapInfo's defined it's import not create map workflow
       if (!mapInfoModel.getMapInfo()) {
@@ -573,7 +600,7 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.$watch('mapInfo', debounceSaveUpdates);
 
     }])
-.service('mapInfoModel', function() {
+.service('mapInfoModel', function(_) {
   var _this = this;
   this.mapInfo = null;
 
@@ -582,7 +609,12 @@ angular.module('gsApp.workspaces.data.import', [
   };
 
   this.setMapInfoLayers = function(layers) {
-    _this.mapInfo.layers = layers;
+    // if it's an existing map keep new layers separate
+    if (_this.mapInfo.created) {
+      _this.mapInfo.newLayers = layers;
+    } else {
+      _this.mapInfo.layers = layers;
+    }
   };
 
   this.getMapInfo = function() {
