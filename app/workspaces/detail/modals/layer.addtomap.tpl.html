@@ -1,16 +1,17 @@
 <div>
   <div class="modal-header">
-  <h4 class="modal-title">Add Layer to Map <strong>{{ map.name }}</strong></h4>
+    <h4 class="modal-title" style="display: inline-block;">Add to Map <strong>{{ map.name }}</strong></h4>
+    <div class="pull-right" style="display: inline-block;">
+      <button class="btn btn-success btn-sm" ng-disabled="layerSelections.length==0" ng-click="addSelectedToMap();" style="margin-right:20px;">Add Selected to Map</button>
+      <button class="btn btn-primary btn-sm" ng-click="importDataToNewLayers();" style="margin-right:20px;">Import Data to New Layers</button>
+      <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+    </div>
   </div>
   <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
     <div class="available-layers">
-      <p>Layers in Project <strong>{{ workspace }}</strong>:</p>
+      <p>Existing Layers in this Project:</p>
       <div name="lyrs" ng-grid="layerOptions" id="avail-layers-grid" ng-style="gridWidth"></div>
       <br/>
     </div>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
-    <button class="btn btn-success btn-sm" ng-disabled="layerSelections.length==0" ng-click="addSelectedToMap();" style="margin-left:20px;margin-right:20px;">Add Selected to Map</button>
   </div>
 </div>

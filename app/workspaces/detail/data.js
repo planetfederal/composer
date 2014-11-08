@@ -39,7 +39,12 @@ angular.module('gsApp.workspaces.data', [
     function($scope, $rootScope, $state, $stateParams, $modal, $log,
       $window, GeoServer, _, AppEvent, $timeout, storesListModel) {
 
-      var workspace = $scope.workspace;
+      var workspace;
+      if ($scope.workspace) {
+        workspace = $scope.workspace;
+      } else if ($stateParams.workspace) {
+        workspace = $stateParams.workspace;
+      }
 
       // Set stores list to window height
       $scope.storesListHeight = {'height': $window.innerHeight-250};
@@ -94,6 +99,12 @@ angular.module('gsApp.workspaces.data', [
       $rootScope.importInitiated = false;
 
       $scope.importNewData = function(mapInfo) {
+        var workspace;
+        if ($scope.workspace) {
+          workspace = $scope.workspace; // new map not yet created
+        } else if (mapInfo.workspace) {
+          workspace = mapInfo.workspace; // from an existing map
+        }
 
         if (!$scope.importInitiated) {
           $rootScope.importInitiated = true;
@@ -105,7 +116,7 @@ angular.module('gsApp.workspaces.data', [
             size: 'lg',
             resolve: {
               workspace: function() {
-                return $scope.workspace;
+                return workspace;
               },
               mapInfo: function() {
                 return $scope.mapInfo;

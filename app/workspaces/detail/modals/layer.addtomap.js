@@ -28,21 +28,21 @@ angular.module('gsApp.workspaces.layers.addtomap', [])
         var mapInfo = {
           'name': map.name
         };
-        mapInfo.layers = [];
+        mapInfo.layersToAdd = [];
         for (var k=0; k < $scope.layerSelections.length; k++) {
           var layer = $scope.layerSelections[k];
-          mapInfo.layers.push({
+          mapInfo.layersToAdd.push({
             'name': layer.name,
             'workspace': $scope.workspace
           });
         }
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,
-          mapInfo.layers).then(function(result) {
+          mapInfo.layersToAdd).then(function(result) {
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
-                message: result.data.length + ' layer(s) added to map ' +
-                  mapInfo.name + '.',
+                message: mapInfo.layersToAdd.length +
+                  ' layer(s) added to map ' + mapInfo.name + '.',
                 fadeout: true
               }];
               $scope.close();
@@ -58,7 +58,11 @@ angular.module('gsApp.workspaces.layers.addtomap', [])
       };
 
       $scope.close = function () {
-        $modalInstance.dismiss('cancel');
+        $modalInstance.close('close');
+      };
+
+      $scope.importDataToNewLayers = function() {
+        $modalInstance.close('import');
       };
 
       $scope.addToLayerSelections = function (layer) {

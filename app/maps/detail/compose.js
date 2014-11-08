@@ -185,7 +185,24 @@ angular.module('gsApp.maps.compose', [
               return $scope.workspace;
             }
           }
+        }).result.then(function(response) {
+          if (response==='import') {
+            var mapInfo = $scope.map;
+            $timeout(function() {
+              $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
+            }, 250);
+            // go to this state to initiate listener for broadcast above!
+            $scope.$on('$stateChangeSuccess',
+              function(event, toState, toParams, fromState, fromParams) {
+                if (fromState==='map.compose' &&
+                  toState==='workspace.data.import') {
+                  $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
+                }
+              });
+            $state.go('workspace.data.import', {workspace: $scope.workspace});
+          }
         });
+
       };
 
     }]);
