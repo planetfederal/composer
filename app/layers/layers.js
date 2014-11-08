@@ -1,67 +1,31 @@
 angular.module('gsApp.layers', [
-  'gsApp.workspaces.data',
   'ngGrid',
   'ui.select',
-  'gsApp.layers.style',
+  'ngSanitize',
   'gsApp.alertpanel',
-  'gsApp.errorpanel'
+  'gsApp.core.utilities',
+  'gsApp.workspaces.data',
+  'gsApp.layers.style',
+ /* 'gsApp.errorPanel',*/
 ])
 .config(['$stateProvider',
-    function($stateProvider) {
-      $stateProvider
-        .state('layers', {
-          url: '/layers',
-          templateUrl: '/layers/layers.tpl.html',
-          controller: 'LayersCtrl'
-        })
-        .state('layer', {
-          abstract: true,
-          url: '/layers/:workspace/:name',
-          templateUrl: '/layers/detail/layer.tpl.html'
-        });
-    }])
-.directive('getType', function() {
-  return {
-    restrict: 'A',
-    replace: true,
-    transclude: true,
-    scope: { geometry: '@geometry' },
-    template:
-      '<div ng-switch on="geometry">' +
-        '<div ng-switch-when="Point">' +
-          '<img ng-src="images/layer-point.png"' +
-            'alt="Layer Type: Point"' +
-            'title="Layer Type: Point" /></div>' +
-        '<div ng-switch-when="MultiPoint">' +
-          '<img ng-src="images/layer-point.png"' +
-            'alt="Layer Type: MultiPoint"' +
-            'title="Layer Type: MultiPoint"/></div>' +
-        '<div ng-switch-when="LineString">' +
-          '<img  ng-src="images/layer-line.png"' +
-            'alt="Layer Type: LineString"' +
-            'title="Layer Type: LineString"/></div>' +
-        '<div ng-switch-when="MultiLineString">' +
-          '<img  ng-src="images/layer-line.png"' +
-            'alt="Layer Type: MultiLineString"' +
-            'title="Layer Type: MultiLineString" /></div>' +
-        '<div ng-switch-when="Polygon">' +
-          '<img  ng-src="images/layer-polygon.png"' +
-            'alt="Layer Type: Polygon"' +
-            'title="Layer Type: Polygon" /></div>' +
-        '<div ng-switch-when="MultiPolygon">' +
-          '<img  ng-src="images/layer-polygon.png"' +
-            'alt="Layer Type: MultiPolygon"' +
-            'title="Layer Type: MultiPolygon" /></div>' +
-        '<div ng-switch-default class="grid">' +
-          '<img ng-src="images/layer-raster.png" alt="Layer Type: Raster"' +
-            'title="Layer Type: Raster" /></div>' +
-      '</div>'
-  };
-})
+  function($stateProvider) {
+    $stateProvider
+      .state('layers', {
+        url: '/layers',
+        templateUrl: '/layers/layers.tpl.html',
+        controller: 'LayersCtrl'
+      })
+      .state('layer', {
+        abstract: true,
+        url: '/layers/:workspace/:name',
+        templateUrl: '/layers/detail/layer.tpl.html'
+      });
+  }])
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state', 'AppEvent',
-    '$log', '$modal', '$window', '$rootScope',
-    function($scope, GeoServer, $state, $log, $modal, $window, $rootScope,
-      AppEvent) {
+    '$log','$window', '$rootScope', '$modal',
+    function($scope, GeoServer, $state, $log, $window, $rootScope,
+      AppEvent, $modal) {
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
       $scope.dropdownBoxSelected = '';
@@ -80,7 +44,7 @@ angular.module('gsApp.layers', [
         patch[field] = layer[field];
 
         GeoServer.layer.update(layer.workspace, layer.name,
-          {title: patch[field]});
+          { title: patch[field] });
       });
 
       $scope.workspace = {};
@@ -90,145 +54,13 @@ angular.module('gsApp.layers', [
         var modalInstance = $modal.open({
           templateUrl: '/layers/addnewlayer-modal.tpl.html',
           backdrop: 'static',
-          controller: ['$scope', '$window', '$modalInstance',
-            function($scope, $window, $modalInstance) {
-              $scope.datastores = GeoServer.datastores.get('ws');
-              $scope.types = [
-                {name: 'line'},
-                {name: 'multi-line'},
-                {name: 'multi-point'},
-                {name: 'multi-polygon'},
-                {name: 'point'},
-                {name: 'polygon'},
-                {name: 'raster'}
-              ];
-              $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
-              $scope.crsTooltip =
-              '<h5>Add a projection in EPSG</h5>' +
-              '<p>Coordinate Reference System (CRS) info is available at ' +
-                '<a href="http://prj2epsg.org/search" target="_blank">' +
-                  'http://prj2epsg.org' +
-                '</a>' +
-              '</p>';
-              $scope.ws = ws;
-              $scope.mapInfo = {
-                'abstract': ''
-              };
-              $scope.layerInfo = {
-                'abstract': ''
-              };
-
-              // Get all of the data stores
-              GeoServer.datastores.get(ws).then(
-                function(result) {
-                  if (result.success) {
-                    $scope.datastores = result.data;
-                  } else {
-                    $scope.alerts = [{
-                      type: 'warning',
-                      message: 'Workspace could not be loaded.',
-                      fadeout: true
-                    }];
-                  }
-                });
-
-              $scope.createLayer = function(layer, data, proj, types,
-                extents) {
-                var layerInfo = [];
-                layerInfo.push({
-                  'name': layer.name,
-                  'workspace': $scope.ws,
-                  'datastore': data,
-                  'title': layer.title,
-                  'crs': proj,
-                  'type': types,
-                  'extentType': extents,
-                  'extent': layer.extent
-                });
-
-                GeoServer.layer.create($scope.ws, layerInfo).then(
-                  function(result) {
-                    if (result.success) {
-                      $rootScope.alerts = [{
-                        type: 'success',
-                        message: 'Layer ' + result.data.name + ' created.',
-                        fadeout: true
-                      }];
-                      $scope.layers.push(result.data);
-                    } else {
-                      $modalInstance.dismiss('cancel');
-                      $rootScope.alerts = [{
-                        type: 'danger',
-                        message: 'Could not create layer.',
-                        fadeout: true
-                      }];
-                    }
-                    $modalInstance.dismiss('cancel');
-                    //$window.location.reload();
-                  });
-              }; // end createLayer
-
-              $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
-              };
-
-              $scope.checkName = function(layerName) {
-                $scope.layerNameCheck = GeoServer.layer.get($scope.ws,
-                  layerName);
-
-                //Check to see if the incoming layerName already exists for this
-                //  workspace. If it does, show the error, if not, keep going.
-                GeoServer.layer.get($scope.ws, layerName).then(
-                  function(result) {
-                    if (result.success) {
-                      $scope.layerNameCheck = result.data;
-                    } else {
-                      $scope.alerts = [{
-                        type: 'warning',
-                        message: 'Layers could not be loaded.',
-                        fadeout: true
-                      }];
-                    }
-
-                    if ($scope.layerNameCheck.name) {
-                      $scope.layerNameError = true;
-                    }
-                    else {
-                      $scope.layerNameError = false;
-                    }
-                  });
-              };
-
-              //TODO: Grab the thumbnail if it exists.
-              //      Is this even required here as the user is creating the
-              //      layer for the first time and thus there won't be a
-              //      thumbnail of this layer yet?
-              /*if ($scope.layerForm.Layer.name) {
-                $scope.thumbnail = GeoServer.map.thumbnail.get($scope.ws,
-                  $scope.layer.name, 400, 200);
-
-                GeoServer.map.thumbnail.get($scope.ws,
-                  $scope.layerForm.Layer.name, 400, 200).then(function(result) {
-                    if (result.success) {
-                      $scope.thumbnail = result;
-                    } else {
-                      $scope.alerts = [{
-                        type: 'warning',
-                        message: 'Thumbnail could not be loaded.',
-                        fadeout: true
-                      }];
-                    }
-
-                    if ($scope.thumbnail) {
-                      $scope.thumbnail = result;
-                    }
-                    else {
-                      $scope.thumbnail = '';
-                    }
-                  });
-              }*/
-            }],
-          size: 'lg'
+          controller: 'AllLayersNewLayerCtrl',
+          size: 'lg',
+          resolve: {
+            ws: function() {
+              return ws;
+            }
+          }
         });
       };
 
@@ -286,20 +118,7 @@ angular.module('gsApp.layers', [
       };
 
       $scope.addDataSource = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/addnew-modal.tpl.html',
-          controller: 'AddNewModalCtrl',
-          backdrop: 'static',
-          size: 'lg',
-          resolve: {
-            workspace: function() {
-              return $scope.workspace;
-            },
-            geoserver: function() {
-              return GeoServer;
-            }
-          }
-        });
+        $state.go('workspaces.data.import', $scope.workspace);
       };
 
       $scope.pagingOptions = {
@@ -449,7 +268,9 @@ angular.module('gsApp.layers', [
       };
 
       $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
-        $scope.refreshLayers($scope.workspace.selected);
+        if ($scope.workspace.selected) {
+          $scope.refreshLayers($scope.workspace.selected);
+        }
       }, true);
 
       $scope.refreshLayers = function(ws) {
@@ -570,4 +391,182 @@ angular.module('gsApp.layers', [
             }];
           }
         });
-    }]);
+    }])
+.controller('AllLayersNewLayerCtrl', ['$scope', 'GeoServer', '$modalInstance',
+  '$window', 'ws', '$rootScope',
+    function($scope, GeoServer, $modalInstance, $window, ws, $rootScope) {
+
+      $scope.datastores = GeoServer.datastores.get('ws');
+      $scope.types = [
+        {name: 'line'},
+        {name: 'multi-line'},
+        {name: 'multi-point'},
+        {name: 'multi-polygon'},
+        {name: 'point'},
+        {name: 'polygon'},
+        {name: 'raster'}
+      ];
+      $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
+      $scope.crsTooltip =
+      '<h5>Add a projection in EPSG</h5>' +
+      '<p>Coordinate Reference System (CRS) info is available at ' +
+        '<a href="http://prj2epsg.org/search" target="_blank">' +
+          'http://prj2epsg.org' +
+        '</a>' +
+      '</p>';
+      $scope.ws = ws;
+      $scope.mapInfo = {
+        'abstract': ''
+      };
+      $scope.layerInfo = {
+        'abstract': ''
+      };
+
+      // Get all of the data stores
+      GeoServer.datastores.get(ws).then(
+        function(result) {
+          if (result.success) {
+            $scope.datastores = result.data;
+          } else {
+            $scope.alerts = [{
+              type: 'warning',
+              message: 'Workspace could not be loaded.',
+              fadeout: true
+            }];
+          }
+        });
+
+      $scope.createLayer = function(layer, data, proj, types,
+        extents) {
+        var layerInfo = [];
+        layerInfo.push({
+          'name': layer.name,
+          'workspace': $scope.ws,
+          'datastore': data,
+          'title': layer.title,
+          'crs': proj,
+          'type': types,
+          'extentType': extents,
+          'extent': layer.extent
+        });
+
+        GeoServer.layer.create($scope.ws, layerInfo).then(
+          function(result) {
+            if (result.success) {
+              $rootScope.alerts = [{
+                type: 'success',
+                message: 'Layer ' + result.data.name + ' created.',
+                fadeout: true
+              }];
+              $scope.layers.push(result.data);
+            } else {
+              $modalInstance.dismiss('cancel');
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Could not create layer.',
+                fadeout: true
+              }];
+            }
+            $modalInstance.dismiss('cancel');
+            //$window.location.reload();
+          });
+      }; // end createLayer
+
+      $scope.cancel = function() {
+        $modalInstance.dismiss('cancel');
+      };
+
+      $scope.checkName = function(layerName) {
+        $scope.layerNameCheck = GeoServer.layer.get($scope.ws,
+          layerName);
+
+        //Check to see if the incoming layerName already exists for this
+        //  workspace. If it does, show the error, if not, keep going.
+        GeoServer.layer.get($scope.ws, layerName).then(
+          function(result) {
+            if (result.success) {
+              $scope.layerNameCheck = result.data;
+            } else {
+              $scope.alerts = [{
+                type: 'warning',
+                message: 'Layers could not be loaded.',
+                fadeout: true
+              }];
+            }
+
+            if ($scope.layerNameCheck.name) {
+              $scope.layerNameError = true;
+            }
+            else {
+              $scope.layerNameError = false;
+            }
+          });
+      };
+
+      //TODO: Grab the thumbnail if it exists.
+      //      Is this even required here as the user is creating the
+      //      layer for the first time and thus there won't be a
+      //      thumbnail of this layer yet?
+      /*if ($scope.layerForm.Layer.name) {
+        $scope.thumbnail = GeoServer.map.thumbnail.get($scope.ws,
+          $scope.layer.name, 400, 200);
+
+        GeoServer.map.thumbnail.get($scope.ws,
+          $scope.layerForm.Layer.name, 400, 200).then(function(result) {
+            if (result.success) {
+              $scope.thumbnail = result;
+            } else {
+              $scope.alerts = [{
+                type: 'warning',
+                message: 'Thumbnail could not be loaded.',
+                fadeout: true
+              }];
+            }
+
+            if ($scope.thumbnail) {
+              $scope.thumbnail = result;
+            }
+            else {
+              $scope.thumbnail = '';
+            }
+          });
+      }*/
+    }])
+.directive('getType', function() {
+  return {
+    restrict: 'A',
+    replace: true,
+    transclude: true,
+    scope: { geometry: '@geometry' },
+    template:
+      '<div ng-switch on="geometry">' +
+        '<div ng-switch-when="Point">' +
+          '<img ng-src="images/layer-point.png"' +
+            'alt="Layer Type: Point"' +
+            'title="Layer Type: Point" /></div>' +
+        '<div ng-switch-when="MultiPoint">' +
+          '<img ng-src="images/layer-point.png"' +
+            'alt="Layer Type: MultiPoint"' +
+            'title="Layer Type: MultiPoint"/></div>' +
+        '<div ng-switch-when="LineString">' +
+          '<img  ng-src="images/layer-line.png"' +
+            'alt="Layer Type: LineString"' +
+            'title="Layer Type: LineString"/></div>' +
+        '<div ng-switch-when="MultiLineString">' +
+          '<img  ng-src="images/layer-line.png"' +
+            'alt="Layer Type: MultiLineString"' +
+            'title="Layer Type: MultiLineString" /></div>' +
+        '<div ng-switch-when="Polygon">' +
+          '<img  ng-src="images/layer-polygon.png"' +
+            'alt="Layer Type: Polygon"' +
+            'title="Layer Type: Polygon" /></div>' +
+        '<div ng-switch-when="MultiPolygon">' +
+          '<img  ng-src="images/layer-polygon.png"' +
+            'alt="Layer Type: MultiPolygon"' +
+            'title="Layer Type: MultiPolygon" /></div>' +
+        '<div ng-switch-default class="grid">' +
+          '<img ng-src="images/layer-raster.png" alt="Layer Type: Raster"' +
+            'title="Layer Type: Raster" /></div>' +
+      '</div>'
+  };
+});
