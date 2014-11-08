@@ -4,7 +4,10 @@
       <nav class="navbar navbar-default map-name" role="navigation">
         <div class="row">
           <div class="col-md-6">
-            <div class="navbar-brand"><a ng-click="viewWorkspace(workspace);"><i class="icon-lg icon-folder-open"></i>{{ workspace }}</a> <i class="fa fa-angle-right" style="padding: 0 5px;"></i> {{ map.name }}</div>
+            <div class="navbar-brand">
+              <a ng-click="viewWorkspace(workspace);"><i class="icon-lg icon-folder-open"></i>{{ workspace }}</a>
+              <a ng-click="editMapSettings(map);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> {{ map.name }}</a>
+            </div>
             <span ng-show="isRendering" class="render-progress pull-right">
               <i class="fa fa-spinner fa-spin"></i>
               Rendering map

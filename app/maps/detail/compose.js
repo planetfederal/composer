@@ -199,10 +199,27 @@ angular.module('gsApp.maps.compose', [
                   $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
                 }
               });
-            $state.go('workspace.data.import', {workspace: $scope.workspace});
+            $state.go('workspace.data.import', { workspace: $scope.workspace });
           }
         });
 
+      };
+
+      $scope.editMapSettings = function(map) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/map.settings.tpl.html',
+          controller: 'EditMapSettingsCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            map: function() {
+              return map;
+            }
+          }
+        });
       };
 
     }]);
