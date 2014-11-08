@@ -1,4 +1,4 @@
-angular.module('gsApp.errorpanel', [
+angular.module('gsApp.errorPanel', [
   'ui.bootstrap'
 ])
 .factory('$exceptionHandler', ['$injector', '$log', '$window',
