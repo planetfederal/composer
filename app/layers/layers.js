@@ -6,7 +6,7 @@ angular.module('gsApp.layers', [
   'gsApp.core.utilities',
   'gsApp.workspaces.data',
   'gsApp.layers.style',
- /* 'gsApp.errorPanel',*/
+  'gsApp.errorPanel',
 ])
 .config(['$stateProvider',
   function($stateProvider) {
