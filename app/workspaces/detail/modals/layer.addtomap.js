@@ -33,7 +33,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [])
           var layer = $scope.layerSelections[k];
           mapInfo.layersToAdd.push({
             'name': layer.name,
-            'workspace': $scope.workspace
+            'workspace': layer.workspace
           });
         }
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,

@@ -118,7 +118,7 @@ angular.module('gsApp.layers', [
       };
 
       $scope.addDataSource = function() {
-        $state.go('workspaces.data.import', $scope.workspace);
+        $state.go('workspaces.data.import', { workspace: $scope.workspace });
       };
 
       $scope.pagingOptions = {
