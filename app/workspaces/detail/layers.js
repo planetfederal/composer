@@ -60,10 +60,10 @@ angular.module('gsApp.workspaces.layers', [
     }])
 .controller('LayersMainCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', '$modal', '$rootScope',
-  'AppEvent', '_', 'mapsListModel', 'layersListModel',
+  'AppEvent', '_', 'mapsListModel', 'layersListModel', '$timeout',
     function($scope, $state, $stateParams, $sce, $window, $log,
       GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel,
-      layersListModel) {
+      layersListModel, $timeout) {
 
       $scope.workspace = $stateParams.workspace;
       mapsListModel.fetchMaps($scope.workspace).then(function() {
@@ -106,9 +106,11 @@ angular.module('gsApp.workspaces.layers', [
       };
 
       $scope.createLayer = function() {
-        $state.go('workspace.data.import.file', {
-          workspace: $scope.workspace
-        });
+        $timeout(function() {
+          $rootScope.$broadcast(AppEvent.ImportData);
+        }, 250);
+        // go to this state to initiate listener for broadcast above!
+        $state.go('workspace.data.import', {workspace: $scope.workspace});
       };
 
       $scope.setMap = function(map) {

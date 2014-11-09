@@ -33,7 +33,7 @@
       </div>
     </div>
   </div>
-  <div class="layers-summary">
+  <div class="layers-summary" ng-show="layers.length > 0">
     <div class="row" ng-repeat="row in layers | orderBy:predicate:reverse | partition:3 | filter:filterText">
       <div class="col-sm-4" ng-repeat="layer in row">
         <div class="layer-summary-detail" ng-click="layer.selected = !layer.selected" ng-style="{'outline': layer.selected ? '4px #28728D solid' : ''}">
@@ -60,7 +60,7 @@
       </div>
     </div>
   </div>
-  <div ng-show="layers.length==0">
+  <div class="layers-summary" ng-show="layers.length==0">
     <div class="row">
       <div class="col-sm-6">
         <a ng-click="createLayer();">

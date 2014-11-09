@@ -91,13 +91,6 @@ angular.module('gsApp.workspaces.maps', [
               $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
             }, 250);
             // go to this state to initiate listener for broadcast above!
-            $scope.$on('$stateChangeSuccess',
-              function(event, toState, toParams, fromState, fromParams) {
-                if (fromState==='workspace.maps.new.import' &&
-                  toState==='workspace.data.import') {
-                  $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
-                }
-              });
             $state.go('workspace.data.import', {workspace: $scope.workspace});
           }
         });

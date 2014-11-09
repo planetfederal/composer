@@ -20,17 +20,16 @@
   <div class="map-summary" ng-show="maps.length > 0">
     <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2 | filter:filterText">
       <div class="col-sm-6" ng-repeat="map in row">
-          <a href="" ng-click="onEdit(map)">
-            <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
-          </a>
-          <div class="map-summary-detail">
-            <h4>{{ map.name }}</h4>
-            <p ng-if="map.title"><strong>Title:</strong> {{ map.title }}</p>
-            <p>{{ map.layer_count }} Layers</p>
-            <p>{{ map.proj.srs }}</p>
-            <p><a ng-click="editMapSettings(map);">Map Settings</a></p>
-            <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
-          </div>
+        <a href="" ng-click="onEdit(map)">
+          <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
+        </a>
+        <div class="map-summary-detail">
+          <h4>{{ map.name }}</h4>
+          <p ng-if="map.title"><strong>Title:</strong> {{ map.title }}</p>
+          <p>{{ map.layer_count }} Layers</p>
+          <p>{{ map.proj.srs }}</p>
+          <p><a ng-click="editMapSettings(map);">Map Settings</a></p>
+          <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
         </div>
         <p ng-if="map.modified.pretty"><strong>Last edited:</strong> {{ map.modified.pretty }}</p>
         <p class="abstract" ng-if="map.description"><strong>Description:</strong> {{sanitizeHTML(map.description)}}</p>
