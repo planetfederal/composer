@@ -135,33 +135,44 @@ angular.module('gsApp.workspaces.layers', [
             });
           }
         }
+
+        // 1. Create New map from Layers tab - selected layers
+        if (map.name==='Create New Map') {
+          mapInfo.name = null;
+
+          if (mapInfo.layers.length==0) {
+            $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Please import data and create a new Layer.' +
+                  ' A map requires at least 1 layer.',
+                fadeout: true
+              }];
+          } else {
+            var createNewMapModal = $modal.open({
+              templateUrl:
+              '/workspaces/detail/maps/createnew/map.new.fromselected.tpl.html',
+              controller: 'NewMapFromSelectedCtrl',
+              backdrop: 'static',
+              size: 'lg',
+              resolve: {
+                workspace: function() {
+                  return $scope.workspace;
+                },
+                mapInfo: function() {
+                  return mapInfo;
+                }
+              }
+            });
+          }
+          return;
+        }
+
         if (mapInfo.layers.length==0) {
           $rootScope.alerts = [{
             type: 'warning',
             message: 'Select layers to add to a map below.',
             fadeout: true
           }];
-          return;
-        }
-
-        // 1. Create New map from Layers tab - selected layers
-        if (map.name==='Create New Map') {
-          mapInfo.name = null;
-          var createNewMapModal = $modal.open({
-            templateUrl:
-              '/workspaces/detail/maps/createnew/map.new.fromselected.tpl.html',
-            controller: 'NewMapFromSelectedCtrl',
-            backdrop: 'static',
-            size: 'lg',
-            resolve: {
-              workspace: function() {
-                return $scope.workspace;
-              },
-              mapInfo: function() {
-                return mapInfo;
-              }
-            }
-          });
           return;
         }
 
