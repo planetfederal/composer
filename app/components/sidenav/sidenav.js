@@ -175,6 +175,10 @@ angular.module('gsApp.sidenav', [
       $state.go('workspaces.new');
     };
 
+    $rootScope.$on(AppEvent.Login, function(e, login) {
+        $scope.openWorkspaces();
+      });
+
     $rootScope.$on(AppEvent.WorkspacesFetched,
       function(scope, workspaces) {
         $scope.workspaces = workspaces;
