@@ -20,7 +20,7 @@
   <div class="map-summary" ng-show="maps.length > 0">
     <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2 | filter:filterText">
       <div class="col-sm-6" ng-repeat="map in row">
-        <a href="" ng-click="onEdit(map)">
+        <a href="" ui-sref="map.compose({workspace: map.workspace, name: map.name})">
           <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
         </a>
         <div class="map-summary-detail">

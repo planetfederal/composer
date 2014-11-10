@@ -213,7 +213,8 @@ angular.module('gsApp.workspaces.data.import', [
     }])
 .controller('DataImportFileCtrl', ['$scope', '$state', '$upload', '$log',
     'GeoServer', '$stateParams', 'AppEvent',
-    function($scope, $state, $upload, $log, GeoServer, $stateParams, AppEvent) {
+    function($scope, $state, $upload, $log, GeoServer, $stateParams,
+      AppEvent) {
 
       var wsName = $stateParams.workspace;
 

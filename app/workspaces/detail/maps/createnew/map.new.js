@@ -127,6 +127,7 @@ angular.module('gsApp.workspaces.maps.new', [
       $state.go('workspace.maps.new.add', {
         workspace: $scope.workspace,
         layers: $scope.layers,
+        datastores: $scope.datastores,
         mapInfo: $scope.mapInfo
       });
     };

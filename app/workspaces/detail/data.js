@@ -177,9 +177,8 @@ angular.module('gsApp.workspaces.data', [
     }])
 .controller('DataMainCtrl', ['$scope', '$rootScope', '$state',
   '$stateParams', '$modal', '$window', '$log', 'GeoServer',
-  'layersListModel',
     function($scope, $rootScope, $state, $stateParams, $modal, $log,
-      $window, GeoServer, layersListModel) {
+      $window, GeoServer) {
 
       // See utilities.js pop directive - 1 popover open at a time
       var openPopoverStore;

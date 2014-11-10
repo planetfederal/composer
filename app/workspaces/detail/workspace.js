@@ -77,7 +77,7 @@ angular.module('gsApp.workspaces.home', [
           $scope.selectTab($scope.tabs[0]);
           $scope.tabs[0].active = true;
           $timeout(function() {
-            $scope.$broadcast(AppEvent.CreateNewMap);
+            $rootScope.$broadcast(AppEvent.CreateNewMap);
           }, 100);
         };
 

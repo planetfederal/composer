@@ -69,7 +69,7 @@
               <div class="info"><a pop="{{ getLayersForResource(rsrc); }}" pop-show="{{ rsrc.publishedPopover }}" pop-placement="left" ng-click="closeResourcePopovers(rsrc);" pop-title="{{rsrc.name}} is used in layers:">Published</a></div>
             </div>
             <div ng-if="rsrc.layers.length==0">
-              <div class="info"><strong>Not Published</strong> <span style="margin-left:10px;"><a class="btn btn-default btn-xs" ng-click="importAsNewLayer(rsrc, selectedStore);">Publish &rarr;</a></span>
+              <div class="info"><strong>Not Published</strong> <span style="margin-left:10px;"><a class="btn btn-default btn-xs" ng-click="importAsNewLayer(rsrc, selectedStore);">Publish to Layer &rarr;</a></span>
               </div>
             </div>
           </li>
