@@ -16,7 +16,7 @@ angular.module('gsApp.workspaces.list', [
   '$rootScope', 'AppEvent', '_', 'workspacesListModel', '$timeout',
     function($scope, GeoServer, $state, $log, $rootScope, AppEvent, _,
       workspacesListModel, $timeout) {
-      $scope.title = 'All Projects';
+      $scope.title = 'All Project Workspaces';
 
       $scope.onWorkspaceClick = function(workspace) {
         var params = {workspace: workspace.name};

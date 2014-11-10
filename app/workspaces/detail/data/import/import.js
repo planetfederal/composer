@@ -102,7 +102,7 @@ angular.module('gsApp.workspaces.data.import', [
         return test;
       };
 
-      $scope.title = 'Import Data';
+      $scope.title = 'Import Data to ' + wsName;
       if (mapInfoModel.getMapInfo()) {
         $scope.title += ' for ' + $scope.mapInfo.name;
       }
