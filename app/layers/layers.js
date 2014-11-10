@@ -117,6 +117,23 @@ angular.module('gsApp.layers', [
         });
       };
 
+      $scope.editLayerSettings = function(layer) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/layer.settings.tpl.html',
+          controller: 'EditLayerSettingsCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            layer: function() {
+              return layer;
+            }
+          }
+        });
+      };
+
       $scope.addDataSource = function() {
         $state.go('workspaces.data.import', { workspace: $scope.workspace });
       };
@@ -183,7 +200,7 @@ angular.module('gsApp.layers', [
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onStyleEdit(row.entity)">' +
+                '<a ng-click="editLayerSettings(row.entity)">' +
                   '<i class="fa fa-gear grid-icons" ' +
                     'alt="Edit Layer Settings" ' +
                     'title="Edit Layer Settings"></i>' +
@@ -435,8 +452,8 @@ angular.module('gsApp.layers', [
 
       $scope.createLayer = function(layer, data, proj, types,
         extents) {
-        var layerInfo = [];
-        layerInfo.push({
+        $scope.layerInfo.layers = [];
+        $scope.layerInfo.layers.push({
           'name': layer.name,
           'workspace': $scope.ws,
           'datastore': data,
@@ -446,8 +463,7 @@ angular.module('gsApp.layers', [
           'extentType': extents,
           'extent': layer.extent
         });
-
-        GeoServer.layer.create($scope.ws, layerInfo).then(
+        GeoServer.layer.create($scope.ws, $scope.layerInfo).then(
           function(result) {
             if (result.success) {
               $rootScope.alerts = [{
