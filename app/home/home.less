@@ -2,9 +2,43 @@
 
 @import "../variables.less";
 
+.home {
 
-ul.catalog, ul.catalog ul {
-  list-style: none;
-  line-height: 1.5em;
-  li > p { margin-bottom: 0; }
+	.projects, .maps, .layers {
+		margin-top: 30px;
+
+		h4.underline {
+			color: @gray;
+			text-transform: uppercase;
+			font-size: 1em;
+			padding-bottom: 10px;
+			border-bottom: 3px solid @light-gray;
+			margin-bottom: 20px;
+		}
+	}
+
+	.projects {
+		margin-top: 10px;
+	}
+
+	.layers {
+		.layer {
+			border: 1px solid @light-gray;
+			.border-radius(3px, 3px, 3px, 3px);
+			box-shadow: 2px 2px 4px #999;
+			padding: 10px 20px;
+			line-height: 20px;
+
+			&:hover {
+				background-color: @almost-white;
+			}
+
+			.time {
+				margin-bottom: 0;
+			}
+			.project {
+				float: right;
+			}
+		}
+	}
 }

@@ -1,43 +1,43 @@
-<div class="container-fluid">
-<h3 class="page-title"><i class="icon-lg icon-home"></i> {{title}}</h3>
+<div class="container-fluid home">
+  <h3 class="page-title"><i class="icon-lg icon-clock"></i> {{title}}</h3>
+
   <div class="row">
-    <div class="col-sm-3">
-      <p>{{ server.title }}{{ server.url }}</p>
-      <!--<p>{{ serverInfo }}</p>-->
+    <div class="col-sm-12" ng-if="projects">
+      <div class="projects">
+        <h4 class="underline">Project Workspaces: {{ projects.length }}</h4></li>
+      </div>
     </div>
-    <div class="col-sm-3">
-      <div ng-if="server.status != 'ok'" class="alert-danger" style="margin-top: -3px;"><i class="fa fa-exclamation-circle"></i> Server is not running.</div>
-      <div ng-if="server.status == 'ok'" class="alert-success" style="margin-top: -3px;"><i class="fa fa-check-circle"></i> Server is running ok.</div>
-    </div>
-    <div class="col-sm-1"><a href="logs">Logs</a></div>
-    <div class="col-sm-5"></div>
   </div>
 
-  <div>
-    <h4>Catalog</h4>
-    <ul class="catalog">
-      <li>
-        <a ui-sref="workspaces">Projects: {{ catalog.workspaces }}</a>
-      </li>
-      <li>
-        <a ui-sref="layers">Layers: {{ catalog.layers }}</a>
-      </li>
-      <li>
-        <a ui-sref="maps">Maps: {{ catalog.maps }}</a>
-      </li>
-    </ul>
-  </div>
-  <div class="col-sm-3">
-    <h4>Services</h4>
-    <ul class="catalog">
-      <li ng-repeat="(key,val) in services">
-        <p><strong>{{ key }}</strong></p>
-        <ul class="services">
-          <li ng-repeat="version in val.versions">
-            <a href="{{ server.url }}/ows?service={{key}}&version={{version}}&request=GetCapabilities" target="_blank">{{ version }}</a>
+  <div class="row">
+    <div class="col-sm-5" ng-if="recentmaps.length">
+      <div class="maps">
+        <h4 class="underline">Recent Maps</h4>
+        <ul class="list-unstyled">
+          <li ng-repeat="map in recentmaps" class="map">
+            <p>
+              <a ui-sref="map.style({workspace: map.workspace, name: map.name})">{{ map.name }}</a><br />
+              Title: {{ map.title }}<br />
+              <p class="time"><small>Modified {{ map.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspaces({workspace: map.workspace})">{{ map.workspace }}</a></small></p>
           </li>
         </ul>
-      </li>
-    </ul>
+      </div>
+    </div>
+    <div class="col-sm-1" ng-if="recentmaps.length && recentlayers.length">
+    </div>
+    <div class="col-sm-5" ng-if="recentlayers.length">
+      <div class="layers">
+        <h4 class="underline">Recent Layers</h4>
+        <ul class="list-unstyled">
+          <li ng-repeat="layer in recentlayers" class="layer">
+            <p>
+              <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})">{{ layer.name }}</a><br />
+              Title: {{ layer.title }}<br />
+            <p>
+            <p class="time"><small>Modified {{ layer.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspaces({workspace: layer.workspace})">{{ layer.workspace }}</a></small></p>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>

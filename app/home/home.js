@@ -10,22 +10,20 @@ angular.module('gsApp.home', [])
     }])
 .controller('HomeCtrl', ['$scope', 'GeoServer',
     function($scope, GeoServer) {
-      $scope.title = 'Home';
-      GeoServer.serverInfo.get().then(function(serverInfo) {
-        $scope.serverInfo = serverInfo;
-        $scope.server = serverInfo.server;
-        //$scope.serverInfo = serverInfo;
 
-        if (!$scope.server) {
-          $scope.server = {};
-        }
+      $scope.title = 'Recent';
 
-        if (serverInfo.title) { $scope.server.title = serverInfo.title; }
-        else { $scope.server.title = 'localhost:8000'; }
-        //$scope.server.status = serverInfo.status;
-        $scope.server.status = 'ok';
-        $scope.server.url = GeoServer.baseUrl();
-        $scope.catalog = serverInfo.catalog;
-        $scope.services = serverInfo.services;
+      GeoServer.workspaces.get(true).then(function(result) {
+        $scope.projects = result.data;
       });
+
+      GeoServer.maps.recent().then(function(result) {
+        $scope.recentmaps = result.data;
+      });
+
+      GeoServer.layers.recent().then(function(result) {
+        $scope.recentlayers = result.data;
+      });
+
+
     }]);
