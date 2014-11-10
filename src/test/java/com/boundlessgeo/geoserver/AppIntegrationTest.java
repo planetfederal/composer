@@ -185,7 +185,7 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
 
         com.mockrunner.mock.web.MockHttpServletResponse resp =
             postAsServletResponse("/app/api/layers/sf", obj.toString(), MediaType.APPLICATION_JSON_VALUE);
-        assertEquals(resp.getStatusCode(), 201);
+        assertEquals(201,resp.getStatusCode());
 
         assertNotNull(catalog.getLayerByName("sf:foo"));
     }

@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import com.boundlessgeo.geoserver.util.RecentObjectCache.Ref;
 import com.google.common.base.Throwables;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.WordUtils;
@@ -80,6 +81,7 @@ import org.yaml.snakeyaml.error.Mark;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
 
 import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
+import com.boundlessgeo.geoserver.api.exceptions.IncompleteRequestException;
 import com.boundlessgeo.geoserver.api.exceptions.InvalidYsldException;
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import com.boundlessgeo.geoserver.json.JSONArr;
@@ -189,7 +191,8 @@ public class LayerController extends ApiController {
         catch(IOException e) {
             throw new RuntimeException("Failed to create layer: " + e.getMessage(), e);
         }
-
+        ResourceInfo r = l.getResource();
+        
         // proj specified?
         JSONObj proj = obj.object("proj");
         if (proj != null) {
@@ -199,14 +202,36 @@ public class LayerController extends ApiController {
             } catch (IllegalArgumentException e) {
                 throw new BadRequestException(e.getMessage(), e);
             }
-
-            ResourceInfo r = l.getResource();
             r.setSRS(srs);
             try {
                 new CatalogBuilder(cat).setupBounds(r);
             } catch (IOException e) {
                 throw new RuntimeException("Unable to set projection on resource: " + e.getMessage(), e);
             }
+        }
+        // bbox specified?
+        if (obj.has("bbox")){
+            JSONObj bbox = obj.object("bbox");
+            if (bbox.has("native")) {
+                r.setNativeBoundingBox(
+                    new ReferencedEnvelope(IO.bounds(bbox.object("native")), r.getCRS()));
+            }
+            if (bbox.has("lonlat")) {
+                r.setNativeBoundingBox(
+                    new ReferencedEnvelope(IO.bounds(bbox.object("lonlat")), DefaultGeographicCRS.WGS84));
+            }
+        }
+        if (r.getSRS() == null) {
+            throw new IncompleteRequestException(
+                    "Resource SRS unavailable, proj required for layer " + name);
+        }
+        if (r.getLatLonBoundingBox() == null) {
+            throw new IncompleteRequestException(
+                    "Resource bounds unavailable, bbox required for layer " + name);
+        }
+        if (r.getLatLonBoundingBox() == null) {
+            throw new IncompleteRequestException(
+                    "Resource bounds unavailable, bbox required for layer " + name);
         }
 
         // restore name in case it was replaced by duplicate
