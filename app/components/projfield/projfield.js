@@ -17,6 +17,7 @@ angular.module('gsApp.projfield', [
 
           projectionModel.fetchProjections().then(function() {
             $scope.projList = projectionModel.getProjections();
+            $scope.proj = projectionModel.getDefaultProj();
           });
 
           $scope.validateProj = function() {
@@ -69,6 +70,7 @@ angular.module('gsApp.projfield', [
   var _this = this;
   this.projections = [];
   this.defaultProjections = [];
+  this.defaultProj = null;
 
   this.getProjections = function() {
     return _this.projections.concat(_this.defaultProjections);
@@ -78,9 +80,14 @@ angular.module('gsApp.projfield', [
     return _this.defaultProjections;
   };
 
+  this.getDefaultProj = function() {
+    return _this.defaultProj;
+  };
+
   this.fetchProjections = function() {
     GeoServer.proj.get('EPSG:4326').then(function(result) {
       _this.defaultProjections.push(result.data);
+      this.defaultProj = result.data;
     });
     GeoServer.proj.get('EPSG:3857').then(function(result) {
       _this.defaultProjections.push(result.data);

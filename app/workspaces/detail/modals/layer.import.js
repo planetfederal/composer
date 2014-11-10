@@ -25,6 +25,15 @@ angular.module('gsApp.workspaces.layers.import', [])
         return proj;
       };
 
+      $scope.crsTooltip =
+        '<h5>Add a projection in EPSG</h5>' +
+        '<p>Coordinate Reference System (CRS) info is available at ' +
+          '<a href="http://prj2epsg.org/search" target="_blank">' +
+            'http://prj2epsg.org' +
+          '</a>' +
+        '</p>';
+
+
       $scope.layer = {
         'title': resource.title,
         'workspace': workspace,
@@ -44,9 +53,7 @@ angular.module('gsApp.workspaces.layers.import', [])
           function(result) {
             if (result.success) {
               $scope.resource = result.data.resource;
-              layersListModel.addLayer(result.data);
-              $rootScope.$broadcast(AppEvent.LayersAllUpdated,
-                layersListModel.getLayers());
+              $rootScope.$broadcast(AppEvent.LayerAdded, result.data);
               $rootScope.alerts = [{
                 type: 'success',
                 message: 'Imported resource ' + $scope.resource.name +
@@ -54,6 +61,7 @@ angular.module('gsApp.workspaces.layers.import', [])
                 fadeout: true
               }];
             } else {
+
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Could not create layer from resource ' +

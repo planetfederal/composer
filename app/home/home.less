@@ -5,7 +5,6 @@
 .home {
 
 	.projects, .maps, .layers {
-		margin-top: 30px;
 
 		h4.underline {
 			color: @gray;
@@ -21,24 +20,44 @@
 		margin-top: 10px;
 	}
 
-	.layers {
-		.layer {
+	.layers, .maps {
+		.layer, .map {
+			height: auto;
 			border: 1px solid @light-gray;
 			.border-radius(3px, 3px, 3px, 3px);
 			box-shadow: 2px 2px 4px #999;
 			padding: 10px 20px;
 			line-height: 20px;
+			margin-bottom: 20px;
 
 			&:hover {
 				background-color: @almost-white;
 			}
 
+			.icon-marker {
+				width: 20%;
+				font-size: 36px;
+				float: left;
+				display: inline-block;
+				color: @light-gray;
+				vertical-align: middle;
+			}
+			.info {
+				float: right;
+				display: inline-block;
+				width: 80%;
+			}
+			.footer {
+				margin-bottom: 0;
+			}
 			.time {
 				margin-bottom: 0;
+				display: inline-block;
 			}
 			.project {
 				float: right;
 			}
+
 		}
 	}
 }

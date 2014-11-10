@@ -25,9 +25,11 @@ angular.module('gsApp.workspaces.maps', [
     }])
 .controller('WorkspaceMapsCtrl', ['$scope', '$state', '$stateParams',
   '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'mapsListModel',
-  '$timeout', '$modal', '$rootScope',
+  '$timeout', '$modal', '$rootScope', 'storesListModel',
+  'layersListModel',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent, mapsListModel, $timeout, $modal, $rootScope) {
+      GeoServer, AppEvent, mapsListModel, $timeout, $modal,
+      $rootScope, storesListModel, layersListModel) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.thumbnails = {};
@@ -73,7 +75,45 @@ angular.module('gsApp.workspaces.maps', [
         }
       };
 
+      // Get stores and layers to see what modal to provide
+      // when user attempts to create a map
+      storesListModel.fetchStores($scope.workspace).then(
+        function() {
+          $scope.datastores = storesListModel.getStores();
+        });
+      layersListModel.fetchLayers($scope.workspace).then(
+        function() {
+          $scope.layers = layersListModel.getLayers();
+        });
+
       $scope.createMap = function() {
+
+        if ($scope.layers.length===0) {
+          if (! $scope.datastores.length) {
+            var nostores_modal = $modal.open({
+              templateUrl: '/workspaces/detail/modals/nostores.tpl.html',
+              controller: function($scope, $modalInstance) {
+                $scope.close = function() {
+                  $modalInstance.close('close');
+                };
+              },
+              backdrop: 'static',
+              size: 'md'
+            });
+          } else {
+            var nolayer_modal = $modal.open({
+              templateUrl: '/workspaces/detail/modals/nolayers.tpl.html',
+              controller: function($scope, $modalInstance) {
+                $scope.close = function() {
+                  $modalInstance.close('close');
+                };
+              },
+              backdrop: 'static',
+              size: 'md'
+            });
+          }
+          return;
+        }
         var createModalInstance = $modal.open({
           templateUrl: '/workspaces/detail/maps/createnew/map.new.tpl.html',
           controller: 'NewMapCtrl',
@@ -117,13 +157,6 @@ angular.module('gsApp.workspaces.maps', [
         var baseUrl = GeoServer.map.openlayers.get(map.workspace,
           map.name, map.bbox, 800, 500);
         $window.open(baseUrl);
-      };
-
-      $scope.onEdit = function(map) {
-        $state.go('map.compose', {
-          workspace: map.workspace,
-          name: map.name
-        });
       };
 
       $scope.editMapSettings = function(map) {

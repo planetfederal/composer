@@ -209,9 +209,18 @@ angular.module('gsApp.workspaces.layers', [
 
       $rootScope.$on(AppEvent.LayerAdded, function(scope, layer) {
         if (layer) {
-          layersListModel.addLayer(layer);
-          $scope.layers =
-            layersListModel.sortByTime(layersListModel.getLayers());
+          if (layersListModel.getLayers()) {
+            layersListModel.addLayer(layer);
+            $scope.layers =
+              layersListModel.sortByTime(layersListModel.getLayers());
+          } else {
+            layersListModel.fetchLayers($scope.workspace).then(
+              function() {
+                layersListModel.add(layer);
+                $scope.layers =
+                layersListModel.sortByTime(layersListModel.getLayers());
+              });
+          }
         }
       });
 

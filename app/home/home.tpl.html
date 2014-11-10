@@ -15,10 +15,14 @@
         <h4 class="underline">Recent Maps</h4>
         <ul class="list-unstyled">
           <li ng-repeat="map in recentmaps" class="map">
-            <p>
-              <a ui-sref="map.style({workspace: map.workspace, name: map.name})">{{ map.name }}</a><br />
+            <div class="icon-marker"><i class="icon-map"></i></div>
+            <p class="info">
+              <a ui-sref="map.compose({workspace: map.workspace, name: map.name})">{{ map.name }}</a><br />
               Title: {{ map.title }}<br />
-              <p class="time"><small>Modified {{ map.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspaces({workspace: map.workspace})">{{ map.workspace }}</a></small></p>
+            </p>
+            <p class="footer">
+              <small class="time">Modified {{ map.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspace({workspace: map.workspace})">{{ map.workspace }}</a></small>
+            </p>
           </li>
         </ul>
       </div>
@@ -30,11 +34,14 @@
         <h4 class="underline">Recent Layers</h4>
         <ul class="list-unstyled">
           <li ng-repeat="layer in recentlayers" class="layer">
-            <p>
+            <div class="icon-marker"><i class="icon-stack"></i></div>
+            <p class="info">
               <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})">{{ layer.name }}</a><br />
               Title: {{ layer.title }}<br />
-            <p>
-            <p class="time"><small>Modified {{ layer.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspaces({workspace: layer.workspace})">{{ layer.workspace }}</a></small></p>
+            </p>
+            <p class="footer">
+              <small class="time">Modified {{ layer.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspace({workspace: layer.workspace})">{{ layer.workspace }}</a></small>
+            </p>
           </li>
         </ul>
       </div>

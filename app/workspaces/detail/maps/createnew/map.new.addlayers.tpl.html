@@ -12,8 +12,8 @@
   </div>
   <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form form-2">
     <div class="form-group new-layers-group" name="create-new-layers" ng-show="layers.length==0">
-      <p>No data in this workspace.</p>
-      <button class="btn btn-success btn-sm" ng-click="createNewLayers();">Import Data to Create New Layers &rarr;</button>
+      <p>No published layers in this workspace.</p>
+      <button class="btn btn-primary btn-sm" ng-click="importNewLayers();">Import Data to New Layers &rarr;</button>
     </div>
     <div class="form-group" name="available-layers" ng-show="layers.length > 0">
       <label class="avail-layers" for="lyrs">Available Layers:</label>
