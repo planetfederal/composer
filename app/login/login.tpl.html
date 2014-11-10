@@ -1,24 +1,26 @@
-<div>
-  <div class="container-fluid">
-    <h3 class="page-title">{{title}}</h3>
+<div class="login-page">
+  <div class="container-fluid login-container">
+    <p class="description">Composer helps you style layers and create maps in GeoServer.</p>
     <div ng-if="loginFailed" class="alert alert-danger" role="alert">
       Login failed. Please try again.
     </div>
     <form class="login-form">
       <div class="form-group row">
-        <div class="col-xs-2"><label for="username" class="control-label">Username</label></div>
-        <div class="col-xs-10"><input ng-model="creds.username" type="text" class="form-control" focus-init/></div>
+        <div class="col-xs-2"><label for="username" class="control-label">Username:</label></div>
+        <div class="col-xs-8 col-xs-offset-1"><input ng-model="creds.username" type="text" class="form-control" focus-init/></div>
       </div>
       <div class="form-group row">
-        <div class="col-xs-2"><label for="password" class="control-label">Password</label></div>
-        <div class="col-xs-10"><input ng-model="creds.password" type="password" class="form-control"/></div>
+        <div class="col-xs-2"><label for="password" class="control-label">Password:</label></div>
+        <div class="col-xs-8 col-xs-offset-1"><input ng-model="creds.password" type="password" class="form-control"/></div>
       </div>
       <div class="form-group row">
-        <div class="col-xs-12">
-          <div style="height: 5px;"></div>
-          <button class="btn btn-success btn-sm pull-right" ng-click="login()">Login</button>
+        <div class="col-xs-11">
+          <button class="btn btn-default btn-sm pull-right" ng-click="login()">Login</button>
         </div>
       </div>
     </form>
+    <div class="login-help text-center">
+      <small>Not registered? Contact your GeoServer Administrator for access.</small>
+    </div>
   </div>
 </div>

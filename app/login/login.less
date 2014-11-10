@@ -1,5 +1,46 @@
-.login-form {
-  width: 40%;
-  margin-left: auto;
-  margin-right: auto;
+/* login.less */
+
+@import "../variables.less";
+
+
+.login-page {
+	.login-container {
+		width: 50%;
+		max-width: 500px;
+		min-width: 350px;
+		margin: 0 auto;
+		color: @gray;
+	}
+	p.description {
+		margin-top: 30px;
+		text-align: center;
+	}
+	.alert {
+		margin: 30px auto 0;
+	}
+
+	.login-form {
+	  margin-left: auto;
+	  margin-right: auto;
+	  margin-top: 20px;
+
+	  border: 1px solid @very-lt-gray;
+	  border-radius: 4px;
+	  padding: 30px 10px 20px 30px;
+
+	  .form-group {
+
+	  	label {
+	  		vertical-align: middle;
+	  		line-height: 34px;
+	  	}
+	  }
+	}
+	.login-help {
+		width: 100%;
+		small {
+			text-align: center;
+		}
+	}
+
 }
