@@ -199,7 +199,7 @@ angular.module('gsApp.olmap', [])
         });
 
         if (mapOpts.featureInfo) {
-          map.on('click', function(evt) {
+          map.on('singleclick', function(evt) {
             var view = map.getView();
             var gfi = mapLayer.getSource().getGetFeatureInfoUrl(
                 evt.coordinate,
