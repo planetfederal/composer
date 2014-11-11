@@ -4,7 +4,8 @@ angular.module('gsApp.maps.compose', [
   'gsApp.olmap',
   'gsApp.styleditor',
   'gsApp.featureinfopanel',
-  'gsApp.styleditor.shortcuts'
+  'gsApp.styleditor.shortcuts',
+  'gsApp.workspaces.maps.layerremove'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -88,20 +89,36 @@ angular.module('gsApp.maps.compose', [
         };
       };
       $scope.removeLayer = function(layer, index) {
-        GeoServer.map.layers.delete(wsName, $scope.map.name, layer.name)
-          .then(function(result) {
-            if (result.success) {
-              $scope.map.layers.splice(index, 1);
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/map.layerremove.tpl.html',
+          controller: 'MapRemoveLayerCtrl',
+          size: 'md',
+          resolve: {
+            map: function() {
+              return $scope.map;
+            },
+            layer: function() {
+              return layer;
             }
-            else {
-              var err = result.data;
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Unable to delete layer from map: ' + err.message,
-                details: err
-              }];
-            }
-          });
+          }
+        }).result.then(function(response) {
+          if (response==='remove') {
+            GeoServer.map.layers.delete(wsName, $scope.map.name, layer.name)
+              .then(function(result) {
+                if (result.success) {
+                  $scope.map.layers.splice(index, 1);
+                }
+                else {
+                  var err = result.data;
+                  $rootScope.alerts = [{
+                    type: 'danger',
+                    message: 'Unable to delete layer from map: ' + err.message,
+                    details: err
+                  }];
+                }
+              });
+          }
+        });
       };
 
       $scope.refreshMap = function() {
@@ -203,7 +220,6 @@ angular.module('gsApp.maps.compose', [
             });
           }
         });
-
       };
 
       $scope.editMapSettings = function(map) {
@@ -222,7 +238,6 @@ angular.module('gsApp.maps.compose', [
           }
         });
       };
-
 
       $scope.showShortcuts = function() {
         var modalInstance = $modal.open({
