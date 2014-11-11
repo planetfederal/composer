@@ -198,7 +198,7 @@ angular.module('gsApp.olmap', [])
         });
 
         if (mapOpts.featureInfo) {
-          map.on('click', function(evt) {
+          map.on('singleclick', function(evt) {
             var view = map.getView();
             var gfi = mapLayer.getSource().getGetFeatureInfoUrl(
                 evt.coordinate,
@@ -206,7 +206,7 @@ angular.module('gsApp.olmap', [])
                 {'INFO_FORMAT': 'application/json'});
             $.ajax(gfi).then(function(response) {
               if (response && response.features) {
-                mapOpts.featureInfo(JSON.parse(response));
+                mapOpts.featureInfo(response.features);
               }
             });
           });

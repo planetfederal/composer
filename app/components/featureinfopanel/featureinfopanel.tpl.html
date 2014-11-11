@@ -1,0 +1,21 @@
+<div class="featureinfo-panel">
+  <script type="text/ng-template" id="featureinfo-modal">
+    <div class="modal-header">
+      Feature Info
+    </div>
+    <div class="modal-body">
+      <div ng-repeat="feature in features">
+        <h4>{{ feature.id }}</h4>
+        <table>
+          <tr ng-repeat="(key, value) in feature.properties">
+            <th>{{ key }}: </th>
+            <td>{{ value }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" ng-click="close()">Close</button>
+    </div>
+  </script>
+</div>
