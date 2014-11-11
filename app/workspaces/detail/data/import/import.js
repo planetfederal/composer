@@ -4,7 +4,7 @@ angular.module('gsApp.workspaces.data.import', [
   'ui.bootstrap',
   'gsApp.core.utilities',
   'gsApp.projfield',
-  'gsApp.inlineErrors'
+  'gsApp.inlineErrors',
 ])
 .config(['$stateProvider',
     function($stateProvider) {
