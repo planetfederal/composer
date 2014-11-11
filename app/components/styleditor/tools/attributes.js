@@ -30,7 +30,8 @@ angular.module('gsApp.styleditor.attributes', [
               return;
             }
             $modal.open({
-              templateUrl: '/components/styleditor/tools/attributes.modal.tpl.html',
+              templateUrl:
+                '/components/styleditor/tools/attributes.modal.tpl.html',
               controller: 'AttributesModalCtrl',
               size: 'lg',
               resolve: {
@@ -72,7 +73,7 @@ angular.module('gsApp.styleditor.attributes', [
               );
               $scope.close();
             }
-        });
+          });
       }, 500);
 
     }]);

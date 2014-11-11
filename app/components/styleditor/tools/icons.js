@@ -101,7 +101,7 @@ angular.module('gsApp.styleditor.icons', [
               );
               $scope.close();
             }
-        });
+          });
       }, 500);
 
     }]);
