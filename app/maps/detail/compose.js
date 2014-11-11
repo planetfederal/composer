@@ -38,6 +38,7 @@ angular.module('gsApp.maps.compose', [
               l.visible = true;
               return l;
             }),
+            activeLayer: $scope.activeLayer,
             error: function(err) {
               $rootScope.alerts = [{
                 type: 'danger',
