@@ -1,0 +1,17 @@
+<div class="attr-modal">
+  <div class="modal-header">
+    <div class="inline">
+      <h4 class="modal-title"><strong>Keyboard Shortcuts</strong></h4>
+    </div>
+    <div class="pull-right inline top-buttons">
+      <button class="btn btn-default btn-sm cancel" ng-click="close()">Close</button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <ul class="list-unstyled" style="line-height: 1.8em;">
+      <li ng-repeat="shortcut in shortcuts">{{ shortcut.name }}
+        <span class="pull-right">{{ shortcut.keys }}</span>
+      </li>
+    </ul>
+  </div>
+</div>
