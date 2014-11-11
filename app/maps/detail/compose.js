@@ -3,7 +3,8 @@ angular.module('gsApp.maps.compose', [
   'ui.sortable',
   'gsApp.olmap',
   'gsApp.styleditor',
-  'gsApp.featureinfopanel'
+  'gsApp.featureinfopanel',
+  'gsApp.styleditor.shortcuts'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -219,6 +220,16 @@ angular.module('gsApp.maps.compose', [
               return map;
             }
           }
+        });
+      };
+
+
+      $scope.showShortcuts = function() {
+        var modalInstance = $modal.open({
+          templateUrl: '/components/styleditor/tools/shortcuts.tpl.html',
+          controller: 'ShortcutsCtrl',
+          backdrop: 'static',
+          size: 'md'
         });
       };
 
