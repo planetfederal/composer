@@ -2,7 +2,8 @@ angular.module('gsApp.maps.compose', [
   'ui.codemirror',
   'ui.sortable',
   'gsApp.olmap',
-  'gsApp.styleditor'
+  'gsApp.styleditor',
+  'gsApp.featureinfopanel'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -52,6 +53,9 @@ angular.module('gsApp.maps.compose', [
                 $scope.isRendering = false;
               }
               $scope.$apply();
+            },
+            featureInfo: function(features) {
+              $scope.$broadcast('featureinfo', features);
             }
           });
         });
