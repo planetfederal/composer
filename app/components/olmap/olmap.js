@@ -265,12 +265,19 @@ angular.module('gsApp.olmap', [])
             $scope.map = MapFactory.createMap($scope.mapOpts, $element);
           });
 
+          var timer = null;
+
           $scope.$watch('mapOpts.layers', function(newVal) {
             if (newVal == null) {
               return;
             }
-
-            $scope.map.update();
+            if (timer) {
+              $timeout.cancel(timer);
+            }
+            timer = $timeout(function() {
+              $scope.map.update();
+              timer = null;
+            }, 750);
           }, true);
 
           $scope.$watch('mapOpts.bounds', function(newVal) {
