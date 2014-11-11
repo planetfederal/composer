@@ -1,0 +1,21 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Remove Layer from Map?</h4>
+  </div>
+  <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
+    <div ng-if="map.layer_count > 1">
+      <p>Remove layer <strong>{{ layer.name }}</strong> from map {{ map.name }}?</p>
+      <p>Are you sure?</p>
+    </div>
+    <div ng-if="map.layer_count == 1">
+      <p>Maps must contain at least 1 layer. This final layer cannot be deleted.
+    </div>
+  </div>
+  <div class="modal-footer" ng-if="map.layer_count > 1">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-danger btn-sm" ng-click="remove()">Yes, Remove it</button>
+  </div>
+  <div class="modal-footer" ng-if="map.layer_count == 1">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
+  </div>
+</div>
