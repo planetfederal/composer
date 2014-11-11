@@ -67,7 +67,6 @@ angular.module('gsApp.olmap', [])
         // initial extent
         var bbox = mapOpts.bbox;
         var extent = [bbox.west,bbox.south,bbox.east,bbox.north];
-        var size = [element.width(),element.height()];
 
         // scale control
         var scaleControl = $('<div>')
@@ -184,7 +183,7 @@ angular.module('gsApp.olmap', [])
           scaleControl.innerHTML =  '1 : ' + scale;
         });
 
-        map.getView().fitExtent(extent, size);
+        map.getView().fitExtent(extent, map.getSize());
         this.olMap = map;
 
         // Update map 550 ms after sidebar is resized
