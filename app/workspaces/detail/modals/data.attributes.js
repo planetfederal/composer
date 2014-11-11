@@ -1,8 +1,8 @@
 angular.module('gsApp.workspaces.data.attributes', [])
 .controller('WorkspaceAttributesCtrl',
-    ['layerOrResource', 'attributes', '$scope', '$rootScope', '$state',
+    ['layerOrResource', 'attributes', '$scope', '$rootScope',
     '$log', '$modalInstance',
-    function(layerOrResource, attributes, $scope, $rootScope, $state,
+    function(layerOrResource, attributes, $scope, $rootScope,
       $log, $modalInstance) {
 
       $scope.layerOrResource = layerOrResource;

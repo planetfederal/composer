@@ -11,7 +11,7 @@ angular.module('gsApp.styleditor.icons', [
           editor: '='
         },
         template:
-          '<li class="dropdown dropdown-toggle icons-dropdown" ' +
+          '<li ' +
             'ng-click="selectIcon();">'+
             '<i class="icon-flag"></i>'+
             '<span>Icons</span>'+
@@ -56,17 +56,15 @@ angular.module('gsApp.styleditor.icons', [
                   return $scope.icons;
                 }
               }
-            }).result.then(function(icon) {
-              $scope.editor.insertOrReplace(icon.name);
             });
           };
         }
       };
     }])
 .controller('IconsModalCtrl', ['$scope', '$modalInstance', '$upload', '$log',
-    'GeoServer', 'workspace', 'icons',
+    'GeoServer', 'workspace', 'icons', '$timeout',
     function($scope, $modalInstance, $upload, $log, GeoServer, workspace,
-      icons) {
+      icons, $timeout) {
 
       $scope.workspace = workspace;
       $scope.icons = icons;
@@ -75,8 +73,8 @@ angular.module('gsApp.styleditor.icons', [
         $modalInstance.dismiss('cancel');
       };
 
-      $scope.chooseIcon = function(icon) {
-        $modalInstance.close(icon);
+      $scope.chooseIcon = function(iconname) {
+        $scope.selectedIconName = iconname;
       };
 
       $scope.uploadIcons = function(files) {
@@ -93,16 +91,17 @@ angular.module('gsApp.styleditor.icons', [
         });
       };
 
-      // $timeout(function() {
-      //   new ZeroClipboard($('#copyIcon')).on('copy',
-      //   function(event) {
-      //     var clipboard = event.clipboardData;
-      //     if ($scope.selectedIconName) {
-      //       clipboard.setData('text/plain',
-      //         $scope.selectedIconName
-      //       );
-      //     }
-      //   });
-      // }, 500);
+      $timeout(function() {
+        new ZeroClipboard($('#copyIcon')).on('copy',
+          function(event) {
+            var clipboard = event.clipboardData;
+            if ($scope.selectedIconName) {
+              clipboard.setData('text/plain',
+                $scope.selectedIconName
+              );
+              $scope.close();
+            }
+        });
+      }, 500);
 
     }]);

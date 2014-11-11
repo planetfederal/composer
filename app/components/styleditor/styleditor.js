@@ -8,7 +8,8 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.font',
   'gsApp.styleditor.size',
   'gsApp.styleditor.color',
-  'gsApp.styleditor.icons'
+  'gsApp.styleditor.icons',
+  'gsApp.styleditor.attributes'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
     'YsldHinter',
