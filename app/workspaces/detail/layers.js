@@ -5,7 +5,7 @@ angular.module('gsApp.workspaces.layers', [
   'gsApp.workspaces.layers.addtomap',
   'gsApp.alertpanel',
   'gsApp.core.utilities',
-  'ngSanitize'
+  'ngSanitize',
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -58,9 +58,9 @@ angular.module('gsApp.workspaces.layers', [
       });
 
     }])
-.controller('LayersMainCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$log', 'GeoServer', '$modal', '$rootScope',
-  'AppEvent', '_', 'mapsListModel', 'layersListModel', '$timeout',
+.controller('LayersMainCtrl', ['$scope', '$state', '$stateParams', '$sce',
+  '$window', '$log', 'GeoServer', '$modal', '$rootScope', 'AppEvent', '_',
+  'mapsListModel', 'layersListModel', '$timeout',
     function($scope, $state, $stateParams, $sce, $window, $log,
       GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel,
       layersListModel, $timeout) {
