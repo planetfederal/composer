@@ -1,0 +1,40 @@
+/* attributes.less */
+
+@import "../../../variables.less";
+
+.attr-modal {
+
+  .top-buttons {
+    margin-top: 8px;
+  }
+
+  button#copyAttr {
+    margin-right: 20px;
+  }
+  button.cancel {
+    margin-right: 10px;
+  }
+
+  a.attr-name {
+    display: inline-block;
+
+    &.selectedAttr {
+      color: @nectarine;
+    }
+  }
+
+  .attr-row {
+    margin: 4px 0;
+
+    a {
+      color: @almost-black;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .modal-body {
+    margin-bottom: 20px;
+  }
+}
