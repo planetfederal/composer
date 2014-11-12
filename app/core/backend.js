@@ -345,16 +345,12 @@ angular.module('gsApp.core.backend',[])
           },
 
           // map.openlayers
-          // return an openlayers map URL
-          // TODO - not showing getFeatureInfo information as on
-          // geoserver OpenLayers template, try to copy that template
+          // return an openlayers map URL via wms reflector
           openlayers: {
-            get: function(workspace, layergroup, bbox, width, height) {
+            get: function(workspace, layergroup, width, height) {
               var url = gsRoot + '/' + workspace +
-               '/wms?service=WMS&version=1.1.0&request=GetMap&layers=' +
-               layergroup + bbox + '&width=' + width +
-               '&height=' + height +
-               '&srs=EPSG:4326&format=application/openlayers';
+               '/wms/reflect?layers=' + layergroup + '&width=' + width +
+               '&height=' + height + '&format=application/openlayers';
               return url;
             }
           },

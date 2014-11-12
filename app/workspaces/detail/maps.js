@@ -154,8 +154,8 @@ angular.module('gsApp.workspaces.maps', [
       };
 
       $scope.newOLWindow = function(map) {
-        var baseUrl = GeoServer.map.openlayers.get(map.workspace,
-          map.name, map.bbox, 800, 500);
+        var baseUrl = GeoServer.map.openlayers.get(
+          map.workspace, map.name, 800, 500);
         $window.open(baseUrl);
       };
 

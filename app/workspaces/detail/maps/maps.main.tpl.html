@@ -31,21 +31,27 @@
   <div class="map-summary" ng-show="maps.length > 0">
     <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2 | filter:filterText">
       <div class="col-sm-6" ng-repeat="map in row">
-        <a href="" ui-sref="map.compose({workspace: map.workspace, name: map.name})">
-          <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
-        </a>
-        <div class="map-summary-detail">
-          <div class="inline">
-            <h4 class="inline">{{ map.name }}</h4>
-            <a class="map-gear" ng-click="editMapSettings(map);"><i class="fa fa-gear"></i></a>
+        <div class="map-wrapper">
+          <a href="" ui-sref="map.compose({workspace: map.workspace, name: map.name})">
+            <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" height="{{ map.height }}" width="{{ map.width }}" title="Edit Map" />
+          </a>
+          <div class="map-summary-detail">
+            <div class="inline">
+              <div class="inline map-name">{{ map.name }}</div>
+            </div>
+            <div class="map-title"><span ng-if="map.title">{{ map.title }}</span><span ng-if="!map.title">&nbsp;</span></div>
+            <div class="map-otherinfo">
+              <div class="otherinfo"><i class="icon-stack"></i> {{ map.layer_count }} Layer<span ng-if="map.layer_count==0 || map.layer_count>1">s</span></div>
+              <div class="otherinfo"><i class="icon-compass"></i> {{ map.proj.srs }}</div>
+              <div class="otherinfo" ng-if="map.modified.pretty"><i class="icon-clock"></i> {{ map.modified.pretty }}</div>
+            </div>
           </div>
-          <p ng-if="map.title"><strong>Title:</strong> {{ map.title }}</p>
-          <p>{{ map.layer_count }} Layer<span ng-if="map.layer_count==0 || map.layer_count>1">s</span></p>
-          <p>{{ map.proj.srs }}</p>
-          <p ng-if="map.modified.pretty"><strong>Modified:</strong> {{ map.modified.pretty }}</p>
-          <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
+          <div class="map-summary-links">
+            <a class="map-link-icon" ng-click="editMapSettings(map);"><i class="fa fa-gear"></i></a>
+            <a class="map-link-icon bottom" ng-click="newOLWindow(map);"><i class="fa fa-link"></i></a>
+          </div>
+          <div class="abstract" ng-if="map.description"><strong>Description:</strong> {{sanitizeHTML(map.description)}}</div>
         </div>
-        <p class="abstract" ng-if="map.description"><strong>Description:</strong> {{sanitizeHTML(map.description)}}</p>
       </div>
     </div>
   </div>
