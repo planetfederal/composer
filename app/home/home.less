@@ -4,6 +4,53 @@
 
 .home {
 
+	.get-started {
+		width: 100%;
+    border: 1px solid @very-lt-bl-gray;
+    .box-shadow(0 1px 1px @very-lt-bl-gray);
+    .border-radius(3px, 3px, 3px, 3px);
+    padding: 8px 12px;
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 10px 15px;
+
+    .get-started-header {
+    	text-transform: uppercase;
+    	padding-bottom: 5px;
+    	border-bottom: 1px solid @light-gray;
+    	font-weight: bold;
+    	color: @md-lt-gray;
+    }
+    .steps {
+    	margin-top: 10px;
+    	color: @gray;
+    	font-weight: bold;
+
+    	.icon-round {
+				font-size: 14px;
+				background: @light-gray;
+				color: @white;
+				border-color: transparent;
+				width: 30px;
+				height: 30px;
+				line-height: 30px;
+				text-align: center;
+				display: inline-block;
+				border-radius: 14px;
+				margin-right: 10px;
+			}
+			.step-content {
+				margin-top: 10px;
+				margin-left: 40px;
+
+				.instruction {
+					margin-top: 10px;
+					font-weight: normal;
+				}
+			}
+    }
+	}
+
 	.projects, .maps, .layers {
 
 		h4.underline {
