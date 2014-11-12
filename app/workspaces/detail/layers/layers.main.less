@@ -4,8 +4,7 @@
 
 .layers-tab-inner {
   .layers-count-sort {
-    margin-left: 15px;
-    margin-right: -15px;
+    width: 100%;
     border: 1px solid @very-lt-bl-gray;
     .box-shadow(0 1px 1px @very-lt-bl-gray);
     .border-radius(3px, 3px, 3px, 3px);
@@ -71,32 +70,38 @@
     }
   }
   .add-to-map {
-    width: 90%;
-    float: right;
+    width: 100%;
     display: inline-block;
-    margin-top: -20px;
+    margin-top: 10px;
     margin-bottom: 20px;
     background-color: @almost-white;
-    padding: 5px 10px 10px;
-    text-align: center;
+    padding: 5px 10px;
     .border-radius(0, 3px, 3px, 0);
     .box-shadow(0 1px 1px @very-lt-bl-gray);
 
+    &.ui-scrollfix {
+      position: fixed;
+      top: 40;
+      width: 75%;
+      z-index: 100;
+      .box-shadow(0 2px 2px @gray);
+    }
+
     .add-label {
-      display: block;
-      margin-bottom: 5px;
-      margin-left: 5%;
+      display: inline-block;
       text-align: left;
       font-size: 11px;
+      line-height: 28px;
+      margin-left: 12px;
     }
 
     .map-picker {
       display: inline-block;
-      width: 70%;
-      margin-right: 2%;
+      float: right;
 
       .ui-select-bootstrap {
-        width: 100%;
+        display: inline-block;
+        width: 200px;
 
         & > .ui-select-match {
           height: 26px;
@@ -106,11 +111,12 @@
           font-size: 12px;
         }
       }
-    }
-    button.map-button {
-      display: inline-block;
-      height: 26px;
-      padding: 3px 6px;
+      button.map-button {
+        margin-left: 10px;
+        display: inline-block;
+        height: 26px;
+        padding: 3px 6px;
+      }
     }
   }
 

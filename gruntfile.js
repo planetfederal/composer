@@ -64,7 +64,8 @@ var deps = {
     'ng-file-upload/angular-file-upload.js',
     'ng-clip/src/ngClip.js',
     'ng-lodash/build/ng-lodash.min.js',
-    'proj4/dist/proj4.js'
+    'proj4/dist/proj4.js',
+    'angular-ui-utils/scrollfix.min.js'
   ],
 
   less: [
