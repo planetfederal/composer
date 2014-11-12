@@ -6,6 +6,7 @@ angular.module('gsApp.workspaces.layers', [
   'gsApp.alertpanel',
   'gsApp.core.utilities',
   'ngSanitize',
+  'ui.scrollfix'
 ])
 .config(['$stateProvider',
     function($stateProvider) {

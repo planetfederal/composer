@@ -34,6 +34,7 @@
     "ng-file-upload": "~1.6.12",
     "angular-ui-select": "~0.8.3",
     "ng-lodash": "~0.0.2",
-    "proj4": "~2.3.3"
+    "proj4": "~2.3.3",
+    "angular-ui-utils": "bower-scrollfix"
   }
 }
