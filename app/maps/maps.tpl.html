@@ -1,7 +1,7 @@
 <div>
   <div class="container-fluid">
     <h3 class="page-title"><i class="icon-lg icon-map"></i> {{title}}</h3>
-    <div class="page-content">
+    <div class="page-content all-maps">
       <div class="workspace-choice">
         <div class="workspace-label">Project Workspace:</div>
         <div class="workspace-picker">
@@ -16,13 +16,10 @@
             </ui-select-choices>
           </ui-select>
         </div>
+        <input type="text" class="form-control grid-filter" ng-model="filterOptions.filterText" placeholder="Filter by name, title, description..." size="25" ng-change="updatePaging()" />
         <span>
-          <button type="button" class="btn btn-success btn-sm pull-right" style="display:inline-block;" ng-click="addMap(workspace.selected.name)" alt="Add New Map" title="Add New Map">+ New Map</button>
+          <button type="button" class="new-map-btn btn btn-primary btn-sm pull-right" ng-click="addMap(workspace.selected.name)" alt="Add New Map" title="Add New Map">+ New Map</button>
         </span>
-      </div>
-      <div class="text-right" style="margin-top: -30px;">
-        <input type="text" class="form-control grid-filter" ng-model="filterOptions.filterText"
-          placeholder="Filter by name, title, description..." size="25" ng-change="updatePaging()" />
       </div>
       <div ng-grid="gridOptions"></div>
       <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
