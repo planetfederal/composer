@@ -368,7 +368,7 @@ angular.module('gsApp.maps', [
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onStyleEdit(row.entity)">' +
+                '<a ng-click="onCompose(row.entity)">' +
                   '<img ng-src="images/preview.png" alt="Preview Map"' +
                     'title="Preview Map" />' +
                 '</a>' +
@@ -381,7 +381,7 @@ angular.module('gsApp.maps', [
             cellClass: 'text-center',
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onStyleEdit(row.entity)">' +
+                '<a ng-click="onCompose(row.entity)">' +
                   '<img ng-src="images/settings.png"' +
                     'alt="Edit Map Settings" title="Edit Map Settings" />' +
                 '</a>' +
