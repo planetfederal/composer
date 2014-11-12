@@ -91,19 +91,11 @@
         <div ng-show="mapCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Map Created.</div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-sm-8 col-sm-offset-2">
-        <div class="form-footer">
-          <div class="submit-buttons pull-right">
-            <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
-            <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-            <button ng-show="step==2" class="btn btn-primary btn-sm" ng-click="createMap(layerSelections)" ng-disabled="layerSelections==''">Create Map</button>
-            <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="step=2;" ng-disabled="!newMap.$valid || mapNameError">Add Layers &rarr;</button>
-
-            <!--<div class="selectedItems">Selections: {{layerSelections}}</div>-->
-          </div>
-        </div>
-      </div>
-    </div>
+  </div>
+  <div class="modal-footer">
+    <button ng-show="step!==1" class="btn btn-default btn-sm" ng-click="step=1;">&larr; Back</button>
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    <button ng-show="step==2" class="btn btn-primary btn-sm" ng-click="createMap(layerSelections)" ng-disabled="layerSelections==''">Create Map</button>
+    <button ng-show="step==1" class="btn btn-success btn-sm" ng-click="step=2;" ng-disabled="!newMap.$valid || mapNameError">Add Layers &rarr;</button>
   </div>
 </div>
