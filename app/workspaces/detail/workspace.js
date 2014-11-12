@@ -38,14 +38,17 @@ angular.module('gsApp.workspaces.home', [
 
         $scope.tabs = [
           { heading: 'Maps',
+            icon: 'icon-map',
             routeCategory: 'workspace.maps',
             route: 'workspace.maps.main',
             active: isActive('maps')},
           { heading: 'Layers',
+            icon: 'icon-stack',
             routeCategory: 'workspace.layers',
             route: 'workspace.layers.main',
             active: isActive('layers')},
           { heading: 'Data',
+            icon: 'fa fa-database',
             routeCategory: 'workspace.data',
             route: 'workspace.data.main',
             active: isActive('data')}

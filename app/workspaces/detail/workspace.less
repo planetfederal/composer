@@ -61,10 +61,34 @@
 
 .maps-data-tabs {
   ul.nav.nav-tabs {
+    background-color: @tab-bg;
+    margin: 0 -25px 0 -25px;
+    padding: 10px 25px 0 25px;
+
     li {
       width: 150px;
       text-align: center;
       font-weight: 600;
+
+      a {
+        tab-heading {
+          vertical-align: bottom;
+          font-size: 13px;
+          color: @text-lt-gray;
+
+          i.tab-icon {
+            padding-right: 5px;
+            font-size: 16px;
+            color: @icon-gray;
+          }
+        }
+      }
+      &.active a tab-heading {
+        color: @text-gray;
+        i.tab-icon {
+          color: @text-gray;
+        }
+      }
     }
   }
   .tab-content {
