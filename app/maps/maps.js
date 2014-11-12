@@ -91,20 +91,23 @@ angular.module('gsApp.maps', [
 
                 GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
                   function(result) {
-                    $modalInstance.dismiss('cancel');
                     if (result.success) {
+                      var map = result.data;
                       $rootScope.alerts = [{
                         type: 'success',
-                        message: 'Map ' + result.data.name + ' created  with ' +
-                          result.data.layers.length + ' layer(s).',
+                        message: 'Map ' + map.name + ' created  with ' +
+                          map.layers.length + ' layer(s).',
                         fadeout: true
                       }];
-                      $scope.maps.push(result.data);
+                      map.layergroupname = $scope.workspace + ':' + map.name;
+                      $rootScope.$broadcast(AppEvent.MapAdded, map);
+                      $scope.close();
+                      $state.go('map.compose', {workspace: $scope.workspace,
+                          name: map.name});
                     } else {
-                      modalInstance.dismiss('cancel');
                       $rootScope.alerts = [{
                         type: 'danger',
-                        message: 'Could not create map.',
+                        message: 'Could not create map: ' + result.data.message,
                         fadeout: true
                       }];
                     }
@@ -300,6 +303,23 @@ angular.module('gsApp.maps', [
         });
       };
 
+      $scope.editMapSettings = function(map) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/map.settings.tpl.html',
+          controller: 'EditMapSettingsCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            map: function() {
+              return map;
+            }
+          }
+        });
+      };
+
       $scope.onCompose = function(map) {
         $state.go('map.compose', {
           workspace: map.workspace,
@@ -368,7 +388,7 @@ angular.module('gsApp.maps', [
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onStyleEdit(row.entity)">' +
+                '<a ng-click="onCompose(row.entity)">' +
                   '<img ng-src="images/preview.png" alt="Preview Map"' +
                     'title="Preview Map" />' +
                 '</a>' +
@@ -381,7 +401,7 @@ angular.module('gsApp.maps', [
             cellClass: 'text-center',
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onStyleEdit(row.entity)">' +
+                '<a ng-click="editMapSettings(row.entity)">' +
                   '<img ng-src="images/settings.png"' +
                     'alt="Edit Map Settings" title="Edit Map Settings" />' +
                 '</a>' +
