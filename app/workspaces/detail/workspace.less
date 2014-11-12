@@ -71,6 +71,19 @@
       font-weight: 600;
 
       a {
+        border-top: 1px solid darken(@tab-bg, 5%);
+        border-right: 1px solid darken(@tab-bg, 5%);
+        border-left: 1px solid darken(@tab-bg, 5%);
+
+        background-color: lighten(@tab-bg, 5%);
+
+        &:hover {
+          background-color: lighten(@tab-bg, 10%);
+          border-top: 1px solid @tab-bg;
+          border-right: 1px solid @tab-bg;
+          border-left: 1px solid @tab-bg;
+        }
+
         tab-heading {
           vertical-align: bottom;
           font-size: 13px;
@@ -83,10 +96,17 @@
           }
         }
       }
-      &.active a tab-heading {
-        color: @text-gray;
-        i.tab-icon {
+      &.active a {
+        background-color: @white;
+        border-top: 1px solid @light-gray;
+        border-right: 1px solid @light-gray;
+        border-left: 1px solid @light-gray;
+
+        tab-heading {
           color: @text-gray;
+          i.tab-icon {
+            color: @text-gray;
+          }
         }
       }
     }

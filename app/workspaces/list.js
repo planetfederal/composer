@@ -26,8 +26,8 @@ angular.module('gsApp.workspaces.list', [
           workspace.name);
       };
 
-      $scope.defaultDesc = 'If a project is not specified ' +
-        'in a GeoServer request, the DEFAULT project is used.';
+      $scope.defaultDesc = 'If a project workspace is not specified ' +
+        'in a GeoServer request, the DEFAULT is used.';
       $scope.showDefaultDesc = false;
 
       $scope.workspaces = workspacesListModel.getWorkspaces();

@@ -2,87 +2,163 @@
 
 @import "../variables.less";
 
-.workspaces-count {
-  font-size: 1.2em;
-  margin-bottom: 10px;
-}
+.workspaces-list-inner {
 
-.single-workspace-info {
-  padding: 8px 12px 0 12px;
-  margin-bottom: 0;
-  position: fixed;
-  z-index: 100;
-  .transition(.5s, ease-out);
-
-  &.ng-hide {
-    opacity: 0;
-  }
-}
-
-.workspace-summary-detail {
-  margin-top: 30px;
-  display: inline-block;
-  pointer: cursor;
-
-  .workspace-icon {
+  .workspaces-count-sort {
+    margin: 0 15px;
+    border: 1px solid @very-lt-bl-gray;
+    .box-shadow(0 1px 1px @very-lt-bl-gray);
+    .border-radius(3px, 3px, 3px, 3px);
+    padding: 8px 12px;
     display: inline-block;
-
-    i.icon-folder {
-      font-size: 96px;
-      color: @light-gray;
-      .transition(.2s, ease-in);
-    }
-    .workspace-details.in-folder {
-      margin-top: -45px;
-
-      .view {
-        display: block;
-        text-align: center;
-        color: @skyblue;
-      }
-      .dash {
-        display: block;
-        text-align: center;
-        margin-top: 2px;
-        margin-bottom: 2px;
-        color: @white;
-      }
-    }
   }
-
-  .workspace-info {
+  .workspaces-count {
     display: inline-block;
-    vertical-align: top;
+    padding-left: 10px;
+  }
+  .sort-by {
+    width: 138px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: right;
+    font-size: 11px;
+    display: inline-block;
+    color: @text-lt-gray;
+    vertical-align: middle;
 
-    .workspace-name {
-      vertical-align: top;
-      margin: 10px auto 10px 10px;
-      color: @gray;
+    .sort-label {
+      margin-right: 10px;
+      float: left;
+    }
+    .dropdown {
+      float: left;
+    }
+    a {
+      color: @dark-gray;
       font-weight: bold;
+      i {
+        padding-left: 5px;
+      }
     }
-    .modified, .view , .settings{
-      color: @gray;
-      margin: 10px auto 10px 10px;
+    li a {
+      font-weight: normal;
     }
-    .modified {
-      display: block;
-    }
-    .workspace-default {
-      margin: 10px auto 10px 10px;
+
+    .dropdown-menu {
+      font-size: 11px;
+      .box-shadow(0 2px 3px @gray);
     }
   }
 
-  &:hover {
-    text-decoration: none;
+  .filter-box {
+    border-left: 1px solid @very-lt-bl-gray;
+    padding-left: 10px;
+    font-size: 11px;
+    margin-left: 3px;
+    display: inline-block;
+    vertical-align: middle;
+
+    input {
+      font-size: 11px;
+      color: @text-lt-gray;
+      border: 0;
+      box-shadow: none;
+      width: 150px;
+      height: 20px;
+      padding: 3px 5px;
+    }
+    i {
+      color: @dark-gray;
+    }
+  }
+
+  .single-workspace-info {
+    font-size: 1.5em;
+    .box-shadow(3px 3px 1px @monacoblue);
+    padding: 8px 12px 0 12px;
+    margin-bottom: 0;
+    position: fixed;
+    z-index: 100;
+    .transition(.5s, ease-out);
+
+    &.ng-hide {
+      opacity: 0;
+    }
+  }
+
+  .workspace-summary-detail {
+    margin-top: 30px;
+    display: inline-block;
+    pointer: cursor;
 
     .workspace-icon {
+      display: inline-block;
+
       i.icon-folder {
-        color: @gray;
-        .transition(.5s, ease);
+        font-size: 96px;
+        color: @light-gray;
+        .transition(.2s, ease-in);
+      }
+      .workspace-details.in-folder {
+        margin-top: -45px;
+
+        .view {
+          display: block;
+          text-align: center;
+          color: @skyblue;
+        }
+        .dash {
+          display: block;
+          text-align: center;
+          margin-top: 2px;
+          margin-bottom: 2px;
+          color: @white;
+        }
       }
     }
-    .workspace-info .workspace-name {
-      color: @black;
+
+    .workspace-info {
+      display: inline-block;
+      vertical-align: top;
+
+      .workspace-name {
+        vertical-align: top;
+        margin: 13px auto 4px 10px;
+        color: @gray;
+        font-weight: bold;
+      }
+      .modified, .workspace-view , .workspace-settings {
+        color: @gray;
+        margin: 10px auto 10px 10px;
+      }
+      .workspace-view , .workspace-settings {
+        &:hover {
+          color: @black;
+        }
+      }
+      .modified {
+        display: block;
+      }
+      .workspace-default {
+        display: inline-block;
+        vertical-align: middle;
+        margin-left: 10px;
+        margin-top: 10px;
+      }
+    }
+
+    &:hover {
+      text-decoration: none;
+
+      .workspace-icon {
+        i.icon-folder {
+          color: @gray;
+          .transition(.5s, ease);
+        }
+      }
+      .workspace-info .workspace-name {
+        color: @black;
+      }
     }
   }
 }

@@ -23,8 +23,14 @@
     font-size: 11px;
     display: inline-block;
     color: @text-lt-gray;
+    vertical-align: middle;
+
     .sort-label {
       margin-right: 10px;
+      float: left;
+    }
+    .dropdown {
+      float: left;
     }
     a {
       color: @dark-gray;
@@ -99,6 +105,18 @@
       }
       p {
         line-height: 24px;
+      }
+      .inline {
+        display: inline-block;
+      }
+      a.map-gear {
+        text-align: right;
+        margin-left: 20px;
+        color: @md-lt-gray;
+        font-size: 1.3em;
+        &:hover {
+           color: @gray;
+        }
       }
     }
     .abstract {
