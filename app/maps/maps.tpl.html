@@ -1,30 +1,31 @@
 <div>
   <div class="container-fluid">
     <h3 class="page-title"><i class="icon-lg icon-map"></i> {{title}}</h3>
-
-    <div class="workspace-choice">
-      <div class="workspace-label">Project Workspace:</div>
-      <div class="workspace-picker">
-        <ui-select ng-model="workspace.selected"  ng-disabled="disabled"
-          ng-change="workspaceChanged($select.selected)" theme="bootstrap"
-          reset-search-input="false">
-          <ui-select-match placeholder="Select a workspace...">
-            {{$select.selected.name}}
-          </ui-select-match>
-          <ui-select-choices repeat="ws in workspaces">
-              <span ng-bind-html="ws.name | highlight: $select.search"></span>
-          </ui-select-choices>
-        </ui-select>
+    <div class="page-content">
+      <div class="workspace-choice">
+        <div class="workspace-label">Project Workspace:</div>
+        <div class="workspace-picker">
+          <ui-select ng-model="workspace.selected"  ng-disabled="disabled"
+            ng-change="workspaceChanged($select.selected)" theme="bootstrap"
+            reset-search-input="false">
+            <ui-select-match placeholder="Select a workspace...">
+              {{$select.selected.name}}
+            </ui-select-match>
+            <ui-select-choices repeat="ws in workspaces">
+                <span ng-bind-html="ws.name | highlight: $select.search"></span>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+        <span>
+          <button type="button" class="btn btn-success btn-sm pull-right" style="display:inline-block;" ng-click="addMap(workspace.selected.name)" alt="Add New Map" title="Add New Map">+ New Map</button>
+        </span>
       </div>
-      <span>
-        <button type="button" class="btn btn-success btn-sm pull-right" style="display:inline-block;" ng-click="addMap(workspace.selected.name)" alt="Add New Map" title="Add New Map">+ New Map</button>
-      </span>
+      <div class="text-right" style="margin-top: -30px;">
+        <input type="text" class="form-control grid-filter" ng-model="filterOptions.filterText"
+          placeholder="Filter by name, title, description..." size="25" ng-change="updatePaging()" />
+      </div>
+      <div ng-grid="gridOptions"></div>
+      <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
     </div>
-    <div class="text-right" style="margin-top: -30px;">
-      <input type="text" class="form-control grid-filter" ng-model="filterOptions.filterText"
-        placeholder="Filter by name, title, description..." size="25" ng-change="updatePaging()" />
-    </div>
-    <div ng-grid="gridOptions"></div>
-    <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
   </div>
 </div>

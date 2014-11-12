@@ -21,9 +21,11 @@
       </span>
     </h3>
     <tabset class="maps-data-tabs" ng-show="!showSettings">
-      <tab ng-repeat="t in tabs" heading="{{t.heading}}"
-        select="selectTab(t)" active="t.active">
-       </tab>
+      <tab ng-repeat="t in tabs" select="selectTab(t)" active="t.active">
+        <tab-heading>
+          <i ng-class="t.icon" class="tab-icon"></i> {{ t.heading }}
+        </tab-heading>
+      </tab>
      </tabset>
      <div ui-view></div>
   </div>
