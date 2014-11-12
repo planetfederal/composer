@@ -145,11 +145,6 @@
     <!-- extension modules -->
     <dependency>
       <groupId>org.geoserver.extension</groupId>
-      <artifactId>gs-control-flow</artifactId>
-      <version>${gs.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.geoserver.extension</groupId>
       <artifactId>gs-h2</artifactId>
       <version>${gs.version}</version>
     </dependency>
@@ -164,11 +159,6 @@
       <version>${gs.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.geoserver.community</groupId>
-      <artifactId>gs-geopkg</artifactId>
-      <version>${gs.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.opengeo</groupId>
       <artifactId>gs-ysld</artifactId>
       <version>${gs.version}</version>
@@ -179,6 +169,21 @@
       <version>${gs.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geopkg</artifactId>
+      <version>${gt.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process-geometry</artifactId>
+      <version>${gt.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>it.geosolutions.imageio-ext</groupId>
+      <artifactId>imageio-ext-imagereadmt</artifactId>
+      <version>1.1.10</version>
     </dependency>
     <dependency>
      <groupId>com.mockrunner</groupId>
