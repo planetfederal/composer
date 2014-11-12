@@ -1,79 +1,79 @@
-<h3>
-  Data
-</h3>
-<div class="stores-count">
+<div class="data-tab-inner">
   <div class="row">
-    <div class="col-sm-8">
-      <strong>{{ datastores.length }}</strong> Data Store<span ng-if="datastores.length > 1">s</span> in Project Workspace <strong>{{ workspace }}</strong>
-    </div>
-    <div class="col-sm-4 text-right">
-      <div class="filter-box">
-        <input type="text" class="form-control input-sm grid-filter" ng-model="filterText" placeholder="Filter by any text.." size="25" />
+    <div class="col-sm-8 data-count-sort">
+      <div class="data-count">
+        <strong>{{ datastores.length }} Data Store<span ng-if="datastores.length==0 || datastores.length>1">s</span></strong> in current project.
+      </div>
+      <div class="pull-right">
+        <div class="filter-box">
+          <input type="text" class="form-control input-sm grid-filter" ng-model="filterText" placeholder="Filter data stores by..." size="30" />
+          <i class="fa fa-search"></i>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div class="row datastores">
-  <div class="col-sm-6">
-    <ul class="list-unstyled stores-list" ng-style="storesListHeight">
-      <li class="store-row" ng-repeat="ds in $parent.datastores | filter:filterText" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
-        <div class="icon-column">
-          <h3 class="datastore-icons"><i ng-class="{'icon-file': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
-          <p class="datastore-label">{{ ds.sourcetype }}</p>
-        </div>
-        <div class="info-column">
-          <p><strong>{{ ds.name }}</strong></p>
-          <p>
-            <div class="btn-group toggle-group">
-              <label class="btn btn-xs" ng-class="{'btn-success': ds.enabled, 'btn-default': !ds.enabled}" ng-click="enableDisableStore(ds)" ng-model="ds.enabled">Enabled</label>
-              <label class="btn btn-xs" ng-class="{'btn-primary': !ds.enabled, 'btn-default': ds.enabled}" ng-click="enableDisableStore(ds)">Disabled</label>
-            </div>
-            <div class="delete-column" ng-show="selectedStore.name==ds.name">
-              <button ng-click="deleteStore();" class="btn btn-default btn-xs"><i class="icon-remove"></i> Delete</button>
-            </div>
-          </p>
-        </div>
-      </li>
-    </ul>
-  </div>
-  <div class="col-sm-6">
-    <div>
-      <div>
-        <div ng-show="selectedStore && !selectedStore.enabled">Source is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
-      </div>
-      <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Location:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
-      <div class="resources">
-        <div class="resources-header">
-          <span>Data Sets in {{ selectedStore.name }}</span>
-          <small class="sort-by">
-            Sort by
-            <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
-            <a class="sort-options" ng-click="predicate='layers.length'; reverse=!reverse;">Published</a>
-          </small>
-        </div>
-        <ul class="list-unstyled">
-          <li class="singleResource" ng-repeat="rsrc in selectedStore.resources | orderBy:predicate:reverse">
-            <div>
-              <span class="label-tag">Resource:</span>
-              <strong> {{ rsrc.name }}</strong>
-            </div>
-            <div class="rsrc_info pull-right">
-              <a title="Attributes" ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);">
-                <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i>
-              </a>
-            </div>
-            <div ng-if="rsrc.proj.srs" class="rsrc_info">
-              <span class="label-tag">Projection:</span> {{ rsrc.proj.srs }}
-            </div>
-            <div ng-if="rsrc.layers.length > 0">
-              <div class="info"><a pop="{{ getLayersForResource(rsrc); }}" pop-show="{{ rsrc.publishedPopover }}" pop-placement="left" ng-click="closeResourcePopovers(rsrc);" pop-title="{{rsrc.name}} is used in layers:">Published</a></div>
-            </div>
-            <div ng-if="rsrc.layers.length==0">
-              <div class="info"><strong>Not Published</strong> <span style="margin-left:10px;"><a class="btn btn-default btn-xs" ng-click="importAsNewLayer(rsrc, selectedStore);">Publish to Layer &rarr;</a></span>
+  <div class="row datastores">
+    <div class="col-sm-6">
+      <ul class="list-unstyled stores-list" ng-style="storesListHeight">
+        <li class="store-row" ng-repeat="ds in $parent.datastores | filter:filterText" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
+          <div class="icon-column">
+            <h3 class="datastore-icons"><i ng-class="{'icon-file': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'fa fa-th fa-md': ds.sourcetype=='raster'}"></i></h3>
+            <p class="datastore-label">{{ ds.sourcetype }}</p>
+          </div>
+          <div class="info-column">
+            <p><strong>{{ ds.name }}</strong></p>
+            <p>
+              <div class="btn-group toggle-group">
+                <label class="btn btn-xs" ng-class="{'btn-success': ds.enabled, 'btn-default': !ds.enabled}" ng-click="enableDisableStore(ds)" ng-model="ds.enabled">Enabled</label>
+                <label class="btn btn-xs" ng-class="{'btn-primary': !ds.enabled, 'btn-default': ds.enabled}" ng-click="enableDisableStore(ds)">Disabled</label>
               </div>
-            </div>
-          </li>
-        </ul>
+              <div class="delete-column" ng-show="selectedStore.name==ds.name">
+                <button ng-click="deleteStore();" class="btn btn-default btn-xs"><i class="icon-remove"></i> Delete</button>
+              </div>
+            </p>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="col-sm-6">
+      <div>
+        <div>
+          <div ng-show="selectedStore && !selectedStore.enabled">Source is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
+        </div>
+        <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Location:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
+        <div class="resources">
+          <div class="resources-header">
+            <span>Data Sets in {{ selectedStore.name }}</span>
+            <small class="sort-by">
+              Sort by
+              <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
+              <a class="sort-options" ng-click="predicate='layers.length'; reverse=!reverse;">Published</a>
+            </small>
+          </div>
+          <ul class="list-unstyled">
+            <li class="singleResource" ng-repeat="rsrc in selectedStore.resources | orderBy:predicate:reverse">
+              <div>
+                <span class="label-tag">Resource:</span>
+                <strong> {{ rsrc.name }}</strong>
+              </div>
+              <div class="rsrc_info pull-right">
+                <a title="Attributes" ng-click="showAttrs(rsrc.name, rsrc.schema.attributes);">
+                  <i class="fa fa-list-alt fa-lg" style="padding-left: 5px;"></i>
+                </a>
+              </div>
+              <div ng-if="rsrc.proj.srs" class="rsrc_info">
+                <span class="label-tag">Projection:</span> {{ rsrc.proj.srs }}
+              </div>
+              <div ng-if="rsrc.layers.length > 0">
+                <div class="info"><a pop="{{ getLayersForResource(rsrc); }}" pop-show="{{ rsrc.publishedPopover }}" pop-placement="left" ng-click="closeResourcePopovers(rsrc);" pop-title="{{rsrc.name}} is used in layers:">Published</a></div>
+              </div>
+              <div ng-if="rsrc.layers.length==0">
+                <div class="info"><strong>Not Published</strong> <span style="margin-left:10px;"><a class="btn btn-default btn-xs" ng-click="importAsNewLayer(rsrc, selectedStore);">Publish to Layer &rarr;</a></span>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
