@@ -1,27 +1,29 @@
 <div class="map-tab-inner">
   <div class="row">
-    <div class="col-sm-8 maps-count-sort">
-      <div class="maps-count">
-        <strong>{{ maps.length }} map<span ng-if="maps.length==0 || maps.length>1">s</span></strong> in current project.
-      </div>
-      <div class="pull-right">
-        <div class="sort-by">
-          <span class="sort-label">Sort by:</span>
-          <span class="dropdown" on-toggle="toggled(open)">
-            <a href class="dropdown-toggle" ng-init="last='name'">
-            {{ last | firstCaps }} <i class="fa fa-caret-down"></i>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a></li>
-              <li><a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a></li>
-              <li><a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Modified</a></li>
-              <li><a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a></li>
-            </ul>
-          </span>
+    <div class="col-sm-12">
+      <div class="maps-count-sort">
+        <div class="maps-count">
+          <strong>{{ maps.length }} map<span ng-if="maps.length==0 || maps.length>1">s</span></strong> in current project.
         </div>
-        <div class="filter-box">
-          <input type="text" class="form-control input-sm grid-filter" ng-model="filterText" placeholder="Filter maps by..." size="30" />
-          <i class="fa fa-search"></i>
+        <div class="pull-right">
+          <div class="sort-by">
+            <span class="sort-label">Sort by:</span>
+            <span class="dropdown" on-toggle="toggled(open)">
+              <a href class="dropdown-toggle" ng-init="last='name'">
+              {{ last | firstCaps }} <i class="fa fa-caret-down"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a></li>
+                <li><a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a></li>
+                <li><a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Modified</a></li>
+                <li><a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a></li>
+              </ul>
+            </span>
+          </div>
+          <div class="filter-box">
+            <input type="text" class="form-control input-sm grid-filter" ng-model="filterText" placeholder="Filter maps by..." size="30" />
+            <i class="fa fa-search"></i>
+          </div>
         </div>
       </div>
     </div>
