@@ -29,11 +29,13 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.geoserver.config.GeoServer;
 import org.geoserver.web.GeoServerBasePage;
 import org.geoserver.web.demo.PreviewLayer.PreviewLayerType;
 import org.geoserver.web.wicket.GeoServerDataProvider.Property;
 import org.geoserver.web.wicket.GeoServerTablePanel;
 import org.geoserver.wfs.WFSGetFeatureOutputFormat;
+import org.geoserver.wfs.WFSInfo;
 import org.geoserver.wms.GetMapOutputFormat;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
@@ -153,13 +155,28 @@ public class OpenGeoMapPreviewPage extends GeoServerBasePage {
         return Collections.unmodifiableList(linkTemplates);
     }
 
+    /**
+     * Generates the maxFeatures element of the WFS request using the value of 
+     * maxNumberOfFeaturesForPreview. Values <= 0 give no limit.
+     * @return "&maxFeatures=${maxNumberOfFeaturesForPreview}" or "" if 
+     * maxNumberOfFeaturesForPreview <= 0"
+     */
+    private String getMaxFeatures() {
+        GeoServer geoserver = getGeoServer();
+        WFSInfo service = geoserver.getService(WFSInfo.class);
+        if (service.getMaxNumberOfFeaturesForPreview() > 0) {
+            return "&maxFeatures="+service.getMaxNumberOfFeaturesForPreview();
+        }
+        return "";
+    }
+
     private List<LinkTemplate> wfsLinkTemplates() {
         List<LinkTemplate> linkTemplates = new ArrayList<LinkTemplate>();
         for (WFSGetFeatureOutputFormat format : getGeoServerApplication().getBeansOfType(
             WFSGetFeatureOutputFormat.class)) {
             for (String type : format.getOutputFormats()) {
                 linkTemplates.add(new WFSLinkTemplate(translate("format.wfs.", type), true,
-                    "&maxfeatures=50&outputformat=" + urlEncode(type)));
+		    getMaxFeatures()+"&outputformat=" + urlEncode(type)));
             }
         }
         Collections.sort(linkTemplates, ByLabel);
