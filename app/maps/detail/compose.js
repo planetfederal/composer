@@ -243,7 +243,7 @@ angular.module('gsApp.maps.compose', [
         var modalInstance = $modal.open({
           templateUrl: '/components/styleditor/tools/shortcuts.tpl.html',
           controller: 'ShortcutsCtrl',
-          backdrop: 'static',
+          backdrop: 'false',
           size: 'md'
         });
       };

@@ -75,7 +75,7 @@
     margin-top: 10px;
     margin-bottom: 20px;
     background-color: @almost-white;
-    padding: 5px 10px;
+    padding: 5px 10px 3px;
     .border-radius(0, 3px, 3px, 0);
     .box-shadow(0 1px 1px @very-lt-bl-gray);
 
@@ -115,14 +115,18 @@
         margin-left: 10px;
         display: inline-block;
         height: 26px;
-        padding: 3px 6px;
+        padding: 3px 12px;
+        font-size: 11px;
+        color: lighten(@green, 40%);
+        i {
+          color: lighten(@green, 25%);
+        }
       }
     }
   }
 
   .layers-summary {
     margin-bottom: 40px;
-    margin-top: 10px;
     display: inline-block;
     width: 100%;
     font-size: 0.95em;
