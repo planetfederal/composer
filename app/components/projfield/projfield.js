@@ -3,8 +3,9 @@ angular.module('gsApp.projfield', [
   'gsApp.core.backend'
 ])
 .directive('projField', ['$log', '$timeout', '$modal', 'GeoServer', '_',
-  'projectionModel',
-    function($log, $timeout, $modal, GeoServer, _, projectionModel) {
+  'projectionModel', 'AppEvent', '$rootScope',
+    function($log, $timeout, $modal, GeoServer, _, projectionModel, AppEvent,
+      $rootScope) {
       return {
         restrict: 'EA',
         scope: {
@@ -62,6 +63,7 @@ angular.module('gsApp.projfield', [
               }
               $scope.t = $timeout(function() {
                 $scope.validateProj();
+                $rootScope.$broadcast(AppEvent.ProjSet);
               }, 1000);
             }
           });

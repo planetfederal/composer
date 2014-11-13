@@ -16,7 +16,7 @@
     <div class="submit-buttons pull-right">
       <button ng-show="!is('form')" class="btn btn-default btn-sm" ng-click="stepBack();">&larr; Back</button>
       <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
-      <button ng-show="is('form')" class="btn btn-success btn-sm" ng-click="step=2; addLayers()">Add Layers &rarr;</button>
+      <button ng-show="is('form')" ng-disabled="!mapInfo.proj" class="btn btn-success btn-sm" ng-click="step=2; addLayers()">Add Layers &rarr;</button>
     </div>
   </div>
 </div>
