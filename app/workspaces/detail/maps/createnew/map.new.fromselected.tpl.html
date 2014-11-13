@@ -58,7 +58,7 @@
     <small class="pull-left" ng-show="step==1">* = Required</small>
     <div class="submit-buttons pull-right">
       <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
-      <button class="btn btn-success btn-sm" ng-click="createMap()">Create New Map</button>
+      <button class="btn btn-success btn-sm" ng-disabled="!mapInfo.proj" ng-click="createMap()">Create New Map</button>
     </div>
   </div>
 </div>

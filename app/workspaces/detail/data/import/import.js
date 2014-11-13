@@ -538,9 +538,9 @@ angular.module('gsApp.workspaces.data.import', [
     }])
 .controller('ImportNewMapCtrl', ['$scope', '$state', '$stateParams',
   '$log', 'GeoServer', '$rootScope', 'mapsListModel', 'mapInfoModel',
-  'projectionModel', '_', '$timeout',
+  'projectionModel', '_', '$timeout', 'AppEvent',
     function($scope, $state, $stateParams, $log, GeoServer, $rootScope,
-      mapsListModel, mapInfoModel, projectionModel, _, $timeout) {
+      mapsListModel, mapInfoModel, projectionModel, _, $timeout, AppEvent) {
 
       $scope.$parent.title += ' > New Map';
 
@@ -557,25 +557,31 @@ angular.module('gsApp.workspaces.data.import', [
             'http://prj2epsg.org' +
           '</a>' +
         '</p>';
-      $scope.proj = 'latlon';
+      $scope.proj = null;
       $scope.projEnabled = false;
+
+      $scope.$watch('proj', function(newValue, oldValue) {
+        if (newValue==='mercator') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:3857';
+          });
+        } else if (newValue==='latlon') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:4326';
+          });
+        } else if (newValue==='other') {
+          $scope.mapInfo.proj = $scope.customproj;
+        }
+      });
 
       projectionModel.fetchProjections().then(function() {
         $scope.projs = projectionModel.getDefaults();
         $scope.projEnabled = true;
-        $scope.$watch('proj', function(newValue, oldValue) {
-          if (newValue==='mercator') {
-            $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
-              return proj.srs === 'EPSG:3857';
-            });
-          } else if (newValue==='latlon') {
-            $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
-              return proj.srs === 'EPSG:4326';
-            });
-          } else if (newValue==='other') {
-            $scope.mapInfo.proj = $scope.customproj;
-          }
-        });
+        $scope.proj = 'latlon';
+      });
+
+      $rootScope.$on(AppEvent.ProjSet, function(scope, proj) {
+        $scope.mapInfo.proj = proj;
       });
 
       $scope.back = function() {
