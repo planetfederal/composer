@@ -78,5 +78,9 @@ angular.module('gsApp.core.event', [])
    /**
    * Fire when a new layer is added
    */
-  LayerAdded: 'layers-added'
+  LayerAdded: 'layers-added',
+  /**
+   * Fire when custom projection is set
+   */
+  ProjSet: 'projection-set'
 });

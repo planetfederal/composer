@@ -172,17 +172,21 @@ angular.module('gsApp.workspaces.maps.new', [
       $scope.projs = projectionModel.getDefaults();
       $scope.projEnabled = true;
       $scope.$watch('proj', function(newValue, oldValue) {
-        if (newValue==='mercator') {
-          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
-            return proj.srs === 'EPSG:3857';
-          });
-        } else if (newValue==='latlon') {
+        if (newValue==='latlon') {
           $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
             return proj.srs === 'EPSG:4326';
+          });
+        } else if (newValue==='mercator') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:3857';
           });
         } else if (newValue==='other') {
           $scope.mapInfo.proj = $scope.customproj;
         }
+      });
+
+      $rootScope.$on(AppEvent.ProjSet, function() {
+        $scope.mapInfo.proj = $scope.customproj;
       });
     });
 
@@ -240,17 +244,20 @@ angular.module('gsApp.workspaces.maps.new', [
       $scope.projs = projectionModel.getDefaults();
       $scope.projEnabled = true;
       $scope.$watch('proj', function(newValue, oldValue) {
-        if (newValue==='mercator') {
-          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
-            return proj.srs === 'EPSG:3857';
-          });
-        } else if (newValue==='latlon') {
+        if (newValue==='latlon') {
           $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
             return proj.srs === 'EPSG:4326';
+          });
+        } else if (newValue==='mercator') {
+          $scope.mapInfo.proj = _.find($scope.projs, function(proj) {
+            return proj.srs === 'EPSG:3857';
           });
         } else if (newValue==='other') {
           $scope.mapInfo.proj = $scope.customproj;
         }
+      });
+      $rootScope.$on(AppEvent.ProjSet, function() {
+        $scope.mapInfo.proj = $scope.customproj;
       });
     });
 
