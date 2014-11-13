@@ -88,7 +88,7 @@ angular.module('gsApp.workspaces.maps', [
 
       $scope.createMap = function() {
 
-        if ($scope.layers.length===0) {
+        if ($scope.layers && $scope.layers.length===0) {
           if (! $scope.datastores.length) {
             var nostores_modal = $modal.open({
               templateUrl: '/workspaces/detail/modals/nostores.tpl.html',

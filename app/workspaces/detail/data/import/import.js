@@ -11,12 +11,12 @@ angular.module('gsApp.workspaces.data.import', [
       $stateProvider.state('workspace.data.import.fileordb', {
         views: {
           'importfile@': {
-            url: '/file',
+            url: '/',
             templateUrl: '/workspaces/detail/data/import/import.file.tpl.html',
             controller: 'DataImportFileCtrl'
           },
           'importdb@': {
-            url: '/db',
+            url: '/',
             templateUrl:
               '/workspaces/detail/data/import/import.db.tpl.html',
             controller: 'DataImportDbCtrl'
