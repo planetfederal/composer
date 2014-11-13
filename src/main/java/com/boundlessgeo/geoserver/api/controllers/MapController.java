@@ -36,6 +36,7 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
+import org.opengis.feature.type.Name;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -339,7 +340,7 @@ public class MapController extends ApiController {
             String layerWorkspace = l.str("workspace");
             MapLayer mapLayer = lookup.get(layerName);
             if (mapLayer == null) {
-                LayerInfo layer = findLayer( layerWorkspace, layerName);
+                LayerInfo layer = findLayer( layerWorkspace, layerName, cat);
                 if (layer != null) {
                     mapLayer = new MapLayer(layer, layer.getDefaultStyle());
                 }
@@ -389,11 +390,11 @@ public class MapController extends ApiController {
         List<StyleInfo> appendStyles = new ArrayList<StyleInfo>();
         for (JSONObj l : Lists.reverse(Lists.newArrayList(layers.objects()))) {
             String layerName = l.str("name");
-            String layerWorkspace = l.str("worskpace");
+            String layerWorkspace = l.str("workspace");
             if( check.containsKey(layerName)){
                 throw new BadRequestException("Duplicate layer: " + l.toString() );
             }
-            LayerInfo layer = findLayer(layerWorkspace, layerName);
+            LayerInfo layer = findLayer(layerWorkspace, layerName, cat);
             if (layer == null) {
                 throw new NotFoundException("No such layer: " + l.toString());
             }
@@ -589,11 +590,6 @@ public class MapController extends ApiController {
         throw new NotFoundException(message);
     }
 
-    LayerInfo findLayer(String wsName, String name) {
-        Catalog cat = geoServer.getCatalog();
-        return wsName != null ? cat.getLayerByName(new NameImpl(wsName, name)) :
-            cat.getLayerByName(name);
-    }
     static class MapLayer {
         PublishedInfo layer;
         StyleInfo style;
