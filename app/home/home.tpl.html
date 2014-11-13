@@ -4,10 +4,10 @@
     <div class="row">
       <div class="col-sm-12">
         <div class="get-started">
-          <div class="get-started-header">
-            Getting Started with Composer
+          <div class="get-started-header" ng-click="isCollapsed = !isCollapsed">
+          Getting Started with Composer <span class="icon"><i class="fa" ng-class="{ 'fa-chevron-right': isCollapsed, 'fa-chevron-down': !isCollapsed }"></i><span>
           </div>
-          <div class="row steps">
+          <div class="row steps" collapse="isCollapsed" ng-init="isCollapsed=true">
             <div class="col-sm-4">
               <div class="icon-round">1</div> Create a Project Workspace
               <div class="step-content">
