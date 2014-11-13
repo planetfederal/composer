@@ -25,7 +25,14 @@ angular.module('gsApp.sidenav', [
       $scope.serverInfo = serverInfo;
 
       if ($scope.serverInfo.status == 200) { $scope.status = 'ok'; }
-      else { $scope.status = 'not running'; }
+      else {
+        $scope.status = 'not running';
+        $rootScope.alerts.push({
+          type: 'danger',
+          message: 'Server is not running.',
+          fadeout: true
+        });
+      }
     });
 
     // Hug partial menu to sidebar bottom if height's enough
