@@ -227,9 +227,14 @@ angular.module('gsApp.olmap', [])
       };
 
       OLMap.prototype.update = function() {
-        var layerNames = this.visibleLayerNames().reverse().join(',');
+        var visibleLayerNames = this.visibleLayerNames()
+        var layerNames = visibleLayerNames.reverse().join(',');
         var layer = this.olMap.getLayers().item(0);
-        layer.getSource().updateParams({ LAYERS: layerNames });
+        var visible = visibleLayerNames.length > 0;
+        layer.setVisible(visible);
+        if (visible) {
+          layer.getSource().updateParams({ LAYERS: layerNames });
+        }
       };
 
       OLMap.prototype.refresh = function() {
