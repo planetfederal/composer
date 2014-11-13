@@ -253,7 +253,7 @@ angular.module('gsApp.layers', [
             width: '7%'
           },
           {field: 'modified.timestamp',
-            displayName: 'Last Edited',
+            displayName: 'Modified',
             cellTemplate:
               '<div class="grid-text-padding">' +
                 '{{row.entity.modified.timestamp.substring(0, ' +

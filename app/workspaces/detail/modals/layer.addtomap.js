@@ -1,9 +1,12 @@
-angular.module('gsApp.workspaces.layers.addtomap', [])
+angular.module('gsApp.workspaces.layers.addtomap', [
+  'ngGrid'
+])
 .controller('AddToMapLayerCtrl', ['workspace', 'map', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer',
-  'AppEvent', 'layersListModel', '_',
+  'AppEvent', 'layersListModel', '_', '$timeout',
     function(workspace, map, $scope, $rootScope, $state, $log,
-      $modalInstance, GeoServer, AppEvent, layersListModel, _) {
+      $modalInstance, GeoServer, AppEvent, layersListModel, _,
+      $timeout) {
 
       $scope.workspace = workspace;
       $scope.map = map;
@@ -95,6 +98,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [])
       $scope.layerOptions = {
         data: 'layers',
         enableCellSelection: false,
+        filterOptions: $scope.filterOptions,
         enableRowSelection: false,
         enableCellEdit: false,
         enableRowReordering: false,
@@ -105,7 +109,8 @@ angular.module('gsApp.workspaces.layers.addtomap', [])
         int: function() {
           $log('done');
         },
-        sortInfo: {fields: ['name'], directions: ['asc']},
+        sortInfo: {fields: ['name', 'title', 'modified.timestamp',
+        'geometry'], directions: ['asc']},
         showSelectionCheckbox: false,
         selectWithCheckboxOnly: false,
         selectedItems: $scope.layerSelections,
@@ -137,6 +142,16 @@ angular.module('gsApp.workspaces.layers.addtomap', [])
               '<div class="grid-text-padding"' +
                 'ng-show="row.entity.alreadyInMap">' +
               'Already in map</div>',
+            width: '10%'
+          },
+          {field: 'modified.timestamp',
+            displayName: 'Modified',
+            cellClass: 'text-center',
+            cellFilter: 'modified.timestamp',
+            cellTemplate:
+              '<div class="grid-text-padding"' +
+                'ng-show="row.entity.modified">' +
+              '{{ row.entity.modified.pretty }}</div>',
             width: '20%'
           },
           {field: 'geometry',
@@ -155,4 +170,62 @@ angular.module('gsApp.workspaces.layers.addtomap', [])
         totalServerItems: 'totalServerItems',
         pagingOptions: $scope.pagingOptions
       };
+
+      $scope.$watch('layerOptions.ngGrid.config.sortInfo', function() {
+        $scope.refreshLayers();
+      }, true);
+
+      var refreshTimer = null;
+      $scope.refreshLayers = function() {
+        if (refreshTimer) {
+          $timeout.cancel(refreshTimer);
+        }
+        refreshTimer = $timeout(function() {
+          $scope.serverRefresh();
+        }, 800);
+      };
+      $scope.serverRefresh = function() {
+        $scope.sort = '';
+        $scope.ws = $scope.workspace;
+        if ($scope.filterOptions.filterText == '' &&
+          $scope.layerOptions.sortInfo.fields.length > 4) {
+          if ($scope.layerOptions.sortInfo.directions == 'asc') {
+            $scope.sort = $scope.layerOptions.sortInfo.fields+':asc';
+          } else {
+            $scope.sort = $scope.layerOptions.sortInfo.fields+':desc';
+          }
+        }
+
+        if ($scope.ws) {
+          GeoServer.layers.get(
+            $scope.ws.name,
+            $scope.pagingOptions.currentPage-1,
+            $scope.pagingOptions.pageSize,
+            $scope.sort,
+            $scope.filterOptions.filterText
+          ).then(function(result) {
+            if (result.success) {
+              $scope.layers = result.data.layers;
+              $scope.totalServerItems = result.data.total;
+              $scope.itemsPerPage = $scope.pagingOptions.pageSize;
+
+              if ($scope.filterOptions.filterText.length > 0) {
+                $scope.totalItems =
+                  $scope.layerOptions.ngGrid.filteredRows.length;
+              }
+              else {
+                $scope.totalItems = $scope.totalServerItems;
+              }
+            } else {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Layers for workspace ' + $scope.ws.name +
+                  ' could not be loaded.',
+                fadeout: true
+              }];
+            }
+          });
+        }
+      };
+
     }]);
