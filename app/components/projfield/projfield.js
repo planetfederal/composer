@@ -63,7 +63,7 @@ angular.module('gsApp.projfield', [
               }
               $scope.t = $timeout(function() {
                 $scope.validateProj();
-                $rootScope.$broadcast(AppEvent.ProjSet);
+                $rootScope.$broadcast(AppEvent.ProjSet, $scope.proj);
               }, 1000);
             }
           });
