@@ -135,7 +135,6 @@
     }
 
     .layer-summary-detail {
-      border: 1px solid @light-gray;
       display: inline-block;
       vertical-align: top;
       box-shadow: 2px 2px 4px #999;
@@ -146,39 +145,98 @@
       .layer-icon {
         display: inline-block;
         float: left;
-        margin: 10px;
-        padding-top: 10px;
-        height: 60px;
-        width: 50px;
+        margin: 10px 12px 0 10px;
+        padding-top: 5px;
+        height: 32px;
+        width: 32px;
         text-align: center;
 
         .icon-for-layer {
           display: inline-block;
-          color: @black;
-          font-size: 36px;
+          color: @gray;
+          font-size: 28px;
         }
       }
-      .detail {
+      .layer-info-section {
+        background-color: @white;
+        &:hover {
+          background-color: @almost-white;
+        }
+      }
+      .layer-detail {
         display: inline-block;
         padding: 10px 10px 5px 0;
-        max-width: 70%;
+        max-width: 80%;
         text-overflow: ellipsis;
-        div {
-          line-height: 20px;
+        color: @dark-gray;
+
+        .layer-title {
+          font-size: 11px;
         }
       }
-      .layer-details-footer {
-        outline: 1px solid @gray;
-        clear: both;
-        background-color: @gray;
-        padding: 2px 10px;
+      .layer-detail-inside-footer {
+        width: 100%;
+        margin: 0 10px 5px 10px;
+        display: inline-block;
         text-align: center;
-        a {
-          color: @very-lt-gray;
-          font-size: 10px;
-          padding-right: 10px;
-          &:hover {
+
+        .layer-attr {
+          font-size: 11px;
+          margin-bottom: 5px;
+          margin-right: 10px;
+          display: inline-block;
+
+          .attr-num {
+            padding: 0 6px 1px;
+            .border-radius(2px, 2px, 2px, 2px);
+            background-color: @md-lt-gray;
             color: @white;
+            font-weight: bold;
+          }
+          a {
+            color: @black;
+          }
+        }
+
+        .layer-mod {
+          font-size: 11px;
+          margin-bottom: 5px;
+          display: inline-block;
+          color: @dark-gray;
+        }
+      }
+      .layer-detail-outside-footer {
+        outline: 0;
+        border-top: 1px solid @white;
+        text-align: center;
+        width: 100%;
+        display: inline-block;
+        color: @almost-white;
+
+        .footer {
+          padding: 4px 8px;
+          text-align: center;
+          width: 33.33333%;
+          font-size: 11px;
+          line-height: 16px;
+          display: inline-block;
+          background-color: @gray;
+
+          &:hover {
+            background-color: @very-lt-gray;
+            color: @dark-gray;
+          }
+
+          &.left-footer {
+            border-right: 1px solid @light-gray;
+            float: left;
+          }
+          &.middle-footer {
+            clear: both;
+          }
+          &.right-footer {
+            border-left: 1px solid @light-gray;
+            float: right;
           }
         }
       }
