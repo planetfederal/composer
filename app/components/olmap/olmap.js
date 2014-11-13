@@ -203,10 +203,10 @@ angular.module('gsApp.olmap', [])
             var gfi = mapLayer.getSource().getGetFeatureInfoUrl(
                 evt.coordinate,
                 view.getResolution(), view.getProjection(),
-                {'INFO_FORMAT': 'application/json'});
+                {'INFO_FORMAT': 'application/json', 'FEATURE_COUNT': 50});
             $.ajax(gfi).then(function(response) {
               if (response && response.features) {
-                mapOpts.featureInfo(response.features);
+                mapOpts.featureInfo(response.features.reverse());
               }
             });
           });
@@ -227,7 +227,7 @@ angular.module('gsApp.olmap', [])
       };
 
       OLMap.prototype.update = function() {
-        var visibleLayerNames = this.visibleLayerNames()
+        var visibleLayerNames = this.visibleLayerNames();
         var layerNames = visibleLayerNames.reverse().join(',');
         var layer = this.olMap.getLayers().item(0);
         var visible = visibleLayerNames.length > 0;
