@@ -42,7 +42,7 @@
         <div>
           <div ng-show="selectedStore && !selectedStore.enabled">Source is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
         </div>
-        <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Location:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:24:true }}</span></div>
+        <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Location:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:35:true }}</span></div>
         <div class="resources">
           <div class="resources-header">
             <span>Data Sets in {{ selectedStore.name }}</span>

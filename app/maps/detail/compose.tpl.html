@@ -16,13 +16,15 @@
           </div>
           <div class="col-md-6 info">
             <div class="top">
-              <a ng-click="toggleLayers()">{{ map.layers.length }} Layers</a>
-              <i class="fa fa-plus-circle add-layer"></i><a href ng-click="addMapLayer()"> Add Layer</a>
+              <a class="layers-toggle" ng-click="toggleLayers()">{{ map.layers.length }} Layers</a>
+              <button class="btn btn-default btn-sm add-layer" ng-click="addMapLayer()"><i class="fa fa-plus"></i> Add Layer</button>
               <div class="currently_editing">
                 Editing: <strong>{{ activeLayer.name }}</strong>
               </div>
               <div class="shortcuts">
-                <a ng-click="showShortcuts()"><i class="icon-keyboard icon-lg"></i></a>
+                <a ng-click="showShortcuts()">
+                  <i class="icon-keyboard icon-lg"></i>
+                </a>
               </div>
             </div>
           </div>
@@ -37,20 +39,20 @@
     <div class="col-md-6">
       <div class="editor-background">
         <div class="map-layers" ng-class="{show: toggle == true}">
+          <div class="reorder-info">Drag to Reorder</div>
           <ul ui-sortable="{stop:layersReordered}" ng-model="map.layers"
               class="list-unstyled">
             <li ng-repeat="l in map.layers" ng-click="selectLayer(l)"
               ng-class="{active: activeLayer == l}" >
               <div class="map-layer">
-                <input type="checkbox" ng-model="l.visible" ng-click="toggleVisibility(l, $index)">
+                <input type="checkbox" ng-model="l.visible" ng-click="toggleVisibility(l, $index)" />
               {{ l.name }}
               </div>
               <div class="map-layer-overlay text-right">
                 <span class="icons">
-                  <i class="fa fa-arrows-v" title="Reorder Layer"></i>
                   <i class="fa fa-arrow-circle-o-left" title="Zoom To Layer"
                     ng-click="zoomToLayer(l)"></i>
-                  <i class="fa fa-times-circle" title="Remove Layer"
+                  <i class="fa fa-trash" title="Remove Layer"
                     ng-click="removeLayer(l, $index)"></i>
                 </span>
               </div>

@@ -13,7 +13,7 @@ angular.module('gsApp.styleditor.shortcuts', [])
 
       $scope.shortcuts = [
         { 'name': 'Save', 'keys': 'Ctrl-S'},
-        { 'name': 'Autocomplete', 'keys': 'Ctrl-Spc'},
+        { 'name': 'Autocomplete', 'keys': 'Ctrl-Spacebar'},
         { 'name': 'Code fold/unfold', 'keys': 'Ctrl-F'},
         { 'name': 'Select line', 'keys': 'Shift-Up/Down'}
       ];
