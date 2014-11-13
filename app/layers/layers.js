@@ -102,9 +102,9 @@ angular.module('gsApp.layers', [
               $scope.layer = layer.name;
 
               $scope.ok = function() {
-                $window.alert('TODO: remove the layer "' + layer.name + '"' +
-                  'from the workspace: ' + $scope.workspace.selected + '.');
-                //GeoServer.layer.remove(layer.name);
+                //$window.alert('TODO: remove the layer "' + layer.name + '"' +
+                  //'from the workspace: ' + layer.workspace + '.');
+                GeoServer.layer.delete(layer.workspace, layer.name);
                 $modalInstance.dismiss('cancel');
               };
 
