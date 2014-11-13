@@ -44,11 +44,11 @@
               <div class="otherinfo"><i class="icon-stack"></i> {{ map.layer_count }} Layer<span ng-if="map.layer_count==0 || map.layer_count>1">s</span></div>
               <div class="otherinfo"><i class="icon-compass"></i> {{ map.proj.srs }}</div>
               <div class="otherinfo" ng-if="map.modified.pretty"><i class="icon-clock"></i> {{ map.modified.pretty }}</div>
+              <div class="btn-group map-summary-links">
+                <button type="button" class="btn btn-default btn-sm map-link-icon" ng-click="editMapSettings(map);"><i class="fa fa-gear"></i></button>
+                <button type="button" class="btn btn-default btn-sm map-link-icon link" ng-click="newOLWindow(map);"><i class="icon-link"></i></button>
+              </div>
             </div>
-          </div>
-          <div class="map-summary-links">
-            <a class="map-link-icon" ng-click="newOLWindow(map);"><i class="fa fa-link"></i></a>
-            <a class="map-link-icon bottom" ng-click="editMapSettings(map);"><i class="fa fa-gear"></i></a>
           </div>
           <div class="abstract" ng-if="map.description"><strong>Description:</strong> {{sanitizeHTML(map.description)}}</div>
         </div>

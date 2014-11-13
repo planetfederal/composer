@@ -84,9 +84,7 @@
     }
 
     .map-wrapper {
-      border: 1px solid @light-gray;
-      .box-shadow(0 1px 1px @very-lt-bl-gray);
-      .border-radius(3px, 3px, 3px, 3px);
+      border: 0;
     }
 
     img.mapthumb {
@@ -96,12 +94,12 @@
       width: 175px;
       height: 175px;
       .border-radius(0, 0, 3px, 3px);
+      .box-shadow(2px 2px 3px @gray);
     }
     img:hover {
-      outline: 3px solid @skyblue;
+      outline: 3px solid @monacoblue;
     }
     .map-summary-detail {
-      margin-top: 10px;
       margin-left: 15px;
       display: inline-block;
       vertical-align: top;
@@ -111,7 +109,8 @@
         margin-bottom: 15px;
       }
       .map-name {
-        font-size: 1.5em;
+        font-size: 1.3em;
+        font-weight: bold;
       }
       .map-title {
         margin-top: 5px;
@@ -134,26 +133,19 @@
       }
     }
     .map-summary-links {
-      float: right;
-      width: 30px;
-      height: 175px;
+      margin-top: 10px;
+      .box-shadow(0 1px 1px @gray);
+      .border-radius(3px, 3px, 3px, 3px);
 
-      a.map-link-icon {
-        text-align: right;
+      .map-link-icon {
         color: @md-lt-gray;
-        font-size: 1.3em;
-        display: block;
-        padding: 5px 8px;
-
-        &.bottom {
-          margin-top: 120px;
-          border-left: 1px solid @light-gray;
-          border-top: 1px solid @light-gray;
-          border-bottom: 0;
-        }
 
         &:hover {
-           color: @monacoblue;
+          color: @monacoblue;
+        }
+
+        .link {
+          font-size: 11px;
         }
       }
     }
