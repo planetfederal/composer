@@ -40,10 +40,49 @@ angular.module('gsApp.workspaces.layers', [
         }
       }, 300);
 
-      layersListModel.fetchLayers($scope.workspace).then(
-        function() {
-          $scope.layers = layersListModel.getLayers();
-        });
+      $scope.currentPage = 1;
+      $scope.pagingOptions = {
+        pageSizes: [25, 50, 100],
+        pageSize: 25,
+        currentPage: 1
+      };
+      $scope.filterOptions = {
+          filterText: ''
+        };
+      $scope.sortOptions = '';
+
+      $scope.serverRefresh = function() {
+          // only use paging if many layers on server
+          if ($scope.totalItems > $scope.pagingOptions.pageSize) {
+          layersListModel.fetchPagedLayers(
+            $scope.workspace,
+            $scope.pagingOptions.currentPage,
+            $scope.pagingOptions.pageSize,
+            $scope.sortOptions,
+            $scope.filterOptions.filterText
+          ).then(function() {
+              $scope.layers = layersListModel.getLayers();
+              $scope.totalItems = layersListModel.getTotalServerItems();
+            });
+        } else {
+           layersListModel.fetchLayers($scope.workspace).then(
+            function() {
+              $scope.layers = layersListModel.getLayers();
+              $scope.totalItems = layersListModel.getTotalServerItems();
+            });
+        }
+      };
+      $scope.serverRefresh();
+
+      var refreshTimer = null;
+      $scope.refreshLayers = function() {
+        if (refreshTimer) {
+          $timeout.cancel(refreshTimer);
+        }
+        refreshTimer = $timeout(function() {
+          $scope.serverRefresh();
+        }, 800);
+      };
 
       $scope.mapsHome = function() {
         if (!$state.is('workspace.maps.main')) {
@@ -71,6 +110,23 @@ angular.module('gsApp.workspaces.layers', [
         $scope.maps = mapsListModel.getMaps();
         $scope.mapOptions = $scope.maps.concat(
           [{'name': 'Create New Map'}]);
+      });
+
+      $scope.$watch('predicate', function(newVal, oldVal) {
+        if (newVal && newVal !== oldVal) {
+          var sortOrder = ':asc';
+          if (newVal === 'modified.timestamp') {
+            sortOrder = ':desc';
+          }
+          $scope.sortOptions = newVal + sortOrder;
+        }
+        $scope.refreshLayers();
+      });
+
+      $scope.$watch('pagingOptions.currentPage', function(newVal) {
+        if (newVal) {
+          $scope.refreshLayers();
+        }
       });
 
       $scope.showAttrs = function(layerOrResource, attributes) {
@@ -272,6 +328,11 @@ angular.module('gsApp.workspaces.layers', [
 .service('layersListModel', function(GeoServer, _, $rootScope) {
   var _this = this;
   this.layers = null;
+  this.totalServerItems = 0;
+
+  this.getTotalServerItems = function() {
+    return _this.totalServerItems;
+  };
 
   this.getLayers = function() {
     return _this.layers;
@@ -316,12 +377,47 @@ angular.module('gsApp.workspaces.layers', [
                 return layer;
               }
             });
+           _this.totalServerItems = result.data.total;
           // sort by timestamp
           _this.setLayers(_this.sortByTime(layers));
         } else {
           $rootScope.alerts = [{
             type: 'warning',
             message: 'Unable to load workspace layers.',
+            fadeout: true
+          }];
+        }
+      });
+  };
+
+  this.fetchPagedLayers = function(workspace, currentPage,
+    pageSize, sort, filterText) {
+    return GeoServer.layers.get(
+      workspace,
+      currentPage-1,
+      pageSize,
+      sort,
+      filterText
+    ).then(function(result) {
+        if (result.success) {
+          var layers = _.map(result.data.layers,
+            function(layer) {
+              if (layer.modified) {  // convert time strings to Dates
+                return _.assign(layer, {'modified': {
+                  'timestamp': new Date(layer.modified.timestamp),
+                  'pretty': layer.modified.pretty
+                }});
+              } else {
+                return layer;
+              }
+            });
+          _this.totalServerItems = result.data.total;
+          // sort by timestamp
+          _this.setLayers(_this.sortByTime(layers));
+        } else {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Unable to load paged workspace layers.',
             fadeout: true
           }];
         }
