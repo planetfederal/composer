@@ -165,7 +165,13 @@ angular.module('gsApp.core.backend',[])
 
         layers: {
           get: function(workspace, page, count, sort, filter) {
-            workspace = workspace? workspace : 'default';
+            if (workspace) {
+              if (workspace.name) {
+                workspace = workspace.name;
+              }
+            } else {
+              workspace = 'default';
+            }
             page = page? page : 0;
             count = count? count : 25;
             sort = sort? '&sort='+sort : '';

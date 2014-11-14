@@ -11,22 +11,6 @@ angular.module('gsApp.workspaces.layers.addtomap', [
       $scope.workspace = workspace;
       $scope.map = map;
 
-      layersListModel.fetchLayers(workspace).then(
-        function() {
-          $scope.layers = layersListModel.getLayers();
-
-          // disable layers already in map
-          for (var k=0; k < $scope.layers.length; k++) {
-            var layer = $scope.layers[k];
-            for (var j=0; j < map.layers.length; j++) {
-              var mapLayer = map.layers[j];
-              if (layer.name===mapLayer.name) {
-                layer.alreadyInMap = true;
-              }
-            }
-          }
-        });
-
       $scope.addSelectedToMap = function() {
         var mapInfo = {
           'name': map.name
@@ -42,13 +26,14 @@ angular.module('gsApp.workspaces.layers.addtomap', [
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,
           mapInfo.layersToAdd).then(function(result) {
             if (result.success) {
+              $scope.map.layers = result.data;
               $rootScope.alerts = [{
                 type: 'success',
                 message: mapInfo.layersToAdd.length +
                   ' layer(s) added to map ' + mapInfo.name + '.',
                 fadeout: true
               }];
-              $scope.close();
+              $scope.close('added');
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
@@ -141,7 +126,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
             cellTemplate:
               '<div class="grid-text-padding"' +
                 'ng-show="row.entity.alreadyInMap">' +
-              'Already in map</div>',
+              'In Map</div>',
             width: '10%'
           },
           {field: 'modified.timestamp',
@@ -166,10 +151,16 @@ angular.module('gsApp.workspaces.layers.addtomap', [
         ],
         enablePaging: true,
         enableColumnResize: false,
-        showFooter: true,
+        showFooter: false,
         totalServerItems: 'totalServerItems',
         pagingOptions: $scope.pagingOptions
       };
+
+      $scope.$watch('pagingOptions.currentPage', function(newVal) {
+        if (newVal) {
+          $scope.refreshLayers();
+        }
+      });
 
       $scope.$watch('layerOptions.ngGrid.config.sortInfo', function() {
         $scope.refreshLayers();
@@ -184,9 +175,20 @@ angular.module('gsApp.workspaces.layers.addtomap', [
           $scope.serverRefresh();
         }, 800);
       };
+      function disableExistingLayers() {
+        // disable layers already in map
+        for (var k=0; k < $scope.layers.length; k++) {
+          var layer = $scope.layers[k];
+          for (var j=0; j < map.layers.length; j++) {
+            var mapLayer = map.layers[j];
+            if (layer.name===mapLayer.name) {
+              layer.alreadyInMap = true;
+            }
+          }
+        }
+      }
       $scope.serverRefresh = function() {
         $scope.sort = '';
-        $scope.ws = $scope.workspace;
         if ($scope.filterOptions.filterText == '' &&
           $scope.layerOptions.sortInfo.fields.length > 4) {
           if ($scope.layerOptions.sortInfo.directions == 'asc') {
@@ -195,10 +197,9 @@ angular.module('gsApp.workspaces.layers.addtomap', [
             $scope.sort = $scope.layerOptions.sortInfo.fields+':desc';
           }
         }
-
-        if ($scope.ws) {
+        if ($scope.workspace) {
           GeoServer.layers.get(
-            $scope.ws.name,
+            $scope.workspace,
             $scope.pagingOptions.currentPage-1,
             $scope.pagingOptions.pageSize,
             $scope.sort,
@@ -206,6 +207,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
           ).then(function(result) {
             if (result.success) {
               $scope.layers = result.data.layers;
+              disableExistingLayers();
               $scope.totalServerItems = result.data.total;
               $scope.itemsPerPage = $scope.pagingOptions.pageSize;
 
@@ -219,7 +221,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
-                message: 'Layers for workspace ' + $scope.ws.name +
+                message: 'Layers for workspace ' + $scope.workspace +
                   ' could not be loaded.',
                 fadeout: true
               }];

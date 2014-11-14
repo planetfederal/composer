@@ -52,8 +52,8 @@ angular.module('gsApp.workspaces.layers', [
       $scope.sortOptions = '';
 
       $scope.serverRefresh = function() {
-          // only use paging if many layers on server
-          if ($scope.totalItems > $scope.pagingOptions.pageSize) {
+        // only use paging if many layers on server
+        if ($scope.totalItems > $scope.pagingOptions.pageSize) {
           layersListModel.fetchPagedLayers(
             $scope.workspace,
             $scope.pagingOptions.currentPage,
@@ -65,7 +65,7 @@ angular.module('gsApp.workspaces.layers', [
               $scope.totalItems = layersListModel.getTotalServerItems();
             });
         } else {
-           layersListModel.fetchLayers($scope.workspace).then(
+          layersListModel.fetchLayers($scope.workspace).then(
             function() {
               $scope.layers = layersListModel.getLayers();
               $scope.totalItems = layersListModel.getTotalServerItems();
@@ -377,7 +377,7 @@ angular.module('gsApp.workspaces.layers', [
                 return layer;
               }
             });
-           _this.totalServerItems = result.data.total;
+          _this.totalServerItems = result.data.total;
           // sort by timestamp
           _this.setLayers(_this.sortByTime(layers));
         } else {
