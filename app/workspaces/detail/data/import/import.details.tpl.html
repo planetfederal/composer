@@ -13,8 +13,26 @@
     </p>
     <div ng-grid="completedGridOpts"></div>
   </div>
+  <div ng-if="import.failed.length > 0">
+    <h3>Failed Layers</h3>
+    <p>
+      The following layers failed to import:
+      <ul class="list-unstyled">
+        <li ng-repeat="failed in import.failed">{{ failed.file }}</li>
+      </ul>
+    </p>
+  </div>
+  <div ng-if="import.ignored.length > 0">
+    <h3>Ignored Layers</h3>
+    <p>
+      The following layers were not recognized:
+      <ul class="list-unstyled">
+        <li ng-repeat="ignored in import.ignored">{{ ignored.file }}</li>
+      </ul>
+    </p>
+  </div>
 
-  <div class="row map-choice" ng-show="!mapInfo">
+  <div class="row map-choice" ng-show="!mapInfo && (import.imported.length > 0 || import.pending.length > 0)">
     <div class="col-sm-6 text-center">
       <div class="lead">Add Selected Layers above<br/>to an Existing Map: </div>
       <div class="map-picker">
