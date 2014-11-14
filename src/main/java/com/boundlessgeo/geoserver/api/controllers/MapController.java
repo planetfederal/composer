@@ -436,7 +436,7 @@ public class MapController extends ApiController {
 
         for (Ref ref : recent.list(LayerGroupInfo.class)) {
             LayerGroupInfo map = cat.getLayerGroup(ref.id);
-            if( checkMap( map ) ){
+            if( map != null && checkMap( map ) ){
                 JSONObj obj = arr.addObject();
                 map(obj, map, map.getWorkspace().getName());
             }

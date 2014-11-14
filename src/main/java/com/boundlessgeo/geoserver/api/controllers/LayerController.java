@@ -612,7 +612,9 @@ public class LayerController extends ApiController {
         
         for (Ref ref : recent.list(LayerInfo.class)) {
             LayerInfo layer = cat.getLayer(ref.id);
-            IO.layer(arr.addObject(), layer, req);
+            if (layer != null) {
+                IO.layer(arr.addObject(), layer, req);
+            }
         }
         return arr;
     }
