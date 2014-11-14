@@ -62,6 +62,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'font-size': scalar,
           'font-style': scalar,
           'font-weight': scalar,
+          'priority': scalar,
           'placement': mapping,
           'color-map': mapping,
           'contrast-enhancement': mapping,
@@ -71,7 +72,24 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'format': scalar,
           'type': scalar,
           'halo': mapping,
-          'radius': scalar
+          'radius': scalar,
+          'x-allowOverruns': scalar,
+          'x-autoWrap': scalar,
+          'x-conflictResolution': scalar,
+          'x-followLine': scalar,
+          'x-forceLeftToRight': scalar,
+          'x-goodnessOfFit': scalar,
+          'x-graphic-margin': scalar,
+          'x-graphic-resize': scalar,
+          'x-group': scalar,
+          'x-labelAllGroup': scalar,
+          'x-repeat': scalar,
+          'x-maxAngleDelta': scalar,
+          'x-maxDisplacement': scalar,
+          'x-minGroupDistance': scalar,
+          'x-partials': scalar,
+          'x-polygonAlign': scalar,
+          'x-spaceAround': scalar
         };
 
         this.mappings = {
@@ -144,7 +162,25 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'font-style',
             'font-weight',
             'halo',
+            'priority',
             'placement',
+            'x-allowOverruns',
+            'x-autoWrap',
+            'x-conflictResolution',
+            'x-followLine',
+            'x-forceLeftToRight',
+            'x-goodnessOfFit',
+            'x-graphic-margin',
+            'x-graphic-resize',
+            'x-group',
+            'x-labelAllGroup',
+            'x-repeat',
+            'x-maxAngleDelta',
+            'x-maxDisplacement',
+            'x-minGroupDistance',
+            'x-partials',
+            'x-polygonAlign',
+            'x-spaceAround'
           ],
           'raster': [
             'color-map',
@@ -190,18 +226,42 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           ]
         };
 
-        this.values = {
-          'label': function(state, cm) {
-            return state.options.layer.schema.attributes.map(function(att) {
-              return {displayText: att.name, text: '[' + att.name + ']'};
+        var completeAttribute = function(state, cm) {
+          var atts = state.options.layer.schema.attributes;
+
+          // filter by current value
+          var line = state.line;
+          if (line.val && line.val.length > 0) {
+            atts = atts.filter(function(att) {
+              return att.name.indexOf(line.val) == 0;
             });
           }
+
+          return atts.map(function(att) {
+            //text = text.replace(new RegExp('^'+state.line.key), '');
+            return {displayText: att.name, text: '${' + att.name + '}'};
+          });
+        };
+
+        this.values = {
+          'label': completeAttribute,
+          'priority': completeAttribute
         };
       };
 
-      YsldHinter.prototype.strip = function(line) {
-        return line.replace(/^[ -]*/,'').replace(/:.*/,'')
-          .replace(/ *#.*/g, '');
+      YsldHinter.prototype.parseLine = function(line) {
+        // preparse, remove sequence '-'
+        var pre = line.replace(/^[ -]*/,'');
+
+        // ignore any comments
+        pre = pre.replace(/ *#.*/g, '');
+
+        // split into key / value
+        return {
+          raw: line,
+          key: pre.replace(/:.*/,''),
+          val: pre.replace(/.*:/,'').trim()
+        };
       };
 
       YsldHinter.prototype.indent = function(line) {
@@ -220,9 +280,9 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         indent = indent > -1 ? indent : cm.getCursor().ch;
         while (i > 0) {
           i--;
-          var line = cm.getLine(i);
+          var line = this.parseLine(cm.getLine(i));
 
-          if (this.indent(line) < indent && this.strip(line) != '') {
+          if (this.indent(line.raw) < indent && line.key != '') {
             return line;
           }
         }
@@ -230,29 +290,29 @@ angular.module('gsApp.styleditor.ysldhinter', [])
 
       YsldHinter.prototype.lookupHints = function(state, cm) {
         var self = this;
-        if (state.parent.line in this.mappings) {
-          var children = this.mappings[state.parent.line];
+        if (state.parent.line.key in this.mappings) {
+          var children = this.mappings[state.parent.line.key];
           if (children != null) {
-            if (state.line.length > 0) {
+            if (state.line.key.length > 0) {
               // filter out children based on content of line
               children = children.filter(function(child) {
-                return child.indexOf(state.line) == 0;
+                return child.indexOf(state.line.key) == 0;
               });
             }
 
-            if (children.length == 1 && children[0] == state.line) {
+            if (children.length == 1 && children[0] == state.line.key) {
               // look for a value mapping
-              var complete = self.values[state.line];
+              var complete = self.values[state.line.key];
               return complete ? complete(state, cm) : [];
             }
 
             return children.map(function(child) {
               var complete = self.completions[child];
               var text = complete ? complete(child, state, cm) : child;
-              if (state.line.length > 0) {
+              if (state.line.key.length > 0) {
                 // strip off the current element prefix to complete only
                 // the rest
-                text = text.replace(new RegExp('^'+state.line), '');
+                text = text.replace(new RegExp('^'+state.line.key), '');
               }
               // if (text.match(/^\s*:\s*$/)) {
               //   // full completion, just return null
@@ -274,14 +334,14 @@ angular.module('gsApp.styleditor.ysldhinter', [])
 
         var line = cm.getLine(cursor.line);
         var state = {
-          line: this.strip(line),
+          line: this.parseLine(line),
           indent: this.indent(line),
           options: options
         };
 
         if (cursor.ch == 0) {
           state.parent = {
-            line: '',
+            line: {key: null, val: null},
             indent: 0
           };
           hints = this.lookupHints(state, cm);
@@ -290,8 +350,8 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           var parentLine = this.findParent(cm);
           if (parentLine != null) {
             state.parent = {
-              line: this.strip(parentLine),
-              indent: this.indent(parentLine)
+              line: parentLine,
+              indent: this.indent(parentLine.raw)
             };
 
             hints = this.lookupHints(state, cm);
