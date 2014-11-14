@@ -51,7 +51,8 @@ angular.module('gsApp.maps', [
           templateUrl: '/maps/addnewmap-modal.tpl.html',
           backdrop: 'static',
           controller: ['$scope', '$window', '$modalInstance', '$state',
-            function($scope, $window, $modalInstance, $state) {
+            '$timeout',
+            function($scope, $window, $modalInstance, $state, $timeout) {
               $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
               $scope.workspace = ws;
               $scope.mapInfo = {
@@ -116,11 +117,12 @@ angular.module('gsApp.maps', [
               }; // end createMap
 
               $scope.createNewLayers = function() {
-                $state.go('workspace.data.import.file', {
-                  workspace: $scope.workspace,
-                  maps: [$scope.mapInfo]
-                });
-                $modalInstance.dismiss('cancel');
+                $timeout(function() {
+                  $rootScope.$broadcast(AppEvent.ImportData, $scope.mapInfo);
+                }, 250);
+                // go to this state to initiate listener for broadcast above!
+                $state.go('workspace.data.import',
+                  {workspace: $scope.workspace});
               };
 
               $scope.cancel = function() {
