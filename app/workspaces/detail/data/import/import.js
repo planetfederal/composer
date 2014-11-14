@@ -299,6 +299,7 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.import = $stateParams.import;
       $scope.layerSelections = [];
 
+
       // if mapInfo's defined it's import not create map workflow
       if (!mapInfoModel.getMapInfo()) {
         GeoServer.maps.get($scope.workspace).then(
