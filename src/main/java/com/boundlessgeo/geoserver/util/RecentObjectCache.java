@@ -21,6 +21,10 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Tracks recently used objects.
+ * <p>
+ * Any code that tracks objects in this cache must handle the case of the
+ * object not existing in the GeoServer configuration.
+ * </p>
  */
 @Component
 public class RecentObjectCache {
