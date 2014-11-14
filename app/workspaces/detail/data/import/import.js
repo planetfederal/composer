@@ -601,7 +601,7 @@ angular.module('gsApp.workspaces.data.import', [
             $timeout.cancel(timeout);
           }
           timeout = $timeout(function() {
-            mapInfoModel.setMapInfo = $scope.mapInfo;
+            mapInfoModel.setMapInfo($scope.mapInfo);
           }, 1000);
         }
       };

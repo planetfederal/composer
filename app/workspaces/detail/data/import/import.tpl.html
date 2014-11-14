@@ -38,7 +38,7 @@
         <alert ng-if="importResult.failed.length > 0" type="danger">
         {{ importResult.failed.length }} layers resulted in an error.
         </alert>
-        <div class="text-right">
+        <div class="import-error text-right">
           <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
             Details &rarr;
           </button>
