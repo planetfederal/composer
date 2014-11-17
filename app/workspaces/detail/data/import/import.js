@@ -307,7 +307,7 @@ angular.module('gsApp.workspaces.data.import', [
         GeoServer.maps.get($scope.workspace).then(
           function(result) {
             if (result.success) {
-              $scope.maps = result.data;
+              $scope.maps = result.data.maps;
             }
           });
       }

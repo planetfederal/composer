@@ -126,21 +126,7 @@ public class LayerController extends ApiController {
         }
         Integer total = cat.count(LayerInfo.class, filter);
 
-        SortBy sortBy = null;
-        if (sort != null) {
-            String[] sortArr = sort.split(":", 2);
-            if (sortArr.length == 2) {
-                if (sortArr[1].equals("asc")) {
-                    sortBy = Predicates.asc(sortArr[0]);
-                } else if (sortArr[1].equals("desc")) {
-                    sortBy = Predicates.desc(sortArr[0]);
-                } else {
-                    throw new BadRequestException("Sort order must be \"asc\" or \"desc\"");
-                }
-            } else {
-                sortBy = Predicates.asc(sortArr[0]);
-            }
-        }
+        SortBy sortBy = parseSort(sort);
 
         obj.put("total", total);
         obj.put("page", page != null ? page : 0);

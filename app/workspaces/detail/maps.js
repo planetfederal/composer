@@ -251,7 +251,7 @@ angular.module('gsApp.workspaces.maps', [
     return GeoServer.maps.get(workspace).then(
       function(result) {
         if (result.success) {
-          var maps = _.map(result.data,
+          var maps = _.map(result.data.maps,
             function(map) {
               if (map.modified) {  // convert time strings to Dates
                 return _.assign(map, {'modified': {
