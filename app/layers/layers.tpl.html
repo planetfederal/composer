@@ -1,6 +1,22 @@
 <div>
   <div class="container-fluid">
-    <h3 class="page-title"><i class="icon-lg icon-stack"></i> {{title}}</h3>
+    <h3 class="page-title">
+      <i class="icon-lg icon-stack"></i> {{title}}
+      <span class="workspace-buttons">
+        <span class="divider"></span>
+        <a class="newmap" ng-click="createMap(workspace.selected.name);">
+          <i class="icon-plus icon"></i> <span class="text">New Map</span>
+        </a>
+        <span class="divider"></span>
+        <a class="import" ng-click="importData(workspace.selected.name);">
+          <i class="fa fa-share icon"></i> <span class="text">Add Data</span>
+        </a>
+        <span class="divider"></span>
+        <a class="settings" ng-click="go('workspace.settings', workspace.selected.name);">
+          <i class="fa fa-gear icon"></i> <span class="text">Settings</span>
+        </a>
+      </span>
+    </h3>
     <div class="page-content all-layers">
       <div class="workspace-choice">
         <div class="workspace-label">Project Workspace:</div>
@@ -14,12 +30,7 @@
             </ui-select-choices>
           </ui-select>
         </div>
-        <input type="text" class="form-control grid-filter" ng-model="filterOptions.filterText" placeholder="Filter by name, title, description..." size="25" ng-change="refreshLayers()" />
-        <!--<span>
-          <button type="button" class="new-layer-btn btn btn-primary btn-sm pull-right inline" ng-click="addLayer(workspace.selected.name)" alt="Add New Layer" title="Add New Layer">
-            + New Layer
-          </button>
-        </span>-->
+        <input type="text" class="pull-right input-sm form-control grid-filter" ng-model="filterOptions.filterText" placeholder="Filter by name, title, description..." size="25" ng-change="refreshLayers()" />
       </div>
       <div ng-grid="gridOptions"></div>
       <!--<div class="selectedItems">Selections: {{gridSelections}}</div>-->
