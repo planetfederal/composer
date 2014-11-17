@@ -11,41 +11,25 @@ angular.module('gsApp.workspaces.layers.addtomap', [
       $scope.workspace = workspace;
       $scope.map = map;
 
-      $scope.visibleLayers = [];
-
-      function saveVisibility () {
-        for (var j=0; j < map.layers.length; j++) {
-          var mapLayer = map.layers[j];
-          if (mapLayer.visible) {
-            $scope.visibleLayers.push(mapLayer);
+      function reinstateVisibility (prevLayers, newLayers) {
+        for (var j=0; j < newLayers.length; j++) {
+          var newLayer = newLayers[j];
+          var prevLayer = _.find(prevLayers, function(prevLayer) {
+            return newLayer.name===prevLayer.name;
+          });
+          if (prevLayer) {
+            newLayer.visible = prevLayer.visible;
+          } else {
+            newLayer.visible = true;
           }
         }
+        return newLayers;
       }
-
-      function reinstateVisibility () {
-        for (var j=0; j < map.layers.length; j++) {
-          var mapLayer = map.layers[j];
-          for (var k=0; k < $scope.layerSelections.length; k++) {
-            var selectedLayer = $scope.layerSelections[k];
-            if (selectedLayer.name===mapLayer.name) {
-              mapLayer.visible = true;
-            }
-          }
-          for (var l=0; l < $scope.visibleLayers.length; l++) {
-            var vLayer = $scope.visibleLayers[l];
-            if (vLayer.name===mapLayer.name) {
-              mapLayer.visible = true;
-            }
-          }
-        }
-      }
-
 
       $scope.addSelectedToMap = function() {
         var mapInfo = {
           'name': map.name
         };
-        saveVisibility();
         mapInfo.layersToAdd = [];
         for (var k=0; k < $scope.layerSelections.length; k++) {
           var layer = $scope.layerSelections[k];
@@ -57,14 +41,14 @@ angular.module('gsApp.workspaces.layers.addtomap', [
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,
           mapInfo.layersToAdd).then(function(result) {
             if (result.success) {
-              $scope.map.layers = result.data;
+              $scope.map.layers =
+                reinstateVisibility($scope.map.layers, result.data);
               $rootScope.alerts = [{
                 type: 'success',
                 message: mapInfo.layersToAdd.length +
                   ' layer(s) added to map ' + mapInfo.name + '.',
                 fadeout: true
               }];
-              reinstateVisibility();
               $scope.close('added');
             } else {
               $rootScope.alerts = [{
