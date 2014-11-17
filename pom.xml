@@ -152,6 +152,20 @@
       <groupId>org.geoserver.importer</groupId>
       <artifactId>gs-importer-web</artifactId>
       <version>${gs.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.geotools.jdbc</groupId>
+          <artifactId>gt-jdbc-oracle</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geotools.jdbc</groupId>
+          <artifactId>gt-jdbc-sqlserver</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.geotools</groupId>
+          <artifactId>gt-arcsde</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.geoserver.importer</groupId>

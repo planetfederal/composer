@@ -41,7 +41,7 @@
     </copy>
 
     <delete file="${war.file}"/>
-    <jar destfile="${war.file}" basedir="${war.dir}" excludes="WEB-INF/lib/gt-jdbc-sqlserver-*.jar"/>
+    <jar destfile="${war.file}" basedir="${war.dir}" />
 
     <antcall target="assemble-artifact">
       <param name="includes" value="*.war"/>
