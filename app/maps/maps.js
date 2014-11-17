@@ -22,9 +22,9 @@ angular.module('gsApp.maps', [
         });
     }])
 .controller('MapsCtrl', ['$scope', 'GeoServer', '$state', '$log', '$rootScope',
-    '$modal', '$window', '$stateParams', 'AppEvent',
+    '$modal', '$window', '$stateParams', 'AppEvent', '$timeout',
     function($scope, GeoServer, $state, $log, $rootScope, $modal, $window,
-      $stateParams, AppEvent) {
+      $stateParams, AppEvent, $timeout) {
       $scope.title = 'All Maps';
       $scope.workspace = $stateParams.workspace;
 
@@ -53,7 +53,7 @@ angular.module('gsApp.maps', [
       };
 
       $scope.addMap = function(ws) {
-        var modalInstance = $modal.open({
+        /*var modalInstance = $modal.open({
           templateUrl: '/maps/addnewmap-modal.tpl.html',
           backdrop: 'static',
           controller: ['$scope', '$window', '$modalInstance', '$state',
@@ -263,6 +263,53 @@ angular.module('gsApp.maps', [
               }, true);
             }],
           size: 'lg'
+        });*/
+
+        if ($scope.layers && $scope.layers.length===0) {
+          if (! $scope.datastores.length) {
+            var nostores_modal = $modal.open({
+              templateUrl: '/workspaces/detail/modals/nostores.tpl.html',
+              controller: function($scope, $modalInstance) {
+                $scope.close = function() {
+                  $modalInstance.close('close');
+                };
+              },
+              backdrop: 'static',
+              size: 'md'
+            });
+          } else {
+            var nolayer_modal = $modal.open({
+              templateUrl: '/workspaces/detail/modals/nolayers.tpl.html',
+              controller: function($scope, $modalInstance) {
+                $scope.close = function() {
+                  $modalInstance.close('close');
+                };
+              },
+              backdrop: 'static',
+              size: 'md'
+            });
+          }
+          return;
+        }
+        var createModalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/maps/createnew/map.new.tpl.html',
+          controller: 'NewMapCtrl',
+          backdrop: 'static',
+          size: 'lg',
+          resolve: {
+            workspace: function() {
+              return $scope.ws;
+            }
+          }
+        }).result.then(function(response) {
+          if (response.importOrClose==='import') {
+            var mapInfo = response.mapInfo;
+            $timeout(function() {
+              $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
+            }, 250);
+            // go to this state to initiate listener for broadcast above!
+            $state.go('workspace.data.import', {workspace: $scope.ws});
+          }
         });
       };
 
