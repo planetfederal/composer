@@ -37,7 +37,7 @@ angular.module('gsApp.sidenav', [
 
     // Hug partial menu to sidebar bottom if height's enough
     $scope.onWindowResize = function() {
-      var windowHeight = $window.innerHeight - 175;
+      var windowHeight = $window.innerHeight - 160;
       if (windowHeight < 300) {
         $scope.sideStyle = {'position': 'relative'};
         $scope.sideBottom = {'position': 'relative'};
