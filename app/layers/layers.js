@@ -23,9 +23,10 @@ angular.module('gsApp.layers', [
       });
   }])
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state', 'AppEvent',
-    '$log','$window', '$rootScope', '$modal', '$sce',
-    function($scope, GeoServer, $state, $log, $window, $rootScope,
-      AppEvent, $modal, $sce) {
+    '$log', '$window', '$rootScope', '$modal', '$sce', '$timeout',
+    function($scope, GeoServer, $state, AppEvent, $log, $window, $rootScope,
+      $modal, $sce, $timeout) {
+
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
       $scope.dropdownBoxSelected = '';
@@ -50,18 +51,24 @@ angular.module('gsApp.layers', [
       $scope.workspace = {};
       $scope.workspaces = [];
 
-      $scope.addLayer = function(ws) {
-        var modalInstance = $modal.open({
-          templateUrl: '/layers/addnewlayer-modal.tpl.html',
-          backdrop: 'static',
-          controller: 'AllLayersNewLayerCtrl',
-          size: 'lg',
-          resolve: {
-            ws: function() {
-              return ws;
-            }
-          }
-        });
+      $scope.go = function(route, workspace) {
+        $state.go(route, {workspace: workspace});
+      };
+
+      $scope.createMap = function(workspace) {
+        $timeout(function() {
+          $rootScope.$broadcast(AppEvent.CreateNewMap);
+        }, 250);
+        // go to this state to initiate listener for broadcast above!
+        $state.go('workspace.maps.main', {workspace: workspace});
+      };
+
+      $scope.importData = function(workspace) {
+        $timeout(function() {
+          $rootScope.$broadcast(AppEvent.ImportData);
+        }, 250);
+        // go to this state to initiate listener for broadcast above!
+        $state.go('workspace.data.import', {workspace: workspace});
       };
 
       $scope.addSelectedLayerToMap = function(ws, map, layerSelections) {
@@ -580,35 +587,6 @@ angular.module('gsApp.layers', [
             }
           });
       };
-
-      //TODO: Grab the thumbnail if it exists.
-      //      Is this even required here as the user is creating the
-      //      layer for the first time and thus there won't be a
-      //      thumbnail of this layer yet?
-      /*if ($scope.layerForm.Layer.name) {
-        $scope.thumbnail = GeoServer.map.thumbnail.get($scope.ws,
-          $scope.layer.name, 400, 200);
-
-        GeoServer.map.thumbnail.get($scope.ws,
-          $scope.layerForm.Layer.name, 400, 200).then(function(result) {
-            if (result.success) {
-              $scope.thumbnail = result;
-            } else {
-              $scope.alerts = [{
-                type: 'warning',
-                message: 'Thumbnail could not be loaded.',
-                fadeout: true
-              }];
-            }
-
-            if ($scope.thumbnail) {
-              $scope.thumbnail = result;
-            }
-            else {
-              $scope.thumbnail = '';
-            }
-          });
-      }*/
     }])
 .directive('getType', function() {
   return {
