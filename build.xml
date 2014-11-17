@@ -4,6 +4,7 @@
   <property name="data.dir" value="../data_dir/target"/>
   <property name="war.dir" value="target/geoserver"/>
   <property name="war.file" value="${war.dir}.war"/>
+  <property name="composer.dir" value="target/composer"/>
 
   <target name="build" depends="init,build-client,build-server" 
     description="Builds project">
@@ -13,8 +14,8 @@
     <exec executable="npm" failonerror="true">
        <arg line="install"/>
     </exec>
-    <mkdir dir="target/composer"/>
-    <copy todir="target/composer">
+    <mkdir dir="${composer.dir}"/>
+    <copy todir="${composer.dir}">
       <fileset dir="build" includes="**/*"/>
     </copy>
   </target>
@@ -43,23 +44,35 @@
     <delete file="${war.file}"/>
     <jar destfile="${war.file}" basedir="${war.dir}" />
 
+    <if>
+        <equals arg1="${suite.build_profile}" arg2="ee"/>
+        <then>
+          <sequential>
+            <copy todir="${war.dir}">
+              <fileset dir="target" includes="composer/**/*"/>
+            </copy>
+          </sequential>
+        </then>
+    </if>
+
     <antcall target="assemble-artifact">
       <param name="includes" value="*.war"/>
     </antcall>
 
+    <!--
     <antcall target="assemble-artifact">
       <param name="name" value="composer"/>
       <param name="includes" value="composer/**/*"/>
     </antcall>
-
+    -->
   </target>
 
   <target name="publish">
     <antcall target="publish-artifact"/>
-    <antcall target="publish-artifact">
+    <!--antcall target="publish-artifact">
       <param name="name" value="composer"/>
       <param name="path" value="composer"/>
-    </antcall>
+    </antcall-->
   </target>
 
   <target name="serve" description="Runs GeoServer">
