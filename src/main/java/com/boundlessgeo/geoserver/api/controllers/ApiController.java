@@ -8,6 +8,7 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
+import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
 import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -17,6 +18,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
+import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
@@ -25,6 +27,7 @@ import org.geoserver.config.GeoServerDataDirectory;
 import com.boundlessgeo.geoserver.api.exceptions.NotFoundException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import org.opengis.filter.sort.SortBy;
 
 /**
  * Base class for api controllers.
@@ -114,5 +117,24 @@ public abstract class ApiController {
             return !input.isFormField() && input.getName() != null;
             }
         }).iterator();
+    }
+
+    protected SortBy parseSort(String sort) {
+        SortBy sortBy = null;
+        if (sort != null) {
+            String[] sortArr = sort.split(":", 2);
+            if (sortArr.length == 2) {
+                if (sortArr[1].equals("asc")) {
+                    sortBy = Predicates.asc(sortArr[0]);
+                } else if (sortArr[1].equals("desc")) {
+                    sortBy = Predicates.desc(sortArr[0]);
+                } else {
+                    throw new BadRequestException("Sort order must be \"asc\" or \"desc\"");
+                }
+            } else {
+                sortBy = Predicates.asc(sortArr[0]);
+            }
+        }
+        return sortBy;
     }
 }

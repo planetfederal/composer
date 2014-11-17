@@ -168,7 +168,8 @@ public class MapControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andReturn();
 
-        JSONArr arr = JSONWrapper.read(result.getResponse().getContentAsString()).toArray();
+        JSONObj obj = JSONWrapper.read(result.getResponse().getContentAsString()).toObject();
+        JSONArr arr = obj.array("maps");
         assertEquals(2,arr.size());
 
         Iterables.find(arr, new Predicate<Object>() {
