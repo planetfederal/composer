@@ -307,7 +307,7 @@ angular.module('gsApp.workspaces.data.import', [
         GeoServer.maps.get($scope.workspace).then(
           function(result) {
             if (result.success) {
-              $scope.maps = result.data.maps;
+              $scope.maps = result.data;
             }
           });
       }
@@ -357,12 +357,12 @@ angular.module('gsApp.workspaces.data.import', [
             width: '20%'
           }
         ],
-        enablePaging: true,
+        enablePaging: false,
         enableColumnResize: false,
-        showFooter: true,
+        showFooter: false,
         totalServerItems: 'importedLayers.length',
         pagingOptions: {
-          pageSize: 10,
+          pageSize: 50,
           currentPage: 1
         }
       }, baseGridOpts);

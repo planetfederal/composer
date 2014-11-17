@@ -334,7 +334,7 @@ angular.module('gsApp.layers', [
         GeoServer.maps.get(ws).then(
         function(result) {
           if (result.success) {
-            var maps = result.data.maps;
+            var maps = result.data;
             $scope.maps = maps;
           } else {
             $rootScope.alerts = [{
