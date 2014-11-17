@@ -23,9 +23,9 @@ angular.module('gsApp.layers', [
       });
   }])
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state', 'AppEvent',
-    '$log','$window', '$rootScope', '$modal',
+    '$log','$window', '$rootScope', '$modal', '$sce',
     function($scope, GeoServer, $state, $log, $window, $rootScope,
-      AppEvent, $modal) {
+      AppEvent, $modal, $sce) {
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
       $scope.dropdownBoxSelected = '';
@@ -138,6 +138,45 @@ angular.module('gsApp.layers', [
         $state.go('workspaces.data.import', { workspace: $scope.workspace });
       };
 
+      $scope.linkDownloads = function(layer) {
+        if (layer.type === 'vector') {
+          var vector_baseurl = GeoServer.baseUrl() + '/' + layer.workspace +
+            '/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=' +
+            layer.workspace + ':' + layer.name + '&outputformat=';
+
+          var shape = vector_baseurl + 'SHAPE-ZIP';
+          var geojson = vector_baseurl + 'application/json';
+          var kml = vector_baseurl + 'application/vnd.google-earth.kml+xml';
+
+          layer.download_urls = '';
+          layer.download_urls += '<a target="_blank" href="' + shape +
+            '">Shapfile</a> <br/>';
+          layer.download_urls += '<a target="_blank" href="' + geojson +
+            '">GeoJSON</a> <br/>';
+          layer.download_urls += '<a target="_blank" href="' + kml +
+            '">KML</a>';
+
+        } else if (layer.type === 'raster') {
+
+          var bbox = [layer.bbox.native.west, layer.bbox.native.south,
+            layer.bbox.native.east, layer.bbox.native.north];
+          bbox = bbox.join();
+
+          var geotiff =  GeoServer.baseUrl() + '/' + layer.workspace +
+            '/wms?service=WMS&amp;version=1.1.0&request=GetMap&layers=' +
+            layer.workspace + ':' + layer.name + '&width=600&height=600&srs=' +
+            layer.proj.srs + '&bbox=' + bbox + '&format=image/geotiff';
+
+          layer.download_urls = '';
+          layer.download_urls += '<a target="_blank" href="' + geotiff +
+            '">GeoTIFF</a> <br/>';
+
+        }
+        layer.urls_ready = true;
+        layer.download_urls = $sce.trustAsHtml(layer.download_urls);
+      };
+
+
       $scope.pagingOptions = {
         pageSizes: [15, 50, 100],
         pageSize: 15,
@@ -242,11 +281,10 @@ angular.module('gsApp.layers', [
             cellClass: 'text-center',
             sortable: false,
             cellTemplate:
-              '<a popover-placement="bottom" popover-html-unsafe="' +
-                '<a href=\'#\'>Shapefile</a><br />' +
-                '<a href=\'#\'>GeoJSON</a><br />' +
-                '<a href=\'#\'>KML</a>"' +
-                'popover-append-to-body="true">' +
+              '<a popover-placement="bottom"' +
+              'popover-html-unsafe="{{ row.entity.download_urls }}"' +
+              'pop-placement="bottom" pop-show="{{ row.entity.urls_ready }}"' +
+                'ng-click="linkDownloads(row.entity)">' +
                 '<div class="fa fa-download grid-icons" ' +
                   'alt="Download Layer" title="Download Layer"></div>' +
               '</a>',
