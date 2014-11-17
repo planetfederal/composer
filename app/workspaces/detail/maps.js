@@ -44,30 +44,77 @@ angular.module('gsApp.workspaces.maps', [
       $scope.mapThumbsWidth = 175;
       $scope.mapThumbsHeight = 175;
 
-      mapsListModel.fetchMaps($scope.workspace).then(
-        function() {
-          $scope.maps = mapsListModel.getMaps();
-          if (!$scope.maps) {
-            return;
-          }
-          // load all map thumbnails & metadata
-          for (var i=0; i < $scope.maps.length; i++) {
-            var map = $scope.maps[i];
-            var layers = '';
-            $scope.maps[i].workspace = $scope.workspace;
-            $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
-            var bbox = $scope.maps[i].bboxString = '&bbox=' + map.bbox.west +
-             ',' + map.bbox.south + ',' + map.bbox.east + ',' +
-             map.bbox.north;
-            var url = GeoServer.map.thumbnail.get(map.workspace,
-              map.layergroupname, $scope.mapThumbsWidth,
-                $scope.mapThumbsHeight);
-            var srs = '&srs=' + map.proj.srs;
+      function thumbnailize() {
+        // load all map thumbnails & metadata
+        for (var i=0; i < $scope.maps.length; i++) {
+          var map = $scope.maps[i];
+          var layers = '';
+          $scope.maps[i].workspace = $scope.workspace;
+          $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
+          var bbox = $scope.maps[i].bboxString = '&bbox=' + map.bbox.west +
+           ',' + map.bbox.south + ',' + map.bbox.east + ',' +
+           map.bbox.north;
+          var url = GeoServer.map.thumbnail.get(map.workspace,
+            map.layergroupname, $scope.mapThumbsWidth,
+              $scope.mapThumbsHeight);
+          var srs = '&srs=' + map.proj.srs;
 
-            $scope.thumbnails[map.name] = url + bbox +
-              '&format=image/png' + srs;
-          }
-        });
+          $scope.thumbnails[map.name] = url + bbox +
+            '&format=image/png' + srs;
+        }
+      }
+
+      $scope.currentPage = 1;
+      $scope.pagingOptions = {
+        pageSizes: [25, 50, 100],
+        pageSize: 25,
+        currentPage: 1
+      };
+      $scope.filterOptions = {
+          filterText: ''
+        };
+      $scope.sortOptions = '';
+
+      $scope.serverRefresh = function() {
+        // only use paging if many layers on server
+        if ($scope.totalItems > $scope.pagingOptions.pageSize) {
+          mapsListModel.fetchPagedMaps(
+            $scope.workspace,
+            $scope.pagingOptions.currentPage,
+            $scope.pagingOptions.pageSize,
+            $scope.sortOptions,
+            $scope.filterOptions.filterText
+          ).then(function() {
+              $scope.maps = mapsListModel.getMaps();
+              $scope.totalItems = mapsListModel.getTotalServerItems();
+              if (!$scope.maps) {
+                return;
+              }
+              thumbnailize();
+            });
+        } else {
+          mapsListModel.fetchMaps($scope.workspace).then(
+            function() {
+              $scope.maps = mapsListModel.getMaps();
+              $scope.totalItems = mapsListModel.getTotalServerItems();
+              if (!$scope.maps) {
+                return;
+              }
+              thumbnailize();
+            });
+        }
+      };
+      $scope.serverRefresh();
+
+      var refreshTimer = null;
+      $scope.refreshMaps = function() {
+        if (refreshTimer) {
+          $timeout.cancel(refreshTimer);
+        }
+        refreshTimer = $timeout(function() {
+          $scope.serverRefresh();
+        }, 800);
+      };
 
       $scope.mapsHome = function() {
         if (!$state.is('workspace.maps.main')) {
@@ -149,6 +196,23 @@ angular.module('gsApp.workspaces.maps', [
 
       $scope.workspace = $stateParams.workspace;
 
+      $scope.$watch('predicate', function(newVal, oldVal) {
+        if (newVal && newVal !== oldVal) {
+          var sortOrder = ':asc';
+          if (newVal === 'modified.timestamp') {
+            sortOrder = ':desc';
+          }
+          $scope.sortOptions = newVal + sortOrder;
+        }
+        $scope.refreshMaps();
+      });
+
+      $scope.$watch('pagingOptions.currentPage', function(newVal) {
+        if (newVal) {
+          $scope.refreshMaps();
+        }
+      });
+
       $scope.sanitizeHTML = function(description) {
         return $sce.trustAsHtml(description);
       };
@@ -221,6 +285,11 @@ angular.module('gsApp.workspaces.maps', [
 .service('mapsListModel', function(GeoServer, _, $rootScope) {
   var _this = this;
   this.maps = null;
+  this.totalServerItems = 0;
+
+  this.getTotalServerItems = function() {
+    return _this.totalServerItems;
+  };
 
   this.getMaps = function() {
     return _this.maps;
@@ -262,12 +331,47 @@ angular.module('gsApp.workspaces.maps', [
                 return map;
               }
             });
+          _this.totalServerItems = result.data.total;
           // sort by timestamp
           _this.setMaps(_this.sortByTime(maps));
         } else {
           $rootScope.alerts = [{
             type: 'warning',
             message: 'Unable to load workspace maps.',
+            fadeout: true
+          }];
+        }
+      });
+  };
+
+  this.fetchPagedMaps = function(workspace, currentPage,
+    pageSize, sort, filterText) {
+    return GeoServer.maps.get(
+      workspace,
+      currentPage-1,
+      pageSize,
+      sort,
+      filterText
+    ).then(function(result) {
+        if (result.success) {
+          var maps = _.map(result.data.maps,
+            function(map) {
+              if (map.modified) {  // convert time strings to Dates
+                return _.assign(map, {'modified': {
+                  'timestamp': new Date(map.modified.timestamp),
+                  'pretty': map.modified.pretty
+                }});
+              } else {
+                return map;
+              }
+            });
+          _this.totalServerItems = result.data.total;
+          // sort by timestamp
+          _this.setMaps(_this.sortByTime(maps));
+        } else {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Unable to load paged workspace maps.',
             fadeout: true
           }];
         }
