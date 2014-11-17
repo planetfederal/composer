@@ -46,6 +46,12 @@ angular.module('gsApp.maps', [
           });
       };
 
+      $scope.newOLWindow = function(map) {
+        var baseUrl = GeoServer.map.openlayers.get(
+          map.workspace, map.name, 800, 500);
+        $window.open(baseUrl);
+      };
+
       $scope.addMap = function(ws) {
         var modalInstance = $modal.open({
           templateUrl: '/maps/addnewmap-modal.tpl.html',
@@ -388,7 +394,7 @@ angular.module('gsApp.maps', [
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="onCompose(row.entity)">' +
+                '<a ng-click="newOLWindow(row.entity)">' +
                   '<img ng-src="images/preview.png" alt="Preview Map"' +
                     'title="Preview Map" />' +
                 '</a>' +

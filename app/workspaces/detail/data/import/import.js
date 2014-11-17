@@ -168,8 +168,9 @@ angular.module('gsApp.workspaces.data.import', [
                 fadeout: true
               }];
               $scope.close('close');
-              $state.go('map.compose', {workspace: wsName,
-                name: mapInfo.name});
+              var hiddenLayers = mapInfo.hiddenLayers;
+              $state.go('map.compose', {'workspace': wsName,
+                'name': mapInfo.name, 'hiddenLayers': hiddenLayers});
             } else {
               $scope.errors = result.data.cause?
                 result.data.cause: result.data; // show errors in modal
@@ -185,6 +186,7 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.createNewMapwithImported = function() { // Import Data > New Map
         var mapInfo = mapInfoModel.getMapInfo();
+
         GeoServer.map.create(wsName, mapInfo).then(
           function(result) {
             if (result.success) {
@@ -573,6 +575,7 @@ angular.module('gsApp.workspaces.data.import', [
         } else if (newValue==='other') {
           $scope.mapInfo.proj = $scope.customproj;
         }
+        mapInfoModel.setMapInfo($scope.mapInfo);
       });
 
       projectionModel.fetchProjections().then(function() {

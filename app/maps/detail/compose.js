@@ -12,17 +12,23 @@ angular.module('gsApp.maps.compose', [
       $stateProvider.state('map.compose', {
         url: '/compose',
         templateUrl: '/maps/detail/compose.tpl.html',
-        controller: 'MapComposeCtrl'
+        controller: 'MapComposeCtrl',
+        params: { workspace: {}, name: {}, hiddenLayers: {} }
       });
     }])
 .controller('MapComposeCtrl',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$compile',
-    '$log', 'AppEvent', 'GeoServer', '$modal',
+    '$log', 'AppEvent', 'GeoServer', '$modal', '_',
     function($scope, $rootScope, $state, $stateParams, $timeout, $compile,
-      $log, AppEvent, GeoServer, $modal) {
+      $log, AppEvent, GeoServer, $modal, _) {
+
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
       var name = $stateParams.name;
+      var hiddenLayers = $stateParams.hiddenLayers;
+      if (hiddenLayers) {
+        hiddenLayers = hiddenLayers.split(',');
+      }
       $rootScope.$broadcast(AppEvent.ToggleSidenav);
 
       GeoServer.map.get(wsName, name).then(function(result) {
@@ -30,6 +36,7 @@ angular.module('gsApp.maps.compose', [
 
         //hack, get the detailed version of the layers
         GeoServer.map.layers.get(wsName, map.name).then(function(result) {
+
           map.layers = result.data;
           $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
 
@@ -38,6 +45,12 @@ angular.module('gsApp.maps.compose', [
           $scope.mapOpts = angular.extend(map, {
             layers: map.layers.map(function(l) {
               l.visible = true;
+              if (hiddenLayers) { // reinstate visibility
+                var found = _.contains(hiddenLayers, l.name);
+                if (found) {
+                  l.visible = false;
+                }
+              }
               return l;
             }),
             activeLayer: $scope.activeLayer,
@@ -195,6 +208,15 @@ angular.module('gsApp.maps.compose', [
         $state.go('workspace', {workspace: workspace});
       };
 
+      // Save checkbox state as url parameters
+      $scope.getHiddenLayers = function() {
+        var hiddenLayers = _.remove($scope.map.layers,
+          function(lyr) { return lyr.visible===false; });
+        hiddenLayers = _.map(hiddenLayers,
+          function(layer) { return layer.name; });
+        return hiddenLayers.join();
+      };
+
       $scope.addMapLayer = function(workspace) {
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/layer.addtomap.tpl.html',
@@ -210,6 +232,7 @@ angular.module('gsApp.maps.compose', [
           }
         }).result.then(function(response, args) {
           if (response==='import') {
+            $scope.map.hiddenLayers = $scope.getHiddenLayers();
             var mapInfo = $scope.map;
             $timeout(function() {
               $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
