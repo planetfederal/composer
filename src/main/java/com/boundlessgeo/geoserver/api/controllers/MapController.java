@@ -222,8 +222,8 @@ public class MapController extends ApiController {
         if(obj.has("title")){
             map.setTitle(obj.str("title"));
         }
-        if(obj.has("abstract")){
-            map.setAbstract(obj.str("abstract"));
+        if(obj.has("description")){
+            map.setAbstract(obj.str("description"));
         }
         if(obj.has("proj")&&obj.has("bbox")){
             CoordinateReferenceSystem crs = DefaultGeographicCRS.WGS84;
@@ -232,7 +232,7 @@ public class MapController extends ApiController {
                 try {
                     crs = CRS.decode(srs);
                 } catch (FactoryException e) {
-                    LOG.log(Level.FINE, wsName+"."+name+" unrecorgnized proj:"+srs,e);
+                    LOG.log(Level.FINE, wsName+"."+name+" unrecognized proj:"+srs,e);
                 }
             }
             Envelope envelope = IO.bounds(obj.object("bbox"));
