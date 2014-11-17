@@ -22,6 +22,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerGroupInfo.Mode;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.StoreInfo;
@@ -37,6 +38,8 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
 import org.opengis.feature.type.Name;
+import org.opengis.filter.Filter;
+import org.opengis.filter.sort.SortBy;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +51,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -184,7 +188,7 @@ public class MapController extends ApiController {
         cat.remove(map);
 
         recent.remove(LayerGroupInfo.class, map);
-        return list(wsName);
+        return list(wsName, null, null, null, null).array("maps");
     }
     
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.GET)
@@ -268,8 +272,11 @@ public class MapController extends ApiController {
     }
     
     @RequestMapping(value="/{wsName}", method = RequestMethod.GET)
-    public @ResponseBody JSONArr list(@PathVariable String wsName) {
-        JSONArr arr = new JSONArr();
+    public @ResponseBody JSONObj list(@PathVariable String wsName,
+      @RequestParam(value="page", required=false) Integer page,
+      @RequestParam(value="count", required=false, defaultValue=""+DEFAULT_PAGESIZE) Integer count,
+      @RequestParam(value="sort", required=false) String sort,
+      @RequestParam(value="filter", required=false) String textFilter) {
 
         Catalog cat = geoServer.getCatalog();
 
@@ -280,20 +287,33 @@ public class MapController extends ApiController {
             }
         }
 
-        CloseableIterator<LayerGroupInfo> it = cat.list(LayerGroupInfo.class, equal("workspace.name", wsName));
-        try {
+        Filter filter = equal("workspace.name", wsName);
+        if (textFilter != null) {
+            filter = Predicates.and(filter, Predicates.fullTextSearch(textFilter));
+        }
+
+        SortBy sortBy = parseSort(sort);
+
+        Integer total = cat.count(LayerInfo.class, filter);
+
+        JSONObj obj = new JSONObj();
+        obj.put("total", total);
+        obj.put("page", page != null ? page : 0);
+        obj.put("count", Math.min(total, count != null ? count : total));
+
+        JSONArr arr = obj.putArray("maps");
+        try (
+            CloseableIterator<LayerGroupInfo> it =
+                cat.list(LayerGroupInfo.class, filter, offset(page, count), count, sortBy);
+        ) {
             while (it.hasNext()) {
                 LayerGroupInfo map = it.next();
                 if( checkMap( map ) ){
-                    JSONObj obj = arr.addObject();
-                    map(obj, map, wsName);
+                    map(arr.addObject(), map, wsName);
                 }
             }
         }
-        finally {
-            it.close();
-        }
-        return arr;
+        return obj;
     }
     
     private JSONArr mapLayerList(LayerGroupInfo map, HttpServletRequest req){
