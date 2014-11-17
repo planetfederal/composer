@@ -22,9 +22,9 @@ angular.module('gsApp.maps', [
         });
     }])
 .controller('MapsCtrl', ['$scope', 'GeoServer', '$state', '$log', '$rootScope',
-    '$modal', '$window', '$stateParams', 'AppEvent', '$timeout',
+    '$modal', '$window', '$stateParams', 'AppEvent', '$timeout', '$sce',
     function($scope, GeoServer, $state, $log, $rootScope, $modal, $window,
-      $stateParams, AppEvent, $timeout) {
+      $stateParams, AppEvent, $timeout, $sce) {
       $scope.title = 'All Maps';
       $scope.workspace = $stateParams.workspace;
 
@@ -375,6 +375,50 @@ angular.module('gsApp.maps', [
         });
       };
 
+      // See utilities.js pop directive - 1 popover open at a time
+      var openPopoverDownload;
+      $scope.closePopovers = function(popo) {
+        if (openPopoverDownload || openPopoverDownload===popo) {
+          openPopoverDownload.showSourcePopover = false;
+          openPopoverDownload = null;
+        } else {
+          popo.showSourcePopover = true;
+          openPopoverDownload = popo;
+        }
+      };
+
+      $scope.linkDownloads = function(map) {
+        var bbox = [map.bbox.west, map.bbox.south, map.bbox.east,
+          map.bbox.north];
+        bbox = bbox.join();
+
+        var baseurl = GeoServer.baseUrl() + '/' + map.workspace +
+          '/wms?service=WMS&amp;version=1.1.0&request=GetMap&layers=' +
+          map.name + '&bbox=' + bbox + '&width=700&height=700' +
+          '&srs=' + map.proj.srs + '&format=';
+
+        var kml = baseurl + 'application/vnd.google-earth.kml%2Bxml';
+        var ol2 = baseurl + 'application/openlayers';
+        var png = baseurl + 'image/png';
+        var jpeg = baseurl + 'image/jpeg';
+        var geotiff = baseurl + 'image/geotiff';
+
+        map.download_urls = '';
+        map.download_urls += '<a target="_blank" href="' + ol2 +
+          '">OpenLayers</a> <br />';
+        map.download_urls += '<a target="_blank" href="' + kml +
+          '">KML</a> <br />';
+        map.download_urls += '<a target="_blank" href="' + geotiff +
+          '">GeoTIFF</a> <br />';
+        map.download_urls += '<a target="_blank" href="' + png +
+        '">PNG</a> <br />';
+        map.download_urls += '<a target="_blank" href="' + jpeg +
+        '">JPEG</a> <br />';
+
+        map.urls_ready = true;
+        map.download_urls = $sce.trustAsHtml(map.download_urls);
+      };
+
       $scope.onCompose = function(map) {
         $state.go('map.compose', {
           workspace: map.workspace,
@@ -415,7 +459,7 @@ angular.module('gsApp.maps', [
         selectedItems: $scope.gridSelections,
         multiSelect: true,
         columnDefs: [
-          {field: 'name', displayName: 'Map Name', width: '20%'},
+          {field: 'name', displayName: 'Map Name', width: '15%'},
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,
@@ -425,7 +469,7 @@ angular.module('gsApp.maps', [
                 'title="{{row.entity.description}}">'+
                 '{{row.entity.title}}' +
               '</div>',
-            width: '25%'
+            width: '20%'
           },
           {field: 'compose',
             displayName: 'Compose',
@@ -448,7 +492,7 @@ angular.module('gsApp.maps', [
                     'title="Preview Map" />' +
                 '</a>' +
               '</div>',
-            width: '10%'
+            width: '7%'
           },
           {field: 'settings',
             displayName: 'Settings',
@@ -461,11 +505,25 @@ angular.module('gsApp.maps', [
                     'alt="Edit Map Settings" title="Edit Map Settings" />' +
                 '</a>' +
               '</div>',
+            width: '7%'
+          },
+          {field: 'download',
+            displayName: 'Download',
+            cellClass: 'text-center',
+            sortable: false,
+            cellTemplate:
+              '<a popover-placement="bottom"' +
+              'popover-html-unsafe="{{ row.entity.download_urls }}" pop-show=' +
+              '"{{ row.entity.showSourcePopover && row.entity.urls_ready }}"' +
+                'ng-click="closePopovers(row.entity);' +
+                  'linkDownloads(row.entity);">' +
+                '<div class="fa fa-download grid-icons" ' +
+                  'alt="Download Map" title="Download Map"></div></a>',
             width: '10%'
           },
           {field: '',
             displayName: '',
-            cellClass: 'text-center',
+            cellClass: 'pull-left',
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
