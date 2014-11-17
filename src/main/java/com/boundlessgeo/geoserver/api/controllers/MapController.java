@@ -294,7 +294,7 @@ public class MapController extends ApiController {
 
         SortBy sortBy = parseSort(sort);
 
-        Integer total = cat.count(LayerInfo.class, filter);
+        Integer total = cat.count(LayerGroupInfo.class, filter);
 
         JSONObj obj = new JSONObj();
         obj.put("total", total);
