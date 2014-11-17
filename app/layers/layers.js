@@ -138,6 +138,18 @@ angular.module('gsApp.layers', [
         $state.go('workspaces.data.import', { workspace: $scope.workspace });
       };
 
+      // See utilities.js pop directive - 1 popover open at a time
+      var openPopoverDownload;
+      $scope.closePopovers = function(popo) {
+        if (openPopoverDownload || openPopoverDownload===popo) {
+          openPopoverDownload.showSourcePopover = false;
+          openPopoverDownload = null;
+        } else {
+          popo.showSourcePopover = true;
+          openPopoverDownload = popo;
+        }
+      };
+
       $scope.linkDownloads = function(layer) {
         if (layer.type === 'vector') {
           var vector_baseurl = GeoServer.baseUrl() + '/' + layer.workspace +
@@ -146,7 +158,8 @@ angular.module('gsApp.layers', [
 
           var shape = vector_baseurl + 'SHAPE-ZIP';
           var geojson = vector_baseurl + 'application/json';
-          var kml = vector_baseurl + 'application/vnd.google-earth.kml+xml';
+          var kml = vector_baseurl + 'application/vnd.google-earth.kml%2Bxml';
+          var gml3 = vector_baseurl + 'application/gml%2Bxml; version=3.2';
 
           layer.download_urls = '';
           layer.download_urls += '<a target="_blank" href="' + shape +
@@ -154,23 +167,37 @@ angular.module('gsApp.layers', [
           layer.download_urls += '<a target="_blank" href="' + geojson +
             '">GeoJSON</a> <br/>';
           layer.download_urls += '<a target="_blank" href="' + kml +
-            '">KML</a>';
+            '">KML</a> <br />';
+          layer.download_urls += '<a target="_blank" href="' + gml3 +
+            '">GML 3.2</a>';
 
         } else if (layer.type === 'raster') {
-
           var bbox = [layer.bbox.native.west, layer.bbox.native.south,
             layer.bbox.native.east, layer.bbox.native.north];
           bbox = bbox.join();
 
-          var geotiff =  GeoServer.baseUrl() + '/' + layer.workspace +
+          var baseurl =  GeoServer.baseUrl() + '/' + layer.workspace +
             '/wms?service=WMS&amp;version=1.1.0&request=GetMap&layers=' +
             layer.workspace + ':' + layer.name + '&width=600&height=600&srs=' +
-            layer.proj.srs + '&bbox=' + bbox + '&format=image/geotiff';
+            layer.proj.srs + '&bbox=' + bbox + '&format=';
+
+          var ol2 = baseurl + 'application/openlayers';
+          var geotiff = baseurl + 'image/geotiff';
+          var png = baseurl + 'image/png';
+          var jpeg = baseurl + 'image/jpeg';
+          var kml_raster = baseurl + 'application/vnd.google-earth.kml%2Bxml';
 
           layer.download_urls = '';
+          layer.download_urls += '<a target="_blank" href="' + ol2 +
+            '">OpenLayers</a> <br />';
           layer.download_urls += '<a target="_blank" href="' + geotiff +
-            '">GeoTIFF</a> <br/>';
-
+            '">GeoTIFF</a> <br />';
+          layer.download_urls += '<a target="_blank" href="' + png +
+            '">PNG</a> <br />';
+          layer.download_urls += '<a target="_blank" href="' + jpeg +
+            '">JPEG</a> <br />';
+          layer.download_urls += '<a target="_blank" href="' + kml_raster +
+            '">KML</a> <br />';
         }
         layer.urls_ready = true;
         layer.download_urls = $sce.trustAsHtml(layer.download_urls);
@@ -282,12 +309,12 @@ angular.module('gsApp.layers', [
             sortable: false,
             cellTemplate:
               '<a popover-placement="bottom"' +
-              'popover-html-unsafe="{{ row.entity.download_urls }}"' +
-              'pop-placement="bottom" pop-show="{{ row.entity.urls_ready }}"' +
-                'ng-click="linkDownloads(row.entity)">' +
+              'popover-html-unsafe="{{ row.entity.download_urls }}" pop-show=' +
+              '"{{ row.entity.showSourcePopover && row.entity.urls_ready }}"' +
+                'ng-click="closePopovers(row.entity);' +
+                  'linkDownloads(row.entity)">' +
                 '<div class="fa fa-download grid-icons" ' +
-                  'alt="Download Layer" title="Download Layer"></div>' +
-              '</a>',
+                  'alt="Download Layer" title="Download Layer"></div></a>',
             width: '7%'
           },
           {field: 'modified.timestamp',
