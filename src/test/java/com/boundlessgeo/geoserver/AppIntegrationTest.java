@@ -12,6 +12,9 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CatalogBuilder;
+import org.geoserver.catalog.LayerGroupInfo;
+import org.geoserver.catalog.LayerInfo;
 import org.geoserver.data.test.SystemTestData;
 import org.geoserver.importer.Importer;
 import org.geoserver.platform.GeoServerExtensions;
@@ -54,6 +57,12 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         removeLayer("cdf", "foo");
     }
 
+    @Before
+    public void removeMaps() {
+        removeLayerGroup("sf", "map1");
+        removeLayerGroup("sf", "map2");
+    }
+
     @Test
     public void testPageLayers() throws Exception {
         JSONObject obj = (JSONObject) getAsJSON(("/app/api/layers/sf"));
@@ -62,6 +71,38 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
 
         obj = (JSONObject) getAsJSON(("/app/api/layers/sf?page=1&count=1"));
         arr = obj.getJSONArray("layers");
+        assertEquals(1, arr.size());
+    }
+
+    @Test
+    public void testPageMaps() throws Exception {
+        Catalog cat = getCatalog();
+        CatalogBuilder catBuilder = new CatalogBuilder(cat);
+
+        LayerInfo pgf = cat.getLayerByName("sf:PrimitiveGeoFeature");
+
+        LayerGroupInfo map = cat.getFactory().createLayerGroup();
+        map.setWorkspace(cat.getWorkspaceByName("sf"));
+        map.setName("map1");
+        map.getLayers().add(pgf);
+        map.getStyles().add(null);
+        catBuilder.calculateLayerGroupBounds(map);
+        cat.add(map);
+
+        map = cat.getFactory().createLayerGroup();
+        map.setWorkspace(cat.getWorkspaceByName("sf"));
+        map.setName("map2");
+        map.getLayers().add(pgf);
+        map.getStyles().add(null);
+        catBuilder.calculateLayerGroupBounds(map);
+        cat.add(map);
+
+        JSONObject obj = (JSONObject) getAsJSON(("/app/api/maps/sf"));
+        JSONArray arr = obj.getJSONArray("maps");
+        assertEquals(2, arr.size());
+
+        obj = (JSONObject) getAsJSON(("/app/api/maps/sf?page=1&count=1"));
+        arr = obj.getJSONArray("maps");
         assertEquals(1, arr.size());
     }
 
