@@ -98,10 +98,17 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         cat.add(map);
 
         JSONObject obj = (JSONObject) getAsJSON(("/app/api/maps/sf"));
+        assertEquals(2, obj.getInt("total"));
+        assertEquals(0, obj.getInt("page"));
+        assertEquals(2, obj.getInt("count"));
+
         JSONArray arr = obj.getJSONArray("maps");
         assertEquals(2, arr.size());
 
         obj = (JSONObject) getAsJSON(("/app/api/maps/sf?page=1&count=1"));
+        assertEquals(2, obj.getInt("total"));
+        assertEquals(1, obj.getInt("page"));
+        assertEquals(1, obj.getInt("count"));
         arr = obj.getJSONArray("maps");
         assertEquals(1, arr.size());
     }

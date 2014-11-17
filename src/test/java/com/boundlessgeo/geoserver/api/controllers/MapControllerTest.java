@@ -169,6 +169,8 @@ public class MapControllerTest {
             .andReturn();
 
         JSONObj obj = JSONWrapper.read(result.getResponse().getContentAsString()).toObject();
+        assertEquals(2, obj.integer("total").intValue());
+
         JSONArr arr = obj.array("maps");
         assertEquals(2,arr.size());
 
