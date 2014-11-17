@@ -35,7 +35,7 @@ angular.module('gsApp.maps', [
         GeoServer.maps.get(ws.name).then(
           function(result) {
             if (result.success) {
-              $scope.mapData = result.data.maps;
+              $scope.mapData = result.data;
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
