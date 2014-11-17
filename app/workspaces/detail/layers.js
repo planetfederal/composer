@@ -29,10 +29,6 @@ angular.module('gsApp.workspaces.layers', [
       GeoServer, AppEvent, layersListModel, $timeout) {
 
       $scope.workspace = $stateParams.workspace;
-      $scope.thumbnails = {};
-
-      $scope.layerThumbsWidth = 175;
-      $scope.layerThumbsHeight = 175;
 
       $timeout(function() {
         if ($scope.$parent && $scope.$parent.tabs) {

@@ -3,7 +3,7 @@
     <div class="col-sm-12">
       <div class="maps-count-sort">
         <div class="maps-count">
-          <strong>{{ maps.length }} map<span ng-if="maps.length==0 || maps.length>1">s</span></strong> in current project.
+          <strong>{{ totalItems }} map<span ng-if="maps.length==0 || maps.length>1">s</span></strong> in current project.
         </div>
         <div class="pull-right">
           <div class="sort-by">
@@ -65,5 +65,8 @@
         </a>
       </div>
     </div>
+  </div>
+  <div class="maps-paging">
+    <pagination total-items="totalItems" items-per-page ="pagingOptions.pageSize" ng-model="pagingOptions.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
   </div>
 </div>
