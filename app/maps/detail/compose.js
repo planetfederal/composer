@@ -53,7 +53,6 @@ angular.module('gsApp.maps.compose', [
               }
               return l;
             }),
-            activeLayer: $scope.activeLayer,
             error: function(err) {
               $rootScope.alerts = [{
                 type: 'danger',
@@ -187,6 +186,7 @@ angular.module('gsApp.maps.compose', [
       };
       $scope.layerState = {};
       $scope.$watch('activeLayer', function(newVal) {
+        $scope.mapOpts.activeLayer = newVal;
         if (newVal != null) {
           var l = newVal;
           if (l.name in $scope.layerState) {
