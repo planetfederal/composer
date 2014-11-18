@@ -199,16 +199,19 @@ angular.module('gsApp.olmap', [])
 
         if (mapOpts.featureInfo) {
           map.on('singleclick', function(evt) {
-            var view = map.getView();
-            var gfi = mapLayer.getSource().getGetFeatureInfoUrl(
-                evt.coordinate,
-                view.getResolution(), view.getProjection(),
-                {'INFO_FORMAT': 'application/json', 'FEATURE_COUNT': 50});
-            $.ajax(gfi).then(function(response) {
-              if (response && response.features) {
-                mapOpts.featureInfo(response.features.reverse());
-              }
-            });
+            if (mapOpts.activeLayer) {
+              var view = map.getView();
+              var gfi = mapLayer.getSource().getGetFeatureInfoUrl(
+                  evt.coordinate,
+                  view.getResolution(), view.getProjection(),
+                  {'INFO_FORMAT': 'application/json', 'FEATURE_COUNT': 50,
+                      'QUERY_LAYERS': mapOpts.activeLayer.name});
+              $.ajax(gfi).then(function(response) {
+                if (response && response.features && response.features.length) {
+                  mapOpts.featureInfo(response.features);
+                }
+              });
+            }
           });
         }
 
