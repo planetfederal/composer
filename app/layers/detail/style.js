@@ -28,7 +28,23 @@ angular.module('gsApp.layers.style', [
             layers: [{name: $scope.layer.name, visible: true}],
             proj: $scope.layer.proj,
             bbox: $scope.layer.bbox.native,
-            center: $scope.layer.bbox.native.center
+            center: $scope.layer.bbox.native.center,
+            error: function(err) {
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Map rendering error',
+                details: err.exceptions[0].text
+              }];
+            },
+            progress: function(state) {
+              if (state == 'start') {
+                $scope.isRendering = true;
+              }
+              if (state == 'end') {
+                $scope.isRendering = false;
+              }
+              $scope.$apply();
+            },
           };
 
           GeoServer.style.get(wsName, layerName).then(function(result) {
