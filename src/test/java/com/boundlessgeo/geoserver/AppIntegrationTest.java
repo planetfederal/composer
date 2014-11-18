@@ -15,6 +15,7 @@ import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CatalogBuilder;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.StyleInfo;
 import org.geoserver.data.test.SystemTestData;
 import org.geoserver.importer.Importer;
 import org.geoserver.platform.GeoServerExtensions;
@@ -138,7 +139,12 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         assertEquals("gs", obj.object("layer").str("workspace"));
         assertEquals("point", obj.object("layer").str("name"));
 
-        assertNotNull(catalog.getLayerByName("gs:point"));
+        LayerInfo l = catalog.getLayerByName("gs:point");
+        assertNotNull(l);
+
+        // ensure style in workspace
+        StyleInfo s = l.getDefaultStyle();
+        assertNotNull(s.getWorkspace());
     }
 
     @Test

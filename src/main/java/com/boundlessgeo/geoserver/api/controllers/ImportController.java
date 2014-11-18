@@ -11,11 +11,14 @@ import com.boundlessgeo.geoserver.util.Hasher;
 import com.google.common.collect.Maps;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.importer.Database;
 import org.geoserver.importer.Directory;
 import org.geoserver.importer.ImportContext;
@@ -23,6 +26,7 @@ import org.geoserver.importer.ImportData;
 import org.geoserver.importer.ImportFilter;
 import org.geoserver.importer.ImportTask;
 import org.geoserver.importer.Importer;
+import org.geoserver.platform.resource.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -34,6 +38,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Iterator;
@@ -108,6 +115,10 @@ public class ImportController extends ApiController {
     JSONObj doImport(ImportData data, WorkspaceInfo ws) throws Exception {
         // run the import
         ImportContext imp = importer.createContext(data, ws);
+
+        // back the context object to ensure that all styles are workspace local
+        moveStylesToWorkspace(imp, ws);
+
         importer.run(imp);
 
         for (ImportTask t : imp.getTasks()) {
@@ -116,6 +127,34 @@ public class ImportController extends ApiController {
             }
         }
         return get(ws.getName(), imp.getId());
+    }
+
+    void moveStylesToWorkspace(ImportContext imp, WorkspaceInfo ws) {
+        GeoServerDataDirectory dataDir = dataDir();
+
+        for (ImportTask t : imp.getTasks()) {
+            LayerInfo l = t.getLayer();
+            if (l != null && l.getDefaultStyle() != null) {
+                StyleInfo s = l.getDefaultStyle();
+                Resource from = dataDir.style(s);
+
+                s.setWorkspace(ws);
+                Resource to = dataDir.style(s);
+
+                try {
+                    try (
+                        InputStream in = from.in();
+                        OutputStream out = to.out();
+                    ) {
+                        IOUtils.copy(in, out);
+                        from.delete();
+                    }
+                }
+                catch(IOException e){
+                    throw new RuntimeException("Error copying style to workspace", e);
+                }
+            }
+        }
     }
 
     @RequestMapping(value = "/{wsName}/{id}", method = RequestMethod.GET)
