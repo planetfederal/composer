@@ -42,8 +42,6 @@
     </copy>
 
     <delete file="${war.file}"/>
-    <jar destfile="${war.file}" basedir="${war.dir}" />
-
     <if>
         <equals arg1="${suite.build_profile}" arg2="ee"/>
         <then>
@@ -55,6 +53,7 @@
         </then>
     </if>
 
+    <jar destfile="${war.file}" basedir="${war.dir}" />
     <antcall target="assemble-artifact">
       <param name="includes" value="*.war"/>
     </antcall>
