@@ -1,6 +1,12 @@
 <div class="layer-detail-style">
   <div class="row">
     <div class="col-md-6">
+      <div class="render-progress-container">
+        <span ng-show="isRendering" class="render-progress pull-right">
+          <i class="fa fa-spinner fa-spin"></i>
+          Rendering map
+        </span>
+      </div>
       <div ol-map class="map" map-opts="mapOpts"></div>
     </div>
     <div class="col-md-6">

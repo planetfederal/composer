@@ -1,3 +1,5 @@
+@import url('../../variables.less');
+
 .map {
   width: 100%;
   height: 100%;
@@ -15,5 +17,16 @@
   div[class*='col-'] {
     padding-left: 0;
     padding-right: 0;
+  }
+
+  .render-progress-container {
+    height: 32px;
+    border-bottom: 1px solid #ccc;
+  }
+
+  .render-progress {
+    vertical-align: middle;
+    line-height: 32px;
+    margin-right: 20px;
   }
 }
