@@ -2,6 +2,7 @@ angular.module('gsApp.layers.style', [
   'ui.codemirror',
   'gsApp.olmap',
   'gsApp.styleditor',
+  'gsApp.featureinfopanel',
   'gsApp.alertpanel'
 ])
 .config(['$stateProvider',
@@ -48,6 +49,10 @@ angular.module('gsApp.layers.style', [
               }
               $scope.$apply();
             },
+            activeLayer: $scope.layer,
+            featureInfo: function(features) {
+              $scope.$broadcast('featureinfo', features);
+            }
           };
 
           GeoServer.style.get(wsName, layerName).then(function(result) {

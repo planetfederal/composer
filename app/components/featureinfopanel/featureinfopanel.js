@@ -6,7 +6,8 @@ angular.module('gsApp.featureinfopanel', [
       return {
         restrict: 'EA',
         scope: {
-          featureinfo: '=?'
+          featureinfo: '=?',
+          activeLayer: '='
         },
         templateUrl: '/components/featureinfopanel/featureinfopanel.tpl.html',
         controller: function($scope, $element) {
@@ -14,13 +15,18 @@ angular.module('gsApp.featureinfopanel', [
             var modal = $modal.open({
               templateUrl: 'featureinfo-modal',
               size: 'lg',
+              backdrop: 'static',
               resolve: {
                 features: function() {
                   return featureInfo;
+                },
+                layer: function() {
+                  return $scope.activeLayer;
                 }
               },
-              controller: function($scope, $modalInstance, features) {
+              controller: function($scope, $modalInstance, features, layer) {
                 $scope.features = features;
+                $scope.layer = layer;
                 $scope.close = function() {
                   $modalInstance.close();
                 };
