@@ -3,11 +3,104 @@
 @import "../variables.less";
 
 .all-maps {
-  .grid-filter {
-    margin-left: 10%;
+  .maps-count-sort {
+    width: 100%;
+    border: 1px solid @very-lt-bl-gray;
+    .box-shadow(0 1px 1px @very-lt-bl-gray);
+    .border-radius(3px, 3px, 3px, 3px);
+    padding: 0 12px;
+    display: inline-block;
+    height: 32px;
   }
-  .new-map-btn {
+  .workspace-choice {
     display:inline-block;
-    height: 34px;
+
+    .workspace-label {
+      vertical-align: middle;
+      line-height: 31px;
+      display: inline-block;
+      width: 120px;
+    }
+    .workspace-picker {
+      display: inline-block;
+      width: 200px;
+      height: 30px;
+      background-color: @almost-white;
+      vertical-align: top;
+
+      .ui-select-bootstrap {
+        height: 30px;
+        button {
+          .box-shadow(0 0 0 @white);
+          line-height: 18px;
+          height: 28px;
+
+          &.btn-default {
+            background-color: @almost-white;
+          }
+        }
+        input, .form-control {
+          font-weight: bold;
+          font-size: 13px;
+          line-height: 18px;
+          padding-top: 0;
+          padding-bottom: 0;
+          border: 0;
+          .border-radius(0, 0, 0, 0);
+          .box-shadow(0 0 0 @white);
+          height: 28px;
+
+          &:hover, &:focus, &:active, &:visited {
+            outline: 0;
+            border-color: @gray;
+            .box-shadow(0 0 0 @white);
+            background-color: @almost-white;
+            line-height: 18px;
+            height: 28px;
+          }
+        }
+        .btn-default-focus {
+          outline: 0;
+          border-color: transparent;
+          .box-shadow(0 0 0 @white);
+        }
+      }
+    }
   }
+  .maps-count {
+    display: inline-block;
+    margin-left: 20px;
+    line-height: 18px;
+  }
+
+  .filter-box {
+    border-left: 1px solid @very-lt-bl-gray;
+    font-size: 11px;
+    margin-left: 3px;
+    display: inline-block;
+    vertical-align: middle;
+    width: 200px;
+    line-height: 30px;
+
+    input {
+      margin-left: 10px;
+      font-size: 11px;
+      color: @text-lt-gray;
+      border: 0;
+      box-shadow: none;
+      width: 150px;
+      height: 20px;
+      padding: 3px 0;
+      display: inline-block;
+    }
+    i {
+      color: @dark-gray;
+      display: inline-block;
+    }
+  }
+
+  .maps-grid {
+    margin-top: 25px;
+  }
+
 }

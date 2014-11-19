@@ -103,12 +103,29 @@
         display: inline-block;
         width: 200px;
 
-        & > .ui-select-match {
-          height: 26px;
-          padding: 3px 10px;
-        }
-        & > .ui-select-choices {
+        input, .form-control {
           font-size: 12px;
+          line-height: 18px;
+          padding-top: 0;
+          padding-bottom: 0;
+          border: 0;
+          .border-radius(0, 0, 0, 0);
+          .box-shadow(0 0 0 @white);
+          height: 25px;
+
+          &:hover, &:focus, &:active, &:visited {
+            outline: 0;
+            border-color: @gray;
+            .box-shadow(0 0 0 @white);
+            background-color: @almost-white;
+            line-height: 18px;
+            height: 25px;
+          }
+        }
+        .btn-default-focus {
+          outline: 0;
+          border-color: transparent;
+          .box-shadow(0 0 0 @white);
         }
       }
       button.map-button {
