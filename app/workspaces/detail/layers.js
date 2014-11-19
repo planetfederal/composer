@@ -173,8 +173,6 @@ angular.module('gsApp.workspaces.layers', [
       };
 
       $scope.toggleSelected = function(layer) {
-        console.log("toggleSelected");
-        console.log(layer);
         if (layer != null) {
           var found = false;
           for (var i=0; i < $scope.layerSelections.length; i++) {
@@ -190,7 +188,6 @@ angular.module('gsApp.workspaces.layers', [
       };
 
       $scope.addSelectedToMap = function() {
-        console.log($scope.layerSelections);
         var map = $scope.selectedMap;
         var mapInfo = {
           'name': map.name,

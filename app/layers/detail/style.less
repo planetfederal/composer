@@ -1,14 +1,31 @@
+/* style.less */
+
 @import url('../../variables.less');
 
-.map {
-  width: 100%;
-  height: 100%;
-}
-.style-editor {
-  width: 100%;
-}
-
 .layer-detail-style {
+
+
+  .layer-info {
+    padding-top: 3px;
+    padding-left: 11px;
+    background-color: @light-bl-gray;
+    width: 100%;
+    display: inline-block;
+    height: 32px;
+    line-height: 26px;
+    vertical-align: middle;
+    border-bottom: 1px solid @very-lt-gray;
+    font-size: 14px;
+
+    a {
+      color: @dark-gray;
+      &:hover {
+        text-decoration: none;
+        color: @monacoblue;
+      }
+    }
+  }
+
   .row {
     margin-left: 0;
     margin-right: 0;
@@ -20,13 +37,20 @@
   }
 
   .render-progress-container {
-    height: 32px;
-    border-bottom: 1px solid #ccc;
+    float: right;
+    .render-progress {
+      margin-right: 20px;
+      font-size: 13px;
+    }
   }
 
-  .render-progress {
-    vertical-align: middle;
-    line-height: 32px;
-    margin-right: 20px;
+  .map {
+    width: 100%;
+    height: 100%;
   }
+  .style-editor {
+    width: 100%;
+  }
+
 }
+

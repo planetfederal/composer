@@ -13,9 +13,12 @@ angular.module('gsApp.layers.style', [
       });
     }])
 .controller('LayerStyleCtrl', ['$scope', '$rootScope', '$stateParams',
-    'GeoServer', 'AppEvent', '$log',
-    function($scope, $rootScope, $stateParams, GeoServer, AppEvent, $log) {
+    'GeoServer', 'AppEvent', '$log', '$modal', '$state',
+    function($scope, $rootScope, $stateParams, GeoServer, AppEvent, $log,
+      $modal, $state) {
+
       var wsName = $stateParams.workspace;
+      $scope.workspace = wsName;
       var layerName = $stateParams.name;
 
       $rootScope.$broadcast(AppEvent.ToggleSidenav);
@@ -65,6 +68,27 @@ angular.module('gsApp.layers.style', [
           }];
         }
       });
+
+      $scope.viewWorkspace = function(workspace) {
+        $state.go('workspace', {workspace: workspace});
+      };
+
+      $scope.editLayerSettings = function(layer) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/modals/layer.settings.tpl.html',
+          controller: 'EditLayerSettingsCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return layer.workspace;
+            },
+            layer: function() {
+              return layer;
+            }
+          }
+        });
+      };
 
       $scope.refreshMap = function() {
         $scope.$broadcast('olmap-refresh');
