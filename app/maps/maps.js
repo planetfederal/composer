@@ -30,47 +30,14 @@ angular.module('gsApp.maps', [
       $scope.title = 'All Maps';
       $scope.workspace = $stateParams.workspace;
 
-<<<<<<< Updated upstream
-      $scope.workspaceChanged = function(ws) {
-        $rootScope.$broadcast(AppEvent.WorkspaceSelected,
-          ws.name);
-
-        GeoServer.maps.get(ws.name).then(
-          function(result) {
-            if (result.success) {
-              $scope.mapData = result.data.maps;
-            } else {
-              $rootScope.alerts = [{
-                type: 'warning',
-                message: 'Could not retrieve maps.',
-                fadeout: true
-              }];
-            }
-          });
-      };
-=======
       $scope.$watch('workspace.selected', function(newVal) {
         if (newVal) {
           var ws = newVal;
           $rootScope.$broadcast(AppEvent.WorkspaceSelected,
             ws.name);
-
-          GeoServer.maps.get(ws.name).then(
-            function(result) {
-              if (result.success) {
-                $scope.mapData = result.data.maps;
-              } else {
-                $rootScope.alerts = [{
-                  type: 'warning',
-                  message: 'Could not retrieve maps.',
-                  fadeout: true
-                }];
-              }
-            });
           $scope.refreshMaps();
         }
       });
->>>>>>> Stashed changes
 
       $scope.newOLWindow = function(map) {
         var baseUrl = GeoServer.map.openlayers.get(
