@@ -23,9 +23,9 @@ angular.module('gsApp.layers', [
       });
   }])
 .controller('LayersCtrl', ['$scope', 'GeoServer', '$state', 'AppEvent',
-    '$log', '$window', '$rootScope', '$modal', '$sce', '$timeout',
+    '$log', '$window', '$rootScope', '$modal', '$sce', '$timeout', '_',
     function($scope, GeoServer, $state, AppEvent, $log, $window, $rootScope,
-      $modal, $sce, $timeout) {
+      $modal, $sce, $timeout, _) {
 
       $scope.title = 'All Layers';
       $scope.thumbnail = '';
@@ -237,7 +237,7 @@ angular.module('gsApp.layers', [
         selectedItems: $scope.gridSelections,
         multiSelect: true,
         columnDefs: [
-          {field: 'name', displayName: 'Layer', width: '20%'},
+          {field: 'name', displayName: 'Layer', width: '14%'},
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,
@@ -247,7 +247,7 @@ angular.module('gsApp.layers', [
                 'title="{{row.entity.description}}">' +
                 '{{row.entity.title}}' +
               '</div>',
-            width: '20%'
+            width: '18%'
           },
           {field: 'geometry',
             displayName: 'Type',
@@ -265,7 +265,7 @@ angular.module('gsApp.layers', [
               '<div class="grid-text-padding">' +
                 '{{row.entity.proj.srs}}' +
               '</div>',
-            width: '7%'
+            width: '8%'
           },
           {field: 'settings',
             displayName: 'Settings',
@@ -279,36 +279,17 @@ angular.module('gsApp.layers', [
                     'title="Edit Layer Settings"></i>' +
                 '</a>' +
               '</div>',
-            width: '10%'
+            width: '6%'
           },
           {field: 'style',
             displayName: 'Styles',
             cellClass: 'text-center',
             sortable: false,
-            /*
-            cellTemplate:
-              '<li class="list-unstyled dropdown">' +
-                '<a href="#" class="dropdown-toggle" data-toggle="dropdown">' +
-                  '<div class="grid-text">Edit</div>' +
-                  '<img ng-src="images/edit.png" alt="Edit Style"' +
-                    'title="Edit Style" />' +
-                '</a>' +
-                '<ul id="style-dropdown" class="dropdown-menu">' +
-                  '<li><a ng-click="onStyleEdit(row.entity)">Style 1</a></li>' +
-                  '<li><a ng-click="onStyleEdit(row.entity)">Style 2</a></li>' +
-                  '<li>' +
-                    '<a class="add-new-style" ng-click="#">' +
-                      'Add New Style' +
-                    '</a>' +
-                  '</li>' +
-                '</ul>' +
-              '</li>',
-            */
             cellTemplate:
               '<div class="grid-text-padding" ng-class="col.colIndex()">' +
                 '<a ng-click="onStyleEdit(row.entity)">Edit</a>' +
               '</div>',
-            width: '7%'
+            width: '6%'
           },
           {field: 'download',
             displayName: 'Download',
@@ -327,19 +308,17 @@ angular.module('gsApp.layers', [
           {field: 'modified.timestamp',
             displayName: 'Modified',
             cellTemplate:
-              '<div class="grid-text-padding">' +
-                '{{row.entity.modified.timestamp.substring(0, ' +
-                'row.entity.modified.timestamp.lastIndexOf("-"))' +
-                '.replace("T", " ")}}' +
+              '<div class="grid-text-padding" style="font-size: .9em">' +
+              '{{row.entity.modified.timestamp|amDateFormat:"MMM D, h:mm a"}}' +
               '</div>',
-            width: '12%'},
+            width: '11%'},
           {field: '',
             displayName: '',
             cellClass: 'text-center',
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="deleteLayer(row.entity)">' +
+                '<a ng-click="deleteLayer(row.entity)" class="pull-left">' +
                   '<img ng-src="images/delete.png" alt="Remove Layer"' +
                     'title="Remove Layer" />' +
                 '</a>' +
@@ -379,7 +358,17 @@ angular.module('gsApp.layers', [
             $scope.filterOptions.filterText
           ).then(function(result) {
             if (result.success) {
-              $scope.layerData = result.data.layers;
+              $scope.layerData = _.map(result.data.layers,
+                function(layer) {
+                  if (layer.modified) {  // convert time strings to Dates
+                    return _.assign(layer, {'modified': {
+                      'timestamp': new Date(layer.modified.timestamp),
+                      'pretty': layer.modified.pretty
+                    }});
+                  } else {
+                    return layer;
+                  }
+                });
               $scope.totalServerItems = result.data.total;
               $scope.itemsPerPage = $scope.pagingOptions.pageSize;
 
@@ -403,7 +392,7 @@ angular.module('gsApp.layers', [
       };
 
       $scope.refreshMaps = function(ws) {
-        GeoServer.maps.get(ws).then(
+        GeoServer.maps.getAll(ws).then(
         function(result) {
           if (result.success) {
             var maps = result.data.maps;
@@ -430,18 +419,6 @@ angular.module('gsApp.layers', [
         if (newVal != null) {
           if ($scope.workspace.selected) {
             $scope.refreshLayers();
-
-            /*throw {
-              message: 'Big time error.',
-              cause: 'Network error: no packets sent.',
-              trace: [
-                {name: 'Error 1', error: 'HTTP request could not be sent.'},
-                {name: 'Error 2', error: 'HTTP request could not be...'},
-                {name: 'Error 3', error: 'This is critical error #3.'},
-                {name: 'Error 4', error: 'Error #4.'},
-                {name: 'Error 5', error: 'You know...error #5.'}
-              ]
-            };*/
           }
         }
       }, true);
@@ -463,12 +440,11 @@ angular.module('gsApp.layers', [
         function(result) {
           if (result.success) {
             var workspaces = result.data;
-            workspaces.filter(function(ws) {
-              return ws.default == true;
-            }).forEach(function(ws) {
-              $scope.workspace.selected = ws;
-            });
             $scope.workspaces = workspaces;
+            var ws = _.find(workspaces, function(workspace) {
+              return workspace.default;
+            });
+            $scope.workspace.selected = ws;
           } else {
             $scope.alerts = [{
               type: 'warning',

@@ -35,6 +35,8 @@
     "angular-ui-select": "~0.8.3",
     "ng-lodash": "~0.0.2",
     "proj4": "~2.3.3",
-    "angular-ui-utils": "bower-scrollfix"
+    "angular-ui-utils": "bower-scrollfix",
+    "angular-moment": "~0.8.2",
+    "moment": "~2.8.3"
   }
 }

@@ -65,7 +65,9 @@ var deps = {
     'ng-clip/src/ngClip.js',
     'ng-lodash/build/ng-lodash.min.js',
     'proj4/dist/proj4.js',
-    'angular-ui-utils/scrollfix.min.js'
+    'angular-ui-utils/scrollfix.min.js',
+    'moment/moment.js',
+    'angular-moment/angular-moment.js'
   ],
 
   less: [
