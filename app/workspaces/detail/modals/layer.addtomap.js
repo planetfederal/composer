@@ -173,7 +173,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
       };
 
       $scope.$watch('pagingOptions.currentPage', function(newVal) {
-        if (newVal) {
+        if (newVal != null) {
           $scope.refreshLayers();
         }
       });

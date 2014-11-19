@@ -10,7 +10,7 @@ angular.module('gsApp.alertpanel', [
         },
         templateUrl: '/components/alertpanel/alertpanel.tpl.html',
         controller: function($scope, $element) {
-          $scope.showMessages = false;
+          $scope.showMessages = true;
 
           $scope.$watch('alerts', function(newVal) {
             if (newVal != null) {
@@ -28,8 +28,10 @@ angular.module('gsApp.alertpanel', [
           $scope.$watch(function() {
             return $rootScope.enableAlerts; // set to true on login
           }, function(newVal) {
-            if (newVal) {
+            if (newVal != null) {
               $scope.showMessages = true;
+            } else if (newVal===false) {
+              $scope.showMessages = false;
             }
           }, true);
 

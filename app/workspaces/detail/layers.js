@@ -102,6 +102,8 @@ angular.module('gsApp.workspaces.layers', [
       layersListModel, $timeout) {
 
       $scope.workspace = $stateParams.workspace;
+      $scope.layerSelections = [];
+
       mapsListModel.fetchMaps($scope.workspace).then(function() {
         $scope.maps = mapsListModel.getMaps();
         $scope.mapOptions = $scope.maps.concat(
@@ -120,7 +122,7 @@ angular.module('gsApp.workspaces.layers', [
       });
 
       $scope.$watch('pagingOptions.currentPage', function(newVal) {
-        if (newVal) {
+        if (newVal != null) {
           $scope.refreshLayers();
         }
       });
@@ -170,24 +172,38 @@ angular.module('gsApp.workspaces.layers', [
         $scope.selectedMap = map;
       };
 
-      $scope.addSelectedToMap = function() {
-        var map = $scope.selectedMap;
+      $scope.toggleSelected = function(layer) {
+        console.log("toggleSelected");
+        console.log(layer);
+        if (layer != null) {
+          var found = false;
+          for (var i=0; i < $scope.layerSelections.length; i++) {
+            if ($scope.layerSelections[i].name===layer.name) {
+              $scope.layerSelections.splice(i,1);
+              found = true;
+            }
+          }
+          if (!found) {
+            $scope.layerSelections.push(layer);
+          }
+        }
+      };
 
+      $scope.addSelectedToMap = function() {
+        console.log($scope.layerSelections);
+        var map = $scope.selectedMap;
         var mapInfo = {
           'name': map.name,
           'proj': map.proj,
           'description': map.description
         };
         mapInfo.layers = [];
-        for (var k=0; k < $scope.layers.length; k++) {
-          var layer = $scope.layers[k];
-          if (layer.selected) {
-            mapInfo.layers.push({
-              'name': layer.name,
-              'workspace': $scope.workspace
-            });
-          }
-        }
+        _.forEach($scope.layerSelections, function(layer) {
+          mapInfo.layers.push({
+            'name': layer.name,
+            'workspace': $scope.workspace
+          });
+        });
 
         // 1. Create New map from Layers tab - selected layers
         if (map.name==='Create New Map') {
@@ -219,7 +235,6 @@ angular.module('gsApp.workspaces.layers', [
           }
           return;
         }
-
         if (mapInfo.layers.length==0) {
           $rootScope.alerts = [{
             type: 'warning',
@@ -229,20 +244,20 @@ angular.module('gsApp.workspaces.layers', [
           return;
         }
 
-        // 2. Create New map from anywhere - no selected layers
+        // 2. Create New map - possible fr. other states - no selected layers
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,
           mapInfo.layers).then(function(result) {
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
                 message: mapInfo.layers.length +
-                  ' layers added to ' + mapInfo.name +
+                  ' layer(s) added to ' + mapInfo.name +
                   ', now with ' + result.data.length + ' total.',
                 fadeout: true
               }];
               mapsListModel.addMap(result.data);
-             // $state.go('map.compose', {workspace: map.workspace,
-              //  name: mapInfo.name});
+              $state.go('map.compose', {workspace: map.workspace,
+                name: mapInfo.name});
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
