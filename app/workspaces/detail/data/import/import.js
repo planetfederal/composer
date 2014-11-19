@@ -251,9 +251,9 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.maps = $stateParams.maps;
       $scope.chooseTables = false;
 
-      $scope.geoserverDatabaseLink = GeoServer.baseUrl() + '/web/?wicket:bookmarkablePage=:org.geoserver.importer.web.ImportDataPage';
-
-      console.log($scope.geoserverDatabaseLink);
+      $scope.geoserverDatabaseLink = GeoServer.baseUrl() +
+        '/web/?wicket:bookmarkablePage=:org.geoserver.importer.web.' +
+        'ImportDataPage';
 
       $scope.chooseFormat = function(f) {
         GeoServer.format.get(f.name).then(function(result) {
