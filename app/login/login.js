@@ -13,6 +13,7 @@ angular.module('gsApp.login', [])
       $scope.title = 'Login';
       $scope.creds = {};
       $scope.loginFailed = false;
+      $rootScope.enableAlerts = false;
 
       $scope.login = function() {
         GeoServer.login($scope.creds.username, $scope.creds.password)
@@ -24,6 +25,7 @@ angular.module('gsApp.login', [])
           .then(function(result) {
             // broadcast login info
             if (result.success) {
+              $rootScope.enableAlerts = true;
               $rootScope.$broadcast(AppEvent.Login, result.data);
             }
             return result;

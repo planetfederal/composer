@@ -5,7 +5,8 @@ angular.module('gsApp.maps', [
   'gsApp.alertpanel',
   'gsApp.projfield',
   'gsApp.core.utilities',
-  'gsApp.maps.compose'
+  'gsApp.maps.compose',
+  'angularMoment'
 ])
 .config(['$stateProvider',
     function($stateProvider) {
@@ -22,13 +23,14 @@ angular.module('gsApp.maps', [
         });
     }])
 .controller('MapsCtrl', ['$scope', 'GeoServer', '$state', '$log', '$rootScope',
-    '$modal', '$window', '$stateParams', 'AppEvent', '$timeout', '$sce',
+    '$modal', '$window', '$stateParams', 'AppEvent', '$timeout', '$sce', '_',
     function($scope, GeoServer, $state, $log, $rootScope, $modal, $window,
-      $stateParams, AppEvent, $timeout, $sce) {
+      $stateParams, AppEvent, $timeout, $sce, _) {
 
       $scope.title = 'All Maps';
       $scope.workspace = $stateParams.workspace;
 
+<<<<<<< Updated upstream
       $scope.workspaceChanged = function(ws) {
         $rootScope.$broadcast(AppEvent.WorkspaceSelected,
           ws.name);
@@ -46,6 +48,29 @@ angular.module('gsApp.maps', [
             }
           });
       };
+=======
+      $scope.$watch('workspace.selected', function(newVal) {
+        if (newVal) {
+          var ws = newVal;
+          $rootScope.$broadcast(AppEvent.WorkspaceSelected,
+            ws.name);
+
+          GeoServer.maps.get(ws.name).then(
+            function(result) {
+              if (result.success) {
+                $scope.mapData = result.data.maps;
+              } else {
+                $rootScope.alerts = [{
+                  type: 'warning',
+                  message: 'Could not retrieve maps.',
+                  fadeout: true
+                }];
+              }
+            });
+          $scope.refreshMaps();
+        }
+      });
+>>>>>>> Stashed changes
 
       $scope.newOLWindow = function(map) {
         var baseUrl = GeoServer.map.openlayers.get(
@@ -104,7 +129,6 @@ angular.module('gsApp.maps', [
                     if ($scope.mapNameCheck.name) {$scope.mapNameError = true;}
                     else {$scope.mapNameError = false;}
                   });
-                //$window.location.reload();
               };
 
               $scope.cancel = function() {
@@ -115,6 +139,68 @@ angular.module('gsApp.maps', [
           size: 'med'
         });
       };
+
+      $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
+        $scope.refreshMaps();
+      }, true);
+
+      $scope.refreshMaps = function() {
+        $scope.sort = '';
+        $scope.ws = $scope.workspace.selected;
+        if ($scope.gridOptions.sortInfo.directions == 'asc') {
+          $scope.sort = $scope.gridOptions.sortInfo.fields+':asc';
+        }
+        else {
+          $scope.sort = $scope.gridOptions.sortInfo.fields+':desc';
+        }
+
+        if ($scope.ws) {
+          GeoServer.maps.get(
+            $scope.ws.name,
+            $scope.pagingOptions.currentPage-1,
+            $scope.pagingOptions.pageSize,
+            $scope.sort,
+            $scope.filterOptions.filterText
+          ).then(function(result) {
+            if (result.success) {
+              $scope.mapData = result.data.maps;
+              $scope.totalServerItems = result.data.total;
+              $scope.itemsPerPage = $scope.pagingOptions.pageSize;
+
+              if ($scope.filterOptions.filterText.length > 0) {
+                $scope.totalItems =
+                  $scope.gridOptions.ngGrid.filteredRows.length;
+              }
+              else {
+                $scope.totalItems = $scope.totalServerItems;
+              }
+            } else {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Maps for workspace ' + $scope.ws.name +
+                  ' could not be loaded.',
+                fadeout: true
+              }];
+            }
+          });
+        }
+      };
+
+      $scope.updatePaging = function () {
+        $scope.refreshMaps();
+      };
+
+      $scope.setPage = function (page) {
+        $scope.pagingOptions.currentPage = page;
+      };
+
+      $scope.$watch('pagingOptions', function (newVal, oldVal) {
+        if (newVal != null) {
+          if ($scope.workspace.selected) {
+            $scope.refreshMaps();
+          }
+        }
+      }, true);
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
@@ -157,21 +243,12 @@ angular.module('gsApp.maps', [
 
         var kml = baseurl + 'application/vnd.google-earth.kml%2Bxml';
         var ol2 = baseurl + 'application/openlayers';
-        var png = baseurl + 'image/png';
-        var jpeg = baseurl + 'image/jpeg';
-        var geotiff = baseurl + 'image/geotiff';
 
         map.download_urls = '';
         map.download_urls += '<a target="_blank" href="' + ol2 +
           '">OpenLayers</a> <br />';
         map.download_urls += '<a target="_blank" href="' + kml +
           '">KML</a> <br />';
-        map.download_urls += '<a target="_blank" href="' + geotiff +
-          '">GeoTIFF</a> <br />';
-        map.download_urls += '<a target="_blank" href="' + png +
-        '">PNG</a> <br />';
-        map.download_urls += '<a target="_blank" href="' + jpeg +
-        '">JPEG</a> <br />';
 
         map.urls_ready = true;
         map.download_urls = $sce.trustAsHtml(map.download_urls);
@@ -206,16 +283,16 @@ angular.module('gsApp.maps', [
       $scope.gridOptions = {
         data: 'mapData',
         enableCellSelection: false,
-        enableRowSelection: true,
+        enableRowSelection: false,
         enableCellEdit: false,
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
         sortInfo: {fields: ['name'], directions: ['asc']},
-        showSelectionCheckbox: true,
-        selectWithCheckboxOnly: true,
+        showSelectionCheckbox: false,
+        selectWithCheckboxOnly: false,
         selectedItems: $scope.gridSelections,
-        multiSelect: true,
+        multiSelect: false,
         columnDefs: [
           {field: 'name', displayName: 'Map Name', width: '15%'},
           {field: 'title',
@@ -237,7 +314,7 @@ angular.module('gsApp.maps', [
               '<div class="grid-text-padding" ng-class="col.colIndex()">' +
                 '<a ng-click="onCompose(row.entity)">Compose</a>' +
               '</div>',
-            width: '10%'
+            width: '8%'
           },
           {field: 'preview',
             displayName: 'Preview',
@@ -250,7 +327,7 @@ angular.module('gsApp.maps', [
                     'title="Preview Map" />' +
                 '</a>' +
               '</div>',
-            width: '7%'
+            width: '6%'
           },
           {field: 'settings',
             displayName: 'Settings',
@@ -263,7 +340,7 @@ angular.module('gsApp.maps', [
                     'alt="Edit Map Settings" title="Edit Map Settings" />' +
                 '</a>' +
               '</div>',
-            width: '7%'
+            width: '6%'
           },
           {field: 'download',
             displayName: 'Download',
@@ -277,8 +354,15 @@ angular.module('gsApp.maps', [
                   'linkDownloads(row.entity);">' +
                 '<div class="fa fa-download grid-icons" ' +
                   'alt="Download Map" title="Download Map"></div></a>',
-            width: '10%'
+            width: '8%'
           },
+          {field: 'modified.timestamp',
+            displayName: 'Modified',
+            cellTemplate:
+              '<div class="grid-text-padding" style="font-size: .9em">' +
+              '{{row.entity.modified.timestamp|amDateFormat:"MMM D, h:mm a"}}' +
+              '</div>',
+            width: '11%'},
           {field: '',
             displayName: '',
             cellClass: 'pull-left',
@@ -327,11 +411,11 @@ angular.module('gsApp.maps', [
         function(result) {
           if (result.success) {
             var workspaces = result.data;
-            workspaces.forEach(function(ws) {
-              $scope.workspace.selected = ws;
-              $scope.workspaceChanged(ws);
-            });
             $scope.workspaces = workspaces;
+            var ws = _.find(workspaces, function(workspace) {
+              return workspace.default;
+            });
+            $scope.workspace.selected = ws;
           } else {
             $scope.alerts = [{
               type: 'warning',

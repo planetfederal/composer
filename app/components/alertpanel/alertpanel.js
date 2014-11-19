@@ -1,8 +1,8 @@
 angular.module('gsApp.alertpanel', [
   'ui.bootstrap'
 ])
-.directive('alertPanel', ['$modal', '$interval', '$log',
-    function($modal, $interval, $log) {
+.directive('alertPanel', ['$modal', '$interval', '$log', '$rootScope',
+    function($modal, $interval, $log, $rootScope) {
       return {
         restrict: 'EA',
         scope: {
@@ -10,10 +10,12 @@ angular.module('gsApp.alertpanel', [
         },
         templateUrl: '/components/alertpanel/alertpanel.tpl.html',
         controller: function($scope, $element) {
+          $scope.showMessages = false;
+
           $scope.$watch('alerts', function(newVal) {
             if (newVal != null) {
               $scope.messages = newVal.map(function(val) {
-                var msg = angular.extend({show:true}, val);
+                var msg = angular.extend({show: $scope.showMessages}, val);
                 if (msg.fadeout == true) {
                   $interval(function() {
                     msg.show = false;
@@ -23,6 +25,14 @@ angular.module('gsApp.alertpanel', [
               });
             }
           });
+          $scope.$watch(function() {
+            return $rootScope.enableAlerts; // set to true on login
+          }, function(newVal) {
+            if (newVal) {
+              $scope.showMessages = true;
+            }
+          }, true);
+
           $scope.closeAlert = function(i) {
             $scope.messages.splice(i, 1);
           };
