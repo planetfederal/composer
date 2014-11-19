@@ -108,8 +108,19 @@ angular.module('gsApp.maps', [
       };
 
       $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
-        $scope.refreshMaps();
+        if (_.contains($scope.gridOptions.sortInfo.fields, 'name') ||
+          _.contains($scope.gridOptions.sortInfo.fields, 'title')) {
+          $scope.refreshMaps();
+        } else {
+          $rootScope.alerts = [{
+              type: 'warning',
+              message: 'Sorting ' + $scope.gridOptions.sortInfo.fields[0] +
+                ' for this page only.',
+              fadeout: true
+            }];
+        }
       }, true);
+
 
       $scope.refreshMaps = function() {
         $scope.sort = '';

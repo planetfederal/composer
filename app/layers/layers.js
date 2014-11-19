@@ -385,7 +385,17 @@ angular.module('gsApp.layers', [
 
       $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
         if (selectedWorkspace) {
-          $scope.refreshLayers();
+          if (_.contains($scope.gridOptions.sortInfo.fields, 'name') ||
+            _.contains($scope.gridOptions.sortInfo.fields, 'title')) {
+            $scope.refreshLayers();
+          } else {
+            $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Sorting ' + $scope.gridOptions.sortInfo.fields[0] +
+                  ' for this page only.',
+                fadeout: true
+              }];
+          }
         }
       }, true);
 
