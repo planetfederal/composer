@@ -50,6 +50,7 @@ angular.module('gsApp.layers', [
 
       $scope.workspace = {};
       $scope.workspaces = [];
+      var selectedWorkspace;
 
       $scope.go = function(route, workspace) {
         $state.go(route, {workspace: workspace});
@@ -71,34 +72,83 @@ angular.module('gsApp.layers', [
         $state.go('workspace.data.import', {workspace: workspace});
       };
 
-      $scope.addSelectedLayerToMap = function(ws, map, layerSelections) {
-        var layers = [];
-        for (var i=0; i< layerSelections.length; i++) {
-          layers.push({
-            'name': layerSelections[i].name,
-            'workspace': ws
+      $scope.addSelectedToMap = function() {
+        var map = $scope.selectedMap;
+        var mapInfo = {
+          'name': map.name,
+          'proj': map.proj,
+          'description': map.description
+        };
+        mapInfo.layers = [];
+        _.forEach($scope.layerSelections, function(layer) {
+          mapInfo.layers.push({
+            'name': layer.name,
+            'workspace': selectedWorkspace
           });
-        }
+        });
+        // 1. Create New map from Layers tab - selected layers
+        if (map.name==='Create New Map') {
+          mapInfo.name = null;
 
-        GeoServer.layer.update(ws, map, layers)
-          .then(function(result) {
+          if (mapInfo.layers.length==0) {
+            $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Please import data and create a new Layer.' +
+                  ' A map requires at least 1 layer.',
+                fadeout: true
+              }];
+          } else {
+            var createNewMapModal = $modal.open({
+              templateUrl:
+              '/workspaces/detail/maps/createnew/map.new.fromselected.tpl.html',
+              controller: 'NewMapFromSelectedCtrl',
+              backdrop: 'static',
+              size: 'lg',
+              resolve: {
+                workspace: function() {
+                  return selectedWorkspace;
+                },
+                mapInfo: function() {
+                  return mapInfo;
+                }
+              }
+            });
+          }
+          return;
+        }
+        if (mapInfo.layers.length==0) {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Select layers to add to a map below.',
+            fadeout: true
+          }];
+          return;
+        }
+        GeoServer.map.layers.add(selectedWorkspace, mapInfo.name,
+          mapInfo.layers).then(function(result) {
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Map ' + result.data.name + ' updated  with ' +
-                  result.data.layers.length + ' layer(s).',
+                message: mapInfo.layers.length +
+                  ' layer(s) added to ' + mapInfo.name +
+                  ', now with ' + result.data.length + ' total.',
                 fadeout: true
               }];
-              $scope.maps.push(result.data);
+              $state.go('map.compose', {workspace: selectedWorkspace,
+                name: mapInfo.name});
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Could not add layers to map.',
+                message: 'Layer(s) could not be added to map ' +
+                  mapInfo.name + '.',
                 fadeout: true
               }];
             }
-            //$window.location.reload();
           });
+      };
+
+      $scope.setMap = function(map) {
+        $scope.selectedMap = map;
       };
 
       $scope.deleteLayer = function(layer) {
@@ -109,8 +159,6 @@ angular.module('gsApp.layers', [
               $scope.layer = layer.name;
 
               $scope.ok = function() {
-                //$window.alert('TODO: remove the layer "' + layer.name + '"' +
-                  //'from the workspace: ' + layer.workspace + '.');
                 GeoServer.layer.delete(layer.workspace, layer.name);
                 $modalInstance.dismiss('cancel');
               };
@@ -132,7 +180,7 @@ angular.module('gsApp.layers', [
           size: 'md',
           resolve: {
             workspace: function() {
-              return $scope.workspace;
+              return selectedWorkspace;
             },
             layer: function() {
               return layer;
@@ -142,7 +190,7 @@ angular.module('gsApp.layers', [
       };
 
       $scope.addDataSource = function() {
-        $state.go('workspaces.data.import', { workspace: $scope.workspace });
+        $state.go('workspaces.data.import', { workspace: selectedWorkspace });
       };
 
       // See utilities.js pop directive - 1 popover open at a time
@@ -219,7 +267,7 @@ angular.module('gsApp.layers', [
       $scope.filterOptions = {
         filterText: ''
       };
-      $scope.gridSelections = [];
+      $scope.layerSelections = [];
       $scope.gridOptions = {
         data: 'layerData',
         enableCellSelection: false,
@@ -234,7 +282,7 @@ angular.module('gsApp.layers', [
         sortInfo: {fields: ['name'], directions: ['asc']},
         showSelectionCheckbox: true,
         selectWithCheckboxOnly: true,
-        selectedItems: $scope.gridSelections,
+        selectedItems: $scope.layerSelections,
         multiSelect: true,
         columnDefs: [
           {field: 'name', displayName: 'Layer', width: '14%'},
@@ -336,22 +384,22 @@ angular.module('gsApp.layers', [
       };
 
       $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
-        $scope.refreshLayers();
+        if (selectedWorkspace) {
+          $scope.refreshLayers();
+        }
       }, true);
 
       $scope.refreshLayers = function() {
         $scope.sort = '';
-        $scope.ws = $scope.workspace.selected;
         if ($scope.gridOptions.sortInfo.directions == 'asc') {
           $scope.sort = $scope.gridOptions.sortInfo.fields+':asc';
         }
         else {
           $scope.sort = $scope.gridOptions.sortInfo.fields+':desc';
         }
-
-        if ($scope.ws) {
+        if (selectedWorkspace) {
           GeoServer.layers.get(
-            $scope.ws.name,
+            selectedWorkspace,
             $scope.pagingOptions.currentPage-1,
             $scope.pagingOptions.pageSize,
             $scope.sort,
@@ -382,7 +430,7 @@ angular.module('gsApp.layers', [
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
-                message: 'Layers for workspace ' + $scope.ws.name +
+                message: 'Layers for workspace ' + selectedWorkspace +
                   ' could not be loaded.',
                 fadeout: true
               }];
@@ -396,6 +444,7 @@ angular.module('gsApp.layers', [
         function(result) {
           if (result.success) {
             var maps = result.data.maps;
+            maps = maps.concat([{'name': 'Create New Map'}]);
             $scope.maps = maps;
           } else {
             $rootScope.alerts = [{
@@ -417,7 +466,7 @@ angular.module('gsApp.layers', [
 
       $scope.$watch('pagingOptions', function (newVal, oldVal) {
         if (newVal != null) {
-          if ($scope.workspace.selected) {
+          if (selectedWorkspace) {
             $scope.refreshLayers();
           }
         }
@@ -425,16 +474,13 @@ angular.module('gsApp.layers', [
 
       $scope.$watch('workspace.selected', function(newVal) {
         if (newVal != null) {
+          selectedWorkspace = $scope.workspace.selected.name;
           $scope.refreshLayers();
-          $scope.refreshMaps(newVal.name);
+          $scope.layerSelections.length = 0;
+          $scope.refreshMaps(selectedWorkspace);
           $scope.$broadcast(AppEvent.WorkspaceSelected, newVal.name);
         }
       });
-
-      $scope.mapChanged = function(map) {
-        $scope.mapTitle = map;
-        $scope.map.saved = false;
-      };
 
       GeoServer.workspaces.get().then(
         function(result) {
@@ -519,7 +565,7 @@ angular.module('gsApp.layers', [
                 message: 'Layer ' + result.data.name + ' created.',
                 fadeout: true
               }];
-              $scope.layers.push(result.data);
+              $scope.layerData.push(result.data);
             } else {
               $modalInstance.dismiss('cancel');
               $rootScope.alerts = [{

@@ -208,7 +208,7 @@ angular.module('gsApp.workspaces.maps', [
       });
 
       $scope.$watch('pagingOptions.currentPage', function(newVal) {
-        if (newVal) {
+        if (newVal != null) {
           $scope.refreshMaps();
         }
       });

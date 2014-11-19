@@ -13,7 +13,11 @@ angular.module('gsApp.login', [])
       $scope.title = 'Login';
       $scope.creds = {};
       $scope.loginFailed = false;
-      $rootScope.enableAlerts = false;
+      $rootScope.enableAlerts = true;
+
+      $scope.alertsOff = function() {
+        $rootScope.enableAlerts = false;
+      };
 
       $scope.login = function() {
         GeoServer.login($scope.creds.username, $scope.creds.password)

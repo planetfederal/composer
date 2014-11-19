@@ -31,7 +31,7 @@ angular.module('gsApp.maps', [
       $scope.workspace = $stateParams.workspace;
 
       $scope.$watch('workspace.selected', function(newVal) {
-        if (newVal) {
+        if (newVal != null) {
           var ws = newVal;
           $rootScope.$broadcast(AppEvent.WorkspaceSelected,
             ws.name);
