@@ -1,7 +1,7 @@
 <div class="featureinfo-panel">
   <script type="text/ng-template" id="featureinfo-modal">
     <div class="modal-header">
-      <h4 class="modal-title">Feature Info</h4>
+      <div class="modal-title">Selected feature<span ng-if="features.length>1">s</span> in layer <strong>{{ layer.name }}</strong></div>
     </div>
     <div class="featureinfo-modal-content modal-body">
       <div ng-repeat="row in features | orderBy: 'id' | partition:2">
@@ -13,6 +13,7 @@
               <td>{{ value }}</td>
             </tr>
           </table>
+          <div class="geometry"><strong>Geometry Type:</strong> {{ feature.geometry.type }}</div>
         </div>
       </div>
     </div>
