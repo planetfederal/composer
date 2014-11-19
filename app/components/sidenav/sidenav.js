@@ -45,9 +45,9 @@ angular.module('gsApp.sidenav', [
         $scope.sideBottom = {'position': 'relative'};
       } else {
         $scope.sideStyle = {'position': 'absolute'};
-        $scope.sideBottom = {'top': (windowHeight-15) + 'px'};
+        $scope.sideBottom = {'top': (windowHeight-30) + 'px'};
       }
-      $scope.numWorkspaces = Math.floor(windowHeight - 230) / 30;
+      $scope.numWorkspaces = Math.floor((windowHeight - 230) / 30);
     };
     $scope.onWindowResize();
     var timer = null;
