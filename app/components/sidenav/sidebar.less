@@ -2,7 +2,6 @@
 
 @import "../../variables.less";
 
-
 #sidebar-wrapper {
   width: @sidebar_max;
   z-index: 1000;
@@ -63,7 +62,26 @@
         background-color: #999;
 
         &.top-divider {
-            margin-top: 26px;
+            margin-top: 10px;
+        }
+    }
+
+    /* Copyright */
+
+    .copyright-item {
+        margin-top: 10px;
+    }
+
+    .copyright {
+        color: #222;
+        a {
+            display: inline-block;
+            color: #222;
+            margin-left: 0;
+            &:hover {
+                color: @gray;
+                background-color: transparent;
+            }
         }
     }
 
