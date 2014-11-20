@@ -420,7 +420,9 @@ public class LayerController extends ApiController {
     JSONObj update(LayerInfo layer, JSONObj obj, HttpServletRequest req) {
         ResourceInfo resource = layer.getResource();
         for (String prop : obj.keys()) {
-            if ("title".equals(prop)) {
+            if ("name".equals(prop)) {
+                layer.setName(obj.str("name"));
+            } else if ("title".equals(prop)) {
                 layer.setTitle(obj.str("title"));
             } else if ("description".equals(prop)) {
                 layer.setAbstract(obj.str("description"));
