@@ -3,17 +3,26 @@ Color Overrides
 -----------------------*/
 
 h1, h2, h3, h4, h5, h6 {
-  color: #00A78D;
+  color: #4D5055;
 }
 
 a:link, a:visited {
   color: #28728D;
 }
 
+#header {
+  background-color: #28728D;
+  color: #CECECE;
+}
+
+#header label {
+  color: #CECECE;
+}
+
 thead th {
-  background: #00A78D;
+  background: #28728D;
   color: #fff;
-  border-color: #28728D;
+  border-color: #00A78D;
 }
 
 thead th a:link, 
@@ -73,25 +82,61 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
 }
 
+#main {
+  background-color: #fafbfc;
+  border-bottom: 1px solid #cfdbe2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  margin: 0 -25px 0 -25px;
+  padding: 10px 10px 10px 15px;
+  height: 20px;
+}
+
+/* Enterprise or Basic header @build-profile@ */
 #header h2 a {
-  background-image: url('../img_opengeo/logo.png');
+  background-image: url('../img_opengeo/logo2-@build-profile@.png'); 
+  margin-left: 15px;
+  width: 468px;
 }
 
 #main {
   border-top: 1px solid #28728D;
-  background-image: url('../img_opengeo/main-bg.png');
+  background-image: none;
 }
 
 #main .wrap {
-  background-image: url('../img_opengeo/main-wrap-bg.png');
+  background-image: none;
+}
+
+#sidebar {
+  padding: 30px 20px 0;
 }
 
 #page {
-  background-image: url('../img_opengeo/page-bg.png');
+  background-image: none;
+  zoom: 1;
+  margin: 0 -20px -250px 19em;
+  padding: 0 20px 250px 19px;
+  -webkit-box-shadow: -1px -1px 1px 0px rgba(214,214,214,0.8);
+  -moz-box-shadow: -1px -1px 1px 0px rgba(214,214,214,0.8);
+  box-shadow: -1px -1px 1px 0px rgba(214,214,214,0.8);
+}
+
+#page::before {
+  content: " ";
+  background: 
+  	url("../img_opengeo/content-shadow.png") 0 -271px no-repeat,
+  	url("../img_opengeo/content-shadow.png") right 0 no-repeat;
+  position: absolute;
+  top: 0;
+  left: 217px;
+  right: -11px;
+  display: block;
+  height: 270px;
+  z-index: -1;
 }
 
 .page-header {
-  background-image: url('../img_opengeo/page-header-bg.png');
+  background-image: none;
 }
 
 #navigation {
