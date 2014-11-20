@@ -91,9 +91,9 @@ h1, h2, h3, h4, h5, h6 {
   height: 20px;
 }
 
-/* Enterprise or Basic header @build-profile@ */
+/* Enterprise or Basic header ${suite.build_profile} */
 #header h2 a {
-  background-image: url('../img_opengeo/logo2-@build-profile@.png'); 
+  background-image: url('../img_opengeo/logo2-${suite.build_profile}.png');
   margin-left: 15px;
   width: 468px;
 }

@@ -255,7 +255,7 @@
         <directory>src/main/resources</directory>
       </resource>
       <resource>
-        <directory>src/main/properties</directory>
+        <directory>src/main/filtered</directory>
         <filtering>true</filtering>
       </resource>
     </resources>
