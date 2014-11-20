@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.workspaces.layers.duplicate', [])
 .controller('DuplicateLayerCtrl', ['layer', 'workspace', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer',

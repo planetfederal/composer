@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.workspaces.home', [
   'gsApp.workspaces.maps',
   'gsApp.workspaces.layers',

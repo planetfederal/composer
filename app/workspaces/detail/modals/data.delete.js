@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.workspaces.data.delete', [])
 .controller('WorkspaceDeleteDataCtrl', ['workspace', 'store',
   'storeRemoved', '$scope', '$rootScope', '$modalInstance',

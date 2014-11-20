@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 /* global $ */
 angular.module('gsApp.styleditor.color', [])
 .directive('styleEditorColor', ['$log',

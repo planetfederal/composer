@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 /*global $, window*/
 angular.module('gsApp.sidenav', [
   'gsApp.workspaces.home',

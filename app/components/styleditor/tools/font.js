@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 /* globals $ */
 angular.module('gsApp.styleditor.font', [])
 .directive('styleEditorFont', ['$log',

@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.workspaces.maps.settings', [])
 .controller('EditMapSettingsCtrl', ['workspace', 'map', '$scope', '$rootScope',
   '$state', '$log', '$modalInstance', 'GeoServer', 'AppEvent',
