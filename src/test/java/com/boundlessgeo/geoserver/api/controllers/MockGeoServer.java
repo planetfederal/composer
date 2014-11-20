@@ -632,6 +632,11 @@ public class MockGeoServer {
             return this;
         }
 
+        public LayerBuilder meta(String key, Serializable val) {
+            layer.getMetadata().put(key, val);
+            return this;
+        }
+
         public MapBuilder map() {
             return mapBuilder;
         }

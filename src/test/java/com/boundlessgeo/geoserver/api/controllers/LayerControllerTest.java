@@ -18,6 +18,7 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleHandler;
+import org.geoserver.catalog.StyleInfo;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerExtensions;
@@ -51,6 +52,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 import java.util.List;
 
 import static junit.framework.TestCase.assertNotNull;
@@ -302,7 +304,11 @@ public class LayerControllerTest {
     public void testDelete() throws Exception {
         GeoServer gs = MockGeoServer.get().catalog()
             .workspace("foo", "http://scratch.org", true)
-                .layer("one").info("The layer", "This layer is cool!").featureType().store("foo")
+                .layer("one")
+                    .info("The layer", "This layer is cool!")
+                    .meta(Metadata.IMPORTED, new Date())
+                    .style().layer()
+                .featureType().store("foo")
                 .geoServer().build(geoServer);
 
         mvc.perform(delete("/api/layers/foo/one"))
@@ -311,6 +317,7 @@ public class LayerControllerTest {
 
         Catalog cat = geoServer.getCatalog();
         verify(cat, times(1)).remove(isA(LayerInfo.class));
+        verify(cat, times(1)).remove(isA(StyleInfo.class));
     }
 
     @Test
