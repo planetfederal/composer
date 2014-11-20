@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -398,7 +399,21 @@ public class LayerController extends ApiController {
         Catalog cat = geoServer.getCatalog();
         LayerInfo layer = findLayer(wsName, name, cat);
         recent.remove(LayerInfo.class, layer);
-        new CascadeDeleteVisitor(cat).visit(layer);
+
+        CascadeDeleteVisitor remover = new CascadeDeleteVisitor(cat);
+        remover.visit(layer);
+
+        // if this layer was imported, delete it's style as well
+        if (layer.getMetadata().containsKey(Metadata.IMPORTED)) {
+            StyleInfo s = layer.getDefaultStyle();
+            try {
+                remover.visit(s);
+                dataDir().style(s).delete();
+            }
+            catch(Exception e) {
+                LOG.log(Level.WARNING, "Unable to default style for layer " + wsName + ":" + layer.getName(), e);
+            }
+        }
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PATCH)

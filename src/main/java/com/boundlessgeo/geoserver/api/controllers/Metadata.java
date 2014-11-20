@@ -17,6 +17,7 @@ public class Metadata {
 
     static final String CREATED = "created";
     static final String MODIFIED = "modified";
+    static final String IMPORTED = "imported";
 
     public static void created(Info obj, Date created) {
         MetadataMap map = map(obj);

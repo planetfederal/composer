@@ -116,8 +116,7 @@ public class ImportController extends ApiController {
         // run the import
         ImportContext imp = importer.createContext(data, ws);
 
-        // back the context object to ensure that all styles are workspace local
-        moveStylesToWorkspace(imp, ws);
+        prepTasks(imp, ws);
 
         importer.run(imp);
 
@@ -129,11 +128,15 @@ public class ImportController extends ApiController {
         return get(ws.getName(), imp.getId());
     }
 
-    void moveStylesToWorkspace(ImportContext imp, WorkspaceInfo ws) {
+    void prepTasks(ImportContext imp, WorkspaceInfo ws) {
+        // 1. hack the context object to ensure that all styles are workspace local
+        // 2. mark layers as "imported" so we can safely delete styles later
         GeoServerDataDirectory dataDir = dataDir();
 
         for (ImportTask t : imp.getTasks()) {
             LayerInfo l = t.getLayer();
+            l.getMetadata().put(Metadata.IMPORTED, new Date());
+
             if (l != null && l.getDefaultStyle() != null) {
                 StyleInfo s = l.getDefaultStyle();
                 Resource from = dataDir.style(s);
