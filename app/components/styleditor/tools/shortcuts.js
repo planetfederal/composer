@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 /*global window, document, ZeroClipboard, $ */
 angular.module('gsApp.styleditor.shortcuts', [])
 .controller('ShortcutsCtrl', ['$scope', '$modalInstance',

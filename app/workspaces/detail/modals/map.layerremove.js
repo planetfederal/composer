@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.workspaces.maps.layerremove', [])
 .controller('MapRemoveLayerCtrl', ['map', 'layer', '$scope', '$modalInstance',
     function (map, layer, $scope, $modalInstance) {

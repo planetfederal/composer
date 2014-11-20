@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.styleditor.layers', [])
 .directive('styleEditorLayers', ['$log',
     function($log) {

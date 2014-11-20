@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.login', [])
 .config(['$stateProvider',
     function($stateProvider) {

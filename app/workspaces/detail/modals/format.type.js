@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.workspaces.formats.type', [])
 .controller('FormatTypeInfoCtrl',
     ['formats', 'resource', '$scope', '$rootScope', '$state', '$log',

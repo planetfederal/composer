@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 angular.module('gsApp.workspaces.layers.settings', [])
 .controller('EditLayerSettingsCtrl', ['workspace', 'layer', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer', 'AppEvent',

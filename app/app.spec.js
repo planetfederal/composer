@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 describe('app homepage', function() {
   function login() {
     element(by.model('creds.username')).sendKeys("admin");

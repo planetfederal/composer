@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 /*global window, document, ZeroClipboard, XMLHttpRequest, Uint8Array, proj4, $
 */
 angular.module('gsApp.olmap', [])

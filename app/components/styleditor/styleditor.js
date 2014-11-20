@@ -1,3 +1,6 @@
+/* 
+ * (c) 2014 Boundless, http://boundlessgeo.com
+ */
 /*global CodeMirror */
 angular.module('gsApp.styleditor', [
   'ui.codemirror',
