@@ -332,6 +332,25 @@ public class LayerControllerTest {
         verify(l, times(1)).setTitle("new title");
     }
 
+    @Test
+    public void testPutNameChange() throws Exception {
+        GeoServer gs = MockGeoServer.get().catalog()
+            .workspace("foo", "http://scratch.org", true)
+                .layer("one").info("The layer", "This layer is cool!")
+                .featureType().defaults().store("one")
+                .geoServer().build(geoServer);
+
+        JSONObj obj = new JSONObj().put("name", "newname");
+        MockHttpServletRequestBuilder req = put("/api/layers/foo/one")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(obj.toString());
+
+        mvc.perform(req).andExpect(status().isOk()).andReturn();
+
+        LayerInfo l = gs.getCatalog().getLayerByName("foo:one");
+        verify(l, times(1)).setName("newname");
+    }
+
     String toString(Resource r) {
         return new String(((ByteArrayOutputStream)r.out()).toByteArray());
     }
