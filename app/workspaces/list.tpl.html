@@ -37,7 +37,7 @@
     <div class="row">
       <div class="col-sm-12">
         <div class="workspaces-summary">
-          <div class="row" ng-init="predicate='modified.timestamp'" ng-repeat="row in workspaces | orderBy:predicate:reverse | partition:3">
+          <div class="row" ng-init="predicate='modified.timestamp'" ng-repeat="row in workspaces | orderBy:predicate:reverse | filter:filterText | partition:3">
             <div class="col-sm-4" ng-repeat="workspace in row">
               <a class="workspace-summary-detail">
                 <div class="workspace-icon" ng-mouseover="mouse=true" ng-mouseleave="mouse=false" ng-init="mouse=false">
