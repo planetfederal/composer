@@ -14,8 +14,8 @@ angular.module('gsApp.styleditor.bg', [])
           '<li class="dropdown dropdown-toggle">'+
             '<i class="icon-paint-format"></i>'+
             '<span>BgColor</span>'+
-            '<ul class="dropdown-menu">'+
-              '<li style="margin-left: 5px; color: #777;">'+
+            '<ul class="dropdown-menu" style="min-width: 140px;">'+
+              '<li style="margin-left: 3px; color: #777;">'+
                 '<small>(Screen only - not map)</small></li>'+
               '<li ng-repeat="(b,c) in bgcolors"'+
                 'ng-class="{active: b == bgcolor}">'+

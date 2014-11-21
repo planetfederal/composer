@@ -1,9 +1,9 @@
 <div class="layer-detail-style">
   <div class="row title-row">
-    <div class="col-md-6">
+    <div class="col-md-6" ng-style="mapBackground">
       <div class="layer-info">
         <a ng-click="viewWorkspace(workspace);"><i class="icon-folder-open"></i> {{ workspace }}</a>
-        <a ng-click="editLayerSettings(layer);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> <i class="icon-stack"></i> {{ layer.name }}</a>
+        <a ng-click="editLayerSettings(layer);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> {{ layer.name }} layer</a>
         <div class="render-progress-container">
           <span ng-show="isRendering" class="render-progress">
             <i class="fa fa-spinner fa-spin"></i>
@@ -18,13 +18,13 @@
       <div class="style-toolbar">
         <ul class="list-unstyled list-inline">
           <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
-          <style-editor-font editor="editor"></style-editor-font>
-          <style-editor-size editor="editor"></style-editor-size>
+          <style-editor-undo editor="editor"></style-editor-undo>
           <style-editor-color editor="editor"></style-editor-color>
           <style-editor-icons editor="editor"></style-editor-icons>
-          <style-editor-undo editor="editor"></style-editor-undo>
           <style-editor-attrs editor="editor" layer="layer"></style-editor-attrs>
-          <style-editor-bg ></style-editor-bg>
+          <style-editor-font editor="editor"></style-editor-font>
+          <style-editor-size editor="editor"></style-editor-size>
+          <style-editor-bg></style-editor-bg>
         </ul>
       </div>
       <div style-editor editor="editor" layer="layer" style="style" markers="markers"></div>
