@@ -19,14 +19,14 @@
 }
 
 .style-toolbar {
-  background-color: @almost-black;
+  background-color: @composer-toolbar;
   > ul {
     margin-bottom: 0px;
     margin-left: 0px;
     > li {
         color: @light-gray;
         text-align: center;
-        padding: 9px 12px;
+        padding: .8em .9em;
 
         span {
           display: block;
@@ -36,6 +36,11 @@
           color: @dark-gray;
           background-color: @light-gray;
           cursor: pointer;
+        }
+
+        &.attributes {
+          padding-left: .3em;
+          padding-right: .3em;
         }
     }
   }

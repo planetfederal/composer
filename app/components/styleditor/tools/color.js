@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /* global $ */
@@ -12,7 +12,7 @@ angular.module('gsApp.styleditor.color', [])
         },
         template:
           '<li class="styleditor-color">'+
-            '<i class="icon-paint-format"></i>'+
+            '<i class="icon-droplet"></i>'+
             '<span>Color</span>'+
           '</li>',
         replace: true,

@@ -66,7 +66,7 @@
   }
   .currently_editing {
     display: inline-block;
-    margin-left: 10px;
+    margin-left: 8%;
   }
 }
 
@@ -78,6 +78,8 @@
   }
   .map-name-row {
     z-index: 0;
+    border-bottom: 1px solid @very-lt-gray;
+    .box-shadow(0 1px 1px rgba(0,0,0,0.2));
   }
   .map-name {
     background-color: @light-bl-gray;
@@ -109,6 +111,7 @@
   }
 
   .map-layers {
+    border-right: none;
     padding-top: 5px;
     max-width: 0px;
     box-shadow: inset -5px -1px 5px -3px @dark-gray;
@@ -198,6 +201,7 @@
   }
 
   .map-layers.show {
+    border-right: 1px solid @md-dk-gray;
     width: auto;
     min-width: 20%;
     max-width: 50%;

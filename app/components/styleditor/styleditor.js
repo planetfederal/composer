@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /*global CodeMirror */
@@ -12,7 +12,8 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.size',
   'gsApp.styleditor.color',
   'gsApp.styleditor.icons',
-  'gsApp.styleditor.attributes'
+  'gsApp.styleditor.attributes',
+  'gsApp.styleditor.bg'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
     'YsldHinter',
