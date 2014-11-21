@@ -181,7 +181,10 @@ angular.module('gsApp.workspaces.maps', [
           if (response.importOrClose==='import') {
             var mapInfo = response.mapInfo;
             $timeout(function() {
-              $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
+              $rootScope.$broadcast(AppEvent.ImportData, {
+                mapInfo: mapInfo,
+                workspace: $scope.workspace
+              });
             }, 250);
             // go to this state to initiate listener for broadcast above!
             $state.go('workspace.data.import', {workspace: $scope.workspace});

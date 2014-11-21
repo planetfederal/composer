@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.layers', [
@@ -69,7 +69,7 @@ angular.module('gsApp.layers', [
 
       $scope.importData = function(workspace) {
         $timeout(function() {
-          $rootScope.$broadcast(AppEvent.ImportData);
+          $rootScope.$broadcast(AppEvent.ImportData, {workspace: workspace});
         }, 250);
         // go to this state to initiate listener for broadcast above!
         $state.go('workspace.data.import', {workspace: workspace});

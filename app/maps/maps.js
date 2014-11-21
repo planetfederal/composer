@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.maps', [
@@ -62,10 +62,12 @@ angular.module('gsApp.maps', [
 
       $scope.importData = function(workspace) {
         $timeout(function() {
-          $rootScope.$broadcast(AppEvent.ImportData);
+          $rootScope.$broadcast(AppEvent.ImportData, {
+            workspace: workspace
+          });
         }, 250);
         // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.data.import', {workspace: workspace});
+        $state.go('workspace.data.import', { workspace: workspace });
       };
 
       $scope.deleteMap = function(map, workspace) {

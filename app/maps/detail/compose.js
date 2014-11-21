@@ -240,7 +240,10 @@ angular.module('gsApp.maps.compose', [
             $scope.map.hiddenLayers = $scope.getHiddenLayers();
             var mapInfo = $scope.map;
             $timeout(function() {
-              $rootScope.$broadcast(AppEvent.ImportData, mapInfo);
+              $rootScope.$broadcast(AppEvent.ImportData, {
+                mapInfo: mapInfo,
+                workspace: workspace
+              });
             }, 250);
             // go to this state to initiate listener for broadcast above!
             $state.go('workspace.data.import', {

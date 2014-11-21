@@ -165,10 +165,12 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.createLayer = function() {
         $timeout(function() {
-          $rootScope.$broadcast(AppEvent.ImportData);
+          $rootScope.$broadcast(AppEvent.ImportData, {
+            workspace: $scope.workspace
+          });
         }, 250);
         // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.data.import', {workspace: $scope.workspace});
+        $state.go('workspace.data.main', {workspace: $scope.workspace});
       };
 
       $scope.setMap = function(map) {

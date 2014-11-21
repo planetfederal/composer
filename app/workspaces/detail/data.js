@@ -101,13 +101,9 @@ angular.module('gsApp.workspaces.data', [
       // for some reason modal below's being called twice without this lock
       $rootScope.importInitiated = false;
 
-      $scope.importNewData = function(mapInfo) {
-        var workspace;
-        if ($scope.workspace) {
-          workspace = $scope.workspace; // new map not yet created
-        } else if (mapInfo.workspace) {
-          workspace = mapInfo.workspace; // from an existing map
-        }
+      $scope.importNewData = function(info) {
+        var workspace = info.workspace;
+        var mapInfo = info.mapInfo;
 
         if (!$scope.importInitiated) {
           $rootScope.importInitiated = true;
@@ -131,8 +127,8 @@ angular.module('gsApp.workspaces.data', [
         }
       };
 
-      $rootScope.$on(AppEvent.ImportData, function(scope, mapInfo) {
-        $scope.importNewData(mapInfo);
+      $rootScope.$on(AppEvent.ImportData, function(scope, info) {
+        $scope.importNewData(info);
       });
 
       $rootScope.$on(AppEvent.StoreAdded, function(scope, workspace) {
@@ -182,6 +178,10 @@ angular.module('gsApp.workspaces.data', [
   '$stateParams', '$modal', '$window', '$log', 'GeoServer',
     function($scope, $rootScope, $state, $stateParams, $modal, $log,
       $window, GeoServer) {
+
+      if ($stateParams.workspace) {
+        $scope.workspace = $stateParams.workspace;
+      }
 
       // See utilities.js pop directive - 1 popover open at a time
       var openPopoverStore;
