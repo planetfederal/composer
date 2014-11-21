@@ -301,8 +301,9 @@ angular.module('gsApp.workspaces.data.import', [
     }])
 .controller('DataImportDetailsCtrl', ['$scope', '$state', '$stateParams',
     '$log', 'GeoServer', '$rootScope', 'AppEvent', 'mapInfoModel',
+    'storesListModel',
     function($scope, $state, $stateParams, $log, GeoServer, $rootScope,
-      AppEvent, mapInfoModel) {
+      AppEvent, mapInfoModel, storesListModel) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.import = $stateParams.import;
@@ -430,6 +431,7 @@ angular.module('gsApp.workspaces.data.import', [
               t.success = false;
               return t;
             });
+            $rootScope.$broadcast(AppEvent.StoreAdded);
           } else {
             $rootScope.alerts = [{
               type: 'danger',
@@ -455,7 +457,7 @@ angular.module('gsApp.workspaces.data.import', [
             .then(function(result) {
               task.success = result.success && result.data.layer != null;
               if (result.success) {
-                $scope.$broadcast(AppEvent.StoreAdded);
+                $rootScope.$broadcast(AppEvent.StoreAdded);
                 result.data.layer.source = result.data.file;
                 $scope.importedLayers.push(result.data.layer);
                 mapInfoModel.setMapInfoLayers($scope.importedLayers);
