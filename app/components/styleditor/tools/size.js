@@ -1,5 +1,6 @@
 /* 
  * (c) 2014 Boundless, http://boundlessgeo.com
+ * License: BSD
  */
 /* globals $ */
 angular.module('gsApp.styleditor.size', [])
