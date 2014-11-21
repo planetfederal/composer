@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.data.import', [
@@ -309,7 +309,7 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.layerSelections = [];
 
 
-      // if mapInfo's defined it's import not create map workflow
+      // if mapInfo's not defined it's import not create map workflow
       if (!mapInfoModel.getMapInfo()) {
         GeoServer.maps.get($scope.workspace).then(
           function(result) {
