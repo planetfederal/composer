@@ -69,6 +69,7 @@ angular.module('gsApp.workspaces.home', [
         $scope.$on('$destroy', function() {
           destroying = true;
         });
+
         $scope.selectTab = function(t) {
           if (!destroying) {
             $scope.go(t.route);
