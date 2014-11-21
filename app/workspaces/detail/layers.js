@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.layers', [
@@ -272,6 +272,7 @@ angular.module('gsApp.workspaces.layers', [
       $rootScope.$on(AppEvent.LayersAllUpdated, function(scope, layers) {
         if (layers) {
           $scope.layers = layers;
+          $scope.totalItems = layers.length;
         }
       });
 
