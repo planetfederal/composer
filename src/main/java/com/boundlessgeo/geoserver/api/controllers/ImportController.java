@@ -139,6 +139,12 @@ public class ImportController extends ApiController {
 
             if (l != null && l.getDefaultStyle() != null) {
                 StyleInfo s = l.getDefaultStyle();
+
+                // JD: have to regenerate the unique name here, the importer already does this but because we are
+                // putting it into the workspace we have to redo it, this should really be part of the importer
+                // with an option to create styles in the workspace
+                s.setName(findUniqueStyleName(l.getResource(), ws, catalog()));
+
                 Resource from = dataDir.style(s);
 
                 s.setWorkspace(ws);
@@ -158,6 +164,18 @@ public class ImportController extends ApiController {
                 }
             }
         }
+    }
+
+    String findUniqueStyleName(ResourceInfo resource, WorkspaceInfo workspace, Catalog catalog) {
+        String styleName = resource.getName();
+        StyleInfo style = catalog.getStyleByName(workspace, styleName);
+        int i = 1;
+        while(style != null) {
+            styleName = resource.getName() + i;
+            style = catalog.getStyleByName(workspace, styleName);
+            i++;
+        }
+        return styleName;
     }
 
     @RequestMapping(value = "/{wsName}/{id}", method = RequestMethod.GET)
