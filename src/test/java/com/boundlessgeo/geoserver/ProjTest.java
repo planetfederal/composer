@@ -1,3 +1,6 @@
+/* (c) 2014 Boundless, http://boundlessgeo.com
+ * This code is licensed under the GPL 2.0 license.
+ */
 package com.boundlessgeo.geoserver;
 
 import org.junit.Before;
