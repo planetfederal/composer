@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.home', [
@@ -20,8 +20,9 @@ angular.module('gsApp.workspaces.home', [
     }])
 .controller('WorkspaceHomeCtrl', ['$scope','$state', '$stateParams', '$log',
   '$modal', 'GeoServer', 'AppEvent', '$timeout', '$location', '$rootScope',
+  '_',
     function($scope, $state, $stateParams, $log, $modal, GeoServer,
-      AppEvent, $timeout, $location, $rootScope) {
+      AppEvent, $timeout, $location, $rootScope, _) {
 
       var wsName = $stateParams.workspace;
 
@@ -113,6 +114,17 @@ angular.module('gsApp.workspaces.home', [
             }
             $scope.showSettings = $state.is('workspace.settings');
           });
+      });
+
+      $rootScope.$on(AppEvent.WorkspaceTab, function(scope, tabname) {
+        if (tabname) {
+          var tab = _.find($scope.tabs, function(t) {
+            return t.heading.toLowerCase() === tabname.toLowerCase();
+          });
+          if (tab) {
+            $scope.selectTab(tab);
+          }
+        }
       });
 
     }]);

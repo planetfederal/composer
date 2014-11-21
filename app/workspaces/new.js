@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.new', [])
@@ -12,9 +12,10 @@ angular.module('gsApp.workspaces.new', [])
         });
     }])
 .controller('WorkspaceNewCtrl', ['$scope', '$rootScope', '$state',
-    '$stateParams', '$log', 'GeoServer', 'workspacesListModel',
+    '$stateParams', '$log', 'GeoServer', 'workspacesListModel', '$timeout',
+    'AppEvent', '_',
     function($scope, $rootScope, $state, $stateParams, $log, GeoServer,
-      workspacesListModel) {
+      workspacesListModel, $timeout, AppEvent, _) {
 
       $scope.title = 'New Project';
       $scope.workspace = {
@@ -46,6 +47,9 @@ angular.module('gsApp.workspaces.new', [])
                 message: 'Workspace '+ workspace.name +' created.',
                 fadeout: true
               }];
+              $timeout(function() {
+                $rootScope.$broadcast(AppEvent.WorkspaceTab, 'layers');
+              }, 250);
               $state.go('workspace', {workspace: $scope.workspace.name});
             } else {
               var msg = result.data.message?

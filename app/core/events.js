@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /**
@@ -48,6 +48,10 @@ angular.module('gsApp.core.event', [])
   CreateNewWorkspace: 'create-new-workspace',
   /**
    * Fired when a new workspace is created
+   */
+  WorkspaceTab: 'workspace-tab',
+  /**
+   * Fired when a workspace tab is requested
    */
   WorkspaceCreated: 'workspace-created',
   /**
