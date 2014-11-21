@@ -1,5 +1,6 @@
 /* 
  * (c) 2014 Boundless, http://boundlessgeo.com
+ * License: BSD
  */
 /*global $, window*/
 angular.module('gsApp.sidenav', [

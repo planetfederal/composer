@@ -1,5 +1,6 @@
 /* 
  * (c) 2014 Boundless, http://boundlessgeo.com
+ * License: BSD
  */
 /*global window, document, ZeroClipboard, $ */
 angular.module('gsApp.styleditor.icons', [
