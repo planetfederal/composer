@@ -40,11 +40,12 @@ angular.module('gsApp.workspaces.new', [])
         GeoServer.workspace.create(workspace).then(
           function(result) {
             if (result.success || result.status===201) {
+              $scope.workspace = result.data;
               $scope.workspaceCreated = true;
               workspacesListModel.addWorkspace($scope.workspace);
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Workspace '+ workspace.name +' created.',
+                message: 'Workspace '+ $scope.workspace.name +' created.',
                 fadeout: true
               }];
               $timeout(function() {
