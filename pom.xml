@@ -15,15 +15,15 @@
   <licenses>
     <license>
       <name>End User License Agreement</name>
-      <url>../../EULA.txt</url>
+      <url>http://boundlessgeo.com/site-map/legal/opengeo-suite-eula/</url>
       <distribution>manual</distribution>
-      <comments>End-user License Agreement for OpenGeo Suite customers</comments>
+      <comments>License Agreement for OpenGeo Suite customers using binary distribution</comments>
     </license>
     <license>
       <name>GNU Public License, Version 2.0</name>
       <url>src/GPL License.txt</url>
       <distribution>manual</distribution>
-      <comments>Composer API distributed under GPL 2 license</comments>
+      <comments>Composer API distributed under GPL 2.0 license</comments>
     </license>
     <license>
       <name>BSD 3-Clause License</name>
