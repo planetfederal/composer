@@ -30,7 +30,7 @@
       <div class="col-sm-3">
         <div class="panel panel-default single-workspace-info" ng-show="selected.showInfo">
           <p>
-            Workspace: <strong>{{ selected.workspaceInfo.name }}</strong> -
+            <span style="font-size: 1.1em;margin-right: 10px;">{{ selected.workspaceInfo.name }}</span>
              {{ selected.workspaceInfo.maps }} Map<span ng-if="selected.workspaceInfo.maps==0 || selected.workspaceInfo.maps>1">s</span>, {{ selected.workspaceInfo.layers }} Layer<span ng-if="selected.workspaceInfo.layers==0 || selected.workspaceInfo.layers>1">s</span>, {{ selected.workspaceInfo.stores }} Store<span ng-if="selected.workspaceInfo.stores==0 || selected.workspaceInfo.stores>1">s</span>
           </p>
         </div>
