@@ -172,6 +172,9 @@ angular.module('gsApp.workspaces.maps', [
           resolve: {
             workspace: function() {
               return $scope.workspace;
+            },
+            maps: function() {
+              return $scope.maps;
             }
           }
         }).result.then(function(response) {
