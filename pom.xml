@@ -8,7 +8,30 @@
   <packaging>war</packaging>
   <version>4.5-SNAPSHOT</version>
   <name>OpenGeo Suite GeoServer Web App</name>
-
+  <organization>
+    <name>Boundless</name>
+    <url>http://http://boundlessgeo.com</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>End User License Agreement</name>
+      <url>../../EULA.txt</url>
+      <distribution>manual</distribution>
+      <comments>End-user License Agreement for OpenGeo Suite customers</comments>
+    </license>
+    <license>
+      <name>GNU Public License, Version 2.0</name>
+      <url>src/GPL License.txt</url>
+      <distribution>manual</distribution>
+      <comments>Composer API distributed under GPL 2 license</comments>
+    </license>
+    <license>
+      <name>BSD 3-Clause License</name>
+      <url>src/BSD License.txt</url>
+      <distribution>manual</distribution>
+      <comments>Composer Client distributed using a BSD license</comments>
+    </license>
+  </licenses>
   <repositories>
     <repository>
       <id>boundless</id>
