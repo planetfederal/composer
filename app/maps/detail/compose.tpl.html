@@ -16,7 +16,7 @@
           </div>
           <div class="col-md-6 info">
             <div class="top">
-              <a class="layers-toggle" ng-click="toggleLayers()">{{ map.layers.length }} Layers</a>
+              <a class="layers-toggle" ng-click="toggleLayers()">{{ map.layers.length }} Layer<span ng-if="map.layers.length > 1">s</span></a>
               <button class="btn btn-default btn-sm add-layer" ng-click="addMapLayer()"><i class="fa fa-plus"></i> Add Layer</button>
               <div class="currently_editing">
                 Editing: <strong>{{ activeLayer.name }}</strong>
@@ -33,7 +33,7 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-6" ng-style="mapBackground">
       <div ol-map class="map" map-opts="mapOpts"></div>
     </div>
     <div class="col-md-6">
@@ -70,6 +70,7 @@
               <style-editor-icons editor="editor"></style-editor-icons>
               <style-editor-undo editor="editor"></style-editor-undo>
               <style-editor-attrs editor="editor" layer="activeLayer"></style-editor-attrs>
+              <style-editor-bg editor="editor" layer="activeLayer"></style-editor-bg>
             </ul>
           </div>
           <style-editor layer="activeLayer" style="style" editor="editor" markers="markers"></style-editor>

@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /*global window, document, ZeroClipboard, $ */
@@ -14,7 +14,7 @@ angular.module('gsApp.styleditor.attributes', [
           layer: '='
         },
         template:
-          '<li ng-click="showAttributes();">'+
+          '<li class="attributes" ng-click="showAttributes();">'+
             '<i class="icon-table"></i>'+
             '<span>Attributes</span>'+
           '</li>',

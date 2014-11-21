@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.maps.compose', [
@@ -277,5 +277,9 @@ angular.module('gsApp.maps.compose', [
           size: 'md'
         });
       };
+
+      $rootScope.$on(AppEvent.MapBackground, function(scope, color) {
+        $scope.mapBackground = {'background': color};
+      });
 
     }]);

@@ -628,7 +628,7 @@ angular.module('gsApp.workspaces.data.import', [
 
   this.setMapInfoLayers = function(layers) {
     // if it's an existing map keep new layers separate
-    if (_this.mapInfo.created) {
+    if (_this.mapInfo && _this.mapInfo.created) {
       _this.mapInfo.newLayers = layers;
     } else {
       _this.mapInfo.layers = layers;

@@ -93,5 +93,9 @@ angular.module('gsApp.core.event', [])
   /**
    * Fire when custom projection is set
    */
-  ProjSet: 'projection-set'
+  ProjSet: 'projection-set',
+ /**
+   * Fire when map background color change is requested
+   */
+  MapBackground: 'map-background'
 });
