@@ -105,6 +105,13 @@ angular.module('gsApp.core.backend',[])
               method: 'GET',
               url: apiRoot+'/workspaces'
             });
+          },
+
+          recent: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/workspaces/recent'
+            });
           }
         },
 
