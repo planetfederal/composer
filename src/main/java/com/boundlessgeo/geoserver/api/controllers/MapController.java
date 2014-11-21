@@ -166,6 +166,7 @@ public class MapController extends ApiController {
         cat.save(ws);
 
         recent.add(LayerGroupInfo.class, map);
+        recent.add(WorkspaceInfo.class, ws);
         return mapDetails(new JSONObj(), map, wsName, req);
     }
 
@@ -184,10 +185,12 @@ public class MapController extends ApiController {
     JSONArr delete(@PathVariable String wsName, @PathVariable String name) {
         Catalog cat = catalog();
 
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
         LayerGroupInfo map = findMap(wsName,name, cat);
         cat.remove(map);
 
         recent.remove(LayerGroupInfo.class, map);
+        recent.add(WorkspaceInfo.class, ws);
         return list(wsName, null, null, null, null).array("maps");
     }
     
@@ -268,6 +271,8 @@ public class MapController extends ApiController {
         cat.save(ws);
 
         recent.add(LayerGroupInfo.class, map);
+        recent.add(WorkspaceInfo.class, ws);
+
         return mapDetails(new JSONObj(), map, wsName, req);
     }
     
@@ -389,6 +394,7 @@ public class MapController extends ApiController {
         cat.save(ws);
 
         recent.add(LayerGroupInfo.class, m);
+        recent.add(WorkspaceInfo.class, ws);
         return mapLayerList(m,req);
     }
 
@@ -432,6 +438,7 @@ public class MapController extends ApiController {
         cat.save(ws);
 
         recent.add(LayerGroupInfo.class, m);
+        recent.add(WorkspaceInfo.class, ws);
         return mapLayerList(m,req);
     }
     
@@ -450,7 +457,7 @@ public class MapController extends ApiController {
     }
     
     @RequestMapping(value="/recent", method = RequestMethod.GET)
-    public @ResponseBody JSONArr plistRecentMaps() {
+    public @ResponseBody JSONArr listRecentMaps() {
         JSONArr arr = new JSONArr();
         Catalog cat = geoServer.getCatalog();
 
