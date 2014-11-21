@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.maps.new', [
@@ -7,14 +7,15 @@ angular.module('gsApp.workspaces.maps.new', [
   'gsApp.projfield',
   'gsApp.core.utilities',
   'ui.select',
-  'ngGrid'
+  'ngGrid',
+  'gsApp.inlineErrors'
 ])
 .config(['$stateProvider',
   function($stateProvider) {
     $stateProvider.state('workspace.maps.new', {
       url: '/new',
       controller: 'NewMapCtrl',
-      params: { workspace: {} }
+      params: { workspace: {}, maps: {} }
     });
     $stateProvider.state('workspace.maps.new.form', {
       url: '/',
@@ -25,7 +26,7 @@ angular.module('gsApp.workspaces.maps.new', [
           controller: 'NewMapFormCtrl',
         }
       },
-      params: { workspace: {}, projs: {} }
+      params: { workspace: {}, projs: {}, maps: {} }
     });
     $stateProvider.state('workspace.maps.new.add', {
       url: '/',
@@ -36,7 +37,7 @@ angular.module('gsApp.workspaces.maps.new', [
           controller: 'NewMapSelectCtrl',
         }
       },
-      params: { workspace: {}, layers: {}, mapInfo: {} }
+      params: { workspace: {}, layers: {}, mapInfo: {}, maps: {} }
     });
     $stateProvider.state('workspace.maps.new.import', {
       url: '/import',
@@ -68,12 +69,13 @@ angular.module('gsApp.workspaces.maps.new', [
   }])
 .controller('NewMapCtrl', ['$modalInstance', '$scope', '$state',
   '$stateParams', '$rootScope', '$log', 'GeoServer', '$window',
-  'AppEvent', '_', 'workspace', '$modal',
+  'AppEvent', '_', 'workspace', 'maps', '$modal',
   function ($modalInstance, $scope, $state, $stateParams, $rootScope,
-    $log, GeoServer, $window, AppEvent, _, workspace, $modal) {
+    $log, GeoServer, $window, AppEvent, _, workspace, maps, $modal) {
 
     $scope.mapInfo = {};
     $scope.workspace = $stateParams.workspace;
+    $scope.maps = maps;
 
     $scope.pagingOptions = {
       pageSizes: [25, 50, 100],
@@ -142,7 +144,8 @@ angular.module('gsApp.workspaces.maps.new', [
 
     $state.go('workspace.maps.new.form', {
       workspace: $scope.workspace,
-      projs: $scope.projs
+      projs: $scope.projs,
+      maps: $scope.maps
     });
 
   }])
@@ -225,12 +228,13 @@ angular.module('gsApp.workspaces.maps.new', [
     };
 
   }])
-.controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams', '$rootScope',
-  '$log', 'GeoServer', '$window', 'AppEvent', '_', 'projectionModel',
+.controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams',
+  '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', '_',
+  'projectionModel', '$timeout',
   function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
-    $window,
-    AppEvent, _, projectionModel) {
+    $window, AppEvent, _, projectionModel, $timeout) {
     $scope.workspace = $stateParams.workspace;
+    $scope.maps = $stateParams.maps;
     $scope.title = 'New Map';
     $scope.step = 1;
     $scope.proj = null;
@@ -262,6 +266,25 @@ angular.module('gsApp.workspaces.maps.new', [
     $rootScope.$on(AppEvent.ProjSet, function(scope, proj) {
       $scope.mapInfo.proj = proj;
     });
+
+    if ($scope.maps) {
+      var timer = null;
+      $scope.$watch('mapInfo.name', function(newVal) {
+        if (timer==null && newVal != null) {
+          timer = $timeout(function() {
+            var found = _.find($scope.maps, function(map) {
+              return map.name === $scope.mapInfo.name;
+            });
+            if (found) {
+              $scope.newMap.name.$setValidity('alreadyExists', false);
+            } else {
+              $scope.newMap.name.$setValidity('alreadyExists', true);
+            }
+            timer  = null;
+          }, 800);
+        }
+      });
+    }
 
     projectionModel.fetchProjections().then(function() {
       $scope.projs = projectionModel.getDefaults();
@@ -307,6 +330,11 @@ angular.module('gsApp.workspaces.maps.new', [
                 name: map.name});
           } else {
             $rootScope.alerts = [{
+              type: 'danger',
+              message: 'Could not create map: ' + result.data.message,
+              fadeout: true
+            }];
+            $scope.errors = [{
               type: 'danger',
               message: 'Could not create map: ' + result.data.message,
               fadeout: true
