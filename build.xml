@@ -17,6 +17,7 @@
     <mkdir dir="${composer.dir}"/>
     <copy todir="${composer.dir}">
       <fileset dir="build" includes="**/*"/>
+      <fileset dir="app" includes="LICENSE.txt"/>
     </copy>
   </target>
   <target name="build-server" description="builds and installs server">

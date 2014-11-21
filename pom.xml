@@ -14,22 +14,9 @@
   </organization>
   <licenses>
     <license>
-      <name>End User License Agreement</name>
+      <name>OpenGeo Suite End User License Agreement</name>
       <url>http://boundlessgeo.com/site-map/legal/opengeo-suite-eula/</url>
       <distribution>manual</distribution>
-      <comments>License Agreement for OpenGeo Suite customers using binary distribution</comments>
-    </license>
-    <license>
-      <name>GNU Public License, Version 2.0</name>
-      <url>src/GPL License.txt</url>
-      <distribution>manual</distribution>
-      <comments>Composer API distributed under GPL 2.0 license</comments>
-    </license>
-    <license>
-      <name>BSD 3-Clause License</name>
-      <url>src/BSD License.txt</url>
-      <distribution>manual</distribution>
-      <comments>Composer Client distributed using a BSD license</comments>
     </license>
   </licenses>
   <repositories>
