@@ -24,8 +24,10 @@ import javax.annotation.Nullable;
 
 import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.Info;
 import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.security.impl.GeoServerRole;
 import org.geoserver.security.impl.GeoServerUser;
@@ -346,6 +348,7 @@ public class MapControllerTest {
         verify(recent, times(1)).add(eq(LayerGroupInfo.class), hasId("map3"));
         verify(recent, times(1)).add(eq(LayerGroupInfo.class), hasId("map2"));
         verify(recent, times(1)).add(eq(LayerGroupInfo.class), hasId("map1"));
+        verify(recent, times(3)).add(eq(WorkspaceInfo.class), hasName("foo"));
     }
 
     LayerGroupInfo hasId(final String id) {
@@ -353,6 +356,15 @@ public class MapControllerTest {
             @Override
             public boolean matches(Object argument) {
                 return id.equals(((LayerGroupInfo)argument).getId());
+            }
+        });
+    }
+
+    WorkspaceInfo hasName(final String name) {
+        return argThat(new ArgumentMatcher<WorkspaceInfo>() {
+            @Override
+            public boolean matches(Object argument) {
+                return name.equals(((WorkspaceInfo)argument).getName());
             }
         });
     }

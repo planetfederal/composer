@@ -47,11 +47,19 @@ public class RecentObjectCache {
     }
 
     public <T extends Info> void add(Class<T> clazz, T obj) {
-        if (!OwsUtils.has(obj, "workspace")) {
-            throw new IllegalArgumentException("Object has no workspace property, use add(Class,T,String) method");
+        WorkspaceInfo ws = null;
+        if (obj instanceof WorkspaceInfo) {
+            ws = (WorkspaceInfo) obj;
+        }
+        else {
+            if (!(obj instanceof WorkspaceInfo)) {
+                if (!OwsUtils.has(obj, "workspace")) {
+                    throw new IllegalArgumentException("Object has no workspace property, use add(Class,T,String) method");
+                }
+            }
+            ws = (WorkspaceInfo) OwsUtils.get(obj, "workspace");
         }
 
-        WorkspaceInfo ws = (WorkspaceInfo) OwsUtils.get(obj, "workspace");
         add(clazz, obj, ws!=null?ws.getName():null);
     }
 

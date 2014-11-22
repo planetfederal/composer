@@ -7,6 +7,7 @@ import com.boundlessgeo.geoserver.api.converters.JSONMessageConverter;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.boundlessgeo.geoserver.json.JSONWrapper;
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.WorkspaceInfo;
@@ -32,6 +33,8 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -44,6 +47,9 @@ public class WorkspaceControllerTest {
 
     @Mock
     GeoServer geoServer;
+
+    @Mock
+    RecentObjectCache recent;
 
     @InjectMocks
     WorkspaceController ctrl;
@@ -154,6 +160,7 @@ public class WorkspaceControllerTest {
         Catalog cat = geoServer.getCatalog();
         verify(cat, times(1)).add(isA(WorkspaceInfo.class));
         verify(cat, times(1)).add(isA(NamespaceInfo.class));
+        verify(recent, times(1)).add(eq(WorkspaceInfo.class), isA(WorkspaceInfo.class));
     }
 
     @Test
@@ -180,6 +187,7 @@ public class WorkspaceControllerTest {
 
         WorkspaceInfo ws = cat.getWorkspaceByName("foo");
         verify(ws, times(1)).setName("blah");
+        verify(recent, times(1)).add(eq(WorkspaceInfo.class), isA(WorkspaceInfo.class));
     }
 
     @Test

@@ -8,6 +8,7 @@ import com.boundlessgeo.geoserver.api.controllers.ImportController;
 import com.boundlessgeo.geoserver.api.controllers.WorkspaceController;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
@@ -197,14 +198,14 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
         assertNull(cat.getLayerByName("gs:PrimitiveGeoFeature"));
 
         MockHttpServletResponse response = new MockHttpServletResponse();
-        WorkspaceController ctrl = new WorkspaceController(getGeoServer());
+        WorkspaceController ctrl = new WorkspaceController(getGeoServer(), new RecentObjectCache());
         ctrl.inport("gs", request, response);
 
         assertNotNull(cat.getLayerByName("gs:PrimitiveGeoFeature"));
     }
 
     MockHttpServletResponse doWorkspaceExport(String wsName) throws Exception {
-        WorkspaceController ctrl = new WorkspaceController(getGeoServer());
+        WorkspaceController ctrl = new WorkspaceController(getGeoServer(), new RecentObjectCache());
 
         MockHttpServletResponse response = new MockHttpServletResponse();
         ctrl.export(wsName, response);

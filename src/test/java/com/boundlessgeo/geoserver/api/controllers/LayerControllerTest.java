@@ -19,6 +19,7 @@ import org.geoserver.catalog.Predicates;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.catalog.util.CloseableIteratorAdapter;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.GeoServerExtensions;
@@ -398,6 +399,7 @@ public class LayerControllerTest {
         verify(recent, times(1)).add(eq(LayerInfo.class), hasId("layer3"), eq("foo"));
         verify(recent, times(1)).add(eq(LayerInfo.class), hasId("layer2"), eq("foo"));
         verify(recent, times(1)).add(eq(LayerInfo.class), hasId("layer1"), eq("foo"));
+        verify(recent, times(3)).add(eq(WorkspaceInfo.class), hasName("foo"));
     }
 
     LayerInfo hasId(final String id) {
@@ -408,4 +410,14 @@ public class LayerControllerTest {
             }
         });
     }
+
+    WorkspaceInfo hasName(final String name) {
+        return argThat(new ArgumentMatcher<WorkspaceInfo>() {
+            @Override
+            public boolean matches(Object argument) {
+                return name.equals(((WorkspaceInfo)argument).getName());
+            }
+        });
+    }
+
 }
