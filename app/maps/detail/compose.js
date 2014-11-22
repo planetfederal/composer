@@ -242,7 +242,7 @@ angular.module('gsApp.maps.compose', [
             $timeout(function() {
               $rootScope.$broadcast(AppEvent.ImportData, {
                 mapInfo: mapInfo,
-                workspace: workspace
+                workspace: $scope.workspace
               });
             }, 250);
             // go to this state to initiate listener for broadcast above!
