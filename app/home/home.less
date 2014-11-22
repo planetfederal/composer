@@ -59,7 +59,7 @@
     }
 	}
 
-	.projects, .maps, .layers {
+	.workspaces, .maps, .layers {
 
 		h4.underline {
 			color: @gray;
@@ -71,12 +71,26 @@
 		}
 	}
 
-	.projects {
+	.workspaces {
 		margin-top: 10px;
+
+    .row.workspace-row {
+      margin-left: 0;
+      margin-right: 0;
+
+      .workspace {
+        width: 43%;
+        display: inline-block;
+
+        &.workspace-center-offset {
+          float: right;
+        }
+      }
+    }
 	}
 
-	.layers, .maps {
-		.layer, .map {
+	.layers, .maps, .workspaces {
+		.layer, .map, .workspace {
 			height: auto;
 			border: 1px solid @light-gray;
 			.border-radius(3px, 3px, 3px, 3px);

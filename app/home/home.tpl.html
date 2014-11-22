@@ -46,44 +46,57 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-sm-12" ng-if="projects">
-        <div class="projects">
-          <h4 class="underline">Project Workspaces: {{ projects.length }}</h4></li>
+      <div class="col-sm-11" ng-if="recentWorkspaces.length">
+        <div class="workspaces" ng-if="recentWorkspaces.length">
+          <h4 class="underline">Recent Project Workspaces: {{ projects.length }}</h4>
+          <ul class="list-unstyled">
+            <div ng-repeat="row in recentWorkspaces | partition:2" class="row workspace-row">
+              <li ng-repeat="recentWorkspace in row" class="workspace" ng-class="{'workspace-center-offset': $index%2 != 0}">
+                <div class="icon-marker"><i class="icon-folder"></i></div>
+                <p class="info">
+                  <a ui-sref="map.compose({workspace: recentWorkspace})">{{ recentWorkspace.name }}</a><br />
+                </p>
+                <p class="footer">
+                  <small class="time">Modified {{ recentWorkspace.modified.pretty }}</small>
+                </p>
+              </li>
+            </div>
+          </ul>
         </div>
       </div>
     </div>
     <div class="row">
-      <div class="col-sm-5" ng-if="recentmaps.length">
+      <div class="col-sm-5" ng-if="recentMaps.length">
         <div class="maps">
           <h4 class="underline">Recent Maps</h4>
           <ul class="list-unstyled">
-            <li ng-repeat="map in recentmaps" class="map">
+            <li ng-repeat="map in recentMaps" class="map">
               <div class="icon-marker"><i class="icon-map"></i></div>
               <p class="info">
                 <a ui-sref="map.compose({workspace: map.workspace, name: map.name})">{{ map.name }}</a><br />
                 Title: {{ map.title }}<br />
               </p>
               <p class="footer">
-                <small class="time">Modified {{ map.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspace({workspace: map.workspace})">{{ map.workspace }}</a></small>
+                <small class="time">Modified {{ map.modified.pretty }}</small> <small class="project">Project Workspace: <a ui-sref="workspace({workspace: map.workspace})">{{ map.workspace }}</a></small>
               </p>
             </li>
           </ul>
         </div>
       </div>
-      <div class="col-sm-1" ng-if="recentmaps.length && recentlayers.length">
+      <div class="col-sm-1" ng-if="recentMaps.length && recentLayers.length">
       </div>
-      <div class="col-sm-5" ng-if="recentlayers.length">
+      <div class="col-sm-5" ng-if="recentLayers.length">
         <div class="layers">
           <h4 class="underline">Recent Layers</h4>
           <ul class="list-unstyled">
-            <li ng-repeat="layer in recentlayers" class="layer">
+            <li ng-repeat="layer in recentLayers" class="layer">
               <div class="icon-marker"><i class="icon-stack"></i></div>
               <p class="info">
                 <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})">{{ layer.name }}</a><br />
                 Title: {{ layer.title }}<br />
               </p>
               <p class="footer">
-                <small class="time">Modified {{ layer.modified.pretty }}</small>  <small class="project">Project: <a ui-sref="workspace({workspace: layer.workspace})">{{ layer.workspace }}</a></small>
+                <small class="time">Modified {{ layer.modified.pretty }}</small>  <small class="project">Project Workspace: <a ui-sref="workspace({workspace: layer.workspace})">{{ layer.workspace }}</a></small>
               </p>
             </li>
           </ul>
