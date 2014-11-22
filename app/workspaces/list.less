@@ -94,7 +94,7 @@
   .workspace-summary-detail {
     margin-top: 30px;
     display: inline-block;
-    pointer: cursor;
+    cursor: pointer;
 
     .workspace-icon {
       display: inline-block;
@@ -133,6 +133,7 @@
         margin: 13px auto 4px 10px;
         color: @gray;
         font-weight: bold;
+        cursor: pointer;
       }
       .modified, .workspace-view , .workspace-settings {
         color: @gray;
@@ -147,10 +148,9 @@
         display: block;
       }
       .workspace-default {
-        display: inline-block;
-        vertical-align: middle;
+        margin-top: 5px;
         margin-left: 10px;
-        margin-top: 10px;
+        color: @monacoblue;
       }
     }
 
@@ -169,5 +169,3 @@
     }
   }
 }
-
-.pointer {cursor: pointer}
