@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
@@ -20,7 +20,7 @@ angular.module('gsApp.styleditor.size', [])
                 '<a href ng-click="chooseSize($index)">{{s[0]}}</a>'+
               '</li>'+
             '</ul>'+
-          '</l>',
+          '</li>',
         replace: true,
         controller: function($scope, $element) {
           $scope.sizes = [

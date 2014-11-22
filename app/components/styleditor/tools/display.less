@@ -1,0 +1,33 @@
+/* display.less */
+
+@import "../../../variables.less";
+
+ul.display-menu {
+  min-width: 86px;
+  font-size: 13px;
+
+  li:hover {
+    background-color: @light-gray;
+  }
+
+  .dropdown-submenu {
+    padding: 0 0 4px 4px;
+
+    ul {
+      min-width: 84px;
+      font-size: 13px;
+    }
+
+    ul > li.active > a {
+      background-color: lighten(@monacoblue, 5%);
+      color: @white;
+    }
+  }
+
+  .bg-submenu {
+    small {
+      margin-left: 3px; color: @md-lt-gray;
+    }
+  }
+}
+
