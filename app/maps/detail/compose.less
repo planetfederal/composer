@@ -68,7 +68,12 @@
   }
   .currently_editing {
     display: inline-block;
-    margin-left: 8%;
+    margin-left: 6%;
+    text-transform: uppercase;
+    .target {
+      text-transform: none;
+      font-weight: bold;
+    }
   }
 }
 
@@ -77,6 +82,7 @@
   .map-name, .map-name-row, .navbar-brand, ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
     min-height: 35px;
     height: 35px;
+    line-height: 28px;
     color: @slate-blue;
   }
   .map-name-row {
@@ -101,6 +107,22 @@
     a:hover {
       text-decoration: none;
       color: @monacoblue;
+
+      i:not(.fa-angle-right) {
+        color: @monacoblue;
+      }
+      .map-name-span {
+        color: @monacoblue;
+      }
+    }
+    i {
+      color: lighten(@slate-blue, 10%);
+    }
+    .icon-wonky {
+      vertical-align: middle;
+    }
+    .map-name-span {
+      color: @dark-gray;
     }
   }
   ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
