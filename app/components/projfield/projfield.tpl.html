@@ -17,11 +17,11 @@
           ng-focus="$parent.proj = 'other'"
           focus-me="$parent.custom.proj"
           />
-          <span class="success" ng-show="valid === true">
+          <span class="proj-success" ng-show="valid === true && proj.srs">
             <i class="fa fa-check-circle"></i>
             <a ng-click="showProjWKT()">Valid CRS</a>
           </span>
-          <span class="warning" ng-show="valid === false">
+          <span class="proj-warning" ng-show="valid === false || !proj.srs">
             <i class="fa fa-warning"></i>
             Invalid CRS
           </span>
