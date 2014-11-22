@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
@@ -24,6 +24,7 @@ angular.module('gsApp.projfield', [
             $scope.projList = projectionModel.getProjections();
             if (!$scope.proj) { // don't overwrite existing projections
               $scope.proj = projectionModel.getDefaultProj();
+            console.log($scope.proj);
             }
           });
 
@@ -95,7 +96,7 @@ angular.module('gsApp.projfield', [
   this.fetchProjections = function() {
     GeoServer.proj.get('EPSG:4326').then(function(result) {
       _this.defaultProjections.push(result.data);
-      this.defaultProj = result.data;
+      _this.defaultProj = result.data;
     });
     GeoServer.proj.get('EPSG:3857').then(function(result) {
       _this.defaultProjections.push(result.data);
