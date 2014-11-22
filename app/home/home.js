@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.home', [])
@@ -17,15 +17,19 @@ angular.module('gsApp.home', [])
       $scope.title = 'Recent';
 
       GeoServer.workspaces.get(true).then(function(result) {
-        $scope.projects = result.data;
+        $scope.workspaces = result.data;
+      });
+
+      GeoServer.workspaces.recent().then(function(result) {
+        $scope.recentWorkspaces = result.data;
       });
 
       GeoServer.maps.recent().then(function(result) {
-        $scope.recentmaps = result.data;
+        $scope.recentMaps = result.data;
       });
 
       GeoServer.layers.recent().then(function(result) {
-        $scope.recentlayers = result.data;
+        $scope.recentLayers = result.data;
       });
 
 
