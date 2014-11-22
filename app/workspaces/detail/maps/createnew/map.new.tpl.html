@@ -3,6 +3,7 @@
     <div class="create-title">
       Create Map<span ng-show="step==2">:<strong> {{ mapInfo.name }}</strong></span> in {{ workspace }}
     </div>
+    <small class="pull-right required-star">* Required</small>
   </div>
   <div class="modal-body">
 
@@ -12,7 +13,6 @@
 
   </div>
   <div class="modal-footer">
-    <small class="pull-left" ng-show="step==1">* = Required</small>
     <div class="submit-buttons pull-right">
       <button ng-show="!is('form')" class="btn btn-default btn-sm" ng-click="stepBack();">&larr; Back</button>
       <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>

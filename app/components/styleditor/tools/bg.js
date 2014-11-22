@@ -31,7 +31,8 @@ angular.module('gsApp.styleditor.bg', [])
             'ltblue': 'cornflowerblue',
             'gray': '#333333',
             'ltgray': '#cccccc',
-            'white': 'white'
+            'white': 'white',
+            'sand': 'peru'
           };
           // Set default as white
           $scope.bgcolor = Object.keys($scope.bgcolors)[0];
