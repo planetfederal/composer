@@ -1,8 +1,9 @@
 <div>
   <div class="modal-header">
     <div class="create-title">
-    Create Map from {{ mapInfo.layers.length }} Selected Layer<span ng-if="selectedLayers.length !== 1">s</span>
+    Create Map from {{ mapInfo.layers.length }} Selected Layer<span ng-if="mapInfo.layers.length > 1">s</span>
     </div>
+    <small class="pull-right required-star" ng-show="step==1">* Required</small>
   </div>
   <div class="modal-body">
     <div class="new-map">
@@ -55,7 +56,6 @@
     </div>
   </div>
   <div class="modal-footer">
-    <small class="pull-left" ng-show="step==1">* = Required</small>
     <div class="submit-buttons pull-right">
       <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
       <button class="btn btn-success btn-sm" ng-disabled="!mapInfo.proj" ng-click="createMap()">Create New Map</button>

@@ -18,6 +18,10 @@
 @import 'assets/spectrum/spectrum.css';
 @import (less) "../vendor/openlayers/ol.css";
 
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
 body {
   font-family: @ff-primary;
   font-size: 13px;
@@ -31,6 +35,10 @@ h2 {
 }
 h4 {
   font-size: 1.5em;
+}
+
+a {
+  color: @monacoblue;
 }
 
 a:focus, a:active,
@@ -75,6 +83,19 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
   overflow: hidden;
   background-color: #dcdcdc;
   clear: both;
+}
+
+/* Buttons */
+
+.btn-primary {
+  color: #ffffff;
+  background-color: lighten(@monacoblue, 5%);
+  border-color: @monacoblue;
+
+  &:hover {
+    background-color: @monacoblue;
+    border-color: darken(@monacoblue, 10%);
+  }
 }
 
 /* Navigation */
@@ -149,6 +170,25 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
   font-size: 20px;
   margin-right: 6px;
 }
+
+/* Paging buttons */
+
+.pagination {
+  & > li > a {
+    color: @dark-gray;
+  }
+
+  & > li.active > a {
+    color: @white;
+    background-color: lighten(@monacoblue, 5%);
+  }
+
+  & > .active > a, .active > span, .active > a:hover, .active > span:hover, .active > a:focus, .active > span:focus {
+    background-color: lighten(@monacoblue, 10%);
+    border-color: lighten(@monacoblue, 10%);
+  }
+}
+
 
 
 /* Custom Tooltip Style */
@@ -312,6 +352,18 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
 /*
  *  Modal Styling
  */
+
+.modal-header {
+  background-color: lighten(@monacoblue, 5%);
+  color: @almost-white;
+  .border-radius(3px, 0, 0, 3px);
+  border-bottom: 1px solid #e5e5e5;
+  text-shadow: 0px -1px 0px darken(@monacoblue, 10%);
+}
+
+.required-star {
+  margin-top: -5px;
+}
 
 .modal-body {
   font-size: 13px;

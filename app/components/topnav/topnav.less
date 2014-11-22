@@ -13,10 +13,12 @@
 .navbar-inverse {
   background-color: @monacoblue !important;
   border-color: @monacoblue !important;
-  color: #eee;
+  color: @almost-white;
+  border-bottom: 1px solid #e5e5e5;
 
   .navbar-header {
     margin-left: -24px;
+    text-shadow: 0px 1px 1px @dark-gray;
 
     .navbar-brand {
       background: url(images/composer-logo.png) no-repeat left center;
@@ -56,7 +58,7 @@
   }
   .navbar-nav > li > a {
     color: #eee;
-    font-size: 0.9em;
+    font-size: 1.0em;
     padding-right: 10px;
     &:hover {
       text-decoration: underline;
