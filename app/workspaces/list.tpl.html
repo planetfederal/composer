@@ -45,17 +45,18 @@
                 <div class="workspace-icon" ng-mouseover="mouse=true" ng-mouseleave="mouse=false" ng-init="mouse=false">
                   <a ng-click="onWorkspaceClick(workspace)" class="no-underline"><i class="icon-folder"></i></a>
                   <div class="workspace-details in-folder" ng-show="mouse">
-                    <span class="view pointer" ng-click="onWorkspaceClick(workspace)">Open</span>
+                    <span class="view" ng-click="onWorkspaceClick(workspace)">Open</span>
                   </div>
                 </div>
                 <div class="workspace-info">
                   <div class="inline">
-                  <a ng-click="onWorkspaceClick(workspace)"><h4 class="workspace-name inline" ng-click="onWorkspaceClick(workspace)">{{ workspace.name }}</h4><div class="workspace-default" ng-if="workspace.default" pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="bottom" ng-click="showDefaultDesc=!showDefaultDesc;"></a>
-                  <a ng-click="onWorkspaceClick(workspace)" class="no-underline"><i class="icon-star"></i> Default</div></a>
+                    <h4 class="workspace-name inline" ng-click="onWorkspaceClick(workspace)">{{ workspace.name }}</h4>
                   </div>
+                  <div class="workspace-default" ng-if="workspace.default" pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="bottom" ng-click="showDefaultDesc=!showDefaultDesc;">
+                      <i class="icon-star"></i> Default</div>
                   <small class="modified" ng-if="workspace.modified">Modified {{ workspace.modified.pretty }}</small>
-                  <small class="workspace-settings pointer" ng-click="go('workspace.settings', workspace);"><i class="fa fa-gear" title="Edit Workspace Settings"></i> Settings</small>
-                  <small class="workspace-view pointer" ng-init="showInfo=false" ng-click="onWorkspaceInfo(workspace);"><i class="icon-info"></i> Info</small>
+                  <small class="workspace-settings" ng-click="go('workspace.settings', workspace);"><i class="fa fa-gear" title="Edit Workspace Settings"></i> Settings</small>
+                  <small class="workspace-view" ng-init="showInfo=false" ng-click="onWorkspaceInfo(workspace);"><i class="icon-info"></i> Info</small>
                 </div>
               </span>
             </div>

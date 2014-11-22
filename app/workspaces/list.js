@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.list', [
@@ -30,7 +30,7 @@ angular.module('gsApp.workspaces.list', [
       };
 
       $scope.defaultDesc = 'If a project workspace is not specified ' +
-        'in a GeoServer request, the DEFAULT is used.';
+        'in a GeoServer request, the DEFAULT one is used.';
       $scope.showDefaultDesc = false;
 
       $scope.workspaces = workspacesListModel.getWorkspaces();
