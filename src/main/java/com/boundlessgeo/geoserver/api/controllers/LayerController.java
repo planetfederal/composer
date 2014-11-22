@@ -397,8 +397,11 @@ public class LayerController extends ApiController {
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.DELETE)
     public @ResponseBody void delete(@PathVariable String wsName, @PathVariable String name) throws IOException {
         Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
         LayerInfo layer = findLayer(wsName, name, cat);
+
         recent.remove(LayerInfo.class, layer);
+        recent.add(WorkspaceInfo.class, ws);
 
         CascadeDeleteVisitor remover = new CascadeDeleteVisitor(cat);
         remover.visit(layer);
@@ -419,20 +422,20 @@ public class LayerController extends ApiController {
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PATCH)
     public @ResponseBody JSONObj patch(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
         LayerInfo layer = findLayer(wsName, name, cat);
-        recent.add(LayerInfo.class, layer, wsName);
-        return  update(layer, obj,req);
+        return update(layer, ws, obj,req);
     }
 
     @RequestMapping(value="/{wsName}/{name}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody JSONObj put(@PathVariable String wsName, @PathVariable String name, @RequestBody JSONObj obj, HttpServletRequest req) throws IOException {
         Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = findWorkspace(wsName, cat);
         LayerInfo layer = findLayer(wsName, name, cat);
-        recent.add(LayerInfo.class, layer, wsName);
-        return  update(layer, obj,req);
+        return  update(layer, ws, obj,req);
     }
     
-    JSONObj update(LayerInfo layer, JSONObj obj, HttpServletRequest req) {
+    JSONObj update(LayerInfo layer, WorkspaceInfo ws, JSONObj obj, HttpServletRequest req) {
         ResourceInfo resource = layer.getResource();
         for (String prop : obj.keys()) {
             if ("name".equals(prop)) {
@@ -470,6 +473,10 @@ public class LayerController extends ApiController {
         Catalog cat = geoServer.getCatalog();
         cat.save(resource);
         cat.save(layer);
+
+        recent.add(LayerInfo.class, layer, ws.getName());
+        recent.add(WorkspaceInfo.class, ws);
+
         return IO.layer(new JSONObj(), layer, req);
     }
 
@@ -538,6 +545,7 @@ public class LayerController extends ApiController {
 
         cat.save(l);
         recent.add(LayerInfo.class, l, wsName);
+        recent.add(WorkspaceInfo.class, ws);
         if (map != null) {
             Metadata.modified(map, mod);
             cat.save(map);

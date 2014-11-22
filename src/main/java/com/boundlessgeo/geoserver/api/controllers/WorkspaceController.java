@@ -6,6 +6,7 @@ package com.boundlessgeo.geoserver.api.controllers;
 import com.boundlessgeo.geoserver.api.exceptions.BadRequestException;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+import com.boundlessgeo.geoserver.util.RecentObjectCache;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FileUtils;
 import org.geoserver.catalog.CascadeDeleteVisitor;
@@ -22,7 +23,6 @@ import com.boundlessgeo.geoserver.bundle.BundleExporter;
 import com.boundlessgeo.geoserver.bundle.BundleImporter;
 import com.boundlessgeo.geoserver.bundle.ExportOpts;
 import com.boundlessgeo.geoserver.bundle.ImportOpts;
-import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,8 +50,8 @@ public class WorkspaceController extends ApiController {
     public static final String APPLICATION_ZIP_VALUE = "application/zip";
 
     @Autowired
-    public WorkspaceController(GeoServer geoServer) {
-        super(geoServer);
+    public WorkspaceController(GeoServer geoServer, RecentObjectCache recentCache) {
+        super(geoServer, recentCache);
     }
 
     @RequestMapping(method = RequestMethod.GET)
@@ -80,6 +80,22 @@ public class WorkspaceController extends ApiController {
             }
         }
 
+        return arr;
+    }
+
+    @RequestMapping(value = "/recent", method = RequestMethod.GET)
+    public @ResponseBody JSONArr recent() {
+        Catalog cat = catalog();
+
+        JSONArr arr = new JSONArr();
+
+        for (RecentObjectCache.Ref ref : recent.list(WorkspaceInfo.class)) {
+            WorkspaceInfo ws = cat.getWorkspaceByName(ref.name);
+            if (ws != null) {
+                NamespaceInfo ns = cat.getNamespaceByPrefix(ref.name);
+                workspace(arr.addObject(), ws, ns, false);
+            }
+        }
         return arr;
     }
 
@@ -112,6 +128,7 @@ public class WorkspaceController extends ApiController {
 
         cat.add(ws);
         cat.add(ns);
+        recent.add(WorkspaceInfo.class, ws);
 
         if (isDefault) {
             cat.setDefaultWorkspace(ws);
@@ -186,6 +203,7 @@ public class WorkspaceController extends ApiController {
 
         cat.save(ws);
         cat.save(ns);
+        recent.add(WorkspaceInfo.class, ws);
 
         Boolean isDefault = obj.bool("default");
         if (Boolean.TRUE.equals(isDefault)) {
@@ -207,6 +225,7 @@ public class WorkspaceController extends ApiController {
         new CascadeDeleteVisitor(cat).visit(ws);
 
         response.setStatus(HttpStatus.OK.value());
+        recent.remove(WorkspaceInfo.class, ws);
     }
 
     @RequestMapping(value = "/{wsName}/export", method = RequestMethod.POST, produces = APPLICATION_ZIP_VALUE)
