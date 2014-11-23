@@ -1,6 +1,6 @@
 <div class="layer-detail-style">
   <div class="row title-row">
-    <div class="col-md-6" ng-style="mapBackground">
+    <div class="col-xs-6 col-lg-7" ng-style="mapBackground">
       <div class="layer-info">
         <a ng-click="viewWorkspace(workspace);"><i class="icon-folder-open"></i> {{ workspace }}</a>
         <a ng-click="editLayerSettings(layer);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> {{ layer.name }} layer</a>
@@ -14,7 +14,7 @@
       </div>
       <div ol-map class="map" map-opts="mapOpts"></div>
     </div>
-    <div class="col-md-6">
+    <div class="col-xs-6 col-lg-5">
       <div class="style-toolbar">
         <ul class="list-unstyled list-inline">
           <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
