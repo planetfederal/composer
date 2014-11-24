@@ -24,7 +24,6 @@ angular.module('gsApp.projfield', [
             $scope.projList = projectionModel.getProjections();
             if (!$scope.proj) { // don't overwrite existing projections
               $scope.proj = projectionModel.getDefaultProj();
-            console.log($scope.proj);
             }
           });
 

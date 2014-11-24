@@ -390,7 +390,8 @@ angular.module('gsApp.workspaces.data.import', [
                 '<div ng-switch-when="true" class="ngCellText">' +
                 ' {{ row.entity.proj.srs }}'+
                 '<div>' +
-              '</div>'
+              '</div>',
+            width: '30%'
           },
           {
             displayName: '',
@@ -398,7 +399,8 @@ angular.module('gsApp.workspaces.data.import', [
               '<div class="ngCellText" ' +
                 'ng-show="!row.entity.success && row.entity.proj != null">'+
                 '<a ng-click="applyProjToAll(row.entity.proj)" ' +
-                '  >Apply to all</a> ' +
+                '  title="Apply projection to all pending layers">'+
+                'Apply to all</a> ' +
                 '<i class="fa fa-mail-forward fa-rotate-180"></i>' +
               '</div>' +
               '<div class="ngCellText" ng-show="row.entity.success == true">'+
