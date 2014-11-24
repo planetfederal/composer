@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
@@ -11,7 +11,7 @@ angular.module('gsApp.errorPanel', [
       if (exception) {
         var rScope = $injector.get('$rootScope');
 
-        this.errors = [{
+        var errors = [{
           exception: exception.message,
           message: exception.cause,
           fadeout: true,
@@ -21,7 +21,9 @@ angular.module('gsApp.errorPanel', [
 
         if (rScope) {
           //rScope.errors = this.errors;
-          $log.log(this.errors);
+          if (errors) {
+            $log.log(errors);
+          }
         }
       }
     };
