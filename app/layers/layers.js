@@ -655,6 +655,10 @@ angular.module('gsApp.layers', [
           '<img  ng-src="images/layer-polygon.png"' +
             'alt="Layer Type: MultiPolygon"' +
             'title="Layer Type: MultiPolygon" /></div>' +
+        '<div ng-switch-when="Geometry">' +
+          '<img  ng-src="images/layer-vector.png"' +
+            'alt="Layer Type: Geometry"' +
+            'title="Layer Type: Geometry" /></div>' +
         '<div ng-switch-default class="grid">' +
           '<img ng-src="images/layer-raster.png" alt="Layer Type: Raster"' +
             'title="Layer Type: Raster" /></div>' +
