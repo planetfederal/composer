@@ -525,7 +525,8 @@ angular.module('gsApp.layers', [
         {name: 'multi-polygon'},
         {name: 'point'},
         {name: 'polygon'},
-        {name: 'raster'}
+        {name: 'raster'},
+        {name: 'geometry'}
       ];
       $scope.extents = [{name: 'Autocalc'}, {name: 'Custom'}];
       $scope.crsTooltip =

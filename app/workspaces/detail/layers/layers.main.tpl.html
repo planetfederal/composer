@@ -55,7 +55,7 @@
         <div class="layer-summary-detail" ng-style="{'outline': layer.selected ? '4px #28728D solid' : ''}">
           <div class="layer-info-section" ng-click="layer.selected=!layer.selected; toggleSelected(layer);">
             <div class="layer-icon">
-              <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString', 'icon-stop-2': layer.geometry=='MultiPolygon', 'icon-image-2': layer.geometry=='raster'}"></i>
+              <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString', 'icon-stop-2': layer.geometry=='MultiPolygon', 'icon-image-2': layer.geometry=='raster', 'icon-diamond': geometry=='Geometry'}"></i>
             </div>
             <div class="layer-detail">
               <div pop="{{ layer.name }}" pop-show="{{ layer.layerName }}" pop-placement="bottom" ng-click="closeLayerNPopovers(layer);"><strong>{{ layer.name | truncate:false:28:true }}</strong></div>
