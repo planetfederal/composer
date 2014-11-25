@@ -29,7 +29,7 @@ angular.module('gsApp.maps.compose', [
       $scope.workspace = wsName;
       var name = $stateParams.name;
       var hiddenLayers = $stateParams.hiddenLayers;
-      if (hiddenLayers) {
+      if (hiddenLayers && typeof hiddenLayers === 'string') {
         hiddenLayers = hiddenLayers.split(',');
       }
       $rootScope.$broadcast(AppEvent.ToggleSidenav);
