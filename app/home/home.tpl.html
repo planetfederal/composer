@@ -48,13 +48,13 @@
     <div class="row">
       <div class="col-sm-11" ng-if="recentWorkspaces.length">
         <div class="workspaces" ng-if="recentWorkspaces.length">
-          <h4 class="underline">Recent Project Workspaces: {{ projects.length }}</h4>
+          <h4 class="underline">Recent Project Workspaces: {{ recentWorkspaces.length }}</h4>
           <ul class="list-unstyled">
             <div ng-repeat="row in recentWorkspaces | partition:2" class="row workspace-row">
               <li ng-repeat="recentWorkspace in row" class="workspace" ng-class="{'workspace-center-offset': $index%2 != 0}">
                 <div class="icon-marker"><i class="icon-folder"></i></div>
                 <p class="info">
-                  <a ui-sref="map.compose({workspace: recentWorkspace})">{{ recentWorkspace.name }}</a><br />
+                  <a ui-sref="workspace({workspace: recentWorkspace.name})">{{ recentWorkspace.name }}</a><br />
                 </p>
                 <p class="footer">
                   <small class="time">Modified {{ recentWorkspace.modified.pretty }}</small>
