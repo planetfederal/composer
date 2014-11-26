@@ -11,8 +11,8 @@ angular.module('gsApp.home', [])
         controller: 'HomeCtrl'
       });
     }])
-.controller('HomeCtrl', ['$scope', 'GeoServer',
-    function($scope, GeoServer) {
+.controller('HomeCtrl', ['$scope', 'GeoServer', '$state',
+    function($scope, GeoServer, $state) {
 
       $scope.title = 'Recent';
 
@@ -31,6 +31,5 @@ angular.module('gsApp.home', [])
       GeoServer.layers.recent().then(function(result) {
         $scope.recentLayers = result.data;
       });
-
 
     }]);
