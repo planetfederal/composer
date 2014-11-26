@@ -16,6 +16,7 @@ import com.google.common.collect.Iterables;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.Predicates;
+import org.geoserver.catalog.ResourceInfo;
 import org.geoserver.catalog.SLDHandler;
 import org.geoserver.catalog.StyleHandler;
 import org.geoserver.catalog.StyleInfo;
@@ -356,7 +357,10 @@ public class LayerControllerTest {
         mvc.perform(req).andExpect(status().isOk()).andReturn();
 
         LayerInfo l = gs.getCatalog().getLayerByName("foo:one");
+        ResourceInfo r = l.getResource();
+
         verify(l, times(1)).setName("newname");
+        verify(r, times(1)).setName("newname");
     }
 
     String toString(Resource r) {
