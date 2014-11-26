@@ -439,7 +439,9 @@ public class LayerController extends ApiController {
         ResourceInfo resource = layer.getResource();
         for (String prop : obj.keys()) {
             if ("name".equals(prop)) {
-                layer.setName(obj.str("name"));
+                String name = obj.str("name");
+                layer.setName(name);
+                resource.setName(name);
             } else if ("title".equals(prop)) {
                 layer.setTitle(obj.str("title"));
             } else if ("description".equals(prop)) {
