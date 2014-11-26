@@ -38,44 +38,53 @@ angular.module('gsApp.maps.compose', [
         var map = result.data;
 
         //hack, get the detailed version of the layers
-        GeoServer.map.layers.get(wsName, map.name).then(function(result) {
+        GeoServer.map.layers.get(wsName, map.name).then(
+          function(result) {
+          if (result.success) {
+            map.layers = result.data;
+            $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
 
-          map.layers = result.data;
-          $scope.activeLayer = map.layers.length > 0 ? map.layers[0] : null;
-
-          // map options, extend map obj and add visible flag to layers
-          $scope.map = map;
-          $scope.mapOpts = angular.extend(map, {
-            layers: map.layers.map(function(l) {
-              l.visible = true;
-              if (hiddenLayers) { // reinstate visibility
-                var found = _.contains(hiddenLayers, l.name);
-                if (found) {
-                  l.visible = false;
+            // map options, extend map obj and add visible flag to layers
+            $scope.map = map;
+            $scope.mapOpts = angular.extend(map, {
+              layers: map.layers.map(function(l) {
+                l.visible = true;
+                if (hiddenLayers) { // reinstate visibility
+                  var found = _.contains(hiddenLayers, l.name);
+                  if (found) {
+                    l.visible = false;
+                  }
                 }
+                return l;
+              }),
+              error: function(err) {
+                $rootScope.alerts = [{
+                  type: 'danger',
+                  message: 'Map rendering error',
+                  details: err.exceptions[0].text
+                }];
+              },
+              progress: function(state) {
+                if (state == 'start') {
+                  $scope.isRendering = true;
+                }
+                if (state == 'end') {
+                  $scope.isRendering = false;
+                }
+                $scope.$apply();
+              },
+              featureInfo: function(features) {
+                $scope.$broadcast('featureinfo', features);
               }
-              return l;
-            }),
-            error: function(err) {
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Map rendering error',
-                details: err.exceptions[0].text
-              }];
-            },
-            progress: function(state) {
-              if (state == 'start') {
-                $scope.isRendering = true;
-              }
-              if (state == 'end') {
-                $scope.isRendering = false;
-              }
-              $scope.$apply();
-            },
-            featureInfo: function(features) {
-              $scope.$broadcast('featureinfo', features);
-            }
-          });
+            });
+          } else {
+            $rootScope.alerts = [{
+              type: 'danger',
+              message: 'Could not load ' + name + ': ' +
+                result.data.message,
+              fadeout: true
+            }];
+          }
         });
       });
 
