@@ -8,7 +8,7 @@ Array.prototype.diff = function(a) {
 };
 
 String.prototype.startsWith = function(s) {
-  return this.indexOf(s) == 0;
+  return this.indexOf(s) === 0;
 };
 
 String.prototype.endsWith = function(s) {
@@ -81,21 +81,21 @@ var deps = {
     'codemirror/addon/hint/show-hint.css',
     'codemirror/addon/fold/foldgutter.css',
     'font-awesome/css/font-awesome.css',
-    'icomoon/style.css',
+    'icomoon/dist/css/style.css',
     'open-sans-fontface/open-sans.css',
     'spectrum/spectrum.css'
   ],
 
   font: [
     'font-awesome/fonts/*',
-    'icomoon/fonts/*',
+    'icomoon/dist/fonts/*',
     'open-sans-fontface/fonts/**/*',
   ]
 };
 
 var prefixDeps = function(deps) {
   return deps.map(function(dep) {
-    return dep.indexOf('/') == 0 ? dep.substring(1) : 'bower_components/'+dep;
+    return dep.indexOf('/') === 0 ? dep.substring(1) : 'bower_components/'+dep;
   });
 };
 
