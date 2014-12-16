@@ -27,16 +27,16 @@
 
       <div class="import-result text-center" ng-show="importResult!==null && is('fileordb')">
         <alert ng-if="importResult.imported.length > 0" type="success">
-        {{ importResult.imported.length }} layers were successfully imported.
+        {{ importResult.imported.length }} layer{{importResult.imported.length > 1 ? 's were' : ' was'}} successfully imported.
         </alert>
         <alert ng-if="importResult.pending.length > 0" type="warning">
-        {{ importResult.pending.length }} layers require additional input.
+        {{ importResult.pending.length }} layer{{importResult.pending.length > 1 ? 's' : ''}} require{{importResult.pending.length == 1 ? 's' : ''}} additional input.
         </alert>
         <alert ng-if="importResult.ignored.length > 0" type="info">
-        {{ importResult.ignored.length }} files were ignored.
+        {{ importResult.ignored.length }} file{{importResult.ignored.length > 1 ? 's were' : ' was'}} ignored.
         </alert>
         <alert ng-if="importResult.failed.length > 0" type="danger">
-        {{ importResult.failed.length }} layers resulted in an error.
+        {{ importResult.failed.length }} layer{{importResult.failed.length > 1 ? 's' : ''}} resulted in an error.
         </alert>
         <div class="import-error text-right">
           <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
