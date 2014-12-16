@@ -2,30 +2,30 @@
   <div ng-if="import.pending.length > 0">
     <h3>Pending Layers</h3>
     <p>
-      Please specify the projection for the following layers.
+      Please specify the projection for the following layer{{import.pending.length > 1 ? 's' : ''}}.
     </p>
     <div ng-grid="pendingGridOpts" class="pending-layers"></div>
   </div>
   <div ng-if="import.imported.length > 0">
-    <h3>Imported Layers</h3>
+    <h3>Imported Layer{{import.imported.length > 1 ? 's' : ''}}</h3>
     <p>
-      The following layers have been created.
+      The following layer{{import.imported.length > 1 ? 's have' : ' has'}} been created.
     </p>
     <div ng-grid="completedGridOpts"></div>
   </div>
   <div ng-if="import.failed.length > 0">
-    <h3>Failed Layers</h3>
+    <h3>Failed Layer{{import.failed.length > 1 ? 's' : ''}}</h3>
     <p>
-      The following layers failed to import:
+      The following layer{{import.failed.length > 1 ? 's' : ''}} failed to import:
       <ul class="list-unstyled">
         <li ng-repeat="failed in import.failed">{{ failed.file }}</li>
       </ul>
     </p>
   </div>
   <div ng-if="import.ignored.length > 0">
-    <h3>Ignored Layers</h3>
+    <h3>Ignored Layer{{import.ignored.length > 1 ? 's' : ''}}</h3>
     <p>
-      The following layers were not recognized:
+      The following layer{{import.ignored.length > 1 ? 's were' : ' was'}} not recognized:
       <ul class="list-unstyled">
         <li ng-repeat="ignored in import.ignored">{{ ignored.file }}</li>
       </ul>
@@ -34,7 +34,7 @@
 
   <div class="row map-choice" ng-show="!mapInfo && (import.imported.length > 0 || import.pending.length > 0)">
     <div class="col-sm-6 text-center">
-      <div class="lead">Add Selected Layers above<br/>to an Existing Map: </div>
+      <div class="lead">Add selected layer{{map.selected.length > 1 ? 's' : ''}} above<br/>to an existing map: </div>
       <div class="map-picker">
         <ui-select ng-model="map.selected" ng-disabled="disabled" theme="bootstrap" reset-search-input="false" ng-change="setMap(map.selected);">
           <ui-select-match placeholder="Select a map...">
