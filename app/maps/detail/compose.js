@@ -21,9 +21,9 @@ angular.module('gsApp.maps.compose', [
     }])
 .controller('MapComposeCtrl',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$compile',
-    '$log', 'AppEvent', 'GeoServer', '$modal', '_',
+    '$log', 'AppEvent', 'GeoServer', '$modal', '_', '$window',
     function($scope, $rootScope, $state, $stateParams, $timeout, $compile,
-      $log, AppEvent, GeoServer, $modal, _) {
+      $log, AppEvent, GeoServer, $modal, _, $window) {
 
       var wsName = $stateParams.workspace;
       $scope.workspace = wsName;
@@ -33,6 +33,40 @@ angular.module('gsApp.maps.compose', [
         hiddenLayers = hiddenLayers.split(',');
       }
       $rootScope.$broadcast(AppEvent.ToggleSidenav);
+
+      $rootScope.$on('$stateChangeStart', function(event){
+        if ($rootScope.editorIsDirty){
+          event.preventDefault();
+          $scope.editorSave();
+        }
+      });
+
+      $scope.editorSave = function() {
+        var modalInstance = $modal.open({
+          templateUrl: '/maps/detail/editorsave-modal.tpl.html',
+          scope: $scope,
+          controller: ['$scope', '$window', '$modalInstance', '$state',
+            function($scope, $window, $modalInstance, $state) {
+              $scope.saveChanges = function() {
+                $scope.saveStyle();
+                $rootScope.editorIsDirty = false;
+                $modalInstance.dismiss('cancel');
+              };
+
+              $scope.discardChanges = function() {
+                $rootScope.editorIsDirty = false;
+                $rootScope.alerts = [{
+                  type: 'success',
+                  message: 'Editor changes have been discarded.',
+                  fadeout: true
+                }];
+                $modalInstance.dismiss('cancel');
+              };
+            }],
+          backdrop: 'static',
+          size: 'med'
+        });
+      };
 
       GeoServer.map.get(wsName, name).then(function(result) {
         var map = result.data;
@@ -160,6 +194,7 @@ angular.module('gsApp.maps.compose', [
                 message: 'Styled saved.',
                 fadeout: true
               }];
+              $rootScope.editorIsDirty = false;
               $scope.refreshMap();
             }
             else {

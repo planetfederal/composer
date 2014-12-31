@@ -111,6 +111,7 @@ angular.module('gsApp.layers.style', [
               message: 'Styled saved.',
               fadeout: true
             }];
+            $rootScope.editorIsDirty = false;
             $scope.refreshMap();
           }
           else {
