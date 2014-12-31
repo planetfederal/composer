@@ -14,8 +14,9 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.display'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
-    'YsldHinter',
-    function($compile, $sanitize, $timeout, $log, YsldHinter) {
+    'YsldHinter', '$rootScope',
+    function($compile, $sanitize, $timeout, $log, YsldHinter,
+      $rootScope) {
       return {
         restrict: 'EA',
         scope: {
@@ -28,11 +29,26 @@ angular.module('gsApp.styleditor', [
         controller: function($scope, $element) {
           $scope.onCodeMirrorLoad = function(editor) {
             $scope.editor = editor;
+            $rootScope.editorIsDirty = false;
+
             editor.on('change', function(cm, change) {
-              if ('setValue' == change.origin) {
+              if (change.origin == 'setValue') {
                 $timeout(function() {
                   cm.clearHistory();
+                  cm.markClean();
                 }, 0);
+              }
+              else {
+                cm.changeGeneration();
+              }
+
+              if (cm.changeGeneration() == 2) {
+                $rootScope.editorIsDirty = false;
+                cm.changeGeneration();
+              }
+              else {
+                $rootScope.editorIsDirty = true;
+                cm.changeGeneration();
               }
             });
           };
