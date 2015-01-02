@@ -1,17 +1,36 @@
 <div class="layer-detail-style">
-  <div class="row title-row">
-    <div class="col-xs-6 col-lg-7" ng-style="mapBackground">
-      <div class="layer-info">
-        <a ng-click="viewWorkspace(workspace);"><i class="icon-folder-open"></i> {{ workspace }}</a>
-        <a ng-click="editLayerSettings(layer);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> {{ layer.name }} layer</a>
-        <div class="render-progress-container">
-          <span ng-show="isRendering" class="render-progress">
-            <i class="fa fa-spinner fa-spin"></i>
-            Rendering map
-          </span>
-          <featureinfo-panel featureinfo="featureinfo" active-layer="layer"></featureinfo-panel>
+  <div class="row">
+    <div class="col-xs-12 layer-name-row">
+      <nav class="navbar navbar-default layer-name" role="navigation">
+        <div class="row">
+          <div class="col-xs-6 col-lg-7">
+            <div class="navbar-brand">
+              <a ng-click="viewWorkspace(workspace);"><i class="icon-lg icon-folder-open"></i> {{ workspace }}</a>
+              <a ng-click="editLayerSettings(layer);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> <span class="icon-wonky"></span> <span class="map-name-span">{{ layer.name }} layer</span></a>
+            </div>
+            <div class="render-progress-container">
+              <span ng-show="isRendering" class="render-progress">
+                <i class="fa fa-spinner fa-spin"></i>
+                Rendering map
+              </span>
+              <featureinfo-panel featureinfo="featureinfo" active-layer="layer"></featureinfo-panel>
+            </div>
+          </div>
+          <div class="col-xs-6 col-lg-5 info">
+            <div class="top">
+              <div class="shortcuts">
+                <a ng-click="showShortcuts()">
+                  <i class="icon-keyboard icon-lg"></i>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </nav>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6 col-lg-7">
       <div ol-map class="map" map-opts="mapOpts"></div>
     </div>
     <div class="col-xs-6 col-lg-5">
@@ -20,9 +39,9 @@
           <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
           <style-editor-undo editor="editor"></style-editor-undo>
           <style-editor-color editor="editor"></style-editor-color>
+          <style-editor-display editor="editor"></style-editor-display>
           <style-editor-icons editor="editor"></style-editor-icons>
           <style-editor-attrs editor="editor" layer="layer"></style-editor-attrs>
-          <style-editor-display editor="editor"></style-editor-display>
         </ul>
       </div>
       <div style-editor editor="editor" layer="layer" style="style" markers="markers"></div>

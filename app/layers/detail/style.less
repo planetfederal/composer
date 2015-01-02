@@ -1,30 +1,86 @@
 /* style.less */
 
-@import url('../../variables.less');
+@import "../../variables.less";
 
 .layer-detail-style {
-
-
-  .layer-info {
-    padding-top: 3px;
-    padding-left: 11px;
-    background-color: @light-bl-gray;
-    width: 100%;
+  .top {
     display: inline-block;
-    height: 38px;
-    line-height: 30px;
+    width: 95%;
     vertical-align: middle;
+    text-align: bottom;
+    color: @slate-blue;
+
+    .shortcuts {
+      margin-left: 13%;
+      float: right;
+      margin-top: 6px;
+      a {
+        text-decoration: none;
+        i {
+          color: @light-gray;
+        }
+        &:hover > i {
+          color: @gray;
+        }
+      }
+    }
+  }
+
+  .layer-name, .layer-name-row, .navbar-brand, ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
+    min-height: 35px;
+    height: 35px;
+    line-height: 28px;
+    color: @slate-blue;
+  }
+  .layer-name-row {
+    z-index: 0;
     border-bottom: 1px solid @very-lt-gray;
     .box-shadow(0 1px 1px rgba(0,0,0,0.2));
-    font-size: 16px;
-
+  }
+  .layer-name {
+    background-color: @light-bl-gray;
     a {
       color: @dark-gray;
-      &:hover {
-        text-decoration: none;
+    }
+  }
+  .navbar-brand, ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
+    padding-top: 0;
+    padding-bottom: 0;
+    color: @dark-gray;
+  }
+  .navbar-brand {
+    padding-top: 3px;
+    padding-left: 0px;
+    margin-left: 11px;
+    a:hover {
+      text-decoration: none;
+      color: @monacoblue;
+
+      i:not(.fa-angle-right) {
+        color: @monacoblue;
+      }
+      .map-name-span {
         color: @monacoblue;
       }
     }
+    i {
+      color: lighten(@slate-blue, 10%);
+    }
+    .icon-wonky {
+      vertical-align: middle;
+    }
+    .map-name-span {
+      color: @dark-gray;
+    }
+  }
+  ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
+    padding-top: 2px;
+  }
+
+  .render-progress {
+    vertical-align: middle;
+    line-height: 32px;
+    margin-right: 20px;
   }
 
   .row {
@@ -52,6 +108,4 @@
   .style-editor {
     width: 100%;
   }
-
 }
-
