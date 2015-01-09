@@ -28,27 +28,14 @@ angular.module('gsApp.styleditor', [
         templateUrl: '/components/styleditor/styleditor.tpl.html',
         controller: function($scope, $element) {
           $scope.onCodeMirrorLoad = function(editor) {
-            $scope.editor = editor;
-            $rootScope.editorIsDirty = false;
+            $rootScope.editor = editor;
 
             editor.on('change', function(cm, change) {
               if (change.origin == 'setValue') {
                 $timeout(function() {
                   cm.clearHistory();
-                  cm.markClean();
                 }, 0);
-              }
-              else {
-                cm.changeGeneration();
-              }
-
-              if (cm.changeGeneration() == 2) {
-                $rootScope.editorIsDirty = false;
-                cm.changeGeneration();
-              }
-              else {
-                $rootScope.editorIsDirty = true;
-                cm.changeGeneration();
+                $rootScope.generation = cm.changeGeneration();
               }
             });
           };
