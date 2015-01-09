@@ -35,7 +35,7 @@ angular.module('gsApp.maps.compose', [
       $rootScope.$broadcast(AppEvent.ToggleSidenav);
 
       $rootScope.$on('$stateChangeStart', function(event){
-        if ($rootScope.editorIsDirty){
+        if (!$rootScope.editor.isClean($rootScope.generation)){
           event.preventDefault();
           $scope.editorSave();
         }
@@ -49,17 +49,26 @@ angular.module('gsApp.maps.compose', [
             function($scope, $window, $modalInstance, $state) {
               $scope.saveChanges = function() {
                 $scope.saveStyle();
-                $rootScope.editorIsDirty = false;
+                $rootScope.generation = $rootScope.editor.changeGeneration();
+                if ($scope.gotoLayer) {
+                  $scope.selectLayer($scope.gotoLayer);
+                }
+                $scope.gotoLayer = '';
                 $modalInstance.dismiss('cancel');
               };
 
               $scope.discardChanges = function() {
-                $rootScope.editorIsDirty = false;
                 $rootScope.alerts = [{
                   type: 'success',
                   message: 'Editor changes have been discarded.',
                   fadeout: true
                 }];
+
+                $rootScope.generation = $rootScope.editor.changeGeneration();
+                if ($scope.gotoLayer) {
+                  $scope.selectLayer($scope.gotoLayer);
+                }
+                $scope.gotoLayer = '';
                 $modalInstance.dismiss('cancel');
               };
             }],
@@ -130,14 +139,20 @@ angular.module('gsApp.maps.compose', [
       $scope.selectLayer = function(layer) {
         var layerState = $scope.layerState;
         var activeLayer = $scope.activeLayer;
+        $scope.gotoLayer = layer;
 
-        if (activeLayer != null) {
-          if (!(activeLayer.name in layerState)) {
-            layerState[activeLayer.name] = {};
-          }
-          layerState[activeLayer.name].style = $scope.style;
+        if (!$rootScope.editor.isClean($rootScope.generation)) {
+          $scope.editorSave();
         }
-        $scope.activeLayer = layer;
+        else {
+          if (activeLayer != null) {
+            if (!(activeLayer.name in layerState)) {
+              layerState[activeLayer.name] = {};
+            }
+            layerState[activeLayer.name].style = $scope.style;
+          }
+          $scope.activeLayer = layer;
+        }
       };
 
       $scope.zoomToLayer = function(layer) {
@@ -191,10 +206,10 @@ angular.module('gsApp.maps.compose', [
               $scope.markers = null;
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Styled saved.',
+                message: 'Style saved.',
                 fadeout: true
               }];
-              $rootScope.editorIsDirty = false;
+              $rootScope.generation = $rootScope.editor.changeGeneration();
               $scope.refreshMap();
             }
             else {
@@ -249,6 +264,7 @@ angular.module('gsApp.maps.compose', [
           }
           $timeout(function() {
             $scope.editor.clearHistory();
+            $rootScope.editor.clearHistory();
           }, 5000);
         }
       });
