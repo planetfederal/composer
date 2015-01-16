@@ -14,9 +14,9 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.display'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
-    'YsldHinter', '$rootScope',
+    'YsldHinter', '$rootScope', '$sce',
     function($compile, $sanitize, $timeout, $log, YsldHinter,
-      $rootScope) {
+      $rootScope, $sce) {
       return {
         restrict: 'EA',
         scope: {
@@ -108,7 +108,7 @@ angular.module('gsApp.styleditor', [
             if (newVal != null) {
               newVal.forEach(function(mark) {
                 var html = '<i class="icon-warning" ' +
-                  'popover="' + $sanitize(mark.problem) + '" ' +
+                  'popover="' + $sce.trustAsHtml(mark.problem) + '" ' +
                   'popover-placement="left" ' +
                   'popover-trigger="mouseenter" ' +
                   'popover-append-to-body="true"></i>';
