@@ -527,7 +527,15 @@ public class LayerController extends ApiController {
             }
         }
         finally {
-            IOUtils.closeQuietly(output);
+            try {
+                //For a FileSystemResource, a temp file is copied to the actual file on close().
+                output.close();
+            } catch (NullPointerException npe) {
+                //The temp file has already been saved and deleted, therefore npe (not an error).
+            } catch (IOException ioe) {
+                //Failed to modify one of the files. We have probably failed to save the changes.
+                throw new RuntimeException("Failed to modify resource",ioe);
+            }
         }
 
         if (s.getId() == null) {
