@@ -27,7 +27,7 @@
     "angular-ui-sortable": "~0.12.10",
     "ng-clip": "~0.2.2",
     "open-sans-fontface": "git://github.com/FontFaceKit/open-sans",
-    "icomoon": "git://github.com/layerssss/icomoon-bower.git",
+    "icomoon": "~0.0.3",
     "lesselements": "git://github.com/dmitryf/elements.git",
     "angular-animate": "~1.2.22",
     "js-yaml": "~3.1.0",

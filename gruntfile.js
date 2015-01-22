@@ -81,14 +81,14 @@ var deps = {
     'codemirror/addon/hint/show-hint.css',
     'codemirror/addon/fold/foldgutter.css',
     'font-awesome/css/font-awesome.css',
-    'icomoon/style.css',
+    'icomoon/dist/css/style.css',
     'open-sans-fontface/open-sans.css',
     'spectrum/spectrum.css'
   ],
 
   font: [
     'font-awesome/fonts/*',
-    'icomoon/fonts/*',
+    'icomoon/dist/fonts/*',
     'open-sans-fontface/fonts/**/*',
   ]
 };
