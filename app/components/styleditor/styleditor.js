@@ -14,9 +14,9 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.display'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
-    'YsldHinter', '$rootScope',
+    'YsldHinter', '$rootScope', '$document',
     function($compile, $sanitize, $timeout, $log, YsldHinter,
-      $rootScope) {
+      $rootScope, $document) {
       return {
         restrict: 'EA',
         scope: {
@@ -103,15 +103,28 @@ angular.module('gsApp.styleditor', [
             tabMode: 'spaces'
           };
 
+          $scope.setPopup = function(){
+            //Wait a little bit before setting the popover element. We need to
+            //ensure that it exists so we can remove it later on if necessary.
+            //If we don't explicitly remove it then the popover will remain on
+            //the new code mirror window.
+            $timeout(function() {
+              $rootScope.popoverElement = angular.element(
+                $document[0].querySelectorAll('.popover'));
+            }, 250);
+          };
+
           $scope.$watch('markers', function(newVal) {
             $scope.editor.clearGutter('markers');
             if (newVal != null) {
               newVal.forEach(function(mark) {
-                var html = '<i class="icon-warning" ' +
+                var html = '<a class="icon-warning" ' +
                   'popover="' + $sanitize(mark.problem) + '" ' +
                   'popover-placement="left" ' +
-                  'popover-trigger="mouseenter" ' +
-                  'popover-append-to-body="true"></i>';
+                  'popover-append-to-body="true"' +
+                  'title="Click to toggle the error message on/off." ' +
+                  'alt="Click to toggle the error message on/off."' +
+                  'ng-click="setPopup()"></a>';
 
                 var marker = $compile(html)($scope)[0];
                 $scope.editor.setGutterMarker(mark.line, 'markers', marker);
