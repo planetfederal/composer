@@ -133,6 +133,15 @@ angular.module('gsApp.layers.style', [
         });
       };
 
+      $scope.showShortcuts = function() {
+        var modalInstance = $modal.open({
+          templateUrl: '/components/styleditor/tools/shortcuts.tpl.html',
+          controller: 'ShortcutsCtrl',
+          backdrop: 'false',
+          size: 'md'
+        });
+      };
+
       $rootScope.$on(AppEvent.MapBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
       });
