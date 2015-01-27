@@ -1,4 +1,5 @@
 <div tracking></div>
+<div initialize></div>
 <div class="map-detail-compose">
   <div class="row">
     <div class="col-xs-12 map-name-row">
@@ -34,10 +35,10 @@
     </div>
   </div>
   <div class="row">
-    <div class="col-xs-6 col-lg-7" ng-style="mapBackground">
+    <div id="mapPanel" class="col-xs-6 col-lg-7" ng-style="mapBackground">
       <div ol-map class="map" map-opts="mapOpts"></div>
     </div>
-    <div class="col-xs-6 col-lg-5">
+    <div id="editingPanel" class="col-xs-6 col-lg-5">
       <div class="editor-background">
         <div class="map-layers" ng-class="{show: toggle == true}">
           <div class="reorder-info">Drag to Reorder</div>
@@ -75,6 +76,13 @@
           <style-editor layer="activeLayer" style="style" editor="editor" markers="markers"></style-editor>
         </div>
       </div>
+    </div>
+    <div id="resizer"
+        resizer="vertical"
+        left-min="300"
+        right-min="450"
+        alt="Drag to resize"
+        title="Drag to resize">
     </div>
   </div>
 </div>
