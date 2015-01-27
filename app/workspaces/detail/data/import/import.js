@@ -94,6 +94,7 @@ angular.module('gsApp.workspaces.data.import', [
             workspace: wsName,
             import: $scope.import
           });
+          //$scope.importResult = null;
           $scope.showImportFile = true;
           $scope.showImportDetails = false;
         }
