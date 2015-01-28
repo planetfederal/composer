@@ -1,4 +1,15 @@
 <div class="data-import-details">
+  <div ng-if="import.preimport.length > 0">
+    <h3>Available Tables</h3>
+    <p>
+      Please specify which table{{import.preimport.length > 1 ? 's' : ''}} to import.
+    </p>
+    <div ng-grid="preimportGridOpts" class="pending-layers"></div>
+    <div ng-if="importedLayers.length > 0" class="bg-success" style="padding:10px 10px 5px 10px; margin-bottom: 10px;">
+      <p>{{ importedLayers.length }} layers imported.</p>
+    </div>
+    <button class="btn btn-success btn-sm pull-right" ng-show="import.preimport.length > 0" ng-click="importTables(allSelected)">Import Tables</button>
+  </div>
   <div ng-if="import.pending.length > 0">
     <h3>Pending Layers</h3>
     <p>
