@@ -1,4 +1,4 @@
-/* (c) 2014 Boundless, http://boundlessgeo.com
+/* (c) 2014-2015 Boundless, http://boundlessgeo.com
  * This code is licensed under the GPL 2.0 license.
  */
 package com.boundlessgeo.geoserver.api.controllers;
@@ -9,6 +9,7 @@ import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.boundlessgeo.geoserver.util.Hasher;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -21,11 +22,13 @@ import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.importer.Database;
 import org.geoserver.importer.Directory;
+import org.geoserver.importer.FileData;
 import org.geoserver.importer.ImportContext;
 import org.geoserver.importer.ImportData;
 import org.geoserver.importer.ImportFilter;
 import org.geoserver.importer.ImportTask;
 import org.geoserver.importer.Importer;
+import org.geoserver.importer.Table;
 import org.geoserver.platform.resource.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -37,13 +40,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -96,7 +102,10 @@ public class ImportController extends ApiController {
 
         // create the import data
         Database db = new Database(hack(obj));
-        return doImport(db, ws);
+        
+        //Initialize the import, and return to requester to allow selection of tables.
+        //Complete the import using update()
+        return prepImport(db, ws);
     }
 
     Map<String, Serializable> hack(JSONObj obj) {
@@ -111,10 +120,71 @@ public class ImportController extends ApiController {
         }
         return map;
     }
+    
+    ImportFilter filter(JSONObj obj) {
+        Object filter = obj.get("filter");
+        if ("ALL".equals(filter)) {
+            return ImportFilter.ALL;
+        } else {
+            JSONArr arr = obj.array("tasks");
+            final List<Long> tasks = new ArrayList<Long>(arr.size());
+            for (int i = 0; i < arr.size(); i++) {
+                tasks.add(Long.parseLong(arr.str(i)));
+            }
+            return new ImportFilter() {
+                @Override
+                public boolean include(ImportTask task) {
+                    return tasks.contains(task.getId());
+                }
+            };
+        }
+    }
+    
+    /*
+     * Set up an import context. 
+     * Use continueImport() to complete this import
+     * 
+     * @param data - The data to import
+     * @param ws - The workspace to import into
+     * @return JSON representation of the import
+     */
+    JSONObj prepImport(ImportData data, WorkspaceInfo ws) throws Exception {
+        // prepare the import and extract layers
+        ImportContext imp = importer.createContext(data, ws);
+        return get(ws.getName(), imp.getId());
+    }
+    
+    /*
+     * Complete an import started with prepImport().
+     * 
+     * @param data - The data to import
+     * @param ws - The workspace to import into
+     * @return JSON representation of the import
+     */
+    JSONObj continueImport(ImportContext imp, WorkspaceInfo ws, ImportFilter f) throws Exception {
+        // run the import
+        prepTasks(imp, ws, f);
+        importer.run(imp, f);
 
+        for (ImportTask t : imp.getTasks()) {
+            if (t.getState() == ImportTask.State.COMPLETE) {
+                touch(t);
+            }
+        }
+        imp.setState(ImportContext.State.COMPLETE);
+        return get(ws.getName(), imp.getId());
+    }
+
+    /*
+     * run an import in one step
+     * @param data - The data to import
+     * @param ws - The workspace to import into
+     * @return JSON representation of the import
+     */
     JSONObj doImport(ImportData data, WorkspaceInfo ws) throws Exception {
         // run the import
         ImportContext imp = importer.createContext(data, ws);
+        imp.setState(ImportContext.State.RUNNING);
 
         prepTasks(imp, ws);
 
@@ -125,43 +195,52 @@ public class ImportController extends ApiController {
                 touch(t);
             }
         }
+        imp.setState(ImportContext.State.COMPLETE);
         return get(ws.getName(), imp.getId());
     }
 
     void prepTasks(ImportContext imp, WorkspaceInfo ws) {
+        prepTasks(imp, ws, ImportFilter.ALL);
+    }
+    void prepTasks(ImportContext imp, WorkspaceInfo ws, ImportFilter f) {
         // 1. hack the context object to ensure that all styles are workspace local
         // 2. mark layers as "imported" so we can safely delete styles later
         GeoServerDataDirectory dataDir = dataDir();
 
         for (ImportTask t : imp.getTasks()) {
-            LayerInfo l = t.getLayer();
-            l.getMetadata().put(Metadata.IMPORTED, new Date());
-
-            if (l != null && l.getDefaultStyle() != null) {
-                StyleInfo s = l.getDefaultStyle();
-
-                // JD: have to regenerate the unique name here, the importer already does this but because we are
-                // putting it into the workspace we have to redo it, this should really be part of the importer
-                // with an option to create styles in the workspace
-                s.setName(findUniqueStyleName(l.getResource(), ws, catalog()));
-
-                Resource from = dataDir.style(s);
-
-                s.setWorkspace(ws);
-                Resource to = dataDir.style(s);
-
-                try {
-                    try (
-                        InputStream in = from.in();
-                        OutputStream out = to.out();
-                    ) {
-                        IOUtils.copy(in, out);
-                        from.delete();
+            //skip any layers we are not importing
+            if (f.include(t)) {
+                LayerInfo l = t.getLayer();
+                l.getMetadata().put(Metadata.IMPORTED, new Date());
+    
+                if (l != null && l.getDefaultStyle() != null) {
+                    StyleInfo s = l.getDefaultStyle();
+    
+                    // JD: have to regenerate the unique name here, the importer already does this but because we are
+                    // putting it into the workspace we have to redo it, this should really be part of the importer
+                    // with an option to create styles in the workspace
+                    s.setName(findUniqueStyleName(l.getResource(), ws, catalog()));
+    
+                    Resource from = dataDir.style(s);
+    
+                    s.setWorkspace(ws);
+                    Resource to = dataDir.style(s);
+    
+                    try {
+                        try (
+                            InputStream in = from.in();
+                            OutputStream out = to.out();
+                        ) {
+                            IOUtils.copy(in, out);
+                            from.delete();
+                        }
+                    }
+                    catch(IOException e){
+                        throw new RuntimeException("Error copying style to workspace", e);
                     }
                 }
-                catch(IOException e){
-                    throw new RuntimeException("Error copying style to workspace", e);
-                }
+            } else {
+                t.setState(ImportTask.State.CANCELED);
             }
         }
     }
@@ -185,17 +264,20 @@ public class ImportController extends ApiController {
         JSONObj result = new JSONObj();
         result.put("id", imp.getId());
 
+        JSONArr preimport = result.putArray("preimport");
         JSONArr imported = result.putArray("imported");
         JSONArr pending = result.putArray("pending");
         JSONArr failed = result.putArray("failed");
         JSONArr ignored = result.putArray("ignored");
 
         for (ImportTask task : imp.getTasks()) {
-            if (task.getState() == ImportTask.State.COMPLETE) {
-                imported.add(complete(task));
-            }
-            else {
+            if (imp.getState() == ImportContext.State.PENDING) {
+                preimport.add(task(task));
+            } else {
                 switch(task.getState()) {
+                    case COMPLETE:
+                        imported.add(complete(task));
+                        break;
                     case NO_BOUNDS:
                     case NO_CRS:
                         pending.add(pending(task));
@@ -219,7 +301,17 @@ public class ImportController extends ApiController {
     public @ResponseBody JSONObj update(@PathVariable String wsName, @PathVariable Long id, @RequestBody JSONObj obj)
         throws Exception {
 
+        Catalog catalog = geoServer.getCatalog();
+        WorkspaceInfo ws = findWorkspace(wsName, catalog);
+        
         ImportContext imp = findImport(id);
+        //DB Import, select the tables to import
+        if (imp.getState() == ImportContext.State.PENDING) {
+            ImportFilter f = filter(obj);
+
+            // create the import data
+            return continueImport(imp, ws, f);
+        }
 
         Integer t = obj.integer("task");
         if (t == null) {
@@ -292,8 +384,11 @@ public class ImportController extends ApiController {
     }
 
     JSONObj task(ImportTask task) {
-        return new JSONObj().put("task", task.getId())
-            .put("file", filename(task));
+        JSONObj obj = new JSONObj();
+        obj.put("task", task.getId())
+           .put("name", name(task))
+           .put("type", type(task));
+        return obj;
     }
 
     JSONObj complete(ImportTask task) {
@@ -322,6 +417,28 @@ public class ImportController extends ApiController {
     String filename(ImportTask task) {
         ImportData data = task.getData();
         return FilenameUtils.getName(data.toString());
+    }
+    
+    String name(ImportTask task) {
+        ImportData data = task.getData();
+        if (data instanceof FileData) {
+            return FilenameUtils.getName(data.toString());
+        }
+        return data.getName();
+    }
+    
+    String type(ImportTask task) {
+        ImportData data = task.getData();
+        if (data instanceof Database) {
+            return "database";
+        }
+        if (data instanceof FileData) {
+            return "file";
+        }
+        if (data instanceof Table) {
+            return "table";
+        }
+        return "null";
     }
 
 }
