@@ -3,18 +3,8 @@
     <p class="lead">
       Import data from a spatial database
     </p>
-    <div class="instructions">
-      <p class="in-dev"><em>This feature is currently in development.</em></p>
-      <p>Please use GeoServer Admin to configure database connections and import tables.</p>
-      <p>Once imported into GeoServer, databases will appear as <em>stores</em> in the Data tab<br/>and selected tables will appear as <em>layers</em> in the Layers tab.</p>
-      <div class="geoserver-link">
-        <a type="button" class="btn btn-primary btn-sm" target="_blank" ng-href="{{ geoserverDatabaseLink }}">GeoServer Data Import <i class="fa fa-long-arrow-right"></i></a>
-      </div>
-      <p>Be sure to import data into the current workspace: <strong>{{ workspace }}</strong></p>
-    </div>
-
   </div>
-  <!--<div ng-show="format == null" class="text-center">
+  <div ng-show="format == null" class="text-center">
     <p class="lead">
       Import tables from a spatial database.
     </p>
@@ -35,46 +25,35 @@
       <div class="form-group" ng-if="params.host">
         <div class="col-sm-10">
           <label for="host">Host</label>
-          <input ng-model="params.host.value" name="host" type="text" class="form-control" focus-init></input>
+          <input ng-model="params.host.value" name="host" type="text" class="form-control" focus-init>
         </div>
         <div class="col-sm-2">
           <label for="port">Port</label>
-          <input ng-model="params.port.value" name="port" type="text" class="form-control"></input>
+          <input ng-model="params.port.value" name="port" type="text" class="form-control">
         </div>
       </div>
       <div class="form-group" ng-if="params.database">
         <div class="col-sm-6">
           <label for="database">Database</label>
-          <input ng-model="params.database.value" name="database" type="text" class="form-control"></input>
+          <input ng-model="params.database.value" name="database" type="text" class="form-control">
         </div>
         <div class="col-sm-6" ng-if="params.schema">
           <label for="schema">Schema</label>
-          <input ng-model="params.schema.value" name="schema" type="text" class="form-control"></input>
+          <input ng-model="params.schema.value" name="schema" type="text" class="form-control">
         </div>
       </div>
       <div class="form-group" ng-if="params.user">
         <div class="col-sm-6">
           <label for="user">Username</label>
-          <input ng-model="params.user.value" name="user" type="text" class="form-control"></input>
+          <input ng-model="params.user.value" name="user" type="text" class="form-control">
         </div>
         <div class="col-sm-6">
           <label for="passwd">Password</label>
-          <input ng-model="params.passwd.value" name="passwd" type="password" class="form-control"></input>
+          <input ng-model="params.passwd.value" name="passwd" type="password" class="form-control">
         </div>
       </div>
-      <div class="form-group">
-        <div class="col-sm-12">
-          <div class="checkbox">
-            <label>
-              <input type="checkbox" ng-model="chooseTables">
-                Choose which tables to import
-              </input>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-sm-12 text-right">
+      <div class="form-group row">
+        <div class="col-sm-12 text-right" style="margin-top: 20px;">
           <span ng-show="connecting">
             <i class="fa fa-spinner fa-spin"></i>
               Connecting... please wait.
@@ -88,5 +67,5 @@
 
   <div ng-if="error != null">
     <alert type="danger">{{ error.message }}</alert>
-  </div>-->
+  </div>
 </div>
