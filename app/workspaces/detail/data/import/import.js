@@ -94,7 +94,6 @@ angular.module('gsApp.workspaces.data.import', [
             workspace: wsName,
             import: $scope.import
           });
-          //$scope.importResult = null;
           $scope.showImportFile = true;
           $scope.showImportDetails = false;
         }
@@ -310,7 +309,6 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.import = $stateParams.import;
       $scope.layerSelections = [];
 
-
       // if mapInfo's not defined it's import not create map workflow
       if (!mapInfoModel.getMapInfo()) {
         GeoServer.maps.get($scope.workspace).then(
@@ -335,6 +333,26 @@ angular.module('gsApp.workspaces.data.import', [
           }
         }
       };
+
+      $scope.preimportGridOpts = angular.extend({
+        data: 'preimportedLayers',
+        checkboxHeaderTemplate:
+          '<input class="ngSelectionHeader" type="checkbox"' +
+            'ng-model="allSelected" ' +
+              'ng-change="toggleSelectAll(allSelected)"/>',
+        sortInfo: {fields: ['name'], directions: ['asc']},
+        columnDefs: [
+          {field: 'name', displayName: 'Name', width: '30%'}
+        ],
+        enablePaging: true,
+        enableColumnResize: false,
+        showFooter: false,
+        totalServerItems: 'preimportedLayers.length',
+        pagingOptions: {
+          pageSize: 50,
+          currentPage: 1
+        },
+      }, baseGridOpts);
 
       $scope.completedGridOpts = angular.extend({
         data: 'importedLayers',
@@ -426,6 +444,9 @@ angular.module('gsApp.workspaces.data.import', [
             $log.log(imp);
             $scope.import = imp;
 
+            $scope.preimportedLayers = imp.preimport.map(function(t) {
+              return t;
+            });
             $scope.importedLayers = imp.imported.map(function(t) {
               t.layer.source = t.file;
               return t.layer;
@@ -452,6 +473,28 @@ angular.module('gsApp.workspaces.data.import', [
         });
       };
 
+      $scope.importTables = function() {
+        var toImport = {'tasks': []};
+        $scope.layerSelections.forEach(function(item) {
+          toImport.tasks.push(item.task);
+        });
+        GeoServer.import.update($scope.workspace,
+          $scope.import.id, angular.toJson(toImport))
+        .then(function(result) {
+            if (result.success) {
+              $rootScope.$broadcast(AppEvent.StoreAdded);
+              $scope.importedLayers = result.data.imported;
+              mapInfoModel.setMapInfoLayers($scope.importedLayers);
+            } else {
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Error importing table: ' + result.data.message,
+                fadeout: true
+              }];
+            }
+          });
+      };
+
       $scope.reimport = function() {
         $scope.import.pending.filter(function(task) {
           return task.problem == 'NO_CRS' && task.proj != null;
@@ -461,7 +504,7 @@ angular.module('gsApp.workspaces.data.import', [
               task.success = result.success && result.data.layer != null;
               if (result.success) {
                 $rootScope.$broadcast(AppEvent.StoreAdded);
-                result.data.layer.source = result.data.file;
+                result.data.layer.source = result.data.name;
                 $scope.importedLayers.push(result.data.layer);
                 mapInfoModel.setMapInfoLayers($scope.importedLayers);
               }
