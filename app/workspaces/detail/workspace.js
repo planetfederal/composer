@@ -38,6 +38,16 @@ angular.module('gsApp.workspaces.home', [
       }
 
       GeoServer.workspace.get(wsName).then(function(result) {
+        if (!result.success) {
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: result.data.message + '. Please create it first.',
+            fadeout: true
+          }];
+          $state.go('workspaces.list');
+          return;
+        }
+
         $scope.title = wsName;
 
         $scope.tabs = [
