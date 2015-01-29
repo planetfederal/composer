@@ -121,22 +121,35 @@ public class ImportController extends ApiController {
         return map;
     }
     
-    ImportFilter filter(JSONObj obj) {
+    ImportFilter filter(JSONObj obj, ImportContext imp) {
         Object filter = obj.get("filter");
-        if ("ALL".equals(filter)) {
-            return ImportFilter.ALL;
+        JSONArr arr = obj.array("tasks");
+        
+        if (filter == null && arr == null) {
+            throw new BadRequestException("Request must contain a filter or a list of tasks");
+        }
+        if (arr == null) {
+            if ("ALL".equals(filter)) {
+                return ImportFilter.ALL;
+            }
+            throw new BadRequestException("Invalid filter: "+filter);
         } else {
-            JSONArr arr = obj.array("tasks");
             final List<Long> tasks = new ArrayList<Long>(arr.size());
             for (int i = 0; i < arr.size(); i++) {
-                tasks.add(Long.parseLong(arr.str(i)));
-            }
-            return new ImportFilter() {
-                @Override
-                public boolean include(ImportTask task) {
-                    return tasks.contains(task.getId());
+                JSONObj taskObj = arr.object(i);
+                
+                Long taskId = Long.parseLong(taskObj.str("task"));
+                if (taskId == null) {
+                    throw new BadRequestException("Request must contain task identifier");
                 }
-            };
+                ImportTask task = imp.task(taskId);
+                
+                if (task == null) {
+                    throw new NotFoundException("No such task: " + taskId + " for import: " + imp.getId());
+                }
+                tasks.add(taskId);
+            }
+            return new TaskIdFilter(tasks);
         }
     }
     
@@ -157,13 +170,22 @@ public class ImportController extends ApiController {
     /*
      * Complete an import started with prepImport().
      * 
-     * @param data - The data to import
+     * @param imp - The context to run the import from
      * @param ws - The workspace to import into
+     * @param f - Filter to select import tasks
      * @return JSON representation of the import
      */
     JSONObj continueImport(ImportContext imp, WorkspaceInfo ws, ImportFilter f) throws Exception {
         // run the import
-        prepTasks(imp, ws, f);
+        GeoServerDataDirectory dataDir = dataDir();
+        for (ImportTask t : imp.getTasks()) {
+            if (f.include(t)) {
+                prepTask(t, ws, dataDir);
+            } else {
+                t.setState(ImportTask.State.CANCELED);
+            }
+        }
+        
         importer.run(imp, f);
 
         for (ImportTask t : imp.getTasks()) {
@@ -172,6 +194,36 @@ public class ImportController extends ApiController {
             }
         }
         imp.setState(ImportContext.State.COMPLETE);
+        return get(ws.getName(), imp.getId());
+    }
+    
+    /*
+     * Rerun an import.
+     * 
+     * @param imp - The context to run the import from
+     * @param ws - The workspace to import into
+     * @param f - Filter to select import tasks
+     * @return JSON representation of the import
+     */
+    JSONObj reImport(ImportContext imp, WorkspaceInfo ws, ImportFilter f) throws Exception {
+     // run the import
+        GeoServerDataDirectory dataDir = dataDir();
+        
+        //These tasks were not run the first time, and need to be set up
+        List<ImportTask> newTasks = new ArrayList<ImportTask>();
+        for (ImportTask t : imp.getTasks()) {
+            if (t.getState() == ImportTask.State.CANCELED) {
+                prepTask(t, ws, dataDir);
+                newTasks.add(t);
+            } 
+        }
+        importer.run(imp, f);
+
+        for (ImportTask t : newTasks) {
+            if (t.getState() == ImportTask.State.COMPLETE) {
+                touch(t);
+            }
+        }
         return get(ws.getName(), imp.getId());
     }
 
@@ -185,9 +237,10 @@ public class ImportController extends ApiController {
         // run the import
         ImportContext imp = importer.createContext(data, ws);
         imp.setState(ImportContext.State.RUNNING);
-
-        prepTasks(imp, ws);
-
+        GeoServerDataDirectory dataDir = dataDir();
+        for (ImportTask t : imp.getTasks()) {
+            prepTask(t, ws, dataDir);
+        }
         importer.run(imp);
 
         for (ImportTask t : imp.getTasks()) {
@@ -199,50 +252,40 @@ public class ImportController extends ApiController {
         return get(ws.getName(), imp.getId());
     }
 
-    void prepTasks(ImportContext imp, WorkspaceInfo ws) {
-        prepTasks(imp, ws, ImportFilter.ALL);
-    }
-    void prepTasks(ImportContext imp, WorkspaceInfo ws, ImportFilter f) {
+    void prepTask(ImportTask t, WorkspaceInfo ws, GeoServerDataDirectory dataDir) {
         // 1. hack the context object to ensure that all styles are workspace local
         // 2. mark layers as "imported" so we can safely delete styles later
-        GeoServerDataDirectory dataDir = dataDir();
+        
+        LayerInfo l = t.getLayer();
+        l.getMetadata().put(Metadata.IMPORTED, new Date());
 
-        for (ImportTask t : imp.getTasks()) {
-            //skip any layers we are not importing
-            if (f.include(t)) {
-                LayerInfo l = t.getLayer();
-                l.getMetadata().put(Metadata.IMPORTED, new Date());
-    
-                if (l != null && l.getDefaultStyle() != null) {
-                    StyleInfo s = l.getDefaultStyle();
-    
-                    // JD: have to regenerate the unique name here, the importer already does this but because we are
-                    // putting it into the workspace we have to redo it, this should really be part of the importer
-                    // with an option to create styles in the workspace
-                    s.setName(findUniqueStyleName(l.getResource(), ws, catalog()));
-    
-                    Resource from = dataDir.style(s);
-    
-                    s.setWorkspace(ws);
-                    Resource to = dataDir.style(s);
-    
-                    try {
-                        try (
-                            InputStream in = from.in();
-                            OutputStream out = to.out();
-                        ) {
-                            IOUtils.copy(in, out);
-                            from.delete();
-                        }
-                    }
-                    catch(IOException e){
-                        throw new RuntimeException("Error copying style to workspace", e);
-                    }
+        if (l != null && l.getDefaultStyle() != null) {
+            StyleInfo s = l.getDefaultStyle();
+
+            // JD: have to regenerate the unique name here, the importer already does this but because we are
+            // putting it into the workspace we have to redo it, this should really be part of the importer
+            // with an option to create styles in the workspace
+            s.setName(findUniqueStyleName(l.getResource(), ws, catalog()));
+
+            Resource from = dataDir.style(s);
+
+            s.setWorkspace(ws);
+            Resource to = dataDir.style(s);
+
+            try {
+                try (
+                    InputStream in = from.in();
+                    OutputStream out = to.out();
+                ) {
+                    IOUtils.copy(in, out);
+                    from.delete();
                 }
-            } else {
-                t.setState(ImportTask.State.CANCELED);
+            }
+            catch(IOException e){
+                throw new RuntimeException("Error copying style to workspace", e);
             }
         }
+ 
     }
 
     String findUniqueStyleName(ResourceInfo resource, WorkspaceInfo workspace, Catalog catalog) {
@@ -305,63 +348,56 @@ public class ImportController extends ApiController {
         WorkspaceInfo ws = findWorkspace(wsName, catalog);
         
         ImportContext imp = findImport(id);
-        //DB Import, select the tables to import
+        ImportFilter f = filter(obj, imp);
+        
+        //Pre-import (Database import only)
         if (imp.getState() == ImportContext.State.PENDING) {
-            ImportFilter f = filter(obj);
-
             // create the import data
+            
             return continueImport(imp, ws, f);
         }
-
-        Integer t = obj.integer("task");
-        if (t == null) {
-            throw new BadRequestException("Request must contain task identifier");
+        
+        //Re-import
+        JSONArr arr = obj.array("tasks");
+        
+        //Filter only: run on all tasks that match the filter
+        if (arr == null) {
+            return reImport(imp, ws, f);
         }
-
-        final ImportTask task = imp.task(t);
-        if (task == null) {
-            throw new NotFoundException("No such task: " + t + " for import: " + id);
-        }
-
-        ResourceInfo resource = task.getLayer().getResource();
-
-        if (task.getState() == ImportTask.State.NO_CRS) {
-            JSONObj proj = obj.object("proj");
-            if (proj == null) {
-                throw new BadRequestException("Request must contain a 'proj' property");
+        
+        //Task List: Update CRS tasks, run all tasks that match filter or list.
+        for (int i = 0; i < arr.size(); i++) {
+            
+            JSONObj taskObj = arr.object(i);
+            
+            Long taskId = Long.parseLong(taskObj.str("task"));
+            if (taskId == null) {
+                throw new BadRequestException("Request must contain task identifier");
             }
-
-            try {
-                resource.setSRS(IO.srs(proj));
-                resource.setNativeCRS(IO.crs(proj));
-                importer.changed(task);
+            ImportTask task = imp.task(taskId);
+            if (task == null) {
+                throw new NotFoundException("No such task: " + taskId + " for import: " + id);
             }
-            catch(Exception e) {
-                throw new BadRequestException("Unable to parse proj: " + proj.toString());
-            }
-        }
-
-        importer.run(imp, new ImportFilter() {
-            @Override
-            public boolean include(ImportTask t) {
-                return task.getId() == t.getId();
-            }
-        });
-
-        if (task.getState() == ImportTask.State.COMPLETE) {
-            return complete(task);
-        }
-        else {
-            switch(task.getState()) {
-                case NO_CRS:
-                case NO_BOUNDS:
-                    return pending(task);
-                case ERROR:
-                    return failed(task);
-                default:
-                    return ignored(task);
+            
+            ResourceInfo resource = task.getLayer().getResource();
+            
+            if (task.getState() == ImportTask.State.NO_CRS) {
+                JSONObj proj = taskObj.object("proj");
+                if (proj == null) {
+                    throw new BadRequestException("Task "+taskId+" requires a 'proj' property");
+                }
+                
+                try {
+                    resource.setSRS(IO.srs(proj));
+                    resource.setNativeCRS(IO.crs(proj));
+                    importer.changed(task);
+                }
+                catch(Exception e) {
+                    throw new BadRequestException("Unable to parse proj: " + proj.toString());
+                }
             }
         }
+        return reImport(imp, ws, f);
     }
 
     ImportContext findImport(Long id) {
@@ -414,11 +450,6 @@ public class ImportController extends ApiController {
         return new JSONObj().put("task", task.getId()).put("name", name(task));
     }
     
-    /*String filename(ImportTask task) {
-        ImportData data = task.getData();
-        return FilenameUtils.getName(data.toString());
-    }*/
-    
     String name(ImportTask task) {
         ImportData data = task.getData();
         if (data instanceof FileData) {
@@ -439,6 +470,19 @@ public class ImportController extends ApiController {
             return "table";
         }
         return "null";
+    }
+    
+    static class TaskIdFilter implements ImportFilter {
+        List<Long> tasks;
+        
+        public TaskIdFilter(List<Long> tasks) {
+            this.tasks = tasks;
+        }
+        @Override
+        public boolean include(ImportTask task) {
+            return tasks.contains(task.getId());
+        }
+    
     }
 
 }
