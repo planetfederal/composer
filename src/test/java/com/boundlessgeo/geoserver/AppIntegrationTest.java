@@ -200,7 +200,7 @@ public class AppIntegrationTest extends DbTestSupport {
         JSONArr tasks = new JSONArr();
         for (JSONObj o : preimport.objects()) {
             if (names.contains(o.get("name"))) {
-                tasks.add(o.get("task").toString());
+                tasks.add(new JSONObj().put("task", o.get("task").toString()));
                 assertEquals("table", o.get("type"));
             }
         }
