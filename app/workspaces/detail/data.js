@@ -251,13 +251,14 @@ angular.module('gsApp.workspaces.data', [
       };
 
       $scope.importAsNewLayer = function(resource, store) {
+        $scope.resourceToUpdate = resource;
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/layer.import.tpl.html',
           controller: 'ImportLayerCtrl',
           size: 'md',
           resolve: {
             resource: function() {
-              return resource;
+              return $scope.resourceToUpdate;
             },
             workspace: function() {
               return $scope.workspace;
@@ -265,6 +266,10 @@ angular.module('gsApp.workspaces.data', [
             store: function() {
               return store;
             }
+          }
+        }).result.then(function(added) {
+          if (added) {
+            $scope.resourceToUpdate.layers.push(added);
           }
         });
       };

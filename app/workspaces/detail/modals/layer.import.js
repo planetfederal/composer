@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.layers.import', [])
@@ -52,10 +52,16 @@ angular.module('gsApp.workspaces.layers.import', [])
 
       $scope.importAsLayer = function() {
         var layerInfo = $scope.layer;
+        $scope.layerAdded = false;
         GeoServer.layer.create($scope.workspace, layerInfo).then(
           function(result) {
             if (result.success) {
               $scope.resource = result.data.resource;
+              if ($scope.resource.layers) {
+                $scope.resource.layers.push(result.data);
+              } else {
+                $scope.resource.layers = result.data;
+              }
               $rootScope.$broadcast(AppEvent.LayerAdded, result.data);
               $rootScope.alerts = [{
                 type: 'success',
@@ -63,8 +69,8 @@ angular.module('gsApp.workspaces.layers.import', [])
                   ' as layer ' + layerInfo.title + '.',
                 fadeout: true
               }];
+              $scope.layerAdded = true;
             } else {
-
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Could not create layer from resource ' +
@@ -72,11 +78,11 @@ angular.module('gsApp.workspaces.layers.import', [])
                 fadeout: true
               }];
             }
+            $modalInstance.close($scope.layerAdded);
           });
-        $modalInstance.dismiss('created');
       };
 
       $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+        $modalInstance.dismiss(false);
       };
     }]);
