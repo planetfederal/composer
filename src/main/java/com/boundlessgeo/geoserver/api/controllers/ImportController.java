@@ -411,13 +411,13 @@ public class ImportController extends ApiController {
     }
 
     JSONObj ignored(ImportTask task) {
-        return new JSONObj().put("task", task.getId()).put("file", filename(task));
+        return new JSONObj().put("task", task.getId()).put("name", name(task));
     }
     
-    String filename(ImportTask task) {
+    /*String filename(ImportTask task) {
         ImportData data = task.getData();
         return FilenameUtils.getName(data.toString());
-    }
+    }*/
     
     String name(ImportTask task) {
         ImportData data = task.getData();
