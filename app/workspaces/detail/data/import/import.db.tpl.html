@@ -5,9 +5,6 @@
     </p>
   </div>
   <div ng-show="format == null" class="text-center">
-    <p class="lead">
-      Import tables from a spatial database.
-    </p>
     <div class="db-list">
       <div class="row" ng-repeat="row in formats | partition:3">
         <div class="col-sm-4" ng-repeat="f in row">
@@ -53,13 +50,20 @@
         </div>
       </div>
       <div class="form-group row">
-        <div class="col-sm-12 text-right" style="margin-top: 20px;">
-          <span ng-show="connecting">
-            <i class="fa fa-spinner fa-spin"></i>
-              Connecting... please wait.
-          </span>
+        <div class="col-sm-12 text-center" style="margin-top: 20px;">
           <button ng-click="connect()" ng-disabled="connecting || importResult != null"
-            class="btn btn-primary">Connect</button>
+            class="btn btn-primary btn-sm">
+              <span ng-hide="connecting || importResult != null">
+                Connect
+              </span>
+              <span ng-show="connecting">
+                <i class="fa fa-spinner fa-spin"></i>
+                Connecting... please wait.
+              </span>
+              <span ng-show="importResult != null">
+                Connected
+              </span>
+            </button>
         </div>
       </div>
     </form>
