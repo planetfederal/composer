@@ -336,14 +336,34 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.preimportGridOpts = angular.extend({
         data: 'preimportedLayers',
+        beforeSelectionChange: function(rowItem, event) {
+          if (rowItem.entity.imported == null) {
+            rowItem.continueSelection(event);
+          }
+          return false;
+        },
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ' +
               'ng-change="toggleSelectAll(allSelected)"/>',
         sortInfo: {fields: ['name'], directions: ['asc']},
         columnDefs: [
-          {field: 'name', displayName: 'Name', width: '30%'}
+          {field: 'name', displayName: 'Name', width: '30%'},
+          {field: 'status',
+            displayName: 'Status',
+            cellTemplate:
+            '<div class="ngCellText" ng-if="row.entity.imported">' +
+            '<i class="fa fa-check"></i> Imported' +
+            '</div>',
+            width: '30%'
+          }
         ],
+        checkboxCellTemplate:
+          '<div class="ngSelectionCell">' +
+          '<input tabindex="-1" class="ngSelectionCheckbox" ' +
+          'type="checkbox" ng-checked="row.selected" ' +
+          'ng-disabled="row.entity.imported" />' +
+          '</div>',
         enablePaging: true,
         enableColumnResize: false,
         showFooter: false,
@@ -399,7 +419,7 @@ angular.module('gsApp.workspaces.data.import', [
         enablePaging: false,
         showFooter: false,
         columnDefs: [
-          {field: 'file', displayName: 'File'},
+          {field: 'name', displayName: 'Name'},
           {
             displayName: 'Projection',
             cellTemplate:
@@ -448,7 +468,7 @@ angular.module('gsApp.workspaces.data.import', [
               return t;
             });
             $scope.importedLayers = imp.imported.map(function(t) {
-              t.layer.source = t.file;
+              t.layer.source = t.name;
               return t.layer;
             });
             $scope.pendingLayers = imp.pending.map(function(t) {
@@ -474,14 +494,26 @@ angular.module('gsApp.workspaces.data.import', [
       };
 
       $scope.importTables = function() {
+        $scope.importInProgress = true;
         var toImport = {'tasks': []};
         $scope.layerSelections.forEach(function(item) {
-          toImport.tasks.push(item.task);
+          toImport.tasks.push({'task': item.task});
         });
+        console.log(toImport);
         GeoServer.import.update($scope.workspace,
           $scope.import.id, angular.toJson(toImport))
         .then(function(result) {
+            $scope.importInProgress = false;
             if (result.success) {
+              // find the imported table in the preimport list & update ui
+              var imported = result.data.imported;
+              for (var q=0; q < $scope.preimportedLayers.length; q++) {
+                for (var r=0; r < imported.length; r++) {
+                  if ($scope.preimportedLayers[q].task === imported[r].task) {
+                    $scope.preimportedLayers[q].imported = true;
+                  }
+                }
+              }
               $rootScope.$broadcast(AppEvent.StoreAdded);
               $scope.importedLayers = result.data.imported;
               mapInfoModel.setMapInfoLayers($scope.importedLayers);
@@ -499,7 +531,11 @@ angular.module('gsApp.workspaces.data.import', [
         $scope.import.pending.filter(function(task) {
           return task.problem == 'NO_CRS' && task.proj != null;
         }).forEach(function(task) {
-          GeoServer.import.update($scope.workspace, $scope.import.id, task)
+          var toImport = {'tasks': []};
+          toImport.tasks.push({'task': task, 'proj': task.proj});
+
+          GeoServer.import.update($scope.workspace, $scope.import.id,
+            angular.toJson(toImport))
             .then(function(result) {
               task.success = result.success && result.data.layer != null;
               if (result.success) {
