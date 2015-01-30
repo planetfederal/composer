@@ -30,6 +30,7 @@ public class LoginController {
         HttpSession session = req.getSession(false);
         if (session != null) {
             obj.put("session", session.getId());
+            obj.put("timeout", session.getMaxInactiveInterval());
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
