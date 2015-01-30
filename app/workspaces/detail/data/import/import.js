@@ -334,6 +334,7 @@ angular.module('gsApp.workspaces.data.import', [
         }
       };
 
+      // For importing database tables
       $scope.preimportGridOpts = angular.extend({
         data: 'preimportedLayers',
         checkboxHeaderTemplate:
@@ -342,15 +343,33 @@ angular.module('gsApp.workspaces.data.import', [
               'ng-change="toggleSelectAll(allSelected)"/>',
         sortInfo: {fields: ['name'], directions: ['asc']},
         columnDefs: [
-          {field: 'name', displayName: 'Name', width: '30%'},
-          {field: 'status',
-            displayName: 'Status',
+          {field: 'name', displayName: 'Name', width: '25%'},
+          {
+            displayName: 'Projection',
             cellTemplate:
-            '<div class="ngCellText" ng-if="row.entity.imported">' +
-            '<i class="fa fa-check"></i> Imported' +
-            '</div>',
+              '<div ng-switch on="!row.entity.pending">' +
+                '<proj-field ng-switch-when="false" proj="row.entity.proj">' +
+                '</proj-field>' +
+                '<div ng-switch-when="true" class="ngCellText">' +
+                ' {{ row.entity.proj.srs }}'+
+                '<div>' +
+              '</div>',
             width: '30%'
-          }
+          },
+          {
+            displayName: '',
+            cellTemplate:
+              '<div class="ngCellText" ' +
+                'ng-show="row.entity.pending && row.entity.proj != null">'+
+                '<a ng-click="applyProjToAll(row.entity.proj)" ' +
+                '  title="Apply projection to all pending layers">'+
+                'Apply to all</a> ' +
+                '<i class="fa fa-mail-forward fa-rotate-180"></i>' +
+              '</div>' +
+              '<div class="ngCellText" ng-show="row.entity.imported">'+
+                '<i class="fa fa-check-circle"></i> Layer imported.' +
+              '</div>'
+          },
         ],
         checkboxCellTemplate:
           '<div class="ngSelectionCell">' +
@@ -512,8 +531,11 @@ angular.module('gsApp.workspaces.data.import', [
                 for (var r=0; r < imported.length; r++) {
                   if ($scope.preimportedLayers[q].task === imported[r].task) {
                     $scope.preimportedLayers[q].imported = true;
+                    $scope.preimportedLayers[q].pending = false;
                   }
-                  if ($scope.preimportedLayers[q].task === pending[r].task) {
+                }
+                for (var s=0; s < pending.length; s++) {
+                  if ($scope.preimportedLayers[q].task === pending[s].task) {
                     $scope.preimportedLayers[q].pending = true;
                   }
                 }
