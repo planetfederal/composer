@@ -10,9 +10,7 @@
       <div class="pull-right next-import-button">
         <div ng-if="importedLayers.length > 0" class="bg-success imported-msg">
           {{ importedLayers.length }}
-          {{ importedLayers.length > 1 ? ' layers' : ' layer' }} imported.
-          }
-        }
+           {{ importedLayers.length > 1 ? 'layers' : 'layer' }} imported.
         </div>
         <div ng-if="importInProgress" class="next-import-button">
           <i class="fa fa-spinner fa-spin"></i> Importing...
