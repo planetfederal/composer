@@ -336,12 +336,6 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.preimportGridOpts = angular.extend({
         data: 'preimportedLayers',
-        beforeSelectionChange: function(rowItem, event) {
-          if (rowItem.entity.imported == null) {
-            rowItem.continueSelection(event);
-          }
-          return false;
-        },
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ' +
@@ -495,22 +489,32 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.importTables = function() {
         $scope.importInProgress = true;
-        var toImport = {'tasks': []};
-        $scope.layerSelections.forEach(function(item) {
-          toImport.tasks.push({'task': item.task});
-        });
-        console.log(toImport);
+        var toImport;
+        if ($scope.layerSelections.length === $scope.preimportedLayers.length) {
+          toImport = {'filter': 'ALL'};
+        } else {
+          toImport = {'tasks': []};
+          $scope.layerSelections.forEach(function(item) {
+            toImport.tasks.push({'task': item.task});
+          });
+        }
+        //console.log(toImport);
         GeoServer.import.update($scope.workspace,
           $scope.import.id, angular.toJson(toImport))
         .then(function(result) {
             $scope.importInProgress = false;
             if (result.success) {
               // find the imported table in the preimport list & update ui
+             // console.log(result.data);
               var imported = result.data.imported;
+              var pending = result.data.pending;
               for (var q=0; q < $scope.preimportedLayers.length; q++) {
                 for (var r=0; r < imported.length; r++) {
                   if ($scope.preimportedLayers[q].task === imported[r].task) {
                     $scope.preimportedLayers[q].imported = true;
+                  }
+                  if ($scope.preimportedLayers[q].task === pending[r].task) {
+                    $scope.preimportedLayers[q].pending = true;
                   }
                 }
               }
