@@ -177,6 +177,7 @@ public class ImportController extends ApiController {
      */
     JSONObj continueImport(ImportContext imp, WorkspaceInfo ws, ImportFilter f) throws Exception {
         // run the import
+        imp.setState(ImportContext.State.RUNNING);
         GeoServerDataDirectory dataDir = dataDir();
         for (ImportTask t : imp.getTasks()) {
             if (f.include(t)) {
@@ -207,12 +208,12 @@ public class ImportController extends ApiController {
      */
     JSONObj reImport(ImportContext imp, WorkspaceInfo ws, ImportFilter f) throws Exception {
      // run the import
+        imp.setState(ImportContext.State.RUNNING);
         GeoServerDataDirectory dataDir = dataDir();
-        
         //These tasks were not run the first time, and need to be set up
         List<ImportTask> newTasks = new ArrayList<ImportTask>();
         for (ImportTask t : imp.getTasks()) {
-            if (t.getState() == ImportTask.State.CANCELED) {
+            if (f.include(t) && t.getState() == ImportTask.State.CANCELED) {
                 prepTask(t, ws, dataDir);
                 newTasks.add(t);
             } 
@@ -224,6 +225,7 @@ public class ImportController extends ApiController {
                 touch(t);
             }
         }
+        imp.setState(ImportContext.State.COMPLETE);
         return get(ws.getName(), imp.getId());
     }
 
