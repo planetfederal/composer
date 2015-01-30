@@ -7,9 +7,12 @@
           Please specify which table{{import.preimport.length > 1 ? 's' : ''}} to import.
         </p>
       </div>
-      <div class="pull-right" style="display: inline-block; margin-top: 10px;">
+      <div class="pull-right next-import-button">
         <div ng-if="importedLayers.length > 0" class="bg-success imported-msg">
-          {{ importedLayers.length }} table imported as {{ importedLayers.length > 1 ? 'layers' : 'a layer' }}.
+          {{ importedLayers.length > 1 ? 'layers' : '1 layer' }} imported.
+        </div>
+        <div ng-if="importInProgress" class="next-import-button">
+          <i class="fa fa-spinner fa-spin"></i> Importing...
         </div>
         <button class="btn btn-success btn-sm pull-left" ng-show="import.preimport.length > 0" ng-click="importTables(allSelected)">Import Selected Tables</button>
       </div>
