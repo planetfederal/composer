@@ -20,12 +20,10 @@ import org.geoserver.catalog.LayerGroupInfo;
 import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.StyleInfo;
 import org.geoserver.data.test.SystemTestData;
-import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.importer.Importer;
-import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.platform.GeoServerExtensions;
 import org.geoserver.platform.resource.Resource;
-import org.geotools.data.DataStore;
+import org.geoserver.test.GeoServerSystemTestSupport;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -39,26 +37,18 @@ import javax.mail.internet.MimeMultipart;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
-public class AppIntegrationTest extends DbTestSupport {
+public class AppIntegrationTest extends GeoServerSystemTestSupport {
 
     @Override
     protected void setUpTestData(SystemTestData testData) throws Exception {
@@ -164,13 +154,8 @@ public class AppIntegrationTest extends DbTestSupport {
     
     @Test
     public void testImportDb() throws Exception {
-        buildTestData((SystemTestData) testData);
-        //DataStoreInfo ds = createH2DataStore(null, "h2");
-        //populateDatabase(ds);
-        if (!isTestDataAvailable()) {
-            LOGGER.warning("Skipping testImportDb because online test data is not available");
-            return;
-        }
+        
+        H2TestData data = new H2TestData();
         
         Catalog catalog = getCatalog();
         assertNull(catalog.getLayerByName("gs:point"));
@@ -184,7 +169,7 @@ public class AppIntegrationTest extends DbTestSupport {
         request.setRequestURI("/geoserver/hello");
         request.setMethod("post");
         
-        JSONObj obj = dbTestData.createConnectionParameters();
+        JSONObj obj = data.createConnectionParameters();
         obj = ctrl.importDb("gs", obj);
         
         Long id = Long.parseLong(obj.get("id").toString());
@@ -217,6 +202,8 @@ public class AppIntegrationTest extends DbTestSupport {
         assertEquals(preimport.size()-3, obj.array("ignored").size());
         
         obj = ctrl.get("gs",  id);
+        
+        data.close();
     }
 
     @Test
@@ -275,59 +262,6 @@ public class AppIntegrationTest extends DbTestSupport {
         assertNotNull(cat.getLayerByName("gs:PrimitiveGeoFeature"));
     }
 
-    public JSONObj createConnectionParameters(Map connectionParameters) throws IOException {
-        JSONObj obj = new JSONObj();
-        for (Object key : connectionParameters.keySet()) {
-            obj.put(key.toString(), connectionParameters.get(key).toString());
-        }
-        
-        return obj;
-    }
-    protected DataStoreInfo createH2DataStore(String wsName, String dsName) {
-        //create a datastore to import into
-        Catalog cat = getCatalog();
-
-        WorkspaceInfo ws = wsName != null ? cat.getWorkspaceByName(wsName) : cat.getDefaultWorkspace();
-        DataStoreInfo ds = cat.getFactory().createDataStore();
-        ds.setWorkspace(ws);
-        ds.setName(dsName);
-        ds.setType("H2");
-
-        Map params = new HashMap();
-        params.put("database", getTestData().getDataDirectoryRoot().getPath()+"/" + dsName);
-        params.put("dbtype", "h2");
-        ds.getConnectionParameters().putAll(params);
-        ds.setEnabled(true);
-        cat.add(ds);
-        
-        return ds;
-    }
-    protected Connection getConnection(DataStoreInfo ds) throws Exception {
-        Map p = ds.getConnectionParameters();
-        Class.forName((String)p.get("driver"));
-        
-        String url = (String) p.get("url");
-        String user = (String) p.get("username");
-        String passwd = (String) p.get("password");
-        
-        return DriverManager.getConnection(url, user, passwd);
-    }
-    protected void populateDatabase(DataStoreInfo ds) throws Exception {
-        Connection conn = getConnection(ds);
-
-        if (conn == null) {
-            return;
-        }
-
-        // read the script and run the setup commands
-        Statement st = conn.createStatement();
-        runSafe("DELETE FROM GEOMETRY_COLUMNS WHERE F_TABLE_NAME = 'ft1'", st);
-
-        runSafe("DROP TABLE \"ft1\"", st);
-        runSafe("DROP TABLE \"ft2\"", st);
-        runSafe("DROP TABLE \"ft3\"", st);
-    }
-    
     MockHttpServletResponse doWorkspaceExport(String wsName) throws Exception {
         WorkspaceController ctrl = new WorkspaceController(getGeoServer(), new RecentObjectCache());
 
