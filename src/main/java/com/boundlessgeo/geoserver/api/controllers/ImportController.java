@@ -14,9 +14,14 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.geoserver.catalog.Catalog;
+import org.geoserver.catalog.CoverageStoreInfo;
+import org.geoserver.catalog.DataStoreInfo;
 import org.geoserver.catalog.LayerInfo;
+import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.StyleInfo;
+import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
 import org.geoserver.config.GeoServer;
 import org.geoserver.config.GeoServerDataDirectory;
@@ -90,22 +95,40 @@ public class ImportController extends ApiController {
         // pass off the uploaded file to the importer
         Directory dir = new Directory(uploadDir);
         dir.accept(files.next());
+        
+        ImportContext imp = importer.createContext(dir, ws);
+        
+        //Check if this store already exists in the catalog
+        StoreInfo store = findStore(imp, ws);
+        if (store != null) {
+            return store(new JSONObj(), store, request);
+        }
 
-        return doImport(dir, ws);
+        return doImport(imp, ws);
     }
 
     @RequestMapping(value = "/{wsName}", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody JSONObj importDb(@PathVariable String wsName, @RequestBody JSONObj obj) throws Exception {
+    public @ResponseBody JSONObj importDb(@PathVariable String wsName, @RequestBody JSONObj obj, 
+            HttpServletRequest request) throws Exception {
+        
         // grab the workspace
         Catalog catalog = geoServer.getCatalog();
         WorkspaceInfo ws = findWorkspace(wsName, catalog);
-
+        
         // create the import data
         Database db = new Database(hack(obj));
         
-        //Initialize the import, and return to requester to allow selection of tables.
+        ImportContext imp = importer.createContext(db, ws);
+        
+        //Check if this store already exists in the catalog
+        StoreInfo store = findStore(imp, ws);
+        if (store != null) {
+            return store(new JSONObj(), store, request);
+        }
+        
+        //Return to requester to allow selection of tables.
         //Complete the import using update()
-        return prepImport(db, ws);
+        return get(ws.getName(), imp.getId());
     }
 
     Map<String, Serializable> hack(JSONObj obj) {
@@ -154,28 +177,21 @@ public class ImportController extends ApiController {
     }
     
     /*
-     * Set up an import context. 
-     * Use continueImport() to complete this import
-     * 
      * @param data - The data to import
      * @param ws - The workspace to import into
      * @return JSON representation of the import
      */
-    JSONObj prepImport(ImportData data, WorkspaceInfo ws) throws Exception {
-        // prepare the import and extract layers
-        ImportContext imp = importer.createContext(data, ws);
-        return get(ws.getName(), imp.getId());
+    JSONObj doImport(ImportContext imp, WorkspaceInfo ws) throws Exception {
+        return doImport(imp, ws, ImportFilter.ALL);
     }
     
     /*
-     * Complete an import started with prepImport().
-     * 
      * @param imp - The context to run the import from
      * @param ws - The workspace to import into
      * @param f - Filter to select import tasks
      * @return JSON representation of the import
      */
-    JSONObj continueImport(ImportContext imp, WorkspaceInfo ws, ImportFilter f) throws Exception {
+    JSONObj doImport(ImportContext imp, WorkspaceInfo ws, ImportFilter f) throws Exception {
         // run the import
         imp.setState(ImportContext.State.RUNNING);
         GeoServerDataDirectory dataDir = dataDir();
@@ -228,32 +244,7 @@ public class ImportController extends ApiController {
         imp.setState(ImportContext.State.COMPLETE);
         return get(ws.getName(), imp.getId());
     }
-
-    /*
-     * run an import in one step
-     * @param data - The data to import
-     * @param ws - The workspace to import into
-     * @return JSON representation of the import
-     */
-    JSONObj doImport(ImportData data, WorkspaceInfo ws) throws Exception {
-        // run the import
-        ImportContext imp = importer.createContext(data, ws);
-        imp.setState(ImportContext.State.RUNNING);
-        GeoServerDataDirectory dataDir = dataDir();
-        for (ImportTask t : imp.getTasks()) {
-            prepTask(t, ws, dataDir);
-        }
-        importer.run(imp);
-
-        for (ImportTask t : imp.getTasks()) {
-            if (t.getState() == ImportTask.State.COMPLETE) {
-                touch(t);
-            }
-        }
-        imp.setState(ImportContext.State.COMPLETE);
-        return get(ws.getName(), imp.getId());
-    }
-
+    
     void prepTask(ImportTask t, WorkspaceInfo ws, GeoServerDataDirectory dataDir) {
         // 1. hack the context object to ensure that all styles are workspace local
         // 2. mark layers as "imported" so we can safely delete styles later
@@ -356,7 +347,7 @@ public class ImportController extends ApiController {
         if (imp.getState() == ImportContext.State.PENDING) {
             // create the import data
             
-            return continueImport(imp, ws, f);
+            return doImport(imp, ws, f);
         }
         
         //Re-import
@@ -409,7 +400,49 @@ public class ImportController extends ApiController {
         }
         return imp;
     }
-
+    
+    StoreInfo findStore(ImportContext imp, WorkspaceInfo ws) throws Exception {
+        Catalog catalog = geoServer.getCatalog();
+        ImportData data = imp.getData();
+        if (data.getFormat() == null) {
+            return null;
+        }
+        
+        StoreInfo store = data.getFormat().createStore(data, ws, catalog);
+        if (!store.getConnectionParameters().containsKey("namespace")) {
+            if (ws != null) {
+                NamespaceInfo ns = catalog.getNamespaceByPrefix(ws.getName());
+                if (ns != null) {
+                    store.getConnectionParameters().put("namespace", ns.getURI());
+                }
+            }
+        }
+        Class<? extends StoreInfo> clazz = StoreInfo.class;
+        if (store instanceof CoverageStoreInfo) {
+            clazz = CoverageStoreInfo.class;
+        } else if (store instanceof DataStoreInfo) {
+            clazz = DataStoreInfo.class;
+        } else if (store instanceof WMSStoreInfo) {
+            clazz = WMSStoreInfo.class;
+        }
+        List<? extends StoreInfo> stores = catalog.getStoresByWorkspace(ws, clazz);
+        for (StoreInfo s : stores) {
+            if (s.getConnectionParameters().equals(store.getConnectionParameters())) {
+                return s;
+            }
+        }
+        return null;
+    }
+    
+    JSONObj store(JSONObj obj, StoreInfo store, HttpServletRequest req) {
+        String wsName = store.getWorkspace().getName();
+        obj.put("store",store.getName())
+           .put("workspace",wsName)
+           .put("url", IO.url(req, "/stores/%s/%s",wsName, store.getName()));
+        
+        return obj;
+    }
+    
     void touch(ImportTask task) {
         LayerInfo l = task.getLayer();
         l = catalog().getLayer(l.getId());
@@ -425,7 +458,8 @@ public class ImportController extends ApiController {
         JSONObj obj = new JSONObj();
         obj.put("task", task.getId())
            .put("name", name(task))
-           .put("type", type(task));
+           .put("type", type(task))
+           .put("geometry", IO.geometry(task.getLayer()));
         return obj;
     }
 
