@@ -9,7 +9,6 @@ import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.boundlessgeo.geoserver.util.Hasher;
 import com.google.common.collect.Maps;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -409,7 +408,7 @@ public class ImportController extends ApiController {
         }
         return imp;
     }
-
+    
     void touch(ImportTask task) {
         LayerInfo l = task.getLayer();
         l = catalog().getLayer(l.getId());
@@ -425,7 +424,8 @@ public class ImportController extends ApiController {
         JSONObj obj = new JSONObj();
         obj.put("task", task.getId())
            .put("name", name(task))
-           .put("type", type(task));
+           .put("type", type(task))
+           .put("geometry", IO.geometry(task.getLayer()));
         return obj;
     }
 

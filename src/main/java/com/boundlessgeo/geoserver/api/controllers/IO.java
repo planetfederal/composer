@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 import com.boundlessgeo.geoserver.util.RecentObjectCache.Ref;
+
 import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.WordUtils;
 import org.geoserver.catalog.CoverageInfo;
@@ -413,18 +414,18 @@ public class IO {
             FeatureType schema;
             try {
                 schema = ft.getFeatureType();
-                obj.put("geometry", geometry(schema));
+                obj.put("geometry", geometry(layer));
                 IO.schema(obj.putObject("schema"), schema, true );
             } catch (IOException e) {
                 LOG.log(Level.WARNING, "Error looking up schema "+ft.getNativeName(), e);
             }
         }
         else if( r instanceof CoverageInfo) {
-            obj.put("geometry", "raster");
+            obj.put("geometry", geometry(layer));
             IO.schemaGrid(obj.putObject("schema"), ((CoverageInfo)r), true );
         }
-        else if( r instanceof WMSInfo) {
-            obj.put("geometry", "layer");
+        else if( r instanceof WMSLayerInfo) {
+            obj.put("geometry", geometry(layer));
         }
         return metadata(obj, layer);
     }
@@ -444,14 +445,32 @@ public class IO {
         }
     }
 
-    static String geometry(FeatureType ft) {
-        GeometryDescriptor gd = ft.getGeometryDescriptor();
-        if (gd == null) {
-            return "Vector";
+    static String geometry(LayerInfo layer) {
+        ResourceInfo r = layer.getResource();
+        
+        if (r instanceof FeatureTypeInfo) {
+            GeometryDescriptor gd = null;
+            FeatureTypeInfo ft = (FeatureTypeInfo)r;
+            try {
+                FeatureType schema = ft.getFeatureType();
+                gd = schema.getGeometryDescriptor();
+            } catch (IOException e) {
+                LOG.log(Level.WARNING, "Error looking up schema "+ft.getNativeName(), e);
+            }
+            if (gd == null) {
+                return "none";
+            }
+            @SuppressWarnings("unchecked")
+            Geometries geomType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
+            return geomType.getName();
         }
-        @SuppressWarnings("unchecked")
-        Geometries geomType = Geometries.getForBinding((Class<? extends Geometry>) gd.getType().getBinding());
-        return geomType.getName();
+        if (r instanceof CoverageInfo) {
+            return "raster";
+        }
+        if (r instanceof WMSLayerInfo) {
+           return "layer";
+        }
+        return "none";
     }
     
     public static JSONObj bbox( JSONObj bbox, LayerGroupInfo l ){
