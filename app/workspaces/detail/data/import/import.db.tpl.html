@@ -72,4 +72,7 @@
   <div ng-if="error != null">
     <alert type="danger">{{ error.message }}</alert>
   </div>
+  <div ng-if="alert != null">
+    <alert type="warning" ng-bind-html="alert.message"></alert>
+  </div>
 </div>
