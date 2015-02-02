@@ -67,6 +67,8 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.close = function(newmapOrClose) {
         $state.go('workspace.data.main', {workspace: wsName});
         $modalInstance.close(newmapOrClose);
+        // TODO select last imported store if any
+
       };
 
       $scope.is = function(route) {
@@ -517,14 +519,12 @@ angular.module('gsApp.workspaces.data.import', [
             toImport.tasks.push({'task': item.task});
           });
         }
-        //console.log(toImport);
         GeoServer.import.update($scope.workspace,
           $scope.import.id, angular.toJson(toImport))
         .then(function(result) {
             $scope.importInProgress = false;
             if (result.success) {
               // find the imported table in the preimport list & update ui
-             // console.log(result.data);
               var imported = result.data.imported;
               var pending = result.data.pending;
               for (var q=0; q < $scope.preimportedLayers.length; q++) {
