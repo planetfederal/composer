@@ -26,7 +26,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import com.boundlessgeo.geoserver.json.JSONObj;
 import com.vividsolutions.jts.io.WKTReader;
 
-public class H2TestData {
+public class H2TestData implements AutoCloseable {
 
     final Logger LOGGER = Logger.getLogger("com.boundlessgeo.geoserver.H2TestData");
     protected DataStore datastore;
@@ -47,10 +47,9 @@ public class H2TestData {
             datastore.removeSchema("ft1");
             datastore.removeSchema("ft2");
             datastore.removeSchema("ft3");
-        } catch (Exception e) {
-          //nothing to remove
+        } finally {
+            datastore.dispose();
         }
-        datastore.dispose();
     }
     
     protected void setUpData() throws Exception {
