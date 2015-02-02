@@ -250,8 +250,8 @@ angular.module('gsApp.workspaces.data.import', [
 
     }])
 .controller('DataImportDbCtrl', ['$scope', '$state', '$stateParams', '$log',
-    'GeoServer', '_',
-    function($scope, $state, $stateParams, $log, GeoServer, _) {
+    'GeoServer', '_', '$sce',
+    function($scope, $state, $stateParams, $log, GeoServer, _, $sce) {
       $scope.workspace = $stateParams.workspace;
       $scope.maps = $stateParams.maps;
       $scope.chooseTables = false;
@@ -284,7 +284,15 @@ angular.module('gsApp.workspaces.data.import', [
           .then(function(result) {
             if (result.success) {
               $scope.error = null;
-              $scope.setImportResult(result.data);
+              if (result.data.id) {
+                $scope.setImportResult(result.data);
+              } else if (result.data.store) {
+                $scope.alert = result.data;
+                $scope.alert.message = $sce.trustAsHtml('Store <strong>' +
+                  result.data.store +
+                  '</strong> already exists in workspace <strong>' +
+                  result.data.workspace + '</strong>.');
+              }
             }
             else {
               $scope.error = result.data;
@@ -346,8 +354,17 @@ angular.module('gsApp.workspaces.data.import', [
         sortInfo: {fields: ['name'], directions: ['asc']},
         columnDefs: [
           {field: 'name', displayName: 'Name', width: '25%'},
+          {field: 'geometry', displayName: 'Geometry',
+            cellTemplate:
+              '<div class="ngCellText" ng-switch ' +
+                'on="row.entity.geometry==\'none\'">' +
+                '<span ng-switch-when="false">{{ row.entity.geometry }}' +
+                '</span>' +
+                '<span ng-switch-when="true">None *</span>' +
+              '</div>',
+            width: '20%'},
           {
-            displayName: 'Projection',
+            displayName: 'Projection Needed',
             cellTemplate:
               '<div ng-switch on="!row.entity.pending">' +
                 '<proj-field ng-switch-when="false" proj="row.entity.proj">' +
@@ -356,7 +373,7 @@ angular.module('gsApp.workspaces.data.import', [
                 ' {{ row.entity.proj.srs }}'+
                 '<div>' +
               '</div>',
-            width: '30%'
+            width: '25%'
           },
           {
             displayName: '',
