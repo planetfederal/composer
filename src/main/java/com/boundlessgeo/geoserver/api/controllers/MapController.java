@@ -1,4 +1,4 @@
-/* (c) 2014 Boundless, http://boundlessgeo.com
+/* (c) 2014-2015 Boundless, http://boundlessgeo.com
  * This code is licensed under the GPL 2.0 license.
  */
 package com.boundlessgeo.geoserver.api.controllers;
@@ -32,12 +32,10 @@ import org.geoserver.catalog.util.CloseableIterator;
 import org.geoserver.config.GeoServer;
 import org.geoserver.platform.resource.Resource;
 import org.geoserver.platform.resource.Resource.Type;
-import org.geotools.feature.NameImpl;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.util.logging.Logging;
-import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.referencing.FactoryException;
@@ -558,7 +556,7 @@ public class MapController extends ApiController {
         if (l instanceof LayerInfo) {
             LayerInfo info = (LayerInfo) l;
             
-            IO.layer(obj, info, req);
+            IO.layerDetails(obj, info, req);
             
             ResourceInfo r = info.getResource();
             String wsName = r.getNamespace().getPrefix();
@@ -580,7 +578,7 @@ public class MapController extends ApiController {
         } else if (l instanceof LayerGroupInfo) {
             LayerGroupInfo group = (LayerGroupInfo) l;
             
-            IO.layer(obj, group, req);
+            IO.layerDetails(obj, group, req);
 //            String wsName = group.getWorkspace().getName();
 //            obj.put("workspace", wsName);
 //            obj.put("name", group.getName());

@@ -238,11 +238,9 @@ public class AppIntegrationTest extends GeoServerSystemTestSupport {
             obj = data.createConnectionParameters();
             obj = ctrl.importDb("gs", obj, request);
             
-            Iterator<String> i = obj.keys().iterator();
-            assertEquals("store", i.next());
-            assertEquals("workspace", i.next());
-            assertEquals("url", i.next());
-            assertFalse(i.hasNext());
+            assertNotNull(obj.get("store"));
+            assertNull(obj.get("id"));
+
         }
     }
 
