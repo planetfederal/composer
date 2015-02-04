@@ -35,6 +35,8 @@ import org.geoserver.importer.ImportTask;
 import org.geoserver.importer.Importer;
 import org.geoserver.importer.Table;
 import org.geoserver.platform.resource.Resource;
+import org.geotools.data.DataAccessFactory.Param;
+import org.geotools.data.DataStoreFactorySpi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -43,6 +45,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.vfny.geoserver.util.DataStoreUtils;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -53,6 +56,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -401,6 +405,13 @@ public class ImportController extends ApiController {
         return imp;
     }
     
+    /*
+     * Searches the catalog for existing stores that have the same connection parameters 
+     * as those described by the DataFormat of this ImportContext, in order to test if the store 
+     * that would be created by this import already exists.
+     * 
+     * For better matching, only compares the required parameters of the store.
+     */
     StoreInfo findStore(ImportContext imp, WorkspaceInfo ws) throws Exception {
         Catalog catalog = geoServer.getCatalog();
         ImportData data = imp.getData();
@@ -409,6 +420,17 @@ public class ImportController extends ApiController {
         }
         
         StoreInfo store = data.getFormat().createStore(data, ws, catalog);
+        
+        Map<String, Serializable> params = store.getConnectionParameters();
+        Map<String, Serializable> requiredParams = new HashMap<String, Serializable>();
+        DataStoreFactorySpi factory = (DataStoreFactorySpi) DataStoreUtils.aquireFactory(params);
+        
+        for (Param p : factory.getParametersInfo()) {
+            if (p.isRequired() && params.get(p.getName()) != null) {
+                requiredParams.put(p.getName(), params.get(p.getName()));
+            }
+        }
+        
         if (!store.getConnectionParameters().containsKey("namespace")) {
             if (ws != null) {
                 NamespaceInfo ns = catalog.getNamespaceByPrefix(ws.getName());
@@ -427,7 +449,16 @@ public class ImportController extends ApiController {
         }
         List<? extends StoreInfo> stores = catalog.getStoresByWorkspace(ws, clazz);
         for (StoreInfo s : stores) {
-            if (s.getConnectionParameters().equals(store.getConnectionParameters())) {
+            boolean matches = true;
+            Map<String, Serializable> p = s.getConnectionParameters();
+            for (String key : requiredParams.keySet()) {
+                //On-disk params read as strings, so compare as strings
+                if (!(requiredParams.get(key).toString()).equals(
+                        (p.get(key) == null ? "" : p.get(key).toString()))) {
+                    matches = false;
+                }
+            }
+            if (matches) {
                 return s;
             }
         }
