@@ -288,10 +288,7 @@ angular.module('gsApp.workspaces.data.import', [
                 $scope.setImportResult(result.data);
               } else if (result.data.store) {
                 $scope.alert = result.data;
-                $scope.alert.message = $sce.trustAsHtml('Store <strong>' +
-                  result.data.store +
-                  '</strong> already exists in workspace <strong>' +
-                  result.data.workspace + '</strong>.');
+                $scope.selectStore = result.data.store;
               }
             }
             else {
@@ -299,6 +296,10 @@ angular.module('gsApp.workspaces.data.import', [
             }
             $scope.connecting = false;
           });
+      };
+
+      $scope.showStore = function() {
+        $scope.close($scope.selectStore);
       };
 
       GeoServer.formats.get().then(function(result) {

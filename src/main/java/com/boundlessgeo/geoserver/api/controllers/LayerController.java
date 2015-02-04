@@ -258,7 +258,7 @@ public class LayerController extends ApiController {
         Metadata.modified(ws, created);
         cat.save(ws);
 
-        return IO.layer(new JSONObj(), l, req);
+        return IO.layerDetails(new JSONObj(), l, req);
     }
 
     LayerInfo createLayerFromLayer(JSONObj from, WorkspaceInfo ws, Catalog cat) {
@@ -479,7 +479,7 @@ public class LayerController extends ApiController {
         recent.add(LayerInfo.class, layer, ws.getName());
         recent.add(WorkspaceInfo.class, ws);
 
-        return IO.layer(new JSONObj(), layer, req);
+        return IO.layerDetails(new JSONObj(), layer, req);
     }
 
     @RequestMapping(value="/{wsName}/{name}/style", method = RequestMethod.PUT, consumes = YsldHandler.MIMETYPE)
@@ -634,14 +634,14 @@ public class LayerController extends ApiController {
         for (Ref ref : recent.list(LayerInfo.class)) {
             LayerInfo layer = cat.getLayer(ref.id);
             if (layer != null) {
-                IO.layer(arr.addObject(), layer, req);
+                IO.layerDetails(arr.addObject(), layer, req);
             }
         }
         return arr;
     }
 
     JSONObj layer(JSONObj obj, LayerInfo l, HttpServletRequest req) {
-        IO.layer(obj, l, req);
+        IO.layerDetails(obj, l, req);
         if (!obj.has("modified")) {
             Resource r = dataDir().config(l);
             if (r.getType() != Type.UNDEFINED) {

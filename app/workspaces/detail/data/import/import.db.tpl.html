@@ -73,6 +73,9 @@
     <alert type="danger">{{ error.message }}</alert>
   </div>
   <div ng-if="alert != null">
-    <alert type="warning" ng-bind-html="alert.message"></alert>
+    <alert type="warning">
+      Store <strong>{{ alert.store.name }}</strong> already exists in workspace <strong>{{ alert.store.workspace }}</strong> at <strong>{{ alert.store.source }}</strong>.
+      <button type="button" class="btn btn-default btn-sm" ng-click="showStore();" style="margin-left: 20px;"><i class="fa fa-angle-double-right"></i> View Store</button>
+    </alert>
   </div>
 </div>

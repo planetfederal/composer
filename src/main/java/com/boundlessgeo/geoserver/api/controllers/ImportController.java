@@ -101,7 +101,7 @@ public class ImportController extends ApiController {
         //Check if this store already exists in the catalog
         StoreInfo store = findStore(imp, ws);
         if (store != null) {
-            return store(new JSONObj(), store, request);
+            return (new JSONObj()).put("store", IO.store(new JSONObj(), store, request, geoServer));
         }
 
         return doImport(imp, ws);
@@ -123,7 +123,7 @@ public class ImportController extends ApiController {
         //Check if this store already exists in the catalog
         StoreInfo store = findStore(imp, ws);
         if (store != null) {
-            return store(new JSONObj(), store, request);
+            return (new JSONObj()).put("store", IO.store(new JSONObj(), store, request, geoServer));
         }
         
         //Return to requester to allow selection of tables.
@@ -434,15 +434,6 @@ public class ImportController extends ApiController {
         return null;
     }
     
-    JSONObj store(JSONObj obj, StoreInfo store, HttpServletRequest req) {
-        String wsName = store.getWorkspace().getName();
-        obj.put("store",store.getName())
-           .put("workspace",wsName)
-           .put("url", IO.url(req, "/stores/%s/%s",wsName, store.getName()));
-        
-        return obj;
-    }
-    
     void touch(ImportTask task) {
         LayerInfo l = task.getLayer();
         l = catalog().getLayer(l.getId());
@@ -468,7 +459,7 @@ public class ImportController extends ApiController {
 
         LayerInfo layer = task.getLayer();
         JSONObj obj = task(task);
-        IO.layer(obj.putObject("layer"), layer, null);
+        IO.layerDetails(obj.putObject("layer"), layer, null);
         return obj;
     }
 
