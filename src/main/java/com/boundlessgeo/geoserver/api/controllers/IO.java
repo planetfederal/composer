@@ -3,25 +3,31 @@
  */
 package com.boundlessgeo.geoserver.api.controllers;
 
+import static org.geoserver.catalog.Predicates.and;
+import static org.geoserver.catalog.Predicates.equal;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
 import com.boundlessgeo.geoserver.util.RecentObjectCache.Ref;
 
-import org.apache.commons.httpclient.util.DateUtil;
 import org.apache.commons.lang.WordUtils;
+import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageInfo;
 import org.geoserver.catalog.CoverageStoreInfo;
 import org.geoserver.catalog.DataStoreInfo;
@@ -32,17 +38,29 @@ import org.geoserver.catalog.LayerInfo;
 import org.geoserver.catalog.NamespaceInfo;
 import org.geoserver.catalog.PublishedInfo;
 import org.geoserver.catalog.ResourceInfo;
+import org.geoserver.catalog.ResourcePool;
 import org.geoserver.catalog.StoreInfo;
 import org.geoserver.catalog.WMSLayerInfo;
 import org.geoserver.catalog.WMSStoreInfo;
 import org.geoserver.catalog.WorkspaceInfo;
+import org.geoserver.catalog.util.CloseableIterator;
+import org.geoserver.config.GeoServer;
+import org.geoserver.config.GeoServerDataDirectory;
 import org.geoserver.ows.URLMangler.URLType;
 import org.geoserver.ows.util.ResponseUtils;
-import org.geoserver.wms.WMSInfo;
+import org.geoserver.platform.GeoServerResourceLoader;
+import org.geoserver.platform.resource.Files;
+import org.geoserver.platform.resource.Paths;
+import org.geotools.coverage.grid.io.AbstractGridFormat;
+import org.geotools.coverage.grid.io.GridCoverage2DReader;
+import org.geotools.data.DataAccess;
 import org.geotools.data.DataAccessFactory;
+import org.geotools.data.DataStore;
 import org.geotools.data.DataAccessFactory.Param;
+import org.geotools.data.ows.Layer;
 import org.geotools.data.Parameter;
 import org.geotools.feature.FeatureTypes;
+import org.geotools.feature.NameImpl;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.filter.visitor.DuplicatingFilterVisitor;
 import org.geotools.geometry.jts.Geometries;
@@ -50,14 +68,18 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.coverage.FeatureUtilities;
+import org.geotools.util.Converters;
+import org.geotools.util.NullProgressListener;
 import org.geotools.util.logging.Logging;
 import org.ocpsoft.pretty.time.PrettyTime;
 import org.opengis.coverage.grid.Format;
+import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AssociationDescriptor;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.GeometryDescriptor;
+import org.opengis.feature.type.Name;
 import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.feature.type.PropertyType;
 import org.opengis.filter.Filter;
@@ -73,7 +95,9 @@ import org.opengis.util.GenericName;
 import com.boundlessgeo.geoserver.Proj;
 import com.boundlessgeo.geoserver.json.JSONArr;
 import com.boundlessgeo.geoserver.json.JSONObj;
+import com.google.common.base.Function;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -335,6 +359,10 @@ public class IO {
         return metadata(obj, workspace);
     }
     
+    /*
+     * Layers API
+     */
+    
     static Object title(LayerInfo layer) {
         ResourceInfo r = layer.getResource();
         return layer.getTitle() != null ? layer.getTitle() : r != null ? r.getTitle() : null;
@@ -345,26 +373,35 @@ public class IO {
         return layer.getAbstract() != null ? layer.getAbstract() : r != null ? r.getAbstract() : null;
     }
 
-    public static JSONObj layer(JSONObj obj, PublishedInfo layer, HttpServletRequest req) {
+    public static JSONObj layer(JSONObj json, LayerInfo info, HttpServletRequest req) {
+        String wsName = info.getResource().getNamespace().getPrefix();
+        json.put("name", info.getName())
+            .put("workspace", wsName)
+            .put("url", url(req,"/layers/%s/%s",
+                    wsName,info.getName()) );
+        return json;
+    }
+    
+    public static JSONObj layerDetails(JSONObj obj, PublishedInfo layer, HttpServletRequest req) {
         if( layer == null ){
             return obj;
         }
         if( layer instanceof LayerInfo){
-            return layer( obj, (LayerInfo) layer, req );
+            return layerDetails( obj, (LayerInfo) layer, req );
         }
         else if ( layer instanceof LayerGroupInfo ){
-            return layer( obj, (LayerGroupInfo) layer, req );
+            return layerDetails( obj, (LayerGroupInfo) layer, req );
         }
         else {
             return obj;
         }
     }
     
-    public static JSONObj layer(JSONObj obj, LayerGroupInfo group, HttpServletRequest req) {
+    public static JSONObj layerDetails(JSONObj obj, LayerGroupInfo group, HttpServletRequest req) {
         String wsName = group.getWorkspace().getName();
         obj.put("name", group.getName())
            .put("workspace", wsName)
-           .put("url", IO.url(req,"/maps/%s/%s",wsName,group.getName()) )
+           .put("url", url(req,"/maps/%s/%s",wsName,group.getName()) )
            .put("title", group.getTitle() )
            .put("description", group.getAbstract() )
            .put("type", "map" )
@@ -381,10 +418,10 @@ public class IO {
      * @return The object passed in.
      */
     @SuppressWarnings("unchecked")
-    public static JSONObj layer(JSONObj obj, LayerInfo layer, HttpServletRequest req) {
+    public static JSONObj layerDetails(JSONObj obj, LayerInfo layer, HttpServletRequest req) {
         String wsName = layer.getResource().getNamespace().getPrefix();
         ResourceInfo r = layer.getResource();
-        Type type = IO.Type.of(r); //IO.type(r);
+        Type type = Type.of(r); //type(r);
         
         obj.put("name", layer.getName())
                 .put("workspace", wsName)
@@ -415,14 +452,14 @@ public class IO {
             try {
                 schema = ft.getFeatureType();
                 obj.put("geometry", geometry(layer));
-                IO.schema(obj.putObject("schema"), schema, true );
+                schema(obj.putObject("schema"), schema, true );
             } catch (IOException e) {
                 LOG.log(Level.WARNING, "Error looking up schema "+ft.getNativeName(), e);
             }
         }
         else if( r instanceof CoverageInfo) {
             obj.put("geometry", geometry(layer));
-            IO.schemaGrid(obj.putObject("schema"), ((CoverageInfo)r), true );
+            schemaGrid(obj.putObject("schema"), ((CoverageInfo)r), true );
         }
         else if( r instanceof WMSLayerInfo) {
             obj.put("geometry", geometry(layer));
@@ -637,6 +674,310 @@ public class IO {
     }
     
     private static PrettyTime PRETTY_TIME = new PrettyTime();
+    
+    /*
+     * Stores API
+     */
+    
+    public static JSONObj store(JSONObj obj, StoreInfo store, HttpServletRequest req, GeoServer geoServer) {       
+        String name = store.getName();
+
+        obj.put("name", name)
+            .put("workspace", store.getWorkspace().getName())
+            .put("enabled", store.isEnabled())
+            .put("description", store.getDescription())
+            .put("format", store.getType())
+            .put("url", url(req,"/stores/%s/%s",store.getWorkspace().getName(), store.getName()) );
+        
+        String source = source(store, geoServer);
+        obj.put("source", source )
+           .put("type", Kind.of(store).name())
+           .put("kind", Type.of(store).name());   
+
+        return metadata(obj, store);
+    }
+
+    public static JSONObj storeDetails(JSONObj json, StoreInfo store, HttpServletRequest req, GeoServer geoServer) throws IOException {
+        store(json, store, req, geoServer);
+
+        JSONObj connection = new JSONObj();
+        Map<String, Serializable> params = store.getConnectionParameters();
+        for (Entry<String, Serializable> param : params.entrySet()) {
+            String key = param.getKey();
+            Object value = param.getValue();
+            String text = value == null ? null : value.toString();
+            
+            connection.put( key, text );
+        }
+        if (store instanceof CoverageStoreInfo) {
+            CoverageStoreInfo info = (CoverageStoreInfo) store;
+            connection.put("raster", info.getURL());
+        }
+        if (store instanceof WMSStoreInfo) {
+            WMSStoreInfo info = (WMSStoreInfo) store;
+            json.put("wms", info.getCapabilitiesURL());
+        }
+        json.put("connection", connection );
+        json.put("error", error( new JSONObj(), store.getError()));
+
+        if (store.isEnabled()) {
+            resources(store, json.putArray("resources"), geoServer);
+        }
+        json.put("layer-count",layerCount(store, geoServer));
+
+        return json;
+    }
+    static int layerCount(StoreInfo store, GeoServer geoServer) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = store.getWorkspace();
+
+        Filter filter = and(equal("store", store), equal("namespace.prefix", ws.getName()));
+        int count=0;
+        try (CloseableIterator<ResourceInfo> layers = cat.list(ResourceInfo.class, filter);) {
+            while (layers.hasNext()) {
+                ResourceInfo r = layers.next();
+                for (LayerInfo l : cat.getLayers(r)) {
+                    if (l != null) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    private static JSONArr layers(ResourceInfo r, JSONArr list, GeoServer geoServer) throws IOException {
+        if (r != null) {
+            Catalog cat = geoServer.getCatalog();
+            for (LayerInfo l : cat.getLayers(r)) {
+                JSONObj obj = layerDetails(list.addObject(), l, null);
+            }
+        }
+        return list;
+    }
+    
+    private static JSONArr layers(StoreInfo store, JSONArr list, GeoServer geoServer) throws IOException {
+        Catalog cat = geoServer.getCatalog();
+        WorkspaceInfo ws = store.getWorkspace();
+
+        Filter filter = and(equal("store", store), equal("namespace.prefix", ws.getName()));
+        try (CloseableIterator<ResourceInfo> layers = cat.list(ResourceInfo.class, filter);) {
+            while (layers.hasNext()) {
+                ResourceInfo r = layers.next();
+                for (LayerInfo l : cat.getLayers(r)) {
+                    layerDetails(list.addObject(), l, null);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static JSONArr resources(StoreInfo store, JSONArr list, GeoServer geoServer) throws IOException {
+        for (String resource : listResources(store)) {
+            resource( list.addObject(), store, resource, geoServer);
+        }
+        return list;
+    }
+    
+    public static JSONObj resource(JSONObj obj, StoreInfo store, String name, GeoServer geoServer) throws IOException {
+        obj.put("name", name);
+        if(store instanceof DataStoreInfo){
+            DataStoreInfo data = (DataStoreInfo) store;
+            
+            @SuppressWarnings("rawtypes")
+            DataAccess dataStore = data.getDataStore(new NullProgressListener());
+            FeatureType schema;
+            org.geotools.data.ResourceInfo info;
+            if (dataStore instanceof DataStore) {
+                schema = ((DataStore) dataStore).getSchema(name);
+                info = ((DataStore) dataStore).getFeatureSource(name).getInfo();
+            } else {
+                NameImpl qname = new NameImpl(name);
+                schema = dataStore.getSchema(qname);
+                info = dataStore.getFeatureSource(qname).getInfo();
+            }
+            String title = info.getTitle() == null
+                    ? WordUtils.capitalize(name)
+                    : info.getTitle();
+            String description = info.getDescription() == null ? "" : info.getDescription();
+            obj.put("title", title);
+            obj.put("description", description);
+            
+            JSONArr keywords = obj.putArray("keywords");
+            keywords.raw().addAll( info.getKeywords() );
+            bounds(obj.putObject("bounds"),info.getBounds());
+            schema(obj.putObject("schema"), schema, false);
+        }
+        if(store instanceof CoverageStoreInfo){
+            CoverageStoreInfo data = (CoverageStoreInfo) store;
+            GridCoverageReader r = data.getGridCoverageReader(null, null);
+            obj.put("title", WordUtils.capitalize(name));
+            obj.put("description", "");
+            if( r instanceof GridCoverage2DReader){
+                GridCoverage2DReader reader = (GridCoverage2DReader) r;
+                CoordinateReferenceSystem crs = reader.getCoordinateReferenceSystem(name);
+                schemaGrid(obj.putObject("schema"), crs, false);
+            }
+            else {
+                schemaGrid( obj.putObject("schema"), AbstractGridFormat.getDefaultCRS(), false);
+            }
+        }
+        
+        JSONArr layers = obj.putArray("layers");
+        Catalog cat = geoServer.getCatalog();
+        if (store instanceof CoverageStoreInfo) {
+            // coverage store does not respect native name so we search by id
+            for (CoverageInfo info : cat.getCoveragesByCoverageStore((CoverageStoreInfo) store)) {
+                layers( info, layers, geoServer );
+            }
+        }
+        else {
+            Filter filter = and(equal("namespace.prefix", store.getWorkspace().getName()),equal("nativeName", name));
+            try (
+                CloseableIterator<ResourceInfo> published = cat.list(ResourceInfo.class, filter);
+            ) {
+                while (published.hasNext()) {
+                    ResourceInfo info = published.next();
+                    if (!info.getStore().getId().equals(store.getId())) {
+                        continue; // native name is not enough, double check store id
+                    }
+                    layers( info, layers, geoServer );
+                }
+            }
+        }
+        return obj;
+    }
+    
+    private static Iterable<String> listResources(StoreInfo store) throws IOException {
+        if (store instanceof DataStoreInfo) {
+            return Iterables.transform(((DataStoreInfo) store).getDataStore(null).getNames(),
+                new Function<Name, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable Name input) {
+                        return input.getLocalPart();
+                    }
+                });
+        }
+        else if (store instanceof CoverageStoreInfo) {
+            return Arrays.asList(((CoverageStoreInfo) store).getGridCoverageReader(null, null).getGridCoverageNames());
+        }
+        else if (store instanceof WMSStoreInfo) {
+            return Iterables.transform(((WMSStoreInfo) store).getWebMapServer(null).getCapabilities().getLayerList(),
+                new com.google.common.base.Function<Layer, String>() {
+                    @Nullable
+                    @Override
+                    public String apply(@Nullable Layer input) {
+                        return input.getName();
+                    }
+                });
+        }
+
+        throw new IllegalStateException("Unrecognized store type");
+    }
+
+    private static String source(StoreInfo store, GeoServer geoServer) {
+        GeoServerResourceLoader resourceLoader = geoServer.getCatalog().getResourceLoader();
+        GeoServerDataDirectory dataDir = new GeoServerDataDirectory(resourceLoader);
+        if( store instanceof CoverageStoreInfo ){
+            CoverageStoreInfo coverage = (CoverageStoreInfo) store;
+            return sourceURL( coverage.getURL(), dataDir );
+        }
+        Map<String, Serializable> params =
+                ResourcePool.getParams( store.getConnectionParameters(), resourceLoader );
+        if( params.containsKey("dbtype")){
+            // See JDBCDataStoreFactory for details
+            String host = Converters.convert(params.get("host"),  String.class);
+            String port = Converters.convert(params.get("port"),  String.class);
+            String dbtype = Converters.convert(params.get("dbtype"),  String.class);
+            String schema = Converters.convert(params.get("schema"),  String.class);
+            String database = Converters.convert(params.get("database"),  String.class);
+            StringBuilder source = new StringBuilder();
+            source.append(host);
+            if( port != null ){
+                source.append(':').append(port);
+            }
+            source.append('/').append(dbtype).append('/').append(database);
+            if( schema != null ){
+                source.append('/').append(schema);
+            }
+            return source.toString();
+        }
+        else if( store instanceof WMSStoreInfo){
+            String url = ((WMSStoreInfo)store).getCapabilitiesURL();
+            return url;
+        }
+        else if( params.keySet().contains("directory")){
+            String directory = Converters.convert(params.get("directory"),String.class);
+            return sourceFile( directory, dataDir );
+        }
+        else if( params.keySet().contains("file")){
+            String file = Converters.convert(params.get("file"),String.class);
+            return sourceFile( file, dataDir );
+        }
+        if( params.containsKey("url")){
+            String url = Converters.convert(params.get("url"),String.class);
+            return sourceURL( url, dataDir );
+        }
+        for( Object value : params.values() ){
+            if( value instanceof URL ){
+                return source( (URL) value, dataDir );
+            }
+            if( value instanceof File ){
+                return source( (File) value, dataDir );
+            }
+            if( value instanceof String ){
+                String text = (String) value;
+                if( text.startsWith("file:")){
+                    return sourceURL( text, dataDir );
+                }
+                else if ( text.startsWith("http:") || text.startsWith("https:") || text.startsWith("ftp:")){
+                    return text;
+                }
+            }
+        }
+        return "undertermined";
+    }
+    
+    private static String source(File file, GeoServerDataDirectory dataDir) {
+        File baseDirectory = dataDir.getResourceLoader().getBaseDirectory();
+        return file.isAbsolute() ? file.toString() : Paths.convert(baseDirectory,file);
+    }
+
+    private static String source(URL url, GeoServerDataDirectory dataDir) {
+        File baseDirectory = dataDir.getResourceLoader().getBaseDirectory();
+        
+        if (url.getProtocol().equals("file")) {
+            File file = Files.url(baseDirectory, url.toExternalForm());
+            if (file != null && !file.isAbsolute()) {
+                return Paths.convert(baseDirectory, file); 
+            }
+        }
+        return url.toExternalForm();
+    }
+
+    private static String sourceURL(String url, GeoServerDataDirectory dataDir) {
+        File baseDirectory = dataDir.getResourceLoader().getBaseDirectory();
+
+        File file = Files.url(baseDirectory, url);
+        if( file != null ){
+            return Paths.convert(baseDirectory, file); 
+        }
+        return url;
+    }
+
+    private static String sourceFile(String file, GeoServerDataDirectory dataDir) {
+        File baseDirectory = dataDir.getResourceLoader().getBaseDirectory();
+
+        File f = new File( file );
+        return f.isAbsolute() ? file : Paths.convert(baseDirectory, f);
+    }
+    
+    /*
+     * Basic JSON Utilities
+     */
 
     static JSONObj date(JSONObj obj, Date date) {
         String timestamp = new SimpleDateFormat(DATE_FORMAT).format(date);
@@ -756,4 +1097,6 @@ public class IO {
         date(obj.putObject("modified"), ref.modified);
         return obj;
     }
+    
+    
 }
