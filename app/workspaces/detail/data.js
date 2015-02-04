@@ -83,19 +83,19 @@ angular.module('gsApp.workspaces.data', [
         $scope.selectedStore = store;
 
         GeoServer.datastores.getDetails($scope.workspace, store.name).then(
-        function(result) {
-          if (result.success) {
-            var storeData = result.data;
-            $scope.selectedStore = storeData;
-          } else {
-            $rootScope.alerts = [{
-              type: 'warning',
-              message: 'Details for store ' + $scope.selectedStore.name +
-                ' could not be loaded.',
-              fadeout: true
-            }];
-          }
-        });
+          function(result) {
+            if (result.success) {
+              var storeData = result.data;
+              $scope.selectedStore = storeData;
+            } else {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Details for store ' + $scope.selectedStore.name +
+                  ' could not be loaded.',
+                fadeout: true
+              }];
+            }
+          });
       };
 
       // for some reason modal below's being called twice without this lock
@@ -123,6 +123,9 @@ angular.module('gsApp.workspaces.data', [
             }
           }).result.then(function(param) {
             $rootScope.importInitiated = false;
+            if (param != null) {
+              $scope.selectStore(param);
+            }
           });
         }
       };
