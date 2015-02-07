@@ -25,7 +25,7 @@
       <name>Boundless Maven Repository</name>
       <url>http://repo.boundlessgeo.com/main</url>
       <snapshots>
-        <enabled>false</enabled>
+        <enabled>true</enabled>
       </snapshots>
     </repository>
   </repositories>
@@ -141,6 +141,12 @@
      </dependency>
 
     <!-- core geoserver modules -->
+    <dependency>
+      <groupId>org.geoserver.web</groupId>
+      <artifactId>gs-web-core</artifactId>
+      <version>${gs.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>org.geoserver.web</groupId>
       <artifactId>gs-web-app</artifactId>

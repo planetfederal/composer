@@ -26,6 +26,14 @@
         <property name="order" value="5"/>
         <property name="icon" value="map.png"/>
     </bean>
+    
+    <bean id="composerMenuPageLink" class="org.geoserver.web.MenuPageInfo">
+        <property name="id" value="composerMenuPageId"/>
+        <property name="titleKey" value="ComposerRedirectPage.title"/>
+        <property name="descriptionKey" value="ComposerRedirectPage.description"/>
+        <property name="componentClass" value="com.boundlessgeo.geoserver.web.ComposerRedirectPage"/>
+        <property name="order" value="50"/>
+    </bean>
 
     <bean id="layerListDemoBlacklister" class="org.geoserver.platform.NameExclusionFilter">
         <property name="beanId" value="layerListDemo2"/>
