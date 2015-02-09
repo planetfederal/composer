@@ -19,84 +19,6 @@ angular.module('gsApp.maps.compose', [
         params: { workspace: {}, name: {}, hiddenLayers: {} }
       });
     }])
-.directive('initialize', ['$window', '$timeout', function($window, $timeout) {
-  return {
-    restrict: 'ACME',
-    replace: true,
-    link: function(scope, element, attrs) {
-      scope.setSizes = function(tries) {
-        if (isNaN(+tries)) {
-          tries = attrs.maxTries || 10;
-        }
-
-        if (tries > 0) {
-          $timeout(function() {
-            var screenWidth = $window.innerWidth;
-            var sideWidth = angular.element('#sidebar-wrapper').width();
-            var resizerWidth = angular.element('#resizer').width();
-            var editingWidth = angular.element('#editingPanel').width();
-            var mapWidth = screenWidth - editingWidth - resizerWidth -
-              sideWidth;
-            var editingLeft = sideWidth + mapWidth + resizerWidth;
-            var resizerLeft = sideWidth + mapWidth;
-
-            if (sideWidth) {
-              angular.element('#mapPanel').css({width: mapWidth + 'px'});
-              angular.element('#editingPanel').css({left: editingLeft + 'px'});
-              angular.element('#resizer').css({left: resizerLeft + 'px'});
-            } else {
-              //The element is not ready, so decrement the tries,
-              //wait a bit, and try again:
-              scope.setSizes();
-            }
-          }, attrs.msDelay || 100);
-        } else {
-          // Do we want to log or warn or throw an error here?
-        }
-      };
-
-      scope.setSizes();
-      $window.addEventListener('orientationchange', scope.setSizes());
-    }
-  };
-}])
-.directive('resizer', function($document, $window) {
-    return function($scope, $element, $attrs) {
-        $element.on('mousedown', function(event) {
-          event.preventDefault();
-          $document.on('mousemove', mousemove);
-          $document.on('mouseup', mouseup);
-        });
-
-        function mousemove(event) {
-          var xPos = event.pageX;
-          var screenWidth = $window.innerWidth;
-          var resizerWidth = angular.element('#resizer').width();
-          var sideWidth = angular.element('#sidebar-wrapper').width();
-
-          if ($attrs.leftMin && xPos < $attrs.leftMin) {
-            xPos = parseInt($attrs.leftMin);
-          }
-
-          if ($attrs.rightMin && xPos > (screenWidth - $attrs.rightMin)) {
-            xPos = parseInt(screenWidth - $attrs.rightMin);
-          }
-
-          var mapWidth = xPos - sideWidth;
-
-          angular.element('#resizer').css({left: xPos + 'px'});
-          angular.element('#mapPanel').css({width: mapWidth + 'px'});
-          angular.element('#editingPanel').css({
-            left: (xPos + resizerWidth) + 'px',
-            width: (screenWidth - xPos)
-          });
-        }
-        function mouseup() {
-          $document.unbind('mousemove', mousemove);
-          $document.unbind('mouseup', mouseup);
-        }
-      };
-  })
 .controller('MapComposeCtrl',
     ['$scope', '$rootScope', '$state', '$stateParams', '$timeout', '$compile',
     '$log', 'AppEvent', 'GeoServer', '$modal', '_', '$window', '$document',
@@ -472,10 +394,6 @@ angular.module('gsApp.maps.compose', [
           size: 'md'
         });
       };
-
-      $scope.$on(AppEvent.SidenavResized, function(scope) {
-        $scope.setSizes();
-      });
 
       $rootScope.$on(AppEvent.MapBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
