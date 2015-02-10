@@ -251,3 +251,29 @@
     .transition(width, 0.5s, ease-in-out);
   }
 }
+
+/* Resizer bar */
+
+#resizer {
+  height: 100%;
+  width: 4px;
+  border: 0;
+  background-color: #ccc;
+  display: inline-block;
+  float: left;
+  transition: 0s background-color;
+
+  &:hover {
+    cursor: col-resize;
+    background-color: lighten(@monacoblue, 10%);
+    transition-delay: .1s;
+  }
+  &.active {
+    background-color: lighten(@monacoblue, 10%);
+    cursor: col-resize;
+  }
+}
+
+#editingPanel {
+  display: inline-block;
+}

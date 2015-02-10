@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /**
@@ -159,6 +159,58 @@ angular.module('gsApp.core.utilities', [])
       $timeout(function() {
         element[0].focus();
       }, 100);
+    }
+  };
+})
+/*
+ * Map vs. Editor Resizer bar in composer view
+ * Requires function onUpdatePanels() be defined in scope to broadcast
+ * update map event.
+ */
+.directive('resizer', function($document, $window) {
+  return function($scope, $element, $attrs) {
+    var screenWidth, sideWidth, rightMin = 0, leftMin = 0;
+
+    $element.on('mousedown', function(event) {
+      event.preventDefault();
+      $document.on('mousemove', mousemove);
+      $document.on('mouseup', mouseup);
+      sideWidth = angular.element('#sidebar-wrapper').width();
+      screenWidth = $window.innerWidth;
+      if ($attrs.rightMin) {
+        rightMin = screenWidth - parseInt($attrs.rightMin);
+      }
+      if ($attrs.leftMin) {
+        leftMin = parseInt($attrs.leftMin);
+      }
+      $element.addClass('active');
+    });
+
+    function mousemove(event) {
+      event.preventDefault();
+      var xPos = event.pageX;
+
+      if (xPos < leftMin) {
+        xPos = leftMin;
+      }
+      if (xPos > rightMin) {
+        xPos = rightMin;
+      }
+      var mapWidth = xPos - sideWidth;
+      var editorWidth = screenWidth - xPos;
+
+      angular.element('#mapPanel').css({
+        width: mapWidth + 'px'
+      });
+      angular.element('#editingPanel').css({
+        width: editorWidth + 'px'
+      });
+    }
+    function mouseup() {
+      $element.removeClass('active');
+      $document.off('mousemove', mousemove);
+      $document.off('mouseup', mouseup);
+      $scope.onUpdatePanels();
     }
   };
 });
