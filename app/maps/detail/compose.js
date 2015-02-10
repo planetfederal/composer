@@ -399,4 +399,8 @@ angular.module('gsApp.maps.compose', [
         $scope.mapBackground = {'background': color};
       });
 
+      $scope.onUpdatePanels = function() {
+        $rootScope.$broadcast(AppEvent.SidenavResized); // update map
+      };
+
     }]);
