@@ -1,13 +1,13 @@
 The OpenGeo Suite: The premiere open source geospatial stack for data sharing, mapping, and online editing.
 
-Copyright (c) 2014 Boundless
+Copyright (c) 2014-2015 Boundless
 http://boundlessgeo.com
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License following for more details.
 
-For latest contact information of Boundless see the website at http://boundlessgeo.org/.  Current email is ontact@boundlessgeo.com and address is 222 Broadway, 19th Floor, New York, NY 10007.
+For latest contact information of Boundless see the website at http://boundlessgeo.com/.  Current email is ontact@boundlessgeo.com and address is 222 Broadway, 19th Floor, New York, NY 10007.
 
 ***************************************
 GNU GENERAL PUBLIC LICENSE
