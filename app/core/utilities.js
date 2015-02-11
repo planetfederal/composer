@@ -169,7 +169,7 @@ angular.module('gsApp.core.utilities', [])
  */
 .directive('resizer', function($document, $window) {
   return function($scope, $element, $attrs) {
-    var screenWidth, sideWidth, rightMin = 0, leftMin = 0;
+    var screenWidth, sideWidth, panelsWidth, rightMin = 0, leftMin = 0;
 
     $element.on('mousedown', function(event) {
       event.preventDefault();
@@ -177,6 +177,7 @@ angular.module('gsApp.core.utilities', [])
       $document.on('mouseup', mouseup);
       sideWidth = angular.element('#sidebar-wrapper').width();
       screenWidth = $window.innerWidth;
+      panelsWidth = screenWidth - sideWidth;
       if ($attrs.rightMin) {
         rightMin = screenWidth - parseInt($attrs.rightMin);
       }
@@ -200,10 +201,10 @@ angular.module('gsApp.core.utilities', [])
       var editorWidth = screenWidth - xPos;
 
       angular.element('#mapPanel').css({
-        width: mapWidth + 'px'
+        width: 100 * mapWidth/panelsWidth + '%'
       });
       angular.element('#editingPanel').css({
-        width: editorWidth + 'px'
+        width: 100 * editorWidth/panelsWidth + '%'
       });
     }
     function mouseup() {
