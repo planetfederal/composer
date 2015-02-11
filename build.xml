@@ -24,6 +24,15 @@
     <antcall target="mvn">
         <param name="goals" value="install"/>
     </antcall>
+    <if>
+      <equals arg1="${suite.build_profile}" arg2="ee"/>
+      <then>
+        <antcall target="mvn">
+          <param name="dir" value="ee"/>
+          <param name="goals" value="install"/>
+        </antcall>
+      </then>
+    </if>
   </target>
 
   <target name="clean" depends="destroy">
@@ -49,6 +58,9 @@
           <sequential>
             <copy todir="${war.dir}">
               <fileset dir="target" includes="composer/**/*"/>
+            </copy>
+            <copy todir="${war.dir}/WEB-INF/lib">
+              <fileset dir="ee/target" includes="*.jar"/>
             </copy>
           </sequential>
         </then>
