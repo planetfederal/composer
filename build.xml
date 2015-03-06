@@ -1,0 +1,19 @@
+<project name="geoserver" default="build">
+  <target name="build" description="builds client">
+    <exec executable="npm" failonerror="true">
+       <arg line="install"/>
+    </exec>
+    <mkdir dir="${composer.dir}"/>
+    <copy todir="${composer.dir}">
+      <fileset dir="build" includes="**/*"/>
+      <fileset dir="app" includes="LICENSE.txt"/>
+    </copy>
+  </target>
+
+  <target name="clean">
+    <exec executable="grunt" failonerror="true">
+       <arg line="clean"/>
+    </exec>
+  </target>
+
+</project>
