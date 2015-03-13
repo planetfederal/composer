@@ -142,6 +142,14 @@ angular.module('gsApp.layers.style', [
         });
       };
 
+      $scope.mapControls = 'all';
+      $rootScope.$on(AppEvent.MapControls, function(scope, ctrl) {
+        if ($scope.mapControls == ctrl) {
+          ctrl = 'no-' + ctrl;
+        }
+        $scope.mapControls = ctrl;
+      });
+
       $rootScope.$on(AppEvent.MapBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
       });

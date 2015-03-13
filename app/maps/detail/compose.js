@@ -403,4 +403,12 @@ angular.module('gsApp.maps.compose', [
         $rootScope.$broadcast(AppEvent.SidenavResized); // update map
       };
 
+      $scope.mapControls = 'all';
+      $rootScope.$on(AppEvent.MapControls, function(scope, ctrl) {
+        if ($scope.mapControls == ctrl) {
+          ctrl = 'no-' + ctrl;
+        }
+        $scope.mapControls = ctrl;
+      });
+
     }]);

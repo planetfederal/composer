@@ -31,7 +31,7 @@
   </div>
   <div class="row">
     <div id="mapPanel" class="col-xs-6 col-lg-7">
-      <div ol-map class="map" map-opts="mapOpts"></div>
+      <div ol-map class="map" map-opts="mapOpts" map-ctrls="{{mapControls}}"></div>
     </div>
     <div id="editingPanel" class="col-xs-6 col-lg-5">
       <div id="resizer" resizer="vertical" alt="Drag to resize" title="Drag to resize" left-min="300" right-min="300"></div>
@@ -40,9 +40,9 @@
           <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
           <style-editor-undo editor="editor"></style-editor-undo>
           <style-editor-color editor="editor"></style-editor-color>
-          <style-editor-display editor="editor"></style-editor-display>
           <style-editor-icons editor="editor"></style-editor-icons>
           <style-editor-attrs editor="editor" layer="layer"></style-editor-attrs>
+          <style-editor-display editor="editor"></style-editor-display>
         </ul>
       </div>
       <div style-editor editor="editor" layer="layer" style="style" markers="markers"></div>
