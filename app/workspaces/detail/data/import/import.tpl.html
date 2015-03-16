@@ -30,7 +30,7 @@
         {{ importResult.imported.length }} layer{{importResult.imported.length > 1 ? 's were' : ' was'}} successfully imported.
         </alert>
         <alert ng-if="importResult.preimport.length > 0" type="success">
-        {{ importResult.preimport.length }} table{{importResult.preimport.length > 1 ? 's' : ''}} are available.
+        {{ importResult.preimport.length }} table{{importResult.preimport.length > 1 ? 's' : ''}} are available for import.
         </alert>
         <alert ng-if="importResult.pending.length > 0" type="warning">
         {{ importResult.pending.length }} layer{{importResult.pending.length > 1 ? 's' : ''}} require{{importResult.pending.length == 1 ? 's' : ''}} additional input.
