@@ -1,34 +1,34 @@
-# GeoServer Web Application
+# Composer
 
-This module contains the GeoServer web application. It is comprised of a backend api on the Java/GeoServer side, and an angular based client. 
+Composer is a single-page application for easy creation and managing of geoserver maps.
 
-## Building
+## Requirements
 
-Building it requires Node be [installed](http://nodejs.org/). In addition to 
+Building Composer requires Node be [installed](http://nodejs.org/). In addition to 
 installing node and npm it is recommended that `bower` and `grunt-cli` be installed 
 globally.
 
     npm install -g bower
     npm install -g grunt-cli
 
-Once the node dependencies are satisifed invoke ant to build the module.
+## Building
 
-    ant build
+To install all project dependencies simply run
+    
+    npm install
 
-This will result in a deployable GeoServer war file.
+To build all client side assets run
+    
+    grunt build
 
 ## Developing
 
 For development it is most convenient to run the backend and front-end 
-separately. To run the backend import this module into your Java IDE and run
-the `Start` class. By default the backend will start up on port 8080. 
+separately. 
 
-The frontend is run (again only for development) via Grunt. Start by building
-the frontend:
+See [Suite webapp Readme](https://github.com/boundlessgeo/suite/tree/master/geoserver/webapp#developing) for more details on setting up the backend.
 
-    grunt build
-
-Once built start the debug server:
+After following the build steps above you can run the debug server:
 
     grunt start
 
@@ -47,16 +47,3 @@ same directory as `gruntfile.js`. For example:
        "port": 8080
     }
 
-### Tips and Tricks
-
-Ant build targets:
-
-    Main targets:
-
-     build  Builds project
-     help   Print help
-     serve  Runs GeoServer
- 
-Use the following to update client side dependencies:
-
-    npn install
