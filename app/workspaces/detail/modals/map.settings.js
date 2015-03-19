@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.maps.settings', [])
@@ -32,7 +32,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
             patch.title = $scope.map.title;
           }
           if (originalMap.proj.srs !== $scope.map.proj.srs) {
-            patch.proj = $scope.map.proj;
+            patch.proj = $scope.map.proj.srs;
           }
           if (originalMap.description !== $scope.map.description) {
             patch.description = $scope.map.description;

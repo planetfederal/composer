@@ -70,7 +70,8 @@ angular.module('gsApp.olmap', [])
           proj4.defs(p.srs, p.wkt);
           proj = ol.proj.get(p.srs);
           if (prjExt) {
-            proj.setExtent([prjExt.west, prjExt.south, prjExt.east, prjExt.north]);
+            proj.setExtent([prjExt.west, prjExt.south, prjExt.east,
+              prjExt.north]);
           }
         } catch(e) {
           $rootScope.alerts = [{
