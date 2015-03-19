@@ -123,8 +123,8 @@ module.exports = function(grunt) {
         options: {
           port: 8000,
           base: [
-            path.join(__dirname, 'build'),
             path.join(__dirname, 'app'),
+            path.join(__dirname, 'build'),
             __dirname
           ],
           livereload: true,
