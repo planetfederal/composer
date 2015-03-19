@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
@@ -64,9 +64,20 @@ angular.module('gsApp.olmap', [])
         });
 
         // determine projection from first layer
-        var p = mapOpts.proj;
-        proj4.defs(p.srs, p.wkt);
-        var proj = ol.proj.get(p.srs);
+        var p = mapOpts.proj, prjExt = mapOpts.projectionExtent;
+        var proj;
+        try {
+         // debugger;
+          console.log(p.wkt);
+          proj4.defs(p.srs, p.wkt);
+          proj = ol.proj.get(p.srs);
+          if (prjExt) {
+            proj.setExtent([prjExt.west, prjExt.south, prjExt.east, prjExt.north]);
+          }
+        } catch(e) {
+          console.log(e);
+        }
+        console.log(proj); // undefined?
 
         // initial extent
         var bbox = mapOpts.bbox;
@@ -273,7 +284,6 @@ angular.module('gsApp.olmap', [])
             if (newVal == null) {
               return;
             }
-
             $scope.map = MapFactory.createMap($scope.mapOpts, $element);
           });
 
