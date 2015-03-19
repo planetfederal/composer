@@ -1,4 +1,5 @@
 <project name="geoserver" default="build">
+
   <target name="build" description="builds client">
     <exec executable="npm" failonerror="true">
        <arg line="install"/>
@@ -6,9 +7,9 @@
   </target>
 
   <target name="clean">
-    <exec executable="grunt" failonerror="true">
-       <arg line="clean"/>
-    </exec>
+    <delete dir="bower_components" failonerror="false" />
+    <delete dir="node_modules" failonerror="false" />
+    <delete dir="build" failonerror="false" />
   </target>
 
 </project>
