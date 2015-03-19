@@ -67,17 +67,24 @@ angular.module('gsApp.olmap', [])
         var p = mapOpts.proj, prjExt = mapOpts.projectionExtent;
         var proj;
         try {
-         // debugger;
-          console.log(p.wkt);
+          var p = mapOpts.proj, prjExt = mapOpts.projectionExtent;
+        var proj;
+        try {
           proj4.defs(p.srs, p.wkt);
           proj = ol.proj.get(p.srs);
           if (prjExt) {
-            proj.setExtent([prjExt.west, prjExt.south, prjExt.east, prjExt.north]);
+            proj.setExtent([prjExt.west, prjExt.south, prjExt.east,
+              prjExt.north]);
           }
         } catch(e) {
-          console.log(e);
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Error rendering map with projection: ' + e,
+            fadeout: true
+          }];
         }
-        console.log(proj); // undefined?
+        
+        console.log(proj); // why is this still undefined?
 
         // initial extent
         var bbox = mapOpts.bbox;
