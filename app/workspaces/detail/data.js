@@ -62,8 +62,8 @@ angular.module('gsApp.workspaces.data', [
         storesListModel.fetchStores($scope.workspace).then(
           function() {
             $scope.datastores = storesListModel.getStores();
-            $scope.datastores.reverse();  // sorts by last added - not official!
             if ($scope.datastores && $scope.datastores.length > 0) {
+              $scope.datastores.reverse();  // sorts by last added
               $scope.selectStore($scope.datastores[0]);
             }
           });

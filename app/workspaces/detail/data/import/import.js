@@ -115,6 +115,14 @@ angular.module('gsApp.workspaces.data.import', [
               format: $scope.format
             });
           }
+        } else {
+          $scope.db_home = true;
+          $scope.showImportDetails = false;
+          $scope.format = null;
+          $state.go('workspace.data.import.fileordb', {
+            workspace: wsName,
+            format: $scope.format
+          });
         }
       };
 
