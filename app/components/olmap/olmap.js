@@ -69,7 +69,7 @@ angular.module('gsApp.olmap', [])
         try {
           proj4.defs(p.srs, p.wkt);
           proj = ol.proj.get(p.srs);
-          if (prjExt) {
+          if (!proj.getExtent() && prjExt) {
             proj.setExtent([prjExt.west, prjExt.south, prjExt.east,
               prjExt.north]);
           }
