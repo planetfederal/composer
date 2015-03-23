@@ -64,9 +64,22 @@ angular.module('gsApp.olmap', [])
         });
 
         // determine projection from first layer
-        var p = mapOpts.proj;
-        proj4.defs(p.srs, p.wkt);
-        var proj = ol.proj.get(p.srs);
+        var p = mapOpts.proj, prjExt = mapOpts.projectionExtent;
+        var proj;
+        try {
+          proj4.defs(p.srs, p.wkt);
+          proj = ol.proj.get(p.srs);
+          if (!proj.getExtent() && prjExt) {
+            proj.setExtent([prjExt.west, prjExt.south, prjExt.east,
+              prjExt.north]);
+          }
+        } catch(e) {
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Error rendering map with projection: ' + e,
+            fadeout: true
+          }];
+        }
 
         // initial extent
         var bbox = mapOpts.bbox;

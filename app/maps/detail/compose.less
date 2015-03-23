@@ -10,10 +10,15 @@
 }
 
 .editor-background {
+  height: 100%;
   background: @gray;
 }
 
 .map-detail-compose {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+
   > .row {
     margin-left: 0;
     margin-right: 0;
@@ -75,9 +80,6 @@
       font-weight: bold;
     }
   }
-}
-
-.map-detail-compose {
 
   .map-name, .map-name-row, .navbar-brand, ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
     min-height: 35px;
@@ -138,6 +140,7 @@
   .map-layers {
     border-right: none;
     padding-top: 5px;
+    padding-bottom: 113px;
     max-width: 0px;
     box-shadow: inset -5px -1px 5px -3px @dark-gray;
     overflow: hidden;
@@ -161,6 +164,8 @@
     }
 
     > ul {
+      height: 100%;
+      overflow-y: auto;
       list-style-type: none;
       margin-bottom: 0px;
 
@@ -245,8 +250,9 @@
   .map-editor {
     width: auto;
     position: relative;
+    height: 100%;
     z-index: 10;
-
+    padding-bottom: 137px; // Note: otherwise it overflows past the bototm
     overflow: hidden;
     .transition(width, 0.5s, ease-in-out);
   }

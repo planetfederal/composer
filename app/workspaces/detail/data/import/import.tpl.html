@@ -8,13 +8,13 @@
     <div class="container-fluid form-container">
       <div class="upload-options btn-group btn-group-justified" ng-show="is('fileordb')">
         <div class="btn-group">
-          <button type="button" class="btn btn-default btn-sm" ng-click="showImportFile=true; showImportDB=false;" ng-class="{active: showImportFile}">
+          <button type="button" class="btn btn-default btn-sm" ng-click="showImportFile=true; showImportDB=false; importResult = null;" ng-class="{active: showImportFile}">
             Add Files
           </button>
         </div>
         <div class="btn-group">
           <button type="button" class="btn btn-default btn-sm"
-          ng-click="showImportFile=false; showImportDB=true;" ng-class="{active: showImportDB}">
+          ng-click="showImportFile=false; showImportDB=true; importResult = null;" ng-class="{active: showImportDB}">
             Add Database
           </button>
         </div>
@@ -30,7 +30,7 @@
         {{ importResult.imported.length }} layer{{importResult.imported.length > 1 ? 's were' : ' was'}} successfully imported.
         </alert>
         <alert ng-if="importResult.preimport.length > 0" type="success">
-        {{ importResult.preimport.length }} table{{importResult.preimport.length > 1 ? 's' : ''}} are available.
+        {{ importResult.preimport.length }} table{{importResult.preimport.length > 1 ? 's' : ''}} are available for import.
         </alert>
         <alert ng-if="importResult.pending.length > 0" type="warning">
         {{ importResult.pending.length }} layer{{importResult.pending.length > 1 ? 's' : ''}} require{{importResult.pending.length == 1 ? 's' : ''}} additional input.
@@ -41,7 +41,10 @@
         <alert ng-if="importResult.failed.length > 0" type="danger">
         {{ importResult.failed.length }} layer{{importResult.failed.length > 1 ? 's' : ''}} resulted in an error.
         </alert>
-        <div class="import-error text-right">
+        <alert ng-if="(importResult.failed.length + importResult.ignored.length + importResult.pending.length + importResult.imported.length + importResult.preimport.length) == 0" type="danger">
+        Unable to import from database.
+        </alert>
+        <div class="import-error text-right" ng-if="importResult.pending.length > 0 || importResult.imported.length > 0 || importResult.preimport.length > 0">
           <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
             Details &rarr;
           </button>
@@ -51,7 +54,7 @@
   </div>
   <div class="modal-footer">
     <div class="submit-buttons pull-right">
-      <button class="btn btn-default btn-sm" ng-click="back()" ng-show="!is('fileordb')">&larr; Back</button>
+      <button class="btn btn-default btn-sm" ng-click="back()" ng-show="!showImportFile && format!==null">&larr; Back</button>
       <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
       <button class="btn btn-success btn-sm" ng-show="mapInfo && !mapInfo.created && is('details')" ng-click="completeNewMap(selectedLayers)">Create Map {{ mapInfo.name }}</button>
       <button class="btn btn-success btn-sm" ng-click="createNewMapwithImported();" ng-show="is('newmap')">Create New Map</button>
