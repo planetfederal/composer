@@ -335,50 +335,6 @@ angular.module('gsApp.olmap', [])
             }
           });
 
-          function updateControl(val) {
-            switch(val) {
-              case 'all':
-                angular.element('.ol-control').toggle();
-                break;
-              case 'lonlat':
-                angular.element('.ol-mouse-position').toggle();
-                break;
-              case 'bounds':
-                angular.element('.ol-bounds').toggle();
-                break;
-              case 'extent':
-                angular.element('.ol-zoom-extent').toggle();
-                break;
-              case 'scale':
-                angular.element('.ol-scale').toggle();
-                break;
-              case 'zoom':
-                angular.element('.ol-zoom').toggle();
-                break;
-              case 'zoomlevel':
-                angular.element('.ol-zoomlevel').toggle();
-                break;
-            }
-          }
-
-          $scope.$watch('mapCtrls', function(newVal, oldVal) {
-            if (newVal) {
-              newVal = newVal.replace('no-', '');
-              oldVal = oldVal.replace('no-', '');
-
-              if (newVal == 'all' && oldVal !== 'all') {
-                // show all
-                angular.element('.ol-control').show();
-              } else if (newVal !== 'all' && oldVal == 'all') {
-                // hide one
-                updateControl(newVal);
-              } else {
-                // both are all or neither are
-                updateControl(newVal);
-              }
-            }
-          });
-
           $scope.$on('olmap-refresh', function() {
             $scope.map.refresh();
           });

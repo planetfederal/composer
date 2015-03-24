@@ -31,7 +31,8 @@
   </div>
   <div class="row">
     <div id="mapPanel" class="col-xs-6 col-lg-7">
-      <div ol-map class="map" map-opts="mapOpts" map-ctrls="{{mapControls}}"></div>
+      <div ol-map class="map" map-opts="mapOpts"
+        ng-class="{'hide-all': hideCtrl.all, 'hide-lonlat': hideCtrl.lonlat}"></div>
     </div>
     <div id="editingPanel" class="col-xs-6 col-lg-5">
       <div id="resizer" resizer="vertical" alt="Drag to resize" title="Drag to resize" left-min="300" right-min="300"></div>
