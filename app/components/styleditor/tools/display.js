@@ -10,43 +10,7 @@ angular.module('gsApp.styleditor.display', [])
         scope: {
           editor: '=',
         },
-        template:
-        '<li class="dropdown dropdown-toggle">'+
-          '<i class="icon-screen"></i>'+
-          '<span>Display</span>'+
-          '<ul class="dropdown-menu display-menu">'+
-            '<li class="dropdown-submenu">'+
-              'BgColor'+
-              '<ul class="dropdown-menu">'+
-                '<li class="bg-submenu">'+
-                  '<small>(Screen only)</small></li>'+
-                '<li ng-repeat="(b,c) in bgcolors"'+
-                  'ng-class="{active: b == bgcolor}">'+
-                  '<a href ng-click="chooseBgcolor(b)">{{b}}</a>'+
-                '</li>'+
-              '</ul>'+
-            '</li>'+
-            '<li class="dropdown-submenu">'+
-              'Font'+
-              '<ul class="dropdown-menu">'+
-                '<li ng-repeat="(f,v) in fonts"'+
-                  'ng-class="{active: f == font}">'+
-                  '<a href ng-click="chooseFont(f)">{{f}}</a>'+
-                '</li>'+
-              '</ul>'+
-            '</li>'+
-            '<li class="dropdown-submenu">'+
-              'Font Size'+
-              '<ul class="dropdown-menu">'+
-                '<li ng-repeat="s in sizes"'+
-                  'ng-class="{active: $index == size}">'+
-                  '<a href ng-click="chooseSize($index)">'+
-                    '{{s[0]}}</a>'+
-                '</li>'+
-              '</ul>'+
-            '</li>'+
-          '</ul>'+
-        '</li>',
+        templateUrl: '/components/styleditor/tools/display.tpl.html',
         replace: true,
         controller: function($scope, $element) {
 
@@ -106,6 +70,16 @@ angular.module('gsApp.styleditor.display', [])
             $('.CodeMirror').css('font-size', $scope.sizes[i][1]);
           };
 
+          /* Map Controls */
+
+          $scope.mapcontrols = {
+            'Toggle All': 'all',
+            'Toggle LonLat': 'lonlat'
+          };
+
+          $scope.chooseControl = function(ctrl) {
+            $scope.$emit(AppEvent.MapControls, ctrl);
+          };
         }
       };
     }]);

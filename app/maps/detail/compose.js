@@ -403,4 +403,16 @@ angular.module('gsApp.maps.compose', [
         $rootScope.$broadcast(AppEvent.SidenavResized); // update map
       };
 
+      $scope.hideCtrl = {
+        'all': false,
+        'lonlat': false
+      };
+
+      $scope.$on(AppEvent.MapControls, function(scope, ctrl) {
+        var val = $scope.hideCtrl[ctrl];
+        if (ctrl &&  val !== undefined) {
+          $scope.hideCtrl[ctrl] = !val;
+        }
+      });
+
     }]);

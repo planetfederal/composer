@@ -142,6 +142,18 @@ angular.module('gsApp.layers.style', [
         });
       };
 
+      $scope.hideCtrl = {
+        'all': false,
+        'lonlat': false
+      };
+
+      $scope.$on(AppEvent.MapControls, function(scope, ctrl) {
+        var val = $scope.hideCtrl[ctrl];
+        if (ctrl &&  val !== undefined) {
+          $scope.hideCtrl[ctrl] = !val;
+        }
+      });
+
       $rootScope.$on(AppEvent.MapBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
       });

@@ -87,7 +87,7 @@ angular.module('gsApp.olmap', [])
 
         // scale control
         var scaleControl = $('<div>')
-          .addClass('ol-scale')
+          .addClass('ol-scale ol-control ol-unselectable')
           .prop('title', 'Copy scale denominator')
           [0];
         new ZeroClipboard(scaleControl).on('copy', function(event) {
@@ -137,7 +137,7 @@ angular.module('gsApp.olmap', [])
           });
 
         var boundsControl = $('<div>')
-          .addClass('bounds ol-unselectable ol-control')
+          .addClass('ol-bounds ol-unselectable ol-control')
           .append(boundsButton)[0];
 
         ol.control.Control.call(this, {
@@ -158,7 +158,7 @@ angular.module('gsApp.olmap', [])
         var ZoomLevelControl = function() {
           ol.control.Control.call(this, {
             element: $('<div>')
-              .addClass('zoomlevel')
+              .addClass('ol-zoomlevel ol-unselectable ol-control')
               .prop('title', 'Current zoom level')
               [0]
           });
@@ -170,6 +170,16 @@ angular.module('gsApp.olmap', [])
           }, this);
           ol.control.Control.prototype.setMap.call(this, map);
         };
+
+        // Mouse lonlat control
+        var mousePositionControl = $('<div>')
+          .addClass('ol-mouse-position ol-control ol-unselectable')
+          .prop('title', 'Current lonlat of mouse')[0];
+
+        ol.control.Control.call(this, {
+          element: mousePositionControl
+        });
+        ol.inherits(mousePositionControl, ol.control.MousePosition);
 
         var map = new ol.Map(angular.extend({
           target: element[0],
@@ -187,7 +197,12 @@ angular.module('gsApp.olmap', [])
               extent: extent
             }),
             new ol.control.Control({element: boundsControl}),
-            new ZoomLevelControl()
+            new ZoomLevelControl(),
+            new ol.control.MousePosition({
+              className: 'ol-mouse-position ol-control ol-unselectable',
+              projection: proj,
+              coordinateFormat: ol.coordinate.createStringXY(6)
+            })
           ])
         }, options || {}));
 
@@ -277,7 +292,8 @@ angular.module('gsApp.olmap', [])
       return {
         restrict: 'EA',
         scope: {
-          mapOpts: '=?'
+          mapOpts: '=?',
+          mapCtrls: '@'
         },
         templateUrl: '/components/olmap/olmap.tpl.html',
         controller: function($scope, $element) {
@@ -318,6 +334,7 @@ angular.module('gsApp.olmap', [])
               }
             }
           });
+
           $scope.$on('olmap-refresh', function() {
             $scope.map.refresh();
           });

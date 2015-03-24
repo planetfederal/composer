@@ -2,13 +2,26 @@
 
 @import "../../variables.less";
 
+.map.no-control {
+  .ol-control {
+    display: none;
+  }
+}
+
+.hide-all .ol-control {
+  display: none;
+}
+.hide-lonlat .ol-mouse-position {
+  display: none;
+}
+
 .ol-scale {
   position: absolute;
   top: 0.6em;
   right: 0.5em;
   background-color: @olblue;
   color: white;
-  padding: 5px;
+  padding: 3px 5px;
   border-radius: 2px;
 }
 
@@ -17,17 +30,32 @@
   background-color: @light-gray;
 }
 
-.zoomlevel {
+.ol-zoomlevel {
   position: absolute;
   top: 3em;
   right: 0.5em;
   background-color: @olblue;
   color: white;
-  padding: 5px;
+  padding: 3px 5px;
   border-radius: 2px;
 }
 
-.bounds {
+.ol-mouse-position {
+  left: 40%;
+  top: 8px;
+  background-color: @olblue;
+  color: @white;
+  padding: 3px 5px;
+  border-radius: 2px;
+  width: auto;
+  right: auto;
+
+  &:empty {
+    padding: 0;
+  }
+}
+
+.ol-bounds {
   position: absolute;
   top: 85px;
   left: 7px;
@@ -47,7 +75,7 @@
   }
 
   button {
-    font-size: 13px;
+    font-size: 1.1em;
     padding-bottom: 1px;
     display: inline-block;
 
