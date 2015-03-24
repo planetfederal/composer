@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /*global $:false */
@@ -170,7 +170,13 @@ angular.module('gsApp.core.backend',[])
               method: 'DELETE',
               url: apiRoot+'/stores/'+workspace+'/'+store + '?recurse=true'
             });
-          }
+          },
+          getResource: function(workspace, store, resource) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/stores/'+workspace+'/'+store+'/'+resource
+            });
+          },
         },
 
         layers: {

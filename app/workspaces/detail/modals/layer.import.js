@@ -12,20 +12,50 @@ angular.module('gsApp.workspaces.layers.import', [])
       $scope.workspace = workspace;
       $scope.store = store;
 
+      GeoServer.datastores.getResource($scope.workspace, store.name,
+        resource.name).then(
+          function(result) {
+            if (result.success) {
+              $scope.resource = result.data;
+              var schema = result.data.schema;
+              $scope.resourceProj = findProj(schema.attributes,
+                schema.defaultGeometry);
+              var keywords = $scope.resource.keywords?
+                $scope.resource.keywords.toString() : 'none';
+              $scope.layer = {
+                'name': $scope.resource.name,
+                'title': $scope.resource.title,
+                'workspace': $scope.workspace,
+                'proj': $scope.resourceProj,
+                'keywords': keywords,
+                'resource': {
+                  'store': $scope.resource.store.name,
+                  'url': $scope.resource.store.url,
+                  'workspace': $scope.workspace,
+                  'name': $scope.resource.name
+                }
+              };
+            } else {
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Could not create get resource details for ' +
+                  $scope.resource.name + ': ' + result.data.message,
+                fadeout: true
+              }];
+            }
+          });
+
       // Iterate through resource attributes to find the_geom or geom or
       // any geometry attribute to find the projection
-      var findProj = function(attributes) {
+      var findProj = function(attributes, defaultGeomPropName) {
         var proj;
         for (var k=0; k < attributes.length; k++) {
           var attr = attributes[k];
-          if (attr.property==='geometry') {
-            proj = attr.proj;
-            if (attr.name==='the_geom') {
-              return proj;
-            }
+          if (attr.name===defaultGeomPropName && attr.proj) {
+            return attr.proj;
           }
         }
-        return proj;
+        return null;
       };
 
       $scope.crsTooltip =
@@ -36,19 +66,6 @@ angular.module('gsApp.workspaces.layers.import', [])
           '</a>' +
         '</p>';
 
-
-      $scope.layer = {
-        'title': resource.title,
-        'workspace': workspace,
-        'type': store.kind.toLowerCase(),
-        'proj': findProj(resource.schema.attributes),
-        'resource': {
-          'store': store.name,
-          'url': store.url,
-          'workspace': workspace,
-          'name': resource.name
-        }
-      };
 
       $scope.importAsLayer = function() {
         var layerInfo = $scope.layer;
