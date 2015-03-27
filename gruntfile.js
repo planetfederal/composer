@@ -33,7 +33,7 @@ var sources = {
 
 var deps = {
   js: [
-    '/vendor/openlayers/ol.js',
+    '/node_modules/openlayers/dist/ol.js',
     'jquery/dist/jquery.js',
     'jquery-ui/ui/core.js',
     'jquery-ui/ui/widget.js',
