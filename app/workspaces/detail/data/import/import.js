@@ -52,9 +52,10 @@ angular.module('gsApp.workspaces.data.import', [
     }])
 .controller('DataImportCtrl', ['$scope', '$state', '$stateParams', 'GeoServer',
   '$modal', '$modalInstance', 'workspace', 'mapInfo', 'mapInfoModel',
-  '$rootScope', 'mapsListModel',
+  '$rootScope', 'mapsListModel', 'storesListModel',
     function($scope, $state, $stateParams, GeoServer, $modal, $modalInstance,
-        workspace, mapInfo, mapInfoModel, $rootScope, mapsListModel) {
+        workspace, mapInfo, mapInfoModel, $rootScope, mapsListModel,
+        storesListModel) {
 
       var wsName = workspace;
       $scope.mapInfo = mapInfo;
@@ -147,12 +148,30 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.importResult = null;
       $scope.setImportResult = function(result) {
         $scope.importResult = result;
+        if (result) {
+          $scope.importResult.total = result.failed.length +
+            result.ignored.length + result.pending.length +
+            result.imported.length + result.preimport.length;
+        }
+      };
+
+      $scope.addStore = function() {
+        storesListModel.addStore(wsName, $scope.format.name,
+          $scope.content);
+        $scope.close();
       };
 
       $scope.connectParams = null;
       $scope.setConnectionParamsAndFormat = function(params, format) {
         $scope.connectParams = params;
         $scope.format = format;
+      };
+
+      $scope.content = null;
+      $scope.setStoreConnectionContent = function(format, content) {
+        $scope.content = format;
+        $scope.content.connection = content;
+        delete $scope.content.params;
       };
 
       $scope.goToCreateNewMap = function(workspace, importInfo) {
@@ -357,6 +376,7 @@ angular.module('gsApp.workspaces.data.import', [
         });
 
         $scope.setConnectionParamsAndFormat($scope.params, $scope.format);
+        $scope.setStoreConnectionContent($scope.format, content);
 
         GeoServer.import.post($scope.workspace, content)
           .then(function(result) {

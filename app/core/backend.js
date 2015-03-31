@@ -154,11 +154,17 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot+'/stores/'+workspace
             });
           },
-
           getDetails: function(workspace, store) {
             return http({
               method: 'GET',
               url: apiRoot+'/stores/'+workspace+'/'+store
+            });
+          },
+          create: function(workspace, format, content) {
+            return http({
+              method: 'POST',
+              url: apiRoot+'/stores/'+workspace+'/'+format,
+              data: content
             });
           },
           update: function(workspace, store, patch) {

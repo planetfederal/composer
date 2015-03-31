@@ -41,8 +41,10 @@
         <alert ng-if="importResult.failed.length > 0" type="danger">
         {{ importResult.failed.length }} layer{{importResult.failed.length > 1 ? 's' : ''}} resulted in an error.
         </alert>
-        <alert ng-if="(importResult.failed.length + importResult.ignored.length + importResult.pending.length + importResult.imported.length + importResult.preimport.length) == 0" type="danger">
-        Unable to import from database.
+        <alert ng-if="importResult.total == 0" type="warning">
+          <p><strong>No layers to import from database.</strong></p>
+          <p>Add as an empty datastore you can import files into?
+            <button type="button" ng-click="addStore()" style="margin-left: 10px;">Add Store</button></p>
         </alert>
         <div class="import-error text-right" ng-if="importResult.pending.length > 0 || importResult.imported.length > 0 || importResult.preimport.length > 0">
           <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">

@@ -365,4 +365,22 @@ angular.module('gsApp.workspaces.data', [
         }
       });
   };
+
+  this.addStore = function(workspace, format, content) {
+    return GeoServer.datastores.create(workspace, format, content)
+    .then(
+      function(result) {
+        if (result.success) {
+          var store = result.data;
+          // tag for display
+          _this.addStore(_this.tagStores(store));
+        } else {
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Unable to add store.',
+            fadeout: true
+          }];
+        }
+      });
+  };
 });
