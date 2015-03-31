@@ -43,6 +43,9 @@ angular.module('gsApp.core.backend',[])
           url: function(workspace) {
             return importRoot + workspace;
           },
+          urlToStore: function(workspace, store) {
+            return importRoot + workspace + '/' + store;
+          },
           post: function(workspace, content) {
             return http({
               method: 'POST',

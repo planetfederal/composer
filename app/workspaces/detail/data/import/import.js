@@ -270,11 +270,16 @@ angular.module('gsApp.workspaces.data.import', [
 
     }])
 .controller('DataImportFileCtrl', ['$scope', '$state', '$upload', '$log',
-    'GeoServer', '$stateParams', 'AppEvent', '$rootScope',
+    'GeoServer', '$stateParams', 'AppEvent', '$rootScope', 'storesListModel',
     function($scope, $state, $upload, $log, GeoServer, $stateParams,
-      AppEvent, $rootScope) {
+      AppEvent, $rootScope, storesListModel) {
 
       var wsName = $stateParams.workspace;
+
+      $scope.existingStores = storesListModel.getStores();
+      if ($scope.existingStores.length > 0) {
+        $scope.chosenImportStore = $scope.existingStores[0];
+      }
 
       $scope.initProgress = function() {
         $scope.progress = {percent: 0};
@@ -285,16 +290,26 @@ angular.module('gsApp.workspaces.data.import', [
         $scope.setImportResult(null);
         $scope.initProgress();
       };
+
       $scope.upload = function() {
+        var postURL;
+        if ($scope.addToStore) {
+          postURL = GeoServer.import.urlToStore($scope.workspace.name,
+            $scope.chosenImportStore.name);
+        } else {
+          postURL = GeoServer.import.url($scope.workspace.name);
+        }
+
         $upload.upload({
-          url: GeoServer.import.url($scope.workspace.name),
+          url: postURL,
           method: 'POST',
           file: $scope.file
         }).progress(function(e) {
           $scope.progress.percent = parseInt(100.0 * e.loaded / e.total);
         }).success(function(e) {
           $scope.setImportResult(e);
-          $scope.$broadcast(AppEvent.StoreAdded, {workspace: $scope.workspace});
+          $scope.$broadcast(AppEvent.StoreAdded,
+            {workspace: $scope.workspace});
         }).then(function(result) {
           if (result.status > 201) {
             $rootScope.alerts = [{
