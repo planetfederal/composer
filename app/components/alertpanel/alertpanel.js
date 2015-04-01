@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
@@ -16,6 +16,16 @@ angular.module('gsApp.alertpanel', [
         controller: function($scope, $element) {
           $scope.showMessages = true;
 
+          $scope.$watch(function() {
+            return $rootScope.enableAlerts; // set to true on login
+          }, function(newVal) {
+            if (newVal != null && newVal) {
+              $scope.showMessages = true;
+            } else if (newVal===false) {
+              $scope.showMessages = false;
+            }
+          }, true);
+
           $scope.$watch('alerts', function(newVal) {
             if (newVal != null) {
               $scope.messages = newVal.map(function(val) {
@@ -29,15 +39,6 @@ angular.module('gsApp.alertpanel', [
               });
             }
           });
-          $scope.$watch(function() {
-            return $rootScope.enableAlerts; // set to true on login
-          }, function(newVal) {
-            if (newVal != null) {
-              $scope.showMessages = true;
-            } else if (newVal===false) {
-              $scope.showMessages = false;
-            }
-          }, true);
 
           $scope.closeAlert = function(i) {
             $scope.messages.splice(i, 1);
