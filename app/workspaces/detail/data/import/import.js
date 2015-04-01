@@ -156,7 +156,7 @@ angular.module('gsApp.workspaces.data.import', [
       };
 
       $scope.addStore = function() {
-        storesListModel.addStore(wsName, $scope.format.name,
+        storesListModel.addEmptyStore(wsName, $scope.format.name,
           $scope.content);
         $scope.close();
       };
@@ -168,15 +168,17 @@ angular.module('gsApp.workspaces.data.import', [
         $scope.setStoreConnectionContent();
       };
 
+      // for adding store after attempting import from empty store
       $scope.content = null;
       $scope.setStoreConnectionContent = function() {
         var params = $scope.connectParams;
         $scope.content = $scope.format;
         $scope.content.connection = {};
-
         for (var obj in params) {
           if (params[obj].value) {
             $scope.content.connection[obj] = params[obj].value.toString();
+            // geoserver doesn't recognize without toString + need to remove
+            // any undefined optional parameters
           }
         }
         delete $scope.content.params;

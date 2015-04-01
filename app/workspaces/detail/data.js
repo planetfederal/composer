@@ -323,7 +323,7 @@ angular.module('gsApp.workspaces.data', [
   };
 
   this.addStore = function(store) {
-    _this.stores.push(store);
+    _this.stores.unshift(store); // add to front of array
   };
 
   this.removeStore = function(store) {
@@ -332,19 +332,23 @@ angular.module('gsApp.workspaces.data', [
     });
   };
 
+  this.tagStore = function(store) {
+    var format = store.format.toLowerCase();
+    if (format === 'shapefile') {
+      store.sourcetype = 'shp';
+    } else if (store.kind.toLowerCase() === 'raster') {
+      store.sourcetype = 'raster';
+    } else if (store.type.toLowerCase() === 'database') {
+      store.sourcetype = 'database';
+    } else if (format.indexOf('directory of spatial files')!==-1) {
+      store.sourcetype = 'shp_dir';
+    }
+    return store;
+  };
+
   this.tagStores = function(stores) {
     for (var i=0; i < stores.length; i++) {
-      var ds = stores[i];
-      var format = ds.format.toLowerCase();
-      if (format === 'shapefile') {
-        ds.sourcetype = 'shp';
-      } else if (ds.kind.toLowerCase() === 'raster') {
-        ds.sourcetype = 'raster';
-      } else if (ds.type.toLowerCase() === 'database') {
-        ds.sourcetype = 'database';
-      } else if (format.indexOf('directory of spatial files')!==-1) {
-        ds.sourcetype = 'shp_dir';
-      }
+      stores[i] = _this.tagStore(stores[i]);
     }
     return stores;
   };
@@ -366,14 +370,14 @@ angular.module('gsApp.workspaces.data', [
       });
   };
 
-  this.addStore = function(workspace, format, content) {
+  this.addEmptyStore = function(workspace, format, content) {
     return GeoServer.datastores.create(workspace, format, content)
     .then(
       function(result) {
         if (result.success) {
           var store = result.data;
           // tag for display
-          _this.addStore(_this.tagStores(store));
+          _this.addStore(_this.tagStore(store));
         } else {
           $rootScope.alerts = [{
             type: 'danger',
