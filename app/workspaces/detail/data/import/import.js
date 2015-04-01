@@ -52,10 +52,10 @@ angular.module('gsApp.workspaces.data.import', [
     }])
 .controller('DataImportCtrl', ['$scope', '$state', '$stateParams', 'GeoServer',
   '$modal', '$modalInstance', 'workspace', 'mapInfo', 'mapInfoModel',
-  '$rootScope', 'mapsListModel', 'storesListModel',
+  '$rootScope', 'mapsListModel', 'storesListModel', '_',
     function($scope, $state, $stateParams, GeoServer, $modal, $modalInstance,
         workspace, mapInfo, mapInfoModel, $rootScope, mapsListModel,
-        storesListModel) {
+        storesListModel, _) {
 
       var wsName = workspace;
       $scope.mapInfo = mapInfo;
@@ -165,12 +165,20 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.setConnectionParamsAndFormat = function(params, format) {
         $scope.connectParams = params;
         $scope.format = format;
+        $scope.setStoreConnectionContent();
       };
 
       $scope.content = null;
-      $scope.setStoreConnectionContent = function(format, content) {
-        $scope.content = format;
-        $scope.content.connection = content;
+      $scope.setStoreConnectionContent = function() {
+        var params = $scope.connectParams;
+        $scope.content = $scope.format;
+        $scope.content.connection = {};
+
+        for (var obj in params) {
+          if (params[obj].value) {
+            $scope.content.connection[obj] = params[obj].value.toString();
+          }
+        }
         delete $scope.content.params;
       };
 
@@ -376,7 +384,6 @@ angular.module('gsApp.workspaces.data.import', [
         });
 
         $scope.setConnectionParamsAndFormat($scope.params, $scope.format);
-        $scope.setStoreConnectionContent($scope.format, content);
 
         GeoServer.import.post($scope.workspace, content)
           .then(function(result) {
