@@ -246,7 +246,6 @@ angular.module('gsApp.olmap', [])
             }
           });
         }
-
       }
 
       OLMap.prototype.getNumLayers = function() {
@@ -269,6 +268,15 @@ angular.module('gsApp.olmap', [])
         layer.setVisible(visible);
         if (visible) {
           layer.getSource().updateParams({ LAYERS: layerNames });
+        }
+      };
+
+      OLMap.prototype.addBasemap = function() {
+        if (this.mapOpts.basemap == 'osm') {
+          var osmSource = new ol.source.OSM();
+          var osmLayer = new ol.layer.Tile({source: osmSource});
+          this.olMap.getLayers().insertAt(0, osmLayer);
+          // TODO - is this working?
         }
       };
 
@@ -334,6 +342,19 @@ angular.module('gsApp.olmap', [])
               }
             }
           });
+
+          $scope.$watch('mapOpts.basemap', function(newVal) {
+            if (newVal == null) {
+              return;
+            }
+            if (timer) {
+              $timeout.cancel(timer);
+            }
+            timer = $timeout(function() {
+              $scope.map.addBasemap();
+              timer = null;
+            }, 750);
+          }, true);
 
           $scope.$on('olmap-refresh', function() {
             $scope.map.refresh();

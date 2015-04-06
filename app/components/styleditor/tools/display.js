@@ -2,9 +2,12 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /* globals $ */
-angular.module('gsApp.styleditor.display', [])
+angular.module('gsApp.styleditor.display', [
+  'gsApp.styleditor.basemap'
+])
 .directive('styleEditorDisplay', ['$log', '$rootScope', 'AppEvent',
-    function($log, $rootScope, AppEvent) {
+  '$modal',
+    function($log, $rootScope, AppEvent, $modal) {
       return {
         restrict: 'EA',
         scope: {
@@ -79,6 +82,36 @@ angular.module('gsApp.styleditor.display', [])
 
           $scope.chooseControl = function(ctrl) {
             $scope.$emit(AppEvent.MapControls, ctrl);
+          };
+
+          $scope.basemapControls = {
+            'Add Basemap': 'add',
+            'Hide Basemap': 'hide'
+          };
+
+          $scope.addBasemap = function() {
+            $modal.open({
+              templateUrl:
+                '/components/styleditor/tools/basemap.modal.tpl.html',
+              controller: 'BasemapModalCtrl',
+              size: 'md',
+              resolve: {
+                workspace: function() {
+                  return $scope.$parent.workspace;
+                },
+                map: function() {
+                  return $scope.$parent.map;
+                }
+              }
+            });
+          };
+
+          $scope.chooseBasemapControl = function(ctrl) {
+            if (ctrl == 'add') {
+              $scope.addBasemap();
+            } else if (ctrl == 'hide') {
+              //TODO
+            }
           };
         }
       };

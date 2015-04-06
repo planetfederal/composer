@@ -1,0 +1,22 @@
+<div>
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-xs-6">
+                <h4 class="modal-title">Add Basemap</h4>
+            </div>
+            <div class="col-xs-6">
+              <button class="btn btn-default btn-sm cancel pull-right" ng-click="close()">Close</button>
+              <button id="copyIcon" class="btn btn-warning btn-sm pull-right" ng-click="add()"> Add </button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body basemap-modal">
+      <form>
+        <div class="form-group">
+          <label for="basemap_url">Basemap</label>
+          <input type="url" class="form-control input-sm" id="basemap_url" placeholder="OSM" ng-model="basemap.url" disabled>
+        </div>
+        <small>For display only. The basemap will not be published with the map.</small>
+      </form>
+    </div>
+</div>
