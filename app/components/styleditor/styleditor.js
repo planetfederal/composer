@@ -120,8 +120,9 @@ angular.module('gsApp.styleditor', [
               newVal.forEach(function(mark) {
 
                 var html = '<a class="icon-warning" ' +
-                  'popover="' + $sce.trustAsHtml(mark.problem) + '" ' +
-                  'popover-placement="left" ' +
+                  'popover="' +
+                  $sce.trustAsHtml($sanitize(mark.problem)) +
+                  '" ' + 'popover-placement="left" ' +
                   'popover-append-to-body="true"' +
                   'title="Click to toggle the error message on/off." ' +
                   'alt="Click to toggle the error message on/off."' +
