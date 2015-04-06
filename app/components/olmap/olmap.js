@@ -272,12 +272,14 @@ angular.module('gsApp.olmap', [])
       };
 
       OLMap.prototype.addBasemap = function() {
-        if (this.mapOpts.basemap == 'osm') {
-          var osmSource = new ol.source.OSM();
-          var osmLayer = new ol.layer.Tile({source: osmSource});
-          this.olMap.getLayers().insertAt(0, osmLayer);
-          // TODO - is this working?
-        }
+        var opengeoSource = new ol.source.TileWMS({
+          url: this.mapOpts.basemap,
+          serverType: 'geoserver',
+          params: {'LAYERS': 'nasa:bluemarble', 'TILED': true},
+          format: 'image/png'
+        });
+        var opengeoLayer = new ol.layer.Tile({source: opengeoSource});
+        this.olMap.getLayers().insertAt(0, opengeoLayer);
       };
 
       OLMap.prototype.refresh = function() {

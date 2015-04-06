@@ -12,7 +12,7 @@ angular.module('gsApp.styleditor.basemap', [])
       $scope.map = map;
 
       $scope.basemap = {
-        'url': 'osm'
+        'url': 'http://demo.opengeo.org:80/geoserver/nasa/wms'
       };
 
       $scope.close = function () {
