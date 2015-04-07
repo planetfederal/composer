@@ -25,7 +25,7 @@ var config = {
 };
 
 var sources = {
-  js: ['app/**/*.js', '!app/**/*.spec.js', '!app/loader.js'],
+  js: ['app/**/*.js', '!app/**/*.spec.js', '!app/loader.js', '!src/js/**/*.tests.js'],
   less: 'app/**/*.less',
   test: 'app/**/*.spec.js',
   tpl: 'app/**/*.tpl.html'
@@ -352,6 +352,24 @@ module.exports = function(grunt) {
           'build/index.html': ['app/index.html']
         }
       }
+    },
+    karma: {
+        unit: {
+            options: {
+                frameworks: ['jasmine'],
+                singleRun: true,
+                browsers: ['PhantomJS'],
+                files: [
+                    'bower_components/angular/angular.js',
+                    'bower_components/angular-mocks/angular-mocks.js',
+                    'app/**/*.js'
+                ],
+                exclude: [
+                    'app/loader.js',
+                    'app/**/*.spec.js'
+                ]
+            }
+        }
     }
   });
 
@@ -367,6 +385,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-connect-proxy');
   grunt.loadNpmTasks('grunt-ngmin');
   grunt.loadNpmTasks('grunt-html2js');
+  grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-text-replace');
   grunt.loadNpmTasks('grunt-protractor-runner');
   grunt.loadNpmTasks('grunt-asset-cachebuster');
@@ -379,5 +398,7 @@ module.exports = function(grunt) {
     ['configureProxies:server','connect', 'watch']);
   grunt.registerTask('test',
     ['configureProxies:server','connect','protractor', 'watch:test']);
+  grunt.registerTask('unit',
+    ['karma']);
   grunt.registerTask('dist', ['replace']);
 };
