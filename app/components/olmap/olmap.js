@@ -315,6 +315,14 @@ angular.module('gsApp.olmap', [])
               crossOriginKeyword: 'anonymous'
             }));
 
+          } else if (basemap.type == 'stamen') {
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.Stamen({
+              'projection': 'EPSG:3857',
+              crossOriginKeyword: 'anonymous',
+              layer: 'toner-lite'
+            }));
+
           } else if (basemap.type == 'mapbox') {
             if (!basemap.key && !basemap.mapid) {
               throw new Error('Map ID and Access Token required.' +

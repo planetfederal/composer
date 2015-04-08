@@ -20,6 +20,13 @@ angular.module('gsApp.styleditor.basemap', [])
           'isMercator': true
         },
         {
+          'type': 'stamen',
+          'display_type': 'Stamen (Toner Lite)',
+          'url_req': false,
+          'key_req': false,
+          'isMercator': true
+        },
+        {
           'type': 'bing',
           'display_type': 'Bing',
           'url_req': false,
