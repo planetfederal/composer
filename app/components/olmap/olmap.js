@@ -272,18 +272,110 @@ angular.module('gsApp.olmap', [])
       };
 
       OLMap.prototype.addBasemap = function() {
-        var opengeoSource = new ol.source.TileWMS({
-          url: this.mapOpts.basemap,
-          serverType: 'geoserver',
-          params: {'LAYERS': 'nasa:bluemarble', 'TILED': true},
-          format: 'image/png'
-        });
-        var opengeoLayer = new ol.layer.Tile({source: opengeoSource});
-        this.olMap.getLayers().insertAt(0, opengeoLayer);
+        var basemap = this.mapOpts.basemap;
+        var bLayer;
+
+        try {
+          if (basemap.type == 'tilewms') {
+            if (!basemap.url && !basemap.layer) {
+              throw new Error('URL and Layer required.' +
+                ' Please enter them.');
+            }
+            if (!basemap.serverType) {
+              throw new Error('ServerType is required. Please enter one.');
+            }
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.TileWMS({
+              url: basemap.url,
+              serverType: basemap.serverType,
+              params: {
+                'LAYERS': basemap.layer,
+                'VERSION': basemap.version,
+                'TILED': basemap.tiled
+              },
+              format: basemap.format,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'osm') {
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.OSM({
+              'projection': 'EPSG:3857',
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'mapbox') {
+            if (!basemap.key && !basemap.mapid) {
+              throw new Error('Map ID and Access Token required.' +
+                ' Please enter them.');
+            }
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.XYZ({
+              'projection': 'EPSG:3857',
+              url: basemap.url,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'bing') {
+            if (!basemap.key) {
+              throw new Error('Bing Maps requires an API key.' +
+                ' Please enter one.');
+            }
+            bLayer = new ol.layer.Tile({
+              group: 'background',
+              visible: false,
+              preload: Infinity
+            });
+            bLayer.setSource(new ol.source.BingMaps({
+              key: basemap.key,
+              'projection': 'EPSG:3857',
+              imagerySet: basemap.style,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'esri') {
+            if (!basemap.url) {
+              throw new Error('URL required. Please enter one.');
+            }
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.XYZ({
+              url: basemap.url,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          }
+        } catch(e) {
+          var error = e;
+          if (!error) {
+            error = new Error('Error loading basemap.');
+          }
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: error.message,
+            fadeout: true
+          }];
+          return;
+        }
+
+        if (bLayer) {
+          var mapLayers = this.olMap.getLayers();
+          // remove any current basemap then add requested one
+          if (mapLayers.getLength() > 1) {
+            mapLayers.removeAt(0);
+          }
+          mapLayers.insertAt(0, bLayer);
+        } else {
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Basemap not loaded',
+            fadeout: true
+          }];
+        }
       };
 
       OLMap.prototype.refresh = function() {
-        this.olMap.getLayers().getArray().forEach(function(l) {
+        this.olMap.getLayers().getArray().forEach(
+          function(l) {
             var source = l.getSource();
             if (source instanceof ol.source.ImageWMS) {
               source.updateParams({update:Math.random()});
@@ -355,7 +447,7 @@ angular.module('gsApp.olmap', [])
             timer = $timeout(function() {
               $scope.map.addBasemap();
               timer = null;
-            }, 750);
+            }, 500);
           }, true);
 
           $scope.$on('olmap-refresh', function() {
