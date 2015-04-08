@@ -326,6 +326,8 @@ angular.module('gsApp.maps.compose', [
       $scope.$watch('basemap', function(newVal) {
         if (newVal != null && $scope.mapOpts) {
           $scope.mapOpts.basemap = newVal;
+        } else if (newVal == null && $scope.mapOpts) {
+          $scope.mapOpts.basemap = null;
         }
       });
 

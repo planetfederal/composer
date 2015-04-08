@@ -271,9 +271,20 @@ angular.module('gsApp.olmap', [])
         }
       };
 
+      OLMap.prototype.hideBasemap = function() {
+        // if null, remove any existing basemap
+        if (this.mapOpts.basemap == null) {
+          var mapLayers = this.olMap.getLayers();
+          if (mapLayers.getLength() > 1) {
+            mapLayers.removeAt(0);
+          }
+        }
+      };
+
       OLMap.prototype.addBasemap = function() {
         var basemap = this.mapOpts.basemap;
         var bLayer;
+        var mapLayers = this.olMap.getLayers();
 
         try {
           if (basemap.type == 'tilewms') {
@@ -358,8 +369,8 @@ angular.module('gsApp.olmap', [])
         }
 
         if (bLayer) {
-          var mapLayers = this.olMap.getLayers();
-          // remove any current basemap then add requested one
+          // if creating a layer successful then remove
+          // any current basemap then add requested one
           if (mapLayers.getLength() > 1) {
             mapLayers.removeAt(0);
           }
@@ -438,7 +449,8 @@ angular.module('gsApp.olmap', [])
           });
 
           $scope.$watch('mapOpts.basemap', function(newVal) {
-            if (newVal == null) {
+            if (newVal == null && $scope.map) {
+              $scope.map.hideBasemap();
               return;
             }
             if (timer) {

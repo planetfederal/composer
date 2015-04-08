@@ -106,11 +106,15 @@ angular.module('gsApp.styleditor.display', [
             });
           };
 
+          $scope.hideBasemap = function() {
+            $scope.$parent.basemap = null;
+          };
+
           $scope.chooseBasemapControl = function(ctrl) {
             if (ctrl == 'add') {
               $scope.addBasemap();
             } else if (ctrl == 'hide') {
-              //TODO
+              $scope.hideBasemap();
             }
           };
         }

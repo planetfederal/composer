@@ -80,5 +80,6 @@ angular.module('gsApp.styleditor.basemap', [])
         $scope.$parent.basemap = $scope.basemap;
         $scope.close();
       };
+
     }]);
 
