@@ -49,21 +49,23 @@ angular.module('gsApp.workspaces.maps', [
 
       function thumbnailize() {
         // load all map thumbnails & metadata
+        var retina = $window.devicePixelRatio > 1;
+
         for (var i=0; i < $scope.maps.length; i++) {
           var map = $scope.maps[i];
           var layers = '';
           $scope.maps[i].workspace = $scope.workspace;
-          $scope.maps[i].layergroupname = $scope.workspace + ':' + map.name;
           var bbox = $scope.maps[i].bboxString = '&bbox=' + map.bbox.west +
            ',' + map.bbox.south + ',' + map.bbox.east + ',' +
            map.bbox.north;
           var url = GeoServer.map.thumbnail.get(map.workspace,
-            map.layergroupname, $scope.mapThumbsWidth,
+            map.name, $scope.mapThumbsWidth,
               $scope.mapThumbsHeight);
-          var srs = '&srs=' + map.proj.srs;
+          if (retina) {
+            url = url + '?hiRes=true';
+          }
 
-          $scope.thumbnails[map.name] = url + bbox +
-            '&format=image/png' + srs;
+          $scope.thumbnails[map.name] = url;
         }
       }
 

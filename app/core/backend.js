@@ -375,14 +375,8 @@ angular.module('gsApp.core.backend',[])
 
           // map.thumbnail
           thumbnail: {
-            get: function(workspace, layers, width, height) {
-              var url = gsRoot + '/wms/reflect?&layers=' + layers;
-              if (width) {
-                url = url + '&width=' + width;
-              }
-              if (height) {
-                url = url + '&height=' + height;
-              }
+            get: function(workspace, map, width, height) {
+              var url = apiRoot+'/thumbnails/maps/'+workspace+'/'+map;
               return url;
             }
           },
