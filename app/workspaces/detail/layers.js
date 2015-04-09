@@ -339,10 +339,21 @@ angular.module('gsApp.workspaces.layers', [
       };
 
     }])
-.service('layersListModel', function(GeoServer, _, $rootScope) {
+.service('layersListModel', function(GeoServer, _, $rootScope,
+  $window) {
   var _this = this;
   this.layers = null;
   this.totalServerItems = 0;
+
+  this.thumbnailize = function(layer) {
+    var retina = $window.devicePixelRatio > 1;
+    var url = GeoServer.layers.thumbnail.get(layer.workspace,
+      layer.name);
+    if (retina) {
+      url = url + '?hiRes=true';
+    }
+    layer.thumbnail = url;
+  };
 
   this.getTotalServerItems = function() {
     return _this.totalServerItems;
@@ -382,6 +393,7 @@ angular.module('gsApp.workspaces.layers', [
         if (result.success) {
           var layers = _.map(result.data.layers,
             function(layer) {
+              _this.thumbnailize(layer);
               if (layer.modified) {  // convert time strings to Dates
                 return _.assign(layer, {'modified': {
                   'timestamp': new Date(layer.modified.timestamp),
@@ -416,6 +428,7 @@ angular.module('gsApp.workspaces.layers', [
         if (result.success) {
           var layers = _.map(result.data.layers,
             function(layer) {
+              _this.thumbnailize(layer);
               if (layer.modified) {  // convert time strings to Dates
                 return _.assign(layer, {'modified': {
                   'timestamp': new Date(layer.modified.timestamp),

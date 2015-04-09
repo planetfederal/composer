@@ -53,18 +53,12 @@ angular.module('gsApp.workspaces.maps', [
 
         for (var i=0; i < $scope.maps.length; i++) {
           var map = $scope.maps[i];
-          var layers = '';
           $scope.maps[i].workspace = $scope.workspace;
-          var bbox = $scope.maps[i].bboxString = '&bbox=' + map.bbox.west +
-           ',' + map.bbox.south + ',' + map.bbox.east + ',' +
-           map.bbox.north;
           var url = GeoServer.map.thumbnail.get(map.workspace,
-            map.name, $scope.mapThumbsWidth,
-              $scope.mapThumbsHeight);
+            map.name);
           if (retina) {
             url = url + '?hiRes=true';
           }
-
           $scope.thumbnails[map.name] = url;
         }
       }

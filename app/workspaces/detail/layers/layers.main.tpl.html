@@ -54,15 +54,17 @@
       <div class="col-sm-4" ng-repeat="layer in row">
         <div class="layer-summary-detail" ng-style="{'outline': layer.selected ? '4px #28728D solid' : ''}">
           <div class="layer-info-section" ng-click="layer.selected=!layer.selected; toggleSelected(layer);">
-            <div class="layer-icon">
-              <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString', 'icon-stop-2': layer.geometry=='MultiPolygon', 'icon-image-2': layer.geometry=='raster', 'icon-diamond': geometry=='Geometry'}"></i>
-            </div>
+            <img ng-src="{{ layer.thumbnail }}" class="layerthumb" title="Layer Preview" />
             <div class="layer-detail">
               <div pop="{{ layer.name }}" pop-show="{{ layer.layerName }}" pop-placement="bottom" ng-click="closeLayerNPopovers(layer);"><strong>{{ layer.name | truncate:false:28:true }}</strong></div>
               <div class="layer-title" ng-if="layer.title" pop="{{ layer.title }}" pop-show="{{ layer.layerTitle }}" pop-placement="bottom" ng-click="closeLayerTPopovers(layer);">{{ layer.title | truncate:false:28:true }}</div>
             </div>
             <div class="layer-detail-inside-footer">
-            <div class="layer-attr"><a ng-click="showAttrs(layer.name, layer.schema.attributes)"><span class="attr-num">{{ layer.schema.attributes.length }}</span> attributes</a></div>
+              <div class="layer-icon">
+                <i class='icon-for-layer' ng-class="{'icon-location': layer.geometry=='Point', 'icon-share': layer.geometry=='MultiLineString' || layer.geometry=='LineString', 'icon-stop-2': layer.geometry=='MultiPolygon', 'icon-image-2': layer.geometry=='raster', 'icon-diamond': layer.geometry=='Geometry'}"></i>
+                <span class="text-for-icon">{{ layer.geometry.toLowerCase() }}</span>
+              </div>
+              <div class="layer-attr"><a ng-click="showAttrs(layer.name, layer.schema.attributes)"><span class="attr-num">{{ layer.schema.attributes.length }}</span> attributes</a></div>
               <div class="layer-mod"><i class="icon-clock"></i> Modified<strong><span ng-if="layer.modified.pretty"> {{ layer.modified.pretty }}</span> <span ng-if="!layer.modified">: N/A</span></strong></div>
               <!-- <p><a href="" ng-click="newOLWindow(map)">View in OpenLayers</a></p> -->
             </div>

@@ -213,7 +213,13 @@ angular.module('gsApp.core.backend',[])
               method: 'GET',
               url: apiRoot+'/layers/recent'
             });
-          }
+          },
+          thumbnail: {
+            get: function(workspace, layer, width, height) {
+              var url = apiRoot+'/thumbnails/layers/'+workspace+'/'+layer;
+              return url;
+            }
+          },
         },
 
         layer: {
@@ -339,6 +345,24 @@ angular.module('gsApp.core.backend',[])
               data: data
             });
           },
+          // map.thumbnail
+          thumbnail: {
+            get: function(workspace, map, width, height) {
+              var url = apiRoot+'/thumbnails/maps/'+workspace+'/'+map;
+              return url;
+            }
+          },
+
+          // map.openlayers
+          // return an openlayers map URL via wms reflector
+          openlayers: {
+            get: function(workspace, layergroup, width, height) {
+              var url = gsRoot + '/' + workspace +
+               '/wms/reflect?layers=' + layergroup + '&width=' + width +
+               '&height=' + height + '&format=application/openlayers';
+              return url;
+            }
+          },
 
           /* map.layers - For modifying layers in a specific map */
           layers: {
@@ -370,25 +394,6 @@ angular.module('gsApp.core.backend',[])
                 url: apiRoot+'/maps/'+workspace+'/'+map+'/layers',
                 data: JSON.stringify(layers)
               });
-            }
-          },
-
-          // map.thumbnail
-          thumbnail: {
-            get: function(workspace, map, width, height) {
-              var url = apiRoot+'/thumbnails/maps/'+workspace+'/'+map;
-              return url;
-            }
-          },
-
-          // map.openlayers
-          // return an openlayers map URL via wms reflector
-          openlayers: {
-            get: function(workspace, layergroup, width, height) {
-              var url = gsRoot + '/' + workspace +
-               '/wms/reflect?layers=' + layergroup + '&width=' + width +
-               '&height=' + height + '&format=application/openlayers';
-              return url;
             }
           },
         },
