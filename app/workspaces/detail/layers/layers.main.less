@@ -172,8 +172,9 @@
         img.layerthumb {
           display: inline-block;
           .box-shadow(2px 2px 3px @gray);
-          margin: 10px 10px 5px 10px;
+          margin: 10px;
           background-color: @white;
+          vertical-align: top;
         }
         img:hover {
           outline: none;
@@ -185,60 +186,60 @@
         max-width: 100%;
         text-overflow: ellipsis;
         color: @dark-gray;
+        margin-top: 8px;
 
         .layer-title {
           font-size: 11px;
         }
-      }
-      .layer-detail-inside-footer {
-        padding: 5px 10px;
-        display: block;
-        text-align: center;
 
-        .layer-icon {
+        .layer-detail-inside-footer {
+          margin-top: 12px;
           display: inline-block;
-          font-size: 11px;
-          margin-right: 10px;
+          font-size: 9px;
 
-          .icon-for-layer {
+          .layer-icon {
             display: inline-block;
-            color: @gray;
-            font-size: 14px;
-            width: 14px;
-            height: 14px;
-            margin-right: 3px;
-            vertical-align: bottom;
-          }
-          .text-for-icon {
-            vertical-align: top;
-          }
-        }
+            margin-bottom: 5px;
 
-        .layer-attr {
-          font-size: 11px;
-          margin-bottom: 5px;
-          margin-right: 10px;
-          display: inline-block;
-
-          .attr-num {
-            padding: 0 6px 1px;
-            .border-radius(2px, 2px, 2px, 2px);
-            background-color: @md-lt-gray;
-            color: @white;
-            font-weight: bold;
+            .icon-for-layer {
+              display: inline-block;
+              color: @md-lt-gray;
+              font-size: 14px;
+              width: 14px;
+              height: 14px;
+              vertical-align: bottom;
+            }
+            .text-for-icon {
+              margin-left: 3px;
+            }
           }
-          a {
-            color: @black;
-          }
-        }
 
-        .layer-mod {
-          font-size: 11px;
-          margin-bottom: 5px;
-          display: inline-block;
-          color: @dark-gray;
+          .layer-attr {
+            margin-bottom: 7px;
+            margin-left: 10px;
+            display: inline-block;
+
+            .attr-num {
+              padding: 0 6px 1px;
+              .border-radius(2px, 2px, 2px, 2px);
+              background-color: @md-lt-gray;
+              color: @white;
+              font-weight: bold;
+            }
+            a {
+              color: @black;
+            }
+          }
+
+          .layer-mod {
+            margin-bottom: 5px;
+            margin-left: 2px;
+            display: block;
+            color: @dark-gray;
+          }
         }
       }
+
       .layer-detail-outside-footer {
         outline: 0;
         border-top: 1px solid @white;
