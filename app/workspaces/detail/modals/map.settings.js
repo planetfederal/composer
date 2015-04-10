@@ -31,26 +31,21 @@ angular.module('gsApp.workspaces.maps.settings', [])
           if (originalMap.title !== $scope.map.title) {
             patch.title = $scope.map.title;
           }
-          if (originalMap.proj.srs !== $scope.map.proj.srs) {
-            patch.proj = $scope.map.proj.srs;
-          }
+
           if (originalMap.bbox !== $scope.map.bbox) {
+            patch.proj = $scope.map.proj.srs;
             patch.bbox.south = $scope.map.bbox.south;
             patch.bbox.west = $scope.map.bbox.west;
             patch.bbox.north = $scope.map.bbox.north;
             patch.bbox.east = $scope.map.bbox.east;
           }
-          if (originalMap.center !== $scope.map.center) {
-            patch.bbox.center[0] = $scope.map.center[0];
-            patch.bbox.center[1] = $scope.map.center[1];
-          }
+
           if (originalMap.description !== $scope.map.description) {
             patch.description = $scope.map.description;
           }
 
           GeoServer.map.update($scope.workspace, originalMap.name, patch).then(
             function(result) {
-              debugger;
               if (result.success) {
                 $scope.form.mapSettings.saved = true;
                 $scope.form.mapSettings.$setPristine();
