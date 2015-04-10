@@ -39,7 +39,7 @@
         </progressbar>
       </div>
     </div>
-    <div class="row">
+    <div class="row" ng-show="existingStores.length > 0">
       <div class="col-sm-12" style="margin-bottom:10px;">
         <input type="checkbox" id="uploadToStore" ng-model="addToStore" /> Add to Existing Store
         <div style="display:inline-block; margin-left: 10px;" ng-show="addToStore">

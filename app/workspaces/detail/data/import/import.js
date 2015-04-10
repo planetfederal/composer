@@ -52,9 +52,10 @@ angular.module('gsApp.workspaces.data.import', [
     }])
 .controller('DataImportCtrl', ['$scope', '$state', '$stateParams', 'GeoServer',
   '$modal', '$modalInstance', 'workspace', 'mapInfo', 'mapInfoModel',
-  '$rootScope', 'mapsListModel',
+  '$rootScope', 'mapsListModel', 'storesListModel', '_',
     function($scope, $state, $stateParams, GeoServer, $modal, $modalInstance,
-        workspace, mapInfo, mapInfoModel, $rootScope, mapsListModel) {
+        workspace, mapInfo, mapInfoModel, $rootScope, mapsListModel,
+        storesListModel, _) {
 
       var wsName = workspace;
       $scope.mapInfo = mapInfo;
@@ -147,12 +148,40 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.importResult = null;
       $scope.setImportResult = function(result) {
         $scope.importResult = result;
+        if (result) {
+          $scope.importResult.total = result.failed.length +
+            result.ignored.length + result.pending.length +
+            result.imported.length + result.preimport.length;
+        }
+      };
+
+      $scope.addStore = function() {
+        storesListModel.addEmptyStore(wsName, $scope.format.name,
+          $scope.content);
+        $scope.close();
       };
 
       $scope.connectParams = null;
       $scope.setConnectionParamsAndFormat = function(params, format) {
         $scope.connectParams = params;
         $scope.format = format;
+        $scope.setStoreConnectionContent();
+      };
+
+      // for adding store after attempting import from empty store
+      $scope.content = null;
+      $scope.setStoreConnectionContent = function() {
+        var params = $scope.connectParams;
+        $scope.content = $scope.format;
+        $scope.content.connection = {};
+        for (var obj in params) {
+          if (params[obj].value) {
+            $scope.content.connection[obj] = params[obj].value.toString();
+            // geoserver doesn't recognize without toString + need to remove
+            // any undefined optional parameters
+          }
+        }
+        delete $scope.content.params;
       };
 
       $scope.goToCreateNewMap = function(workspace, importInfo) {
