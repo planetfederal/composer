@@ -2,8 +2,10 @@
 
 @import "../../../variables.less";
 
+@display-menu-width: 90px;
+
 ul.display-menu {
-  min-width: 86px;
+  min-width: @display-menu-width;
   font-size: 13px;
 
   li:hover {
@@ -12,10 +14,12 @@ ul.display-menu {
 
   .dropdown-submenu {
     padding: 0 0 4px 4px;
+    clear: both;
 
     ul {
-      min-width: 84px;
+      min-width: @display-menu-width - 6;
       font-size: 13px;
+      border-radius: 0px;
     }
 
     ul > li.active > a {

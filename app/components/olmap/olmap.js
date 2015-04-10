@@ -246,7 +246,6 @@ angular.module('gsApp.olmap', [])
             }
           });
         }
-
       }
 
       OLMap.prototype.getNumLayers = function() {
@@ -272,8 +271,130 @@ angular.module('gsApp.olmap', [])
         }
       };
 
+      OLMap.prototype.hideBasemap = function() {
+        // if null, remove any existing basemap
+        if (this.mapOpts.basemap == null) {
+          var mapLayers = this.olMap.getLayers();
+          if (mapLayers.getLength() > 1) {
+            mapLayers.removeAt(0);
+          }
+        }
+      };
+
+      OLMap.prototype.addBasemap = function() {
+        var basemap = this.mapOpts.basemap;
+        var bLayer;
+        var mapLayers = this.olMap.getLayers();
+
+        try {
+          if (basemap.type == 'tilewms') {
+            if (!basemap.url && !basemap.layer) {
+              throw new Error('URL and Layer required.' +
+                ' Please enter them.');
+            }
+            if (!basemap.serverType) {
+              throw new Error('ServerType is required. Please enter one.');
+            }
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.TileWMS({
+              url: basemap.url,
+              serverType: basemap.serverType,
+              params: {
+                'LAYERS': basemap.layer,
+                'VERSION': basemap.version,
+                'TILED': basemap.tiled
+              },
+              format: basemap.format,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'osm') {
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.OSM({
+              'projection': 'EPSG:3857',
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'stamen') {
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.Stamen({
+              'projection': 'EPSG:3857',
+              crossOriginKeyword: 'anonymous',
+              layer: 'toner-lite'
+            }));
+
+          } else if (basemap.type == 'mapbox') {
+            if (!basemap.key && !basemap.mapid) {
+              throw new Error('Map ID and Access Token required.' +
+                ' Please enter them.');
+            }
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.XYZ({
+              'projection': 'EPSG:3857',
+              url: basemap.url,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'bing') {
+            if (!basemap.key) {
+              throw new Error('Bing Maps requires an API key.' +
+                ' Please enter one.');
+            }
+            bLayer = new ol.layer.Tile({
+              group: 'background',
+              visible: false,
+              preload: Infinity
+            });
+            bLayer.setSource(new ol.source.BingMaps({
+              key: basemap.key,
+              'projection': 'EPSG:3857',
+              imagerySet: basemap.style,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          } else if (basemap.type == 'esri') {
+            if (!basemap.url) {
+              throw new Error('URL required. Please enter one.');
+            }
+            bLayer = new ol.layer.Tile({group: 'background'});
+            bLayer.setSource(new ol.source.XYZ({
+              url: basemap.url,
+              crossOriginKeyword: 'anonymous'
+            }));
+
+          }
+        } catch(e) {
+          var error = e;
+          if (!error) {
+            error = new Error('Error loading basemap.');
+          }
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: error.message,
+            fadeout: true
+          }];
+          return;
+        }
+
+        if (bLayer) {
+          // if creating a layer successful then remove
+          // any current basemap then add requested one
+          if (mapLayers.getLength() > 1) {
+            mapLayers.removeAt(0);
+          }
+          mapLayers.insertAt(0, bLayer);
+        } else {
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Basemap not loaded',
+            fadeout: true
+          }];
+        }
+      };
+
       OLMap.prototype.refresh = function() {
-        this.olMap.getLayers().getArray().forEach(function(l) {
+        this.olMap.getLayers().getArray().forEach(
+          function(l) {
             var source = l.getSource();
             if (source instanceof ol.source.ImageWMS) {
               source.updateParams({update:Math.random()});
@@ -334,6 +455,20 @@ angular.module('gsApp.olmap', [])
               }
             }
           });
+
+          $scope.$watch('mapOpts.basemap', function(newVal) {
+            if (newVal == null && $scope.map) {
+              $scope.map.hideBasemap();
+              return;
+            }
+            if (timer) {
+              $timeout.cancel(timer);
+            }
+            timer = $timeout(function() {
+              $scope.map.addBasemap();
+              timer = null;
+            }, 500);
+          }, true);
 
           $scope.$on('olmap-refresh', function() {
             $scope.map.refresh();

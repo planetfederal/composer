@@ -208,6 +208,7 @@ angular.module('gsApp.maps.compose', [
           proj: layer.proj
         };
       };
+
       $scope.removeLayer = function(layer, index) {
         var modalInstance = $modal.open({
           templateUrl: '/workspaces/detail/modals/map.layerremove.tpl.html',
@@ -319,6 +320,14 @@ angular.module('gsApp.maps.compose', [
 
             $rootScope.editor.clearGutter('markers');
           }, 250);
+        }
+      });
+
+      $scope.$watch('basemap', function(newVal) {
+        if (newVal != null && $scope.mapOpts) {
+          $scope.mapOpts.basemap = newVal;
+        } else if (newVal == null && $scope.mapOpts) {
+          $scope.mapOpts.basemap = null;
         }
       });
 

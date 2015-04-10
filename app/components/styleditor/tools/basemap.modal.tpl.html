@@ -1,0 +1,104 @@
+<div>
+    <div class="modal-header">
+        <div class="row">
+            <div class="col-xs-6">
+                <h4 class="modal-title">Add Basemap</h4>
+            </div>
+            <div class="col-xs-6">
+              <button class="btn btn-default btn-sm cancel pull-right" ng-click="close()">Close</button>
+              <button id="copyIcon" class="btn btn-warning btn-sm pull-right" ng-click="add()"> Add </button>
+            </div>
+        </div>
+    </div>
+    <div class="modal-body basemap-modal">
+      <div>
+        <form>
+          <div class="form-group">
+            <label for="basemap_url">Basemap Source:</label>
+            <select ng-model="basemap" ng-options="basemap.display_type for basemap in basemapOptions" ng-init="basemap=basemapOptions[0]">
+            </select>
+          </div>
+          <div class="form-group" ng-show="basemap.url_req">
+            <div class="input-group">
+              <span class="input-group-addon input-sm">URL</span>
+              <input type="text" class="form-control input-sm" ng-model="basemap.url">
+            </div>
+          </div>
+          <!-- MAPBOX-SPECIFIC -->
+          <div class="form-group" ng-show="basemap.type=='mapbox'">
+            <div class="input-group">
+              <span class="input-group-addon input-sm">MAP ID</span>
+              <input type="text" class="form-control input-sm" ng-model="basemap.mapid">
+            </div>
+          </div>
+          <div class="form-group" ng-show="basemap.key_req">
+            <div class="input-group">
+              <span class="input-group-addon input-sm">KEY</span>
+              <input type="text" class="form-control input-sm" ng-model="basemap.key">
+            </div>
+          </div>
+          <div class="form-group" ng-show="basemap.type=='mapbox'">
+            <p><small>Generated:</small></p>
+            <div class="input-group">
+              <span class="input-group-addon input-sm">URL</span>
+              <input type="text" class="form-control input-sm" ng-model="basemap.url">
+            </div>
+          </div>
+          <!-- ESRI-SPECIFIC -->
+          <div class="form-group" ng-show="basemap.type=='esri'">
+            <p><small>E.g. http://services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}</small></p>
+          </div>
+          <!-- BING-SPECIFIC -->
+          <div class="form-group" ng-show="basemap.styles">
+            <div class="input-group">
+              <span class="input-sm">STYLE:</span>
+              <select ng-model="basemap.style" ng-options="style for style in basemap.styles"></select>
+            </div>
+          </div>
+           <!-- TILEWMS-SPECIFIC -->
+          <div ng-show="basemap.type=='tilewms'">
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-addon input-sm">LAYER</span>
+                <input type="text" class="form-control input-sm" ng-model="basemap.layer">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-addon input-sm">SERVERTYPE</span>
+                <input type="text" class="form-control input-sm" ng-model="basemap.serverType">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-addon input-sm">TILED</span>
+                <input type="text" class="form-control input-sm" ng-model="basemap.tiled">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-addon input-sm">FORMAT</span>
+                <input type="text" class="form-control input-sm" ng-model="basemap.format">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="input-group">
+                <span class="input-group-addon input-sm">VERSION</span>
+                <input type="text" class="form-control input-sm" ng-model="basemap.version">
+              </div>
+            </div>
+          </div>
+        </form>
+        <hr/>
+        <div>
+          <small>
+            NOTE:
+            <ul>
+              <li ng-show="basemap.isMercator">Basemap may not display properly unless your map is in projection EPSG:3857.</li>
+              <li ng-show="!basemap.isMercator">Basemap may not be visible unless in the same projection as your map or layer.</li>
+            </ul>
+          </small>
+        </div>
+      </div>
+    </div>
+</div>

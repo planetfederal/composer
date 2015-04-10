@@ -33,11 +33,20 @@
       </ul>
     </li>
     <li class="dropdown-submenu">
-      Map Controls
+      Controls
       <ul class="dropdown-menu">
         <li ng-repeat="(mc,v) in mapcontrols">
           <a href ng-click="chooseControl(v)">
             {{mc}}</a>
+        </li>
+      </ul>
+    </li>
+    <li class="dropdown-submenu">
+      Basemap
+      <ul class="dropdown-menu">
+        <li ng-repeat="(bc,v) in basemapControls">
+          <a href ng-click="chooseBasemapControl(v)">
+            {{bc}}</a>
         </li>
       </ul>
     </li>
