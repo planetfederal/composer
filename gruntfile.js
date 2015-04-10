@@ -17,7 +17,7 @@ String.prototype.endsWith = function(s) {
 
 function loadProxyConfig() {
   return fs.existsSync('./proxy.json') ? require('./proxy.json') :
-    {host: 'horizon.boundlessgeo.com', port: 80};
+    {host: 'localhost', port: 8080};
 }
 
 var config = {
