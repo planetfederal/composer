@@ -10,6 +10,13 @@ angular.module('gsApp.styleditor.basemap', [])
 
       $scope.workspace = workspace;
       $scope.map = map;
+      $scope.map.isMercator = false;
+
+      if (map.proj.srs.indexOf('900913') > -1) {
+        $scope.map.isMercator = true;
+      } else if (map.proj.srs.indexOf('3857') > -1) {
+        $scope.map.isMercator = true;
+      }
 
       $scope.basemapOptions = [
         {

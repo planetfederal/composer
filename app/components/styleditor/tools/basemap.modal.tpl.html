@@ -94,8 +94,8 @@
           <small>
             NOTE:
             <ul>
-              <li ng-show="basemap.isMercator">Basemap may not display properly unless your map is in projection EPSG:3857.</li>
-              <li ng-show="!basemap.isMercator">Basemap may not be visible unless in the same projection as your map or layer.</li>
+              <li ng-show="basemap.isMercator && !map.isMercator">Basemap may not display correctly unless your map or layer's projection is changed to EPSG:3857.</li>
+              <li ng-show="!basemap.isMercator">Basemap may not display correctly unless it is in your map or layer's projection: {{map.proj.srs}}.</li>
             </ul>
           </small>
         </div>
