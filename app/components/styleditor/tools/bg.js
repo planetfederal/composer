@@ -39,7 +39,7 @@ angular.module('gsApp.styleditor.bg', [])
 
           $scope.chooseBgcolor = function(color) {
             $scope.bgcolor = $scope.bgcolors[color];
-            $rootScope.$broadcast(AppEvent.MapBackground, $scope.bgcolor);
+            $rootScope.$broadcast(AppEvent.EditorBackground, $scope.bgcolor);
           };
         }
       };

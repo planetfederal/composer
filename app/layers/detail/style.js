@@ -154,7 +154,7 @@ angular.module('gsApp.layers.style', [
         }
       });
 
-      $rootScope.$on(AppEvent.MapBackground, function(scope, color) {
+      $rootScope.$on(AppEvent.EditorBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
       });
 
