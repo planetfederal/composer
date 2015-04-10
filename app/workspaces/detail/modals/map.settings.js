@@ -50,7 +50,6 @@ angular.module('gsApp.workspaces.maps.settings', [])
 
           GeoServer.map.update($scope.workspace, originalMap.name, patch).then(
             function(result) {
-              debugger;
               if (result.success) {
                 $scope.form.mapSettings.saved = true;
                 $scope.form.mapSettings.$setPristine();
