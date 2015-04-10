@@ -266,19 +266,13 @@ angular.module('gsApp.workspaces.maps', [
           var _new = maps.new;
           var _original = maps.original;
           if (!_original || _new.name !== _original.name) {
+            var retina = $window.devicePixelRatio > 1;
             var url = GeoServer.map.thumbnail.get(_new.workspace,
-              _new.layergroupname, $scope.mapThumbsWidth,
-              $scope.mapThumbsHeight);
-            var bbox;
-            if (_new.bboxString) {
-              bbox = _new.bboxString;
-            } else {
-              bbox = '&bbox=' + _new.bbox.west + ',' + _new.bbox.south +
-                ',' + _new.bbox.east + ',' + _new.bbox.north;
+              _new.name);
+            if (retina) {
+              url = url + '?hiRes=true';
             }
-
-            $scope.thumbnails[_new.name] = url + bbox +
-              '&format=image/png' + '&srs=' + _new.proj.srs;
+            $scope.thumbnails[_new.name] = url;
 
             // remove old thumbnail
             if (_original) {

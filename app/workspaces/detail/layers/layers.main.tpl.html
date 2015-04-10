@@ -54,7 +54,7 @@
       <div class="col-sm-4" ng-repeat="layer in row">
         <div class="layer-summary-detail" ng-style="{'outline': layer.selected ? '4px #28728D solid' : ''}">
           <div class="layer-info-section" ng-click="layer.selected=!layer.selected; toggleSelected(layer);">
-            <img ng-src="{{ layer.thumbnail }}" class="layerthumb" title="Layer Preview" />
+            <img ng-src="{{ layer.thumbnail }}" class="layerthumb" title="Layer Preview" width="{{lyrThumbsWidth}}" height="{{lyrThumbsHeight}}"/>
             <div class="layer-detail">
               <div pop="{{ layer.name }}" pop-show="{{ layer.layerName }}" pop-placement="bottom" ng-click="closeLayerNPopovers(layer);"><strong>{{ layer.name | truncate:false:28:true }}</strong></div>
               <div class="layer-title" ng-if="layer.title" pop="{{ layer.title }}" pop-show="{{ layer.layerTitle }}" pop-placement="bottom" ng-click="closeLayerTPopovers(layer);">{{ layer.title | truncate:false:28:true }}</div>

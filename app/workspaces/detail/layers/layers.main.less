@@ -166,8 +166,19 @@
       .layer-info-section {
         background-color: @white;
         &:hover {
-          background-color: @almost-white;
+          background-color: @very-lt-gray;
         }
+
+        img.layerthumb {
+          display: inline-block;
+          .box-shadow(2px 2px 3px @gray);
+          margin: 10px 10px 5px 10px;
+          background-color: @white;
+        }
+        img:hover {
+          outline: none;
+        }
+
       }
       .layer-detail {
         display: inline-block;
@@ -187,7 +198,7 @@
         .layer-icon {
           display: inline-block;
           font-size: 11px;
-          margin-right: 12px;
+          margin-right: 10px;
 
           .icon-for-layer {
             display: inline-block;
@@ -196,6 +207,7 @@
             width: 14px;
             height: 14px;
             margin-right: 3px;
+            vertical-align: bottom;
           }
           .text-for-icon {
             vertical-align: top;

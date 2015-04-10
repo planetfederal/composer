@@ -39,6 +39,9 @@ angular.module('gsApp.workspaces.layers', [
         }
       }, 300);
 
+      $scope.lyrThumbsWidth = 75;
+      $scope.lyrThumbsHeight = 75;
+
       $scope.currentPage = 1;
       $scope.pagingOptions = {
         pageSizes: [25, 50, 100],
