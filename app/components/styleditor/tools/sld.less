@@ -1,0 +1,36 @@
+/* sld.less */
+
+@import "../../../variables.less";
+
+.sld-modal {
+
+  .top-buttons {
+    margin-top: 8px;
+  }
+
+  button.cancel {
+    margin-right: 10px;
+  }
+
+  .sld-view {
+    padding-bottom: 20px;
+    text-align: left;
+    margin-left: auto;
+    margin-right: auto;
+
+    .CodeMirror {
+      height: 70%;
+      font-family: @ff-code;
+      font-size: 14px;
+      background-image: url(images/editor-background.png);
+    }
+
+    .CodeMirror-gutter.markers {
+      width: 12px;
+    }
+  }
+
+  .modal-body {
+    margin-bottom: 20px;
+  }
+}

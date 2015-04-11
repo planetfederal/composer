@@ -12,6 +12,7 @@ angular.module('gsApp.core.backend',[])
       var gsRoot = '/geoserver';
       var apiRoot = gsRoot + '/app/api';
       var importRoot = apiRoot + '/imports/';
+      var restRoot = gsRoot+ '/rest/';
 
       /*
        * simple wrapper around $http to set up defer/promise, etc...
@@ -269,6 +270,17 @@ angular.module('gsApp.core.backend',[])
               data: content,
               headers: {
                 'Content-Type': 'application/vnd.geoserver.ysld+yaml'
+              }
+            });
+          },
+          getSLD: function(workspace, layer) {
+            return http({
+              method: 'GET',
+              url: restRoot+'workspaces/'+workspace+'/styles/'+layer+'.sld',
+              data: '',
+              dataType: 'xml',
+              headers: {
+                'Accept': 'application/xml'
               }
             });
           }

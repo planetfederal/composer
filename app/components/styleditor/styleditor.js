@@ -11,7 +11,8 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.color',
   'gsApp.styleditor.icons',
   'gsApp.styleditor.attributes',
-  'gsApp.styleditor.display'
+  'gsApp.styleditor.display',
+  'gsApp.styleditor.sld'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
     'YsldHinter', '$rootScope', '$sce', '$document',

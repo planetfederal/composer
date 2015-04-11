@@ -17,7 +17,7 @@ String.prototype.endsWith = function(s) {
 
 function loadProxyConfig() {
   return fs.existsSync('./proxy.json') ? require('./proxy.json') :
-    {host: 'localhost', port: 8080};
+    {host: 'horizon.boundlessgeo.com', port: 80};
 }
 
 var config = {
@@ -43,6 +43,7 @@ var deps = {
     'zeroclipboard/dist/ZeroClipboard.js',
     'codemirror/lib/codemirror.js',
     'codemirror/mode/yaml/yaml.js',
+    'codemirror/mode/xml/xml.js',
     'codemirror/addon/hint/show-hint.js',
     'codemirror/addon/selection/active-line.js',
     'codemirror/addon/fold/foldcode.js',
