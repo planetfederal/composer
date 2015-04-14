@@ -10,6 +10,9 @@ angular.module('gsApp.workspaces.layers.settings', [])
 
       $scope.workspace = workspace;
       $scope.layer = layer;
+      $scope.layername = {};
+      $scope.layername.name = layer.name;
+      $scope.layername.pattern = /^[a-zA-Z\d_]+$/;
 
       $scope.form = {};
       $scope.form.mapSettings = {};
@@ -32,6 +35,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
       $scope.getGeoServerLink();
 
       $scope.saveChanges = function() {
+        $scope.errorSaving = '';
         if ($scope.form.layerSettings.$dirty) {
           var patch = {};
           if (originalLayer.name !== $scope.layer.name) {
@@ -58,6 +62,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
                 });
                 originalLayer = angular.copy($scope.layer);
               } else {
+                $scope.errorSaving = 'Update failed.';
                 $rootScope.alerts = [{
                   type: 'warning',
                   message: 'Layer update failed.',

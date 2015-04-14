@@ -10,10 +10,24 @@
     margin-top: 0;
   }
 
+  label {
+    display: block;
+  }
+
   #layerName {
     width: 50%;
-    clear: both;
+    display: inline-block;
   }
+}
+
+small.hint {
+  display: block;
+}
+
+.errorInput {
+  color: @red;
+  display: inline-block;
+  margin-left: 10px;
 }
 
 .crs-warning {
@@ -30,6 +44,10 @@
   .saved {
     float: left;
     color: @green;
+  }
+  .errorSaving {
+    float: left;
+    color: @red;
   }
 }
 
