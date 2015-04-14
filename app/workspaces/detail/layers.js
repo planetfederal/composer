@@ -80,7 +80,7 @@ angular.module('gsApp.workspaces.layers', [
         }
         refreshTimer = $timeout(function() {
           $scope.serverRefresh();
-        }, 800);
+        }, 700);
       };
 
       $scope.mapsHome = function() {
@@ -99,10 +99,10 @@ angular.module('gsApp.workspaces.layers', [
     }])
 .controller('LayersMainCtrl', ['$scope', '$state', '$stateParams', '$sce',
   '$window', '$log', 'GeoServer', '$modal', '$rootScope', 'AppEvent', '_',
-  'mapsListModel', 'layersListModel', '$timeout',
+  'mapsListModel', 'layersListModel', '$timeout', '$location', '$anchorScroll',
     function($scope, $state, $stateParams, $sce, $window, $log,
       GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel,
-      layersListModel, $timeout) {
+      layersListModel, $timeout, $location, $anchorScroll) {
 
       $scope.workspace = $stateParams.workspace;
       $scope.layerSelections = [];
@@ -127,6 +127,10 @@ angular.module('gsApp.workspaces.layers', [
       $scope.$watch('pagingOptions.currentPage', function(newVal) {
         if (newVal != null) {
           $scope.refreshLayers();
+          // go to page bottom
+          $timeout(function() {
+            $anchorScroll($location.hash('bottom'));
+          }, 900);
         }
       });
 
