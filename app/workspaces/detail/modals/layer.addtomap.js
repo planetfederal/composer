@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.layers.addtomap', [
@@ -231,14 +231,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
               disableExistingLayers();
               $scope.totalServerItems = result.data.total;
               $scope.itemsPerPage = $scope.pagingOptions.pageSize;
-
-              if ($scope.filterOptions.filterText.length > 0) {
-                $scope.totalItems =
-                  $scope.layerOptions.ngGrid.filteredRows.length;
-              }
-              else {
-                $scope.totalItems = $scope.totalServerItems;
-              }
+              $scope.totalItems = $scope.totalServerItems;
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
