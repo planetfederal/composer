@@ -76,22 +76,36 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.mapInfo = {};
     $scope.workspace = $stateParams.workspace;
     $scope.maps = maps;
-
-    $scope.pagingOptions = {
-      pageSizes: [25, 50, 100],
-      pageSize: 25,
-      currentPage: 1
+    $scope.opts = {
+      paging: {
+        pageSize: 25,
+        currentPage: 1
+      },
+      sort: {
+        fields: ['name'],
+        directions: ['asc']
+      },
+      filter: {
+        filterText: ''
+      }
     };
-
     $scope.loadLayers = function() {
+      var opts = $scope.opts;
+
       GeoServer.layers.get(
         $scope.workspace,
-        $scope.pagingOptions.currentPage-1,
-        $scope.pagingOptions.pageSize
+        opts.paging.currentPage - 1,
+        opts.paging.pageSize,
+        opts.sort.fields[0] + ':' + opts.sort.directions[0],
+        opts.filter.filterText
       ).then(function(result) {
         if (result.success) {
           $scope.layers = result.data.layers;
           $scope.totalServerItems = result.data.total;
+
+          if ($scope.hasLayers === undefined) {
+            $scope.hasLayers = result.data.total !== 0;
+          }
         } else {
           $rootScope.alerts = [{
             type: 'danger',
@@ -148,6 +162,16 @@ angular.module('gsApp.workspaces.maps.new', [
       maps: $scope.maps
     });
 
+    /**
+     * Refresh if scope updated
+     */
+    function reloadLayers(newVal, oldVal) {
+      if (newVal && newVal !== oldVal) {
+        $scope.loadLayers();
+      }
+    }
+
+    $scope.$watch('opts', reloadLayers, true);
   }])
 // for creating a new map after selecting layers on the Layers tab
 .controller('NewMapFromSelectedCtrl', ['$scope', '$state', '$stateParams',
@@ -354,15 +378,6 @@ angular.module('gsApp.workspaces.maps.new', [
 
     $scope.gridWidth = {'width': modalWidth};
 
-    $scope.pagingOptions = {
-      pageSizes: [25, 50, 100],
-      pageSize: 25,
-      currentPage: 1
-    };
-    $scope.filterOptions = {
-        filterText: '',
-        useExternalFilter: true
-      };
     $scope.layerSelections = [];
 
     $scope.layerOptions = {
@@ -378,7 +393,6 @@ angular.module('gsApp.workspaces.maps.new', [
       int: function() {
         $log('done');
       },
-      sortInfo: {fields: ['name'], directions: ['asc']},
       showSelectionCheckbox: true,
       selectWithCheckboxOnly: false,
       selectedItems: $scope.layerSelections,
@@ -406,11 +420,9 @@ angular.module('gsApp.workspaces.maps.new', [
           width: '10%'
         }
       ],
-      enablePaging: true,
       enableColumnResize: false,
-      showFooter: true,
-      totalServerItems: 'totalServerItems',
-      pagingOptions: $scope.pagingOptions
+      useExernalSorting: true,
+      sortInfo: $scope.opts.sort
     };
 
     $scope.setMap = function(map) {
