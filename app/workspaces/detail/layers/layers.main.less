@@ -163,69 +163,83 @@
       width: 100%;
       cursor: pointer;
 
-      .layer-icon {
-        display: inline-block;
-        float: left;
-        margin: 10px 12px 0 10px;
-        padding-top: 5px;
-        height: 32px;
-        width: 32px;
-        text-align: center;
-
-        .icon-for-layer {
-          display: inline-block;
-          color: @gray;
-          font-size: 28px;
-        }
-      }
       .layer-info-section {
         background-color: @white;
         &:hover {
-          background-color: @almost-white;
+          background-color: @very-lt-gray;
         }
+
+        img.layerthumb {
+          display: inline-block;
+          .box-shadow(2px 2px 3px @gray);
+          margin: 10px;
+          background-color: @white;
+          vertical-align: top;
+        }
+        img:hover {
+          outline: none;
+        }
+
       }
       .layer-detail {
         display: inline-block;
-        padding: 10px 10px 5px 0;
-        max-width: 80%;
+        max-width: 100%;
         text-overflow: ellipsis;
         color: @dark-gray;
+        margin-top: 8px;
 
         .layer-title {
           font-size: 11px;
         }
-      }
-      .layer-detail-inside-footer {
-        padding: 5px 10px 5px 52px;
-        display: block;
-        text-align: left;
 
-        .layer-attr {
-          font-size: 11px;
-          margin-bottom: 5px;
-          margin-right: 10px;
-          float: left;
+        .layer-detail-inside-footer {
+          margin-top: 12px;
           display: inline-block;
+          font-size: 9px;
 
-          .attr-num {
-            padding: 0 6px 1px;
-            .border-radius(2px, 2px, 2px, 2px);
-            background-color: @md-lt-gray;
-            color: @white;
-            font-weight: bold;
+          .layer-icon {
+            display: inline-block;
+            margin-bottom: 5px;
+
+            .icon-for-layer {
+              display: inline-block;
+              color: @md-lt-gray;
+              font-size: 14px;
+              width: 14px;
+              height: 14px;
+              vertical-align: bottom;
+            }
+            .text-for-icon {
+              margin-left: 3px;
+            }
           }
-          a {
-            color: @black;
+
+          .layer-attr {
+            margin-bottom: 7px;
+            margin-left: 10px;
+            display: inline-block;
+
+            .attr-num {
+              padding: 0 6px 1px;
+              .border-radius(2px, 2px, 2px, 2px);
+              background-color: @md-lt-gray;
+              color: @white;
+              font-weight: bold;
+            }
+            a {
+              color: @black;
+            }
+          }
+
+          .layer-mod {
+            margin-bottom: 5px;
+            margin-left: 2px;
+            display: block;
+            color: @dark-gray;
           }
         }
-
-        .layer-mod {
-          font-size: 11px;
-          margin-bottom: 5px;
-          display: inline-block;
-          color: @dark-gray;
-        }
       }
+
       .layer-detail-outside-footer {
         outline: 0;
         border-top: 1px solid @white;
