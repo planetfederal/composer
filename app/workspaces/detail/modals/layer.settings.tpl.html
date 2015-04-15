@@ -1,16 +1,16 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title"><i class="icon-stack"></i> {{ layername.name }}</h4>
+    <h4 class="modal-title"><i class="icon-stack"></i> {{ layername }}</h4>
     <small class="pull-right required-star">* Required</small>
   </div>
   <div class="modal-body layer-settings">
     <form name="form.layerSettings" role="form" class="layerSettings">
       <div class="form-group">
         <label for="layerName">Layer Name *</label>
-        <input name="name" type="text" class="form-control input-sm" id="layerName" ng-model="layer.name" value="{{layer.name}}" focus-init ng-pattern="layername.pattern" required ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}" />
-        <span ng-show="!form.layerSettings.name.$error.required && form.layerSettings.name.$error.pattern" class="errorInput">Invalid layer name.</span>
-         <span ng-show="form.layerSettings.name.$error.required" class="errorInput">Required.</span>
-        <small class="hint">(No spaces and must be unique to a workspace.)</small>
+        <input name="name" type="text" class="form-control input-sm" id="layerName" ng-model="layer.name" value="{{layer.name}}" focus-init ng-pattern="/^[a-zA-Z][a-zA-Z\d\-*_]*$/" required ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}" />
+        <span ng-show="!form.layerSettings.name.$error.required && form.layerSettings.name.$error.pattern" class="errorInput">Invalid characters in layer name.</span>
+        <span ng-show="form.layerSettings.name.$error.required" class="errorInput">Required.</span>
+        <small class="hint">(Starts with a letter, no spaces, unique in a workspace, for web URLs.)</small>
       </div>
       <div class="form-group">
         <label for="mapTitle">Title</label>

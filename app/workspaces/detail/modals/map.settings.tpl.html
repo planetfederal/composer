@@ -1,18 +1,21 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title"><i class="icon-map"></i> {{ map.name }} <i class="fa fa-angle-right" style="padding: 0 5px;"></i> Map Settings</h4>
+    <h4 class="modal-title"><i class="icon-map"></i> {{ mapname }} <i class="fa fa-angle-right" style="padding: 0 5px;"></i> Map Settings</h4>
     <small class="pull-right required-star">* Required</small>
   </div>
   <div class="modal-body map-settings">
     <form name="form.mapSettings" role="form" class="mapSettings">
       <div class="form-group">
         <label for="mapName">Map Name *</label>
-        <input name="form.mapSettings.name" type="text" class="form-control input-sm" id="mapName" ng-model="map.name" focus-init />
-        <small>(No spaces, max 10 characters, for web URLs.)</small>
+        <input name="name" type="text" class="form-control input-sm" id="mapName" ng-model="map.name" focus-init ng-pattern="/^[a-zA-Z][a-zA-Z\d\-*_]*$/" ng-maxlength="10" required ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}" />
+        <span ng-show="!form.mapSettings.name.$error.required && form.mapSettings.name.$error.pattern" class="errorInput">Invalid characters in map name.</span>
+        <span ng-show="form.mapSettings.name.$error.maxlength" class="errorInput">Max 10 characters.</span>
+        <span ng-show="form.mapSettings.name.$error.required" class="errorInput">Required.</span>
+        <small class="hint">(Starts with a letter, no spaces, max 10 characters, unique in a workspace, for web URLs.)</small>
       </div>
       <div class="form-group">
         <label for="mapTitle">Title</label>
-        <input name="form.mapSettings.title" type="text" class="form-control input-sm" id="mapTitle" ng-model="map.title">
+        <input name="title" type="text" class="form-control input-sm" id="mapTitle" ng-model="map.title">
         <small>(Spaces ok, for humans.)</small>
       </div>
       <div class="form-group" id="mapProj">
@@ -29,19 +32,19 @@
         <ul class="list-unstyled extent-list">
           <li>
             <small>South</small>
-            <input name="form.mapSettings.bbox.south" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.south">
+            <input name="bbox.south" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.south">
           </li>
           <li>
             <small>West</small>
-            <input name="form.mapSettings.bbox.west" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.west">
+            <input name="bbox.west" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.west">
           </li>
           <li>
             <small>North</small>
-            <input name="form.mapSettings.bbox.north" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.north">
+            <input name="bbox.north" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.north">
           </li>
           <li>
             <small>East</small>
-            <input name="form.mapSettings.bbox.east" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.east">
+            <input name="bbox.east" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.east">
           </li>
         </ul>
       </div>
@@ -54,7 +57,7 @@
   <div class="modal-footer map-settings-footer">
     <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
     <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
-    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty">Update Map Settings</button>
+    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty || form.mapSettings.name.$error.maxlength || form.mapSettings.name.$error.required || form.mapSettings.name.$error.pattern">Update Map Settings</button>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
   </div>
 </div>

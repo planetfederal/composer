@@ -9,6 +9,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
 
       $scope.workspace = workspace;
       $scope.map = map;
+      $scope.mapname = map.name;
 
       $scope.form = {};
       $scope.form.mapSettings = {};

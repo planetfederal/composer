@@ -10,9 +10,13 @@
     margin-top: 0;
   }
 
+  label {
+    display: block;
+  }
+
   #mapName {
     width: 50%;
-    clear: both;
+    display: inline-block;
   }
 
   #mapProj {
@@ -31,6 +35,16 @@
       width: 100%;
     }
   }
+}
+
+small.hint {
+  display: block;
+}
+
+.errorInput {
+  color: @red;
+  display: inline-block;
+  margin-left: 10px;
 }
 
 .map-settings-footer {

@@ -11,8 +11,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
       $scope.workspace = workspace;
       $scope.layer = layer;
       $scope.layername = {};
-      $scope.layername.name = layer.name;
-      $scope.layername.pattern = /^[a-zA-Z\d_]+$/;
+      $scope.layername = layer.name;
 
       $scope.form = {};
       $scope.form.mapSettings = {};
