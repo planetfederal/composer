@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
@@ -79,6 +79,8 @@ angular.module('gsApp.styleditor.icons', [
 
       $scope.chooseIcon = function(iconname) {
         $scope.selectedIconName = iconname;
+        $scope.selectedIconPath = '/workspaces/' + $scope.workspace +
+          '/styles/' + iconname + '.png';
       };
 
       $scope.uploadIcons = function(files) {
@@ -101,7 +103,7 @@ angular.module('gsApp.styleditor.icons', [
             var clipboard = event.clipboardData;
             if ($scope.selectedIconName) {
               clipboard.setData('text/plain',
-                $scope.selectedIconName
+                $scope.selectedIconPath
               );
               $scope.close();
             }
