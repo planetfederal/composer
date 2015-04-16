@@ -84,13 +84,13 @@ angular.module('gsApp.styleditor.sld', [
         }
       }
 
-      GeoServer.style.getSLD(layer.workspace, layer.name).then(
+      GeoServer.style.getSLD(layer.style.workspace, layer.style.name).then(
         function(result) {
           if (result.success) {
             $scope.sld = result.data;
             $timeout(function() {
               autoFormatSelection();
-            }, 1000);
+            }, 800);
           } else {
             $scope.sld = 'Could not load SLD';
           }

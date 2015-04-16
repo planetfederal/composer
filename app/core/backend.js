@@ -279,13 +279,14 @@ angular.module('gsApp.core.backend',[])
               }
             });
           },
-          getSLD: function(workspace, layer) {
+          getSLD: function(workspace, style) {
             return http({
               method: 'GET',
-              url: restRoot+'workspaces/'+workspace+'/styles/'+layer+'.sld',
+              url: restRoot+'workspaces/'+workspace+'/styles/'+style+'.sld',
               data: '',
               dataType: 'xml',
               headers: {
+                'Content-Type': 'application/xml',
                 'Accept': 'application/xml'
               }
             });
