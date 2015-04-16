@@ -304,8 +304,14 @@ angular.module('gsApp.workspaces.data.import', [
       AppEvent, $rootScope, storesListModel) {
 
       var wsName = $stateParams.workspace;
+      $scope.existingStores = [];
 
-      $scope.existingStores = storesListModel.getStores();
+      storesListModel.getStores().forEach(function (store) {
+        if (store.sourcetype == 'database' ||
+          store.sourcetype == 'shp_dir') {
+          $scope.existingStores.push(store);
+        }
+      });
       if ($scope.existingStores.length > 0) {
         $scope.chosenImportStore = $scope.existingStores[0];
       }
@@ -426,6 +432,7 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.workspace = $stateParams.workspace;
       $scope.import = $stateParams.import;
       $scope.layerSelections = [];
+      $scope.detailsLoading = true;
 
       // if mapInfo's not defined it's import not create map workflow
       if (!mapInfoModel.getMapInfo()) {
@@ -614,6 +621,7 @@ angular.module('gsApp.workspaces.data.import', [
 
       GeoServer.import.get($scope.workspace, $scope.import)
         .then(function(result) {
+          $scope.detailsLoading = false;
           if (result.success) {
             var imp = result.data;
             $log.log(imp);

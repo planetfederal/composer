@@ -43,7 +43,7 @@
       <div class="col-sm-12" style="margin-bottom:10px;">
         <input type="checkbox" id="uploadToStore" ng-model="addToStore" /> Add to Existing Store
         <div style="display:inline-block; margin-left: 10px;" ng-show="addToStore">
-          <select ng-model="chosenImportStore" ng-options="es.name for es in existingStores">
+          <select ng-model="chosenImportStore" ng-options="es.displayName for es in existingStores">
           </select>
         </div>
       </div>

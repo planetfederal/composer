@@ -340,12 +340,16 @@ angular.module('gsApp.workspaces.data', [
     var format = store.format.toLowerCase();
     if (format === 'shapefile') {
       store.sourcetype = 'shp';
+      store.displayName = store.name + ' (shapefile)';
     } else if (store.kind.toLowerCase() === 'raster') {
       store.sourcetype = 'raster';
+      store.displayName = store.name + ' (raster)';
     } else if (store.type.toLowerCase() === 'database') {
       store.sourcetype = 'database';
+      store.displayName = store.name + ' (database)';
     } else if (format.indexOf('directory of spatial files')!==-1) {
       store.sourcetype = 'shp_dir';
+      store.displayName = store.name + ' (directory of shapefiles)';
     }
     return store;
   };
