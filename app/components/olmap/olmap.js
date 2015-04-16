@@ -13,8 +13,8 @@ angular.module('gsApp.olmap', [])
 
         var hitCountRegEx = /numberOfFeatures="([0-9]+)"/;
         var hitCountLimit = 100000;
-        //FIXME replace with a 1x1 transparent image
-        var hitCountLimitImage = 'foo.png';
+        var hitCountLimitImage = 'data:image/gif;base64,' +
+            'R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=';
 
         this.mapOpts = mapOpts;
         var progress = mapOpts.progress || function() {};
