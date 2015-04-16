@@ -48,6 +48,9 @@ angular.module('gsApp.olmap', [])
                 if (count > hitCountLimit) {
                   img.src = hitCountLimitImage;
                   progress('end');
+                  error({exceptions: [{
+                    text: 'Too many features - zoom in or turn off some layers.'
+                  }]});
                 } else {
                   if (typeof window.btoa == 'function') {
                     var xhr = new XMLHttpRequest();
