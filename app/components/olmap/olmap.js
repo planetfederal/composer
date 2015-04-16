@@ -10,6 +10,12 @@ angular.module('gsApp.olmap', [])
     function(GeoServer, AppEvent, $timeout, $rootScope, $log) {
       function OLMap(mapOpts, element, options) {
         var self = this;
+
+        var hitCountRegEx = /numberOfFeatures="([0-9]+)"/;
+        var hitCountLimit = 100000;
+        //FIXME replace with a 1x1 transparent image
+        var hitCountLimitImage = 'foo.png';
+
         this.mapOpts = mapOpts;
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
@@ -21,44 +27,67 @@ angular.module('gsApp.olmap', [])
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
                 'EXCEPTIONS': 'application/json'},
             serverType: 'geoserver',
+            ratio: 1,
             imageLoadFunction: function(image, src) {
               progress('start');
               var img = image.getImage();
-              if (typeof window.btoa == 'function') {
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', src, true);
-                xhr.responseType = 'arraybuffer';
-                xhr.onload = function(e) {
-                  if (this.status == 200) {
-                    var uInt8Array = new Uint8Array(this.response);
-                    var i = uInt8Array.length;
-                    var binaryString = new Array(i);
-                    while (i--) {
-                      binaryString[i] = String.fromCharCode(uInt8Array[i]);
-                    }
-                    var data = binaryString.join('');
-                    var type = xhr.getResponseHeader('content-type');
-                    if (type.indexOf('image') === 0) {
-                      img.src = 'data:' + type + ';base64,' + window.btoa(data);
-                    } else {
-                      error($.parseJSON(data));
-                    }
+              var wfs = src
+                  .replace('wms?SERVICE=WMS', 'wfs?SERVICE=WFS')
+                  .replace('VERSION=1.1.1', 'VERSION=1.1.0')
+                  .replace('REQUEST=GetMap', 'REQUEST=GetFeature')
+                  .replace('&LAYERS=', '&TYPENAME=') +
+                  '&resultType=hits';
+              var wfsXhr = new XMLHttpRequest();
+              wfsXhr.open('GET', wfs, true);
+              wfsXhr.onload = function(e) {
+                var count = 0;
+                var match = wfsXhr.responseText.match(hitCountRegEx);
+                if (match && match.length) {
+                  count = parseInt(match[1], 10);
+                }
+                if (count > hitCountLimit) {
+                  img.src = hitCountLimitImage;
+                  progress('end');
+                } else {
+                  if (typeof window.btoa == 'function') {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', src, true);
+                    xhr.responseType = 'arraybuffer';
+                    xhr.onload = function(e) {
+                      if (this.status == 200) {
+                        var uInt8Array = new Uint8Array(this.response);
+                        var i = uInt8Array.length;
+                        var binaryString = new Array(i);
+                        while (i--) {
+                          binaryString[i] = String.fromCharCode(uInt8Array[i]);
+                        }
+                        var data = binaryString.join('');
+                        var type = xhr.getResponseHeader('content-type');
+                        if (type.indexOf('image') === 0) {
+                          img.src = 'data:' + type + ';base64,' +
+                              window.btoa(data);
+                        } else {
+                          error($.parseJSON(data));
+                        }
+                      } else {
+                        error(this.statusText);
+                      }
+                      progress('end');
+                    };
+                    xhr.send();
                   } else {
-                    error(this.statusText);
+                    img.onload = function() {
+                      progress('end');
+                    };
+                    img.onerror = function() {
+                      progress('end');
+                      error();
+                    };
+                    img.src = src;
                   }
-                  progress('end');
-                };
-                xhr.send();
-              } else {
-                img.onload = function() {
-                  progress('end');
-                };
-                img.onerror = function() {
-                  progress('end');
-                  error();
-                };
-                img.src = src;
+                }
               }
+              wfsXhr.send();
             }
           })
         });
