@@ -14,7 +14,7 @@ angular.module('gsApp.olmap', [])
         var hitCountRegEx = /numberOfFeatures="([0-9]+)"/;
         var hitCountLimit = 100000;
         var hitCountLimitImage = 'data:image/gif;base64,' +
-            'R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=';
+            'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
 
         this.mapOpts = mapOpts;
         var progress = mapOpts.progress || function() {};
@@ -89,7 +89,7 @@ angular.module('gsApp.olmap', [])
                     img.src = src;
                   }
                 }
-              }
+              };
               wfsXhr.send();
             }
           })
