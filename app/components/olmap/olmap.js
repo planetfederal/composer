@@ -12,17 +12,22 @@ angular.module('gsApp.olmap', [])
         var self = this;
 
         var hitCountRegEx = /numberOfFeatures="([0-9]+)"/;
-        var hitCountLimit = 100000;
+        var hitCountLimit = 500000;
         var hitCountTimeout = 3000;
         var hitCountLimitImage = 'data:image/gif;base64,' +
-            'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-        var hitCountLimitError = 'Too many features. Zoom in or turn off ' +
-              'some layers to see the map.\nOur recommendation: create a ' +
-              'style that does not display all features at this resolution.'
+          'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+        var hitCountLimitError = 'Too many features: greater than ' +
+          hitCountLimit.toLocaleString() + '. This will cause delays ' +
+          'in rendering the map.\n\nRECOMMENDATIONS:\n\n- Zoom in\n\n' +
+          '- If there are multiple layers, turn off (uncheck) some layers ' +
+          'to see the map.\n\n' +
+          '- Create a style that limits features displayed ' +
+          'at this zoom level/resolution.';
         function getMap2HitCount(src) {
           return src.replace('wms?SERVICE=WMS', 'wfs?SERVICE=WFS')
               .replace('VERSION=1.1.1', 'VERSION=1.1.0')
               .replace('REQUEST=GetMap', 'REQUEST=GetFeature')
+              .replace('FORMAT=composer', '')
               .replace('&LAYERS=', '&TYPENAME=') +
               '&resultType=hits';
         }
@@ -36,7 +41,10 @@ angular.module('gsApp.olmap', [])
           source: new ol.source.ImageWMS({
             url: GeoServer.baseUrl()+'/'+mapOpts.workspace+'/wms',
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
-                'EXCEPTIONS': 'application/json'},
+                'EXCEPTIONS': 'application/json',
+                'FORMAT': 'composer',
+                'FORMAT_OPTION': 'timeout:3000'
+            },
             serverType: 'geoserver',
             ratio: 1,
             imageLoadFunction: function(image, src) {
@@ -60,9 +68,9 @@ angular.module('gsApp.olmap', [])
                 if (count > hitCountLimit) {
                   window.setTimeout(function() {
                     if (!loaded) {
-                      xhr.abort();
+                     /* xhr.abort();
                       img.src = hitCountLimitImage;
-                      progress('end');
+                      progress('end');*/
                       error(hitCountLimitError);
                     }
                   }, hitCountTimeout);
@@ -506,7 +514,10 @@ angular.module('gsApp.olmap', [])
           });
 
           $scope.$watch('mapOpts.basemap', function(newVal) {
-            if (newVal == null && $scope.map) {
+            if (!$scope.map) {
+              return;
+            }
+            if (newVal == null) {
               $scope.map.hideBasemap();
               return;
             }

@@ -37,11 +37,14 @@ angular.module('gsApp.layers.style', [
             bbox: $scope.layer.bbox.native,
             center: $scope.layer.bbox.native.center,
             error: function(err) {
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Map rendering error',
-                details: err.exceptions[0].text
-              }];
+              $scope.$apply(function() {
+                $rootScope.alerts = [{
+                  type: 'danger',
+                  message: 'Map rendering warning...',
+                  details: err.exceptions ? err.exceptions[0].text : err,
+                  fadeout: true
+                }];
+              });
             },
             progress: function(state) {
               if (state == 'start') {
