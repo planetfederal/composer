@@ -10,6 +10,23 @@ angular.module('gsApp.olmap', [])
     function(GeoServer, AppEvent, $timeout, $rootScope, $log) {
       function OLMap(mapOpts, element, options) {
         var self = this;
+
+        var hitCountRegEx = /numberOfFeatures="([0-9]+)"/;
+        var hitCountLimit = 100000;
+        var hitCountTimeout = 3000;
+        var hitCountLimitImage = 'data:image/gif;base64,' +
+            'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+        var hitCountLimitError = 'Too many features. Zoom in or turn off ' +
+              'some layers to see the map.\nOur recommendation: create a ' +
+              'style that does not display all features at this resolution.'
+        function getMap2HitCount(src) {
+          return src.replace('wms?SERVICE=WMS', 'wfs?SERVICE=WFS')
+              .replace('VERSION=1.1.1', 'VERSION=1.1.0')
+              .replace('REQUEST=GetMap', 'REQUEST=GetFeature')
+              .replace('&LAYERS=', '&TYPENAME=') +
+              '&resultType=hits';
+        }
+
         this.mapOpts = mapOpts;
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
@@ -21,14 +38,43 @@ angular.module('gsApp.olmap', [])
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
                 'EXCEPTIONS': 'application/json'},
             serverType: 'geoserver',
+            ratio: 1,
             imageLoadFunction: function(image, src) {
               progress('start');
               var img = image.getImage();
+              var wfs = getMap2HitCount(src);
+              var wfsXhr = new XMLHttpRequest();
+              var loaded = false;
+              wfsXhr.open('GET', wfs, true);
+              wfsXhr.onload = function(e) {
+                if (loaded) {
+                  return;
+                }
+                var count = 0;
+                if (this.status == 200) {
+                  var match = this.responseText.match(hitCountRegEx);
+                  if (match && match.length) {
+                    count = parseInt(match[1], 10);
+                  }
+                }
+                if (count > hitCountLimit) {
+                  window.setTimeout(function() {
+                    if (!loaded) {
+                      xhr.abort();
+                      img.src = hitCountLimitImage;
+                      progress('end');
+                      error(hitCountLimitError);
+                    }
+                  }, hitCountTimeout);
+                }
+              };
+              wfsXhr.send();
               if (typeof window.btoa == 'function') {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', src, true);
                 xhr.responseType = 'arraybuffer';
                 xhr.onload = function(e) {
+                  loaded = true;
                   if (this.status == 200) {
                     var uInt8Array = new Uint8Array(this.response);
                     var i = uInt8Array.length;
@@ -39,7 +85,8 @@ angular.module('gsApp.olmap', [])
                     var data = binaryString.join('');
                     var type = xhr.getResponseHeader('content-type');
                     if (type.indexOf('image') === 0) {
-                      img.src = 'data:' + type + ';base64,' + window.btoa(data);
+                      img.src = 'data:' + type + ';base64,' +
+                          window.btoa(data);
                     } else {
                       error($.parseJSON(data));
                     }
@@ -51,9 +98,11 @@ angular.module('gsApp.olmap', [])
                 xhr.send();
               } else {
                 img.onload = function() {
+                  loaded = true;
                   progress('end');
                 };
                 img.onerror = function() {
+                  loaded = true;
                   progress('end');
                   error();
                 };

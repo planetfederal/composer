@@ -151,7 +151,7 @@ angular.module('gsApp.maps.compose', [
                 $rootScope.alerts = [{
                   type: 'danger',
                   message: 'Map rendering error',
-                  details: err.exceptions[0].text
+                  details: err.exceptions ? err.exceptions[0].text : err
                 }];
               },
               progress: function(state) {
