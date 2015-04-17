@@ -13,8 +13,19 @@ angular.module('gsApp.olmap', [])
 
         var hitCountRegEx = /numberOfFeatures="([0-9]+)"/;
         var hitCountLimit = 100000;
+        var hitCountTimeout = 3000;
         var hitCountLimitImage = 'data:image/gif;base64,' +
             'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+        var hitCountLimitError = 'Too many features. Zoom in or turn off ' +
+              'some layers to see the map.\nOur recommendation: create a ' +
+              'style that does not display all features at this resolution.'
+        function getMap2HitCount(src) {
+          return src.replace('wms?SERVICE=WMS', 'wfs?SERVICE=WFS')
+              .replace('VERSION=1.1.1', 'VERSION=1.1.0')
+              .replace('REQUEST=GetMap', 'REQUEST=GetFeature')
+              .replace('&LAYERS=', '&TYPENAME=') +
+              '&resultType=hits';
+        }
 
         this.mapOpts = mapOpts;
         var progress = mapOpts.progress || function() {};
@@ -31,66 +42,72 @@ angular.module('gsApp.olmap', [])
             imageLoadFunction: function(image, src) {
               progress('start');
               var img = image.getImage();
-              var wfs = src
-                  .replace('wms?SERVICE=WMS', 'wfs?SERVICE=WFS')
-                  .replace('VERSION=1.1.1', 'VERSION=1.1.0')
-                  .replace('REQUEST=GetMap', 'REQUEST=GetFeature')
-                  .replace('&LAYERS=', '&TYPENAME=') +
-                  '&resultType=hits';
+              var wfs = getMap2HitCount(src);
               var wfsXhr = new XMLHttpRequest();
+              var loaded = false;
               wfsXhr.open('GET', wfs, true);
               wfsXhr.onload = function(e) {
+                if (loaded) {
+                  return;
+                }
                 var count = 0;
-                var match = wfsXhr.responseText.match(hitCountRegEx);
-                if (match && match.length) {
-                  count = parseInt(match[1], 10);
+                if (this.status == 200) {
+                  var match = this.responseText.match(hitCountRegEx);
+                  if (match && match.length) {
+                    count = parseInt(match[1], 10);
+                  }
                 }
                 if (count > hitCountLimit) {
-                  img.src = hitCountLimitImage;
-                  progress('end');
-                  error({exceptions: [{
-                    text: 'Too many features - zoom in or turn off some layers.'
-                  }]});
-                } else {
-                  if (typeof window.btoa == 'function') {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', src, true);
-                    xhr.responseType = 'arraybuffer';
-                    xhr.onload = function(e) {
-                      if (this.status == 200) {
-                        var uInt8Array = new Uint8Array(this.response);
-                        var i = uInt8Array.length;
-                        var binaryString = new Array(i);
-                        while (i--) {
-                          binaryString[i] = String.fromCharCode(uInt8Array[i]);
-                        }
-                        var data = binaryString.join('');
-                        var type = xhr.getResponseHeader('content-type');
-                        if (type.indexOf('image') === 0) {
-                          img.src = 'data:' + type + ';base64,' +
-                              window.btoa(data);
-                        } else {
-                          error($.parseJSON(data));
-                        }
-                      } else {
-                        error(this.statusText);
-                      }
+                  window.setTimeout(function() {
+                    if (!loaded) {
+                      xhr.abort();
+                      img.src = hitCountLimitImage;
                       progress('end');
-                    };
-                    xhr.send();
-                  } else {
-                    img.onload = function() {
-                      progress('end');
-                    };
-                    img.onerror = function() {
-                      progress('end');
-                      error();
-                    };
-                    img.src = src;
-                  }
+                      error(hitCountLimitError);
+                    }
+                  }, hitCountTimeout);
                 }
               };
               wfsXhr.send();
+              if (typeof window.btoa == 'function') {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', src, true);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function(e) {
+                  loaded = true;
+                  if (this.status == 200) {
+                    var uInt8Array = new Uint8Array(this.response);
+                    var i = uInt8Array.length;
+                    var binaryString = new Array(i);
+                    while (i--) {
+                      binaryString[i] = String.fromCharCode(uInt8Array[i]);
+                    }
+                    var data = binaryString.join('');
+                    var type = xhr.getResponseHeader('content-type');
+                    if (type.indexOf('image') === 0) {
+                      img.src = 'data:' + type + ';base64,' +
+                          window.btoa(data);
+                    } else {
+                      error($.parseJSON(data));
+                    }
+                  } else {
+                    error(this.statusText);
+                  }
+                  progress('end');
+                };
+                xhr.send();
+              } else {
+                img.onload = function() {
+                  loaded = true;
+                  progress('end');
+                };
+                img.onerror = function() {
+                  loaded = true;
+                  progress('end');
+                  error();
+                };
+                img.src = src;
+              }
             }
           })
         });
