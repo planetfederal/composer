@@ -10,29 +10,8 @@ angular.module('gsApp.olmap', [])
     function(GeoServer, AppEvent, $timeout, $rootScope, $log) {
       function OLMap(mapOpts, element, options) {
         var self = this;
-
-        var hitCountRegEx = /numberOfFeatures="([0-9]+)"/;
-        var hitCountLimit = 500000;
-        var hitCountTimeout = 3000;
-        var hitCountLimitImage = 'data:image/gif;base64,' +
-          'R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
-        var hitCountLimitError = 'Too many features: greater than ' +
-          hitCountLimit.toLocaleString() + '. This will cause delays ' +
-          'in rendering the map.\n\nRECOMMENDATIONS:\n\n- Zoom in\n\n' +
-          '- If there are multiple layers, turn off (uncheck) some layers ' +
-          'to see the map.\n\n' +
-          '- Create a style that limits features displayed ' +
-          'at this zoom level/resolution.';
-        function getMap2HitCount(src) {
-          return src.replace('wms?SERVICE=WMS', 'wfs?SERVICE=WFS')
-              .replace('VERSION=1.1.1', 'VERSION=1.1.0')
-              .replace('REQUEST=GetMap', 'REQUEST=GetFeature')
-              .replace('FORMAT=composer', '')
-              .replace('&LAYERS=', '&TYPENAME=') +
-              '&resultType=hits';
-        }
-
         this.mapOpts = mapOpts;
+        var renderTimeout = mapOpts.renderTimeout || 3000;
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
 
@@ -43,40 +22,20 @@ angular.module('gsApp.olmap', [])
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
                 'EXCEPTIONS': 'application/json',
                 'FORMAT': 'composer',
-                'FORMAT_OPTION': 'timeout:3000'
+                'FORMAT_OPTIONS': 'timeout:' + renderTimeout
             },
             serverType: 'geoserver',
             ratio: 1,
             imageLoadFunction: function(image, src) {
               progress('start');
               var img = image.getImage();
-              var wfs = getMap2HitCount(src);
-              var wfsXhr = new XMLHttpRequest();
               var loaded = false;
-              wfsXhr.open('GET', wfs, true);
-              wfsXhr.onload = function(e) {
-                if (loaded) {
-                  return;
+              window.setTimeout(function() {
+                if (!loaded) {
+                  error('Rendering took too long. ' +
+                      'The map image may be incomplete');
                 }
-                var count = 0;
-                if (this.status == 200) {
-                  var match = this.responseText.match(hitCountRegEx);
-                  if (match && match.length) {
-                    count = parseInt(match[1], 10);
-                  }
-                }
-                if (count > hitCountLimit) {
-                  window.setTimeout(function() {
-                    if (!loaded) {
-                     /* xhr.abort();
-                      img.src = hitCountLimitImage;
-                      progress('end');*/
-                      error(hitCountLimitError);
-                    }
-                  }, hitCountTimeout);
-                }
-              };
-              wfsXhr.send();
+              }, renderTimeout);
               if (typeof window.btoa == 'function') {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', src, true);
