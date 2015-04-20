@@ -73,7 +73,7 @@ angular.module('gsApp.workspaces.layers', [
         if ($scope.totalItems > $scope.pagingOptions.pageSize) {
           layersListModel.fetchPagedLayers(
             $scope.workspace,
-            $scope.pagingOptions.currentPage,
+            $scope.pagingOptions.currentPage - 1,
             $scope.pagingOptions.pageSize,
             $scope.sort.predicate + ':' + $scope.sort.order,
             $scope.filterOptions.filterText
