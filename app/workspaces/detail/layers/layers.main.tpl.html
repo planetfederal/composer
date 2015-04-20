@@ -9,14 +9,14 @@
           <div class="sort-by">
             <span class="sort-label">Sort by:</span>
             <span class="dropdown" on-toggle="toggled(open)">
-              <a href class="dropdown-toggle" ng-init="last='name'">
-              {{ last | firstCaps }} <i class="fa fa-caret-down"></i>
+              <a href class="dropdown-toggle" ng-init="sort.predicate='name'">
+              {{ sort.predicate | firstCaps }} <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu">
-                <li><a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a></li>
-                <li><a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a></li>
-                <li><a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Modified</a></li>
-                <li><a class="sort-options" ng-click="predicate='geometry'; reverse = (last=='count')? !reverse : reverse; last='geometry';">Type</a></li>
+                <li><a class="sort-options" ng-click="sortBy('name')">Name</a></li>
+                <li><a class="sort-options" ng-click="sortBy('title')">Title</a></li>
+                <li><a class="sort-options" ng-click="sortBy('modified')">Modified</a></li>
+                <li><a class="sort-options" ng-click="sortBy('type')">Type</a></li>
               </ul>
             </span>
           </div>

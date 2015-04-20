@@ -51,7 +51,22 @@ angular.module('gsApp.workspaces.layers', [
       $scope.filterOptions = {
           filterText: ''
         };
-      $scope.sortOptions = '';
+
+      $scope.sort = {
+        predicate: 'name',
+        order: 'asc'
+      };
+
+      $scope.sortBy = function(pred) {
+        var sort = $scope.sort;
+        if (pred === sort.predicate) { // flip order if selected same
+          sort.order = sort.order === 'asc' ? 'desc' : 'asc';
+        } else { // default to 'asc' order when switching
+          sort.predicate = pred;
+          sort.order = 'asc';
+        }
+        $scope.serverRefresh();
+      };
 
       $scope.serverRefresh = function() {
         // only use paging if many layers on server
@@ -60,7 +75,7 @@ angular.module('gsApp.workspaces.layers', [
             $scope.workspace,
             $scope.pagingOptions.currentPage,
             $scope.pagingOptions.pageSize,
-            $scope.sortOptions,
+            $scope.sort.predicate + ':' + $scope.sort.order,
             $scope.filterOptions.filterText
           ).then(function() {
               $scope.layers = layersListModel.getLayers();
