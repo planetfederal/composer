@@ -9,7 +9,7 @@
           <div class="sort-by">
             <span class="sort-label">Sort by:</span>
             <span class="dropdown" on-toggle="toggled(open)">
-              <a href class="dropdown-toggle" ng-init="sort.predicate='name'">
+              <a href class="dropdown-toggle">
               {{ sort.predicate | firstCaps }} <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu">
@@ -21,7 +21,7 @@
             </span>
           </div>
           <div class="filter-box">
-            <input type="text" class="form-control input-sm grid-filter" ng-model="filterOptions.filterText" placeholder="Filter layers by..." size="30" ng-change="refreshLayers();" />
+            <input type="text" class="form-control input-sm grid-filter" ng-model="filterOptions.filterText" placeholder="Filter layers by..." size="30" ng-model-options="{ debounce: 7000 }" />
             <i class="fa fa-search"></i>
           </div>
         </div>
@@ -50,7 +50,7 @@
     </div>
   </div>
   <div class="layers-summary" ng-show="layers.length > 0">
-    <div class="row" ng-repeat="row in layers | orderBy:predicate:reverse | partition:3 | filter:filterText">
+    <div class="row" ng-repeat="row in layers | partition:3">
       <div class="col-sm-4" ng-repeat="layer in row">
         <div class="layer-summary-detail" ng-style="{'outline': layer.selected ? '4px #28728D solid' : ''}">
           <div class="layer-info-section" ng-click="layer.selected=!layer.selected; toggleSelected(layer);">
@@ -91,6 +91,7 @@
   </div>
   <div class="layers-paging">
     <pagination total-items="totalItems" items-per-page="pagingOptions.pageSize" ng-model="pagingOptions.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+    <a id="bottom"></a>
   </div>
-  <a id="bottom"></a>
+  
 </div>

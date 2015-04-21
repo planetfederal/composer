@@ -25,11 +25,8 @@ angular.module('gsApp.workspaces.layers', [
         controller: 'LayersMainCtrl'
       });
     }])
-.controller('WorkspaceLayersCtrl', ['$scope', '$state', '$stateParams',
-  '$sce', '$window', '$log', 'GeoServer', 'AppEvent', 'layersListModel',
-  '$timeout',
-    function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, AppEvent, layersListModel, $timeout) {
+.controller('WorkspaceLayersCtrl', function($scope, $state, $stateParams,
+  $anchorScroll, AppEvent, layersListModel, $timeout) {
 
       $scope.workspace = $stateParams.workspace;
 
@@ -42,15 +39,14 @@ angular.module('gsApp.workspaces.layers', [
       $scope.lyrThumbsWidth = 75;
       $scope.lyrThumbsHeight = 75;
 
-      $scope.currentPage = 1;
       $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
         pageSize: 25,
         currentPage: 1
       };
+
       $scope.filterOptions = {
-          filterText: ''
-        };
+        filterText: ''
+      };
 
       $scope.sort = {
         predicate: 'name',
@@ -63,43 +59,25 @@ angular.module('gsApp.workspaces.layers', [
           sort.order = sort.order === 'asc' ? 'desc' : 'asc';
         } else { // default to 'asc' order when switching
           sort.predicate = pred;
-          sort.order = 'asc';
+          sort.order = pred === 'modified' ? 'desc' : 'asc';
         }
         $scope.serverRefresh();
       };
 
       $scope.serverRefresh = function() {
-        // only use paging if many layers on server
-        if ($scope.totalItems > $scope.pagingOptions.pageSize) {
-          layersListModel.fetchPagedLayers(
-            $scope.workspace,
-            $scope.pagingOptions.currentPage - 1,
-            $scope.pagingOptions.pageSize,
-            $scope.sort.predicate + ':' + $scope.sort.order,
-            $scope.filterOptions.filterText
-          ).then(function() {
-              $scope.layers = layersListModel.getLayers();
-              $scope.totalItems = layersListModel.getTotalServerItems();
-            });
-        } else {
-          layersListModel.fetchLayers($scope.workspace).then(
-            function() {
-              $scope.layers = layersListModel.getLayers();
-              $scope.totalItems = layersListModel.getTotalServerItems();
-            });
-        }
+        return layersListModel.fetchLayers(
+          $scope.workspace,
+          $scope.pagingOptions.currentPage,
+          $scope.pagingOptions.pageSize,
+          $scope.sort.predicate + ':' + $scope.sort.order,
+          $scope.filterOptions.filterText
+        ).then(function() {
+          $scope.layers = layersListModel.getLayers();
+          $scope.totalItems = layersListModel.getTotalServerItems();
+        });
       };
-      $scope.serverRefresh();
 
-      var refreshTimer = null;
-      $scope.refreshLayers = function() {
-        if (refreshTimer) {
-          $timeout.cancel(refreshTimer);
-        }
-        refreshTimer = $timeout(function() {
-          $scope.serverRefresh();
-        }, 700);
-      };
+      $scope.serverRefresh();
 
       $scope.mapsHome = function() {
         if (!$state.is('workspace.maps.main')) {
@@ -110,46 +88,34 @@ angular.module('gsApp.workspaces.layers', [
       $scope.createMap = function() {
         $state.go('workspace.maps.new', {workspace:$scope.workspace});
       };
+
       $scope.$on(AppEvent.CreateNewMap, function() {
         $scope.createMap();
       });
 
-    }])
-.controller('LayersMainCtrl', ['$scope', '$state', '$stateParams', '$sce',
-  '$window', '$log', 'GeoServer', '$modal', '$rootScope', 'AppEvent', '_',
-  'mapsListModel', 'layersListModel', '$timeout', '$location', '$anchorScroll',
-    function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel,
+      $scope.$watch('pagingOptions.currentPage', function(newVal, oldVal) {
+        if (newVal != null && newVal !== oldVal) {
+          $scope.serverRefresh();
+        }
+      });
+
+      $scope.$watch('filterOptions.filterText', function(newVal, oldVal) {
+        if (newVal != null && newVal !== oldVal) {
+          $scope.serverRefresh();
+        }
+      });
+
+    })
+.controller('LayersMainCtrl', function($scope, $state, $stateParams,
+  GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel,
       layersListModel, $timeout, $location, $anchorScroll) {
 
-      $scope.workspace = $stateParams.workspace;
       $scope.layerSelections = [];
 
       mapsListModel.fetchMaps($scope.workspace).then(function() {
         $scope.maps = mapsListModel.getMaps();
         $scope.mapOptions = $scope.maps.concat(
           [{'name': 'Create New Map'}]);
-      });
-
-      $scope.$watch('predicate', function(newVal, oldVal) {
-        if (newVal && newVal !== oldVal) {
-          var sortOrder = ':asc';
-          if (newVal === 'modified.timestamp') {
-            sortOrder = ':desc';
-          }
-          $scope.sortOptions = newVal + sortOrder;
-        }
-        $scope.refreshLayers();
-      });
-
-      $scope.$watch('pagingOptions.currentPage', function(newVal) {
-        if (newVal != null) {
-          $scope.refreshLayers();
-          // go to page bottom
-          $timeout(function() {
-            $anchorScroll($location.hash('bottom'));
-          }, 900);
-        }
       });
 
       $scope.showAttrs = function(layerOrResource, attributes) {
@@ -360,7 +326,7 @@ angular.module('gsApp.workspaces.layers', [
         });
       };
 
-    }])
+    })
 .service('layersListModel', function(GeoServer, _, $rootScope,
   $window) {
   var _this = this;
@@ -409,40 +375,14 @@ angular.module('gsApp.workspaces.layers', [
     return sorted.reverse();
   };
 
-  this.fetchLayers = function(workspace) {
-    return GeoServer.layers.get(workspace).then(
-      function(result) {
-        if (result.success) {
-          var layers = _.map(result.data.layers,
-            function(layer) {
-              _this.thumbnailize(layer);
-              if (layer.modified) {  // convert time strings to Dates
-                return _.assign(layer, {'modified': {
-                  'timestamp': new Date(layer.modified.timestamp),
-                  'pretty': layer.modified.pretty
-                }});
-              } else {
-                return layer;
-              }
-            });
-          _this.totalServerItems = result.data.total;
-          // sort by timestamp
-          _this.setLayers(_this.sortByTime(layers));
-        } else {
-          $rootScope.alerts = [{
-            type: 'warning',
-            message: 'Unable to load workspace layers.',
-            fadeout: true
-          }];
-        }
-      });
-  };
-
-  this.fetchPagedLayers = function(workspace, currentPage,
+  this.fetchLayers = function(workspace, currentPage,
     pageSize, sort, filterText) {
+    if (currentPage) {
+      currentPage = currentPage - 1;
+    }
     return GeoServer.layers.get(
       workspace,
-      currentPage-1,
+      currentPage,
       pageSize,
       sort,
       filterText
