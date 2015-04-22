@@ -46,9 +46,9 @@
           <p>Add as an empty datastore you can import files into?
             <button type="button" ng-click="addStore()" style="margin-left: 10px;">Add Store</button></p>
         </alert>
-        <div class="import-error text-right" ng-if="importResult.pending.length > 0 || importResult.imported.length > 0 || importResult.preimport.length > 0">
+        <div class="import-error text-center" ng-if="importResult!==null">
           <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
-            Details &rarr;
+            Next: Load &rarr;
           </button>
         </div>
       </div>
