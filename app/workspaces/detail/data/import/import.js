@@ -666,9 +666,8 @@ angular.module('gsApp.workspaces.data.import', [
             t.success = false;
             return t;
           });
-          $scope.preimportedLayers = imp.preimport.map(function(t) {
-            return t;
-          });
+          $scope.preimportedLayers = imp.preimport;
+
           $rootScope.$broadcast(AppEvent.StoreAdded);
 
         } else { // continue polling
@@ -1031,9 +1030,8 @@ angular.module('gsApp.workspaces.data.import', [
     return _this.mapInfo;
   };
 })
-.factory('importPollingService', ['GeoServer', '$interval',
-  function(GeoServer, $interval) {
-    var stop;
+.factory('importPollingService', ['GeoServer',
+  function(GeoServer) {
 
     return {
 

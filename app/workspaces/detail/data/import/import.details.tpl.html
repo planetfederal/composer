@@ -61,7 +61,7 @@
     </p>
   </div>
 
-  <div class="row map-choice" ng-show="!mapInfo && (import.imported.length > 0 || import.pending.length > 0)">
+  <div class="row map-choice" ng-show="!mapInfo && import.imported.length > 0">
     <div class="col-sm-6 text-center">
       <div class="lead">Add selected layer{{map.selected.length > 1 ? 's' : ''}} above<br/>to an existing map: </div>
       <div class="map-picker">
