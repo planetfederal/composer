@@ -614,8 +614,8 @@ angular.module('gsApp.workspaces.data.import', [
             displayName: '',
             cellTemplate:
               '<button ng-click="reimport([row.entity])" ' +
-                  'ng-disabled="row.entity.success == true" ' +
-                  'ng-hide="row.entity.error || row.entity.loading" ' +
+                  'ng-disabled="row.entity.success==true" ' +
+                  'ng-hide="row.entity.loading" ' +
                   'class="btn btn-success btn-xs"> ' +
                   '<span ng-hide="row.entity.success">' +
                   '<i class="fa fa-refresh"></i> Retry Import</span>' +
@@ -786,6 +786,9 @@ angular.module('gsApp.workspaces.data.import', [
         }).forEach(function(task) {
           toImport.tasks.push({'task': task.task, 'proj': task.proj});
           task.loading = true;
+          // also reset error state
+          task.error = false;
+          task.errorMsg = '';
         });
 
         var pollUpdateRetries = 500;
