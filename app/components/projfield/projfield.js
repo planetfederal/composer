@@ -28,12 +28,14 @@ angular.module('gsApp.projfield', [
           });
 
           $scope.validateProj = function() {
-            GeoServer.proj.get($scope.proj.srs).then(function(result) {
-              $scope.valid = result.success;
-              if (result.success) {
-                $scope.proj.wkt = result.data.wkt;
-              }
-            });
+            if ($scope.proj) {
+              GeoServer.proj.get($scope.proj.srs).then(function(result) {
+                $scope.valid = result.success;
+                if (result.success) {
+                  $scope.proj.wkt = result.data.wkt;
+                }
+              });
+            }
           };
 
           $scope.showProjWKT = function() {
