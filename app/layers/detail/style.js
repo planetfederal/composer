@@ -39,8 +39,8 @@ angular.module('gsApp.layers.style', [
             error: function(err) {
               $scope.$apply(function() {
                 $rootScope.alerts = [{
-                  type: 'danger',
-                  message: 'Map rendering warning...',
+                  type: 'warning',
+                  message: 'Map rendering may take a while...',
                   details: err.exceptions ? err.exceptions[0].text : err,
                   fadeout: true
                 }];

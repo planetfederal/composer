@@ -12,6 +12,7 @@ angular.module('gsApp.olmap', [])
         var self = this;
         this.mapOpts = mapOpts;
         var renderTimeout = mapOpts.renderTimeout || 3000;
+        var gsRenderTimeout = 120000; // for GeoServer request
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
 
@@ -22,7 +23,7 @@ angular.module('gsApp.olmap', [])
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
                 'EXCEPTIONS': 'application/json',
                 'FORMAT': 'composer',
-                'FORMAT_OPTIONS': 'timeout:' + renderTimeout
+                'FORMAT_OPTIONS': 'timeout:' + gsRenderTimeout
             },
             serverType: 'geoserver',
             ratio: 1,
@@ -32,8 +33,11 @@ angular.module('gsApp.olmap', [])
               var loaded = false;
               window.setTimeout(function() {
                 if (!loaded) {
-                  error('Rendering took too long. ' +
-                      'The map image may be incomplete');
+                  error('Delays are occuring in rendering the map.\n\n'+
+                    'RECOMMENDATIONS:\n\n- Zoom in\n\n- If there are multiple '+
+                    'layers, turn off (uncheck) some layers '+
+                    'to see the map.\n\n- Create a style that limits features '+
+                    'displayed at this zoom level/resolution.');
                 }
               }, renderTimeout);
               if (typeof window.btoa == 'function') {
@@ -435,27 +439,23 @@ angular.module('gsApp.olmap', [])
         templateUrl: '/components/olmap/olmap.tpl.html',
         controller: function($scope, $element) {
 
-          $scope.$watch('mapOpts', function(newVal) {
-            if (newVal == null) {
-              return;
-            }
-
-            $scope.map = MapFactory.createMap($scope.mapOpts, $element);
-          });
-
           var timer = null;
 
           $scope.$watch('mapOpts.layers', function(newVal) {
             if (newVal == null) {
               return;
             }
-            if (timer) {
-              $timeout.cancel(timer);
+            if (!$scope.map) {
+              $scope.map = MapFactory.createMap($scope.mapOpts, $element);
+            } else {
+              if (timer) {
+                $timeout.cancel(timer);
+              }
+              timer = $timeout(function() {
+                $scope.map.update();
+                timer = null;
+              }, 750);
             }
-            timer = $timeout(function() {
-              $scope.map.update();
-              timer = null;
-            }, 750);
           }, true);
 
           $scope.$watch('mapOpts.bounds', function(newVal) {
