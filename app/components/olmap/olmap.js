@@ -22,12 +22,19 @@ angular.module('gsApp.olmap', [])
             url: GeoServer.baseUrl()+'/'+mapOpts.workspace+'/wms',
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
                 'EXCEPTIONS': 'application/json',
-                'FORMAT': 'composer',
-                'FORMAT_OPTIONS': 'timeout:' + gsRenderTimeout
+                'FORMAT': 'composer'
             },
             serverType: 'geoserver',
             ratio: 1,
             imageLoadFunction: function(image, src) {
+              //FIXME Instead of this src hack, set FORMAT_OPTIONS:timeout in
+              // PARAMS when we upgrade to Openlayers >= 3.5.0
+              if (src.indexOf('FORMAT_OPTIONS=') > 0) {
+                src = src.replace('FORMAT_OPTIONS=', 'FORMAT_OPTIONS=timeout:' +
+                    gsRenderTimeout + ';');
+              } else {
+                src += '&FORMAT_OPTIONS=timeout:' + gsRenderTimeout;
+              }
               progress('start');
               var img = image.getImage();
               var loaded = false;
