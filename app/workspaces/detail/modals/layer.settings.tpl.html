@@ -35,6 +35,9 @@
         <div><a type="button" class="btn btn-default btn-sm" ng-href="{{ layer.link }}" target="_blank">GeoServer Admin Layer Settings</a></div>
       </div>
     </form>
+    <alert ng-show="form.layerSettings.alerts" type="danger" style="margin-left: 0;">
+      {{ form.layerSettings.alerts }}
+    </alert>
   </div>
   <div class="modal-footer layer-settings-footer">
     <div ng-show="form.layerSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
