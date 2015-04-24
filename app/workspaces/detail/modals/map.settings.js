@@ -16,12 +16,24 @@ angular.module('gsApp.workspaces.maps.settings', [])
       var originalMap = angular.copy($scope.map);
 
       $scope.crsTooltip =
-      '<h5>Add a projection in EPSG</h5>' +
-      '<p>Coordinate Reference System (CRS) info is available at ' +
+      '<p>Add a projection in EPSG</p>' +
+      '<p><small>Coordinate Reference System (CRS) info is available at ' +
         '<a href="http://prj2epsg.org/search" target="_blank">' +
           'http://prj2epsg.org' +
         '</a>' +
-      '</p>';
+        '</small></p>';
+
+      $scope.renderToolTip =
+      '<p>Render Timeout</p>' +
+      '<small class="hint">Max time to wait for map to render in ' +
+      'Composer before the request is cancelled.<br/>A lower number prevents '+
+      'overloading GeoServer with resource-monopolizing<br/>rendering '+
+      'requests.<br/><br/>Minimum is 3 seconds.<br/><br/>Default is ' +
+      '120 seconds.<br/>(This is set high so you can still render ' +
+      'large datasets, but we<br/>recommend reducing this for a more ' +
+      'performant or shared GeoServer).</small>';
+
+      $scope.map.renderTimeout = 120; // Default rendering timeout
 
       $scope.saveChanges = function() {
         if ($scope.form.mapSettings.$dirty) {
@@ -43,6 +55,11 @@ angular.module('gsApp.workspaces.maps.settings', [])
 
           if (originalMap.description !== $scope.map.description) {
             patch.description = $scope.map.description;
+          }
+
+          if (originalMap.renderTimeout !== $scope.map.renderTimeout) {
+            $rootScope.$broadcast(AppEvent.MapRenderTimeoutUpdated,
+              $scope.map.renderTimeout*1000);
           }
 
           GeoServer.map.update($scope.workspace, originalMap.name, patch).then(

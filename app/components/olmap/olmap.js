@@ -11,12 +11,15 @@ angular.module('gsApp.olmap', [])
       function OLMap(mapOpts, element, options) {
         var self = this;
         this.mapOpts = mapOpts;
+        // for ol3 request timeout
         var renderTimeout = mapOpts.renderTimeout || 3000;
-        var gsRenderTimeout = 120000; // for GeoServer request
+        // for GeoServer request timeout (partial)
+        var gsRenderTimeout = mapOpts.gsRenderTimeout || 120000;
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
 
         var layerNames  = this.visibleLayerNames().reverse().join(',');
+
         var mapLayer = new ol.layer.Image({
           source: new ol.source.ImageWMS({
             url: GeoServer.baseUrl()+'/'+mapOpts.workspace+'/wms',
@@ -248,6 +251,13 @@ angular.module('gsApp.olmap', [])
             }, 450);
           }
         });
+        $rootScope.$on(AppEvent.MapRenderTimeoutUpdated,
+          function(scope, renderTimeout) {
+            mapOpts.gsRenderTimeout = renderTimeout;
+            var params = mapLayer.getSource().updateParams({
+              'FORMAT_OPTIONS': 'timeout: ' + renderTimeout
+            });
+          });
 
         if (mapOpts.featureInfo) {
           map.on('singleclick', function(evt) {
