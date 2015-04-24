@@ -24,6 +24,9 @@ angular.module('gsApp.workspaces.maps.settings', [])
       '</p>';
 
       $scope.saveChanges = function() {
+        // clear any error state
+        $scope.form.mapSettings.alerts = null;
+
         if ($scope.form.mapSettings.$dirty) {
           var patch = { 'bbox': {}, 'center': [2] };
           if (originalMap.name !== $scope.map.name) {
@@ -56,9 +59,11 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 });
                 originalMap = angular.copy($scope.map);
               } else {
+                $scope.form.mapSettings.alerts = 'Map update failed: ' +
+                  result.data.message;
                 $rootScope.alerts = [{
-                  type: 'warning',
-                  message: 'Map update failed.',
+                  type: 'danger',
+                  message: 'Map update failed: ' + result.data.message,
                   fadeout: true
                 }];
               }

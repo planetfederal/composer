@@ -44,7 +44,11 @@ angular.module('gsApp.olmap', [])
                     'RECOMMENDATIONS:\n\n- Zoom in\n\n- If there are multiple '+
                     'layers, turn off (uncheck) some layers '+
                     'to see the map.\n\n- Create a style that limits features '+
-                    'displayed at this zoom level/resolution.');
+                    'displayed at this zoom level/resolution.\n\n' +
+                    '- If the map still never renders, its projection or '+
+                    'extent may be incorrect.\n\n' +
+                    'The Composer map rendering timeout for GeoServer can be '+
+                    'set in Map Settings (gear icon, upper right).');
                 }
               }, renderTimeout);
               if (typeof window.btoa == 'function') {

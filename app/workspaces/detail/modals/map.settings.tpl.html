@@ -53,7 +53,10 @@
         <textarea rows="3" cols="40" class="form-control abstract" name="description" ng-model="map.description"></textarea>
       </div>
     </form>
-  </div>
+    <alert ng-show="form.mapSettings.alerts" type="danger" style="margin-left: 0;">
+      {{ form.mapSettings.alerts }}
+    </alert>
+</div>
   <div class="modal-footer map-settings-footer">
     <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
     <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
