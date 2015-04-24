@@ -32,6 +32,9 @@
         <label for="type">Type:</label> {{ layer.type | firstCaps}}
       </div>
     </form>
+    <alert ng-show="form.layerSettings.alerts" type="danger" style="margin-left: 0;">
+      {{ form.layerSettings.alerts }}
+    </alert>
   </div>
   <div class="modal-footer">
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>

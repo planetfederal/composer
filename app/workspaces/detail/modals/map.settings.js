@@ -66,6 +66,15 @@ angular.module('gsApp.workspaces.maps.settings', [])
                   message: 'Map update failed: ' + result.data.message,
                   fadeout: true
                 }];
+                // Reset settings to original
+                $scope.map.name = originalMap.name;
+                $scope.map.title = originalMap.title;
+                $scope.map.proj = originalMap.proj;
+                $scope.map.bbox.south = originalMap.bbox.south;
+                $scope.map.bbox.north = originalMap.bbox.north;
+                $scope.map.bbox.east = originalMap.bbox.east;
+                $scope.map.bbox.west = originalMap.bbox.west;
+                $scope.map.description = originalMap.description;
               }
             });
         }

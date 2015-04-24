@@ -34,7 +34,10 @@ angular.module('gsApp.workspaces.layers.settings', [])
       $scope.getGeoServerLink();
 
       $scope.saveChanges = function() {
+        // clear any error state
         $scope.errorSaving = '';
+        $scope.form.layerSettings.alerts = null;
+
         if ($scope.form.layerSettings.$dirty) {
           var patch = {};
           if (originalLayer.name !== $scope.layer.name) {
@@ -69,6 +72,11 @@ angular.module('gsApp.workspaces.layers.settings', [])
                   message: 'Layer update failed: ' + result.data.message,
                   fadeout: true
                 }];
+                // Reset settings to original
+                $scope.layer.name = originalLayer.name;
+                $scope.layer.title = originalLayer.title;
+                $scope.layer.proj = originalLayer.proj;
+                $scope.layer.description = originalLayer.description;
               }
             });
         }
