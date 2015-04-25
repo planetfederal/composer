@@ -15,6 +15,7 @@ angular.module('gsApp.olmap', [])
         var gsRenderTimeout = 120000; // for GeoServer request
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
+        var xhr, timer;
 
         var layerNames  = this.visibleLayerNames().reverse().join(',');
         var mapLayer = new ol.layer.Image({
@@ -25,7 +26,6 @@ angular.module('gsApp.olmap', [])
                 'FORMAT': 'composer'
             },
             serverType: 'geoserver',
-            ratio: 1,
             imageLoadFunction: function(image, src) {
               //FIXME Instead of this src hack, set FORMAT_OPTIONS:timeout in
               // PARAMS when we upgrade to Openlayers >= 3.5.0
@@ -38,7 +38,10 @@ angular.module('gsApp.olmap', [])
               progress('start');
               var img = image.getImage();
               var loaded = false;
-              window.setTimeout(function() {
+              if (timer) {
+                window.clearTimeout(timer);
+              }
+              timer = window.setTimeout(function() {
                 if (!loaded) {
                   error('Delays are occuring in rendering the map.\n\n'+
                     'RECOMMENDATIONS:\n\n- Zoom in\n\n- If there are multiple '+
@@ -52,7 +55,10 @@ angular.module('gsApp.olmap', [])
                 }
               }, renderTimeout);
               if (typeof window.btoa == 'function') {
-                var xhr = new XMLHttpRequest();
+                if (xhr) {
+                  xhr.abort();
+                }
+                xhr = new XMLHttpRequest();
                 xhr.open('GET', src, true);
                 xhr.responseType = 'arraybuffer';
                 xhr.onload = function(e) {
