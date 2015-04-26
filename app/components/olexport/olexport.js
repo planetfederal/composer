@@ -36,17 +36,11 @@ angular.module('gsApp.olexport', [])
       var baseUrl = location.protocol + '//' +
         location.host + GeoServer.baseUrl();
 
-      //TODO: Add support for proj4js projections.
-      if (proj && (proj.srs !== 'EPSG:4326' && proj.srs !== 'EPSG:3857')) {
-        throw new Error('Unsupported projection: ' + proj.srs);
-      }
-
-      var cfg = mapcfg({
+      var cfg = {
         target: 'map',
         view: {
           center: bbox.center,
-          zoom: 1,
-          projection: proj.srs
+          zoom: 1
         },
         layers: [
           {
@@ -66,16 +60,37 @@ angular.module('gsApp.olexport', [])
             }
           }
         ]
-      });
+      };
+
+      if (proj && proj.srs) {
+        cfg.view.projection = {
+          srs: proj.srs,
+          def: proj.wkt.replace(/[\r\n]/g, '')
+        };
+
+        if (mapObj.projectionExtent) {
+          cfg.view.projection.extent = [ 
+            mapObj.projectionExtent.west,
+            mapObj.projectionExtent.south,
+            mapObj.projectionExtent.east,
+            mapObj.projectionExtent.north
+          ];
+        }
+      }
+
+      var js = mapcfg(cfg);
 
       //TODO: Move to mapcfg lib?
       if (extent) {
-        cfg += '\nmap.getView().fitExtent([' +
-          extent.join(',') +
-          '], map.getSize());\n';
+        /*
+        js += '\nvar extent = ol.proj.transformExtent(' +
+                  '[' + extent.join(',') + '],' +
+                  '"EPSG:4326", map.getView().getProjection());\n';
+        js += '\nmap.getView().fitExtent(extent, map.getSize());\n';
+        */
       }
 
-      return cfg;
+      return js;
     };
 
   });
