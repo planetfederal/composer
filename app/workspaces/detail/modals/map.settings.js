@@ -73,8 +73,9 @@ angular.module('gsApp.workspaces.maps.settings', [])
               } else {
                 $scope.map = angular.copy(originalMap);
                 $rootScope.alerts = [{
-                  type: 'warning',
-                  message: 'Map update failed.',
+                  type: 'danger',
+                  message: 'Map update failed: ' +
+                    result.data.message,
                   fadeout: true
                 }];
               }
