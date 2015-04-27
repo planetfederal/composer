@@ -303,7 +303,13 @@ angular.module('gsApp.olmap', [])
       OLMap.prototype.update = function() {
         var visibleLayerNames = this.visibleLayerNames();
         var layerNames = visibleLayerNames.reverse().join(',');
-        var layer = this.olMap.getLayers().item(0);
+        var numMapLayers = this.olMap.getLayers().getLength();
+        var layer;
+        if (numMapLayers > 1) { // basemap exists at 0
+          layer = this.olMap.getLayers().item(1);
+        } else {
+          layer = this.olMap.getLayers().item(0);
+        }
         var visible = visibleLayerNames.length > 0;
         layer.setVisible(visible);
         if (visible) {
