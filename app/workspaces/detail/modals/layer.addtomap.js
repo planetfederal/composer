@@ -123,9 +123,8 @@ angular.module('gsApp.workspaces.layers.addtomap', [
           {field: 'select', displayName: 'Select', width: '10%',
           cellTemplate: '<div ng-if="!row.entity.alreadyInMap"' +
             'style="margin: 12px 0 0px 20px; padding: 0;">' +
-            '<input type="checkbox" ng-model="row.entity.selected"' +
-            'ng-click="row.entity.selected=!row.entity.selected;' +
-            'addToLayerSelections(row.entity);"></div>'
+            '<input type="checkbox" ng-model="row.entity.selected" ' +
+            'ng-click="addToLayerSelections(row.entity);"></div>'
           },
           {field: 'name', displayName: 'Layer', width: '20%'},
           {field: 'title',
