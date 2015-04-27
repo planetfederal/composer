@@ -82,12 +82,10 @@ angular.module('gsApp.olexport', [])
 
       //TODO: Move to mapcfg lib?
       if (extent) {
-        /*
         js += '\nvar extent = ol.proj.transformExtent(' +
                   '[' + extent.join(',') + '],' +
                   '"EPSG:4326", map.getView().getProjection());\n';
         js += '\nmap.getView().fitExtent(extent, map.getSize());\n';
-        */
       }
 
       return js;
