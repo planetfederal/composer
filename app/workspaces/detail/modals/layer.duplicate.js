@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.layers.duplicate', [])
@@ -24,6 +24,8 @@ angular.module('gsApp.workspaces.layers.duplicate', [])
       };
       $scope.importAsLayer = function() {
         var layerInfo = $scope.layer;
+        $scope.form.layerSettings.alerts = null;
+
         GeoServer.layer.create($scope.workspace, layerInfo)
           .then(function(result) {
             if (result.success) {
@@ -34,15 +36,17 @@ angular.module('gsApp.workspaces.layers.duplicate', [])
                 message: 'New layer ' + layer.name + ' successfully created.',
                 fadeout: true
               }];
+              $modalInstance.dismiss('created');
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Could not copy layer ' + $scope.layer.name + '.',
                 fadeout: true
               }];
+              $scope.form.layerSettings.alerts = 'Copy Failed: ' +
+                result.data.message;
             }
           });
-        $modalInstance.dismiss('created');
       };
 
       $scope.cancel = function () {

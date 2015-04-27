@@ -17,6 +17,7 @@ angular.module('gsApp.olmap', [])
         var gsRenderTimeout = mapOpts.gsRenderTimeout || 120000;
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
+        var xhr, timer;
 
         var layerNames  = this.visibleLayerNames().reverse().join(',');
 
@@ -25,26 +26,42 @@ angular.module('gsApp.olmap', [])
             url: GeoServer.baseUrl()+'/'+mapOpts.workspace+'/wms',
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
                 'EXCEPTIONS': 'application/json',
-                'FORMAT': 'composer',
-                'FORMAT_OPTIONS': 'timeout:' + gsRenderTimeout
+                'FORMAT': 'composer'
             },
             serverType: 'geoserver',
-            ratio: 1,
             imageLoadFunction: function(image, src) {
+              //FIXME Instead of this src hack, set FORMAT_OPTIONS:timeout in
+              // PARAMS when we upgrade to Openlayers >= 3.5.0
+              if (src.indexOf('FORMAT_OPTIONS=') > 0) {
+                src = src.replace('FORMAT_OPTIONS=', 'FORMAT_OPTIONS=timeout:' +
+                    gsRenderTimeout + ';');
+              } else {
+                src += '&FORMAT_OPTIONS=timeout:' + gsRenderTimeout;
+              }
               progress('start');
               var img = image.getImage();
               var loaded = false;
-              window.setTimeout(function() {
+              if (timer) {
+                window.clearTimeout(timer);
+              }
+              timer = window.setTimeout(function() {
                 if (!loaded) {
                   error('Delays are occuring in rendering the map.\n\n'+
                     'RECOMMENDATIONS:\n\n- Zoom in\n\n- If there are multiple '+
                     'layers, turn off (uncheck) some layers '+
                     'to see the map.\n\n- Create a style that limits features '+
-                    'displayed at this zoom level/resolution.');
+                    'displayed at this zoom level/resolution.\n\n' +
+                    '- If the map still never renders, its projection or '+
+                    'extent may be incorrect.\n\n' +
+                    'The Composer map rendering timeout for GeoServer can be '+
+                    'set in Map Settings (gear icon, upper right).');
                 }
               }, renderTimeout);
               if (typeof window.btoa == 'function') {
-                var xhr = new XMLHttpRequest();
+                if (xhr) {
+                  xhr.abort();
+                }
+                xhr = new XMLHttpRequest();
                 xhr.open('GET', src, true);
                 xhr.responseType = 'arraybuffer';
                 xhr.onload = function(e) {

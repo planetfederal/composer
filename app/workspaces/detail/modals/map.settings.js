@@ -36,6 +36,9 @@ angular.module('gsApp.workspaces.maps.settings', [])
       $scope.map.renderTimeout = 120; // Default rendering timeout
 
       $scope.saveChanges = function() {
+        // clear any error state
+        $scope.form.mapSettings.alerts = null;
+
         if ($scope.form.mapSettings.$dirty) {
           var patch = { 'bbox': {}, 'center': [2] };
           if (originalMap.name !== $scope.map.name) {
@@ -73,11 +76,22 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 });
                 originalMap = angular.copy($scope.map);
               } else {
+                $scope.form.mapSettings.alerts = 'Map update failed: ' +
+                  result.data.message;
                 $rootScope.alerts = [{
-                  type: 'warning',
-                  message: 'Map update failed.',
+                  type: 'danger',
+                  message: 'Map update failed: ' + result.data.message,
                   fadeout: true
                 }];
+                // Reset settings to original
+                $scope.map.name = originalMap.name;
+                $scope.map.title = originalMap.title;
+                $scope.map.proj = originalMap.proj;
+                $scope.map.bbox.south = originalMap.bbox.south;
+                $scope.map.bbox.north = originalMap.bbox.north;
+                $scope.map.bbox.east = originalMap.bbox.east;
+                $scope.map.bbox.west = originalMap.bbox.west;
+                $scope.map.description = originalMap.description;
               }
             });
         }

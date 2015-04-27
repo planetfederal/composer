@@ -60,7 +60,10 @@
         <input name="title" type="text" class="form-control input-sm" id="mapRenderTimeout" ng-model="map.renderTimeout" min="3"><small class="units"> seconds</small>
       </div>
     </form>
-  </div>
+    <alert ng-show="form.mapSettings.alerts" type="danger" style="margin-left: 0;">
+      {{ form.mapSettings.alerts }}
+    </alert>
+</div>
   <div class="modal-footer map-settings-footer">
     <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
     <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
