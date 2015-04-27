@@ -8,7 +8,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
       GeoServer, AppEvent) {
 
       $scope.workspace = workspace;
-      $scope.map = map;
+      $scope.map = angular.copy(map);
       $scope.mapname = map.name;
 
       $scope.form = {};
@@ -33,12 +33,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
       'large datasets, but we<br/>recommend reducing this for a more ' +
       'performant or shared GeoServer).</small>';
 
-      $scope.map.renderTimeout = 120; // Default rendering timeout
-
       $scope.saveChanges = function() {
-        // clear any error state
-        $scope.form.mapSettings.alerts = null;
-
         if ($scope.form.mapSettings.$dirty) {
           var patch = { 'bbox': {}, 'center': [2] };
           if (originalMap.name !== $scope.map.name) {
@@ -60,9 +55,8 @@ angular.module('gsApp.workspaces.maps.settings', [])
             patch.description = $scope.map.description;
           }
 
-          if (originalMap.renderTimeout !== $scope.map.renderTimeout) {
-            $rootScope.$broadcast(AppEvent.MapRenderTimeoutUpdated,
-              $scope.map.renderTimeout*1000);
+          if (originalMap.timeout !== $scope.map.timeout) {
+            patch.timeout = $scope.map.timeout;
           }
 
           GeoServer.map.update($scope.workspace, originalMap.name, patch).then(
@@ -72,26 +66,17 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 $scope.form.mapSettings.$setPristine();
                 $rootScope.$broadcast(AppEvent.MapUpdated, {
                   'original': originalMap,
-                  'new': $scope.map
+                  'new': result.data
                 });
+                $scope.map = result.data;
                 originalMap = angular.copy($scope.map);
               } else {
-                $scope.form.mapSettings.alerts = 'Map update failed: ' +
-                  result.data.message;
+                $scope.map = angular.copy(originalMap);
                 $rootScope.alerts = [{
-                  type: 'danger',
-                  message: 'Map update failed: ' + result.data.message,
+                  type: 'warning',
+                  message: 'Map update failed.',
                   fadeout: true
                 }];
-                // Reset settings to original
-                $scope.map.name = originalMap.name;
-                $scope.map.title = originalMap.title;
-                $scope.map.proj = originalMap.proj;
-                $scope.map.bbox.south = originalMap.bbox.south;
-                $scope.map.bbox.north = originalMap.bbox.north;
-                $scope.map.bbox.east = originalMap.bbox.east;
-                $scope.map.bbox.west = originalMap.bbox.west;
-                $scope.map.description = originalMap.description;
               }
             });
         }

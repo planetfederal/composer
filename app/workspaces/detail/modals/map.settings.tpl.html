@@ -57,7 +57,7 @@
           Render Timeout
           <div class="crs-warning" popover-html-unsafe="{{renderToolTip}}" popover-trigger="click" popover-append-to-body="true" popover-placement="right"><i class="fa fa-info-circle"></i></div>
         </label>
-        <input name="title" type="text" class="form-control input-sm" id="mapRenderTimeout" ng-model="map.renderTimeout" min="3"><small class="units"> seconds</small>
+        <input name="title" type="number" class="form-control input-sm" id="mapRenderTimeout" ng-model="map.timeout" min="3"><small class="units"> seconds</small>
       </div>
     </form>
     <alert ng-show="form.mapSettings.alerts" type="danger" style="margin-left: 0;">

@@ -14,7 +14,7 @@ angular.module('gsApp.olmap', [])
         // for ol3 request timeout
         var renderTimeout = mapOpts.renderTimeout || 3000;
         // for GeoServer request timeout (partial)
-        var gsRenderTimeout = mapOpts.gsRenderTimeout || 120000;
+        self.timeout = mapOpts.timeout || 120;
         var progress = mapOpts.progress || function() {};
         var error = mapOpts.error || function() {};
         var xhr, timer;
@@ -34,9 +34,9 @@ angular.module('gsApp.olmap', [])
               // PARAMS when we upgrade to Openlayers >= 3.5.0
               if (src.indexOf('FORMAT_OPTIONS=') > 0) {
                 src = src.replace('FORMAT_OPTIONS=', 'FORMAT_OPTIONS=timeout:' +
-                    gsRenderTimeout + ';');
+                    (self.timeout * 1000) + ';');
               } else {
-                src += '&FORMAT_OPTIONS=timeout:' + gsRenderTimeout;
+                src += '&FORMAT_OPTIONS=timeout:' + (self.timeout * 1000);
               }
               progress('start');
               var img = image.getImage();
@@ -268,13 +268,6 @@ angular.module('gsApp.olmap', [])
             }, 450);
           }
         });
-        $rootScope.$on(AppEvent.MapRenderTimeoutUpdated,
-          function(scope, renderTimeout) {
-            mapOpts.gsRenderTimeout = renderTimeout;
-            var params = mapLayer.getSource().updateParams({
-              'FORMAT_OPTIONS': 'timeout: ' + renderTimeout
-            });
-          });
 
         if (mapOpts.featureInfo) {
           map.on('singleclick', function(evt) {
@@ -317,7 +310,9 @@ angular.module('gsApp.olmap', [])
           layer.getSource().updateParams({ LAYERS: layerNames });
         }
       };
-
+      OLMap.prototype.updateTimeout = function(val) {
+        this.timeout = val;
+      };
       OLMap.prototype.hideBasemap = function() {
         // if null, remove any existing basemap
         if (this.mapOpts.basemap == null) {
@@ -468,7 +463,7 @@ angular.module('gsApp.olmap', [])
 
           var timer = null;
 
-          $scope.$watch('mapOpts.layers', function(newVal) {
+          $scope.$watch('mapOpts.layers', function(newVal, oldVal) {
             if (newVal == null) {
               return;
             }
@@ -485,8 +480,8 @@ angular.module('gsApp.olmap', [])
             }
           }, true);
 
-          $scope.$watch('mapOpts.bounds', function(newVal) {
-            if (newVal) {
+          $scope.$watch('mapOpts.bounds', function(newVal, oldVal) {
+            if (newVal && newVal !== oldVal) {
               var map = $scope.map.olMap;
               var bounds = newVal.bbox.lonlat;
               var extent = ol.proj.transformExtent(
@@ -496,6 +491,12 @@ angular.module('gsApp.olmap', [])
                   !isNaN(extent[2]) && !isNaN(extent[3])) {
                 map.getView().fitExtent(extent, map.getSize());
               }
+            }
+          });
+
+          $scope.$watch('mapOpts.timeout', function(newVal, oldVal) {
+            if (newVal && newVal !== oldVal) {
+              $scope.map.updateTimeout(newVal);
             }
           });
 
