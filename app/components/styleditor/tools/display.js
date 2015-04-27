@@ -99,8 +99,11 @@ angular.module('gsApp.styleditor.display', [
                 workspace: function() {
                   return $scope.$parent.workspace;
                 },
-                map: function() {
-                  return $scope.$parent.map;
+                mapOrLayer: function() {
+                  if ($scope.$parent.map) {
+                    return $scope.$parent.map;
+                  }
+                  return $scope.$parent.layer;
                 }
               }
             });

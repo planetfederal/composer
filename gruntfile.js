@@ -202,12 +202,6 @@ module.exports = function(grunt) {
       }
     },
     copy: {
-      index: {
-        expand: true,
-        cwd: 'app/',
-        src: 'index.html',
-        dest: 'build/'
-      },
       assets: {
         files: [{
           expand: true,
@@ -337,6 +331,18 @@ module.exports = function(grunt) {
           }
         }
       }
+    },
+    asset_cachebuster: {
+      options: {
+        buster: '<%= pkg.version %>',
+        ignore: [],
+        htmlExtension: 'html'
+      },
+      build: {
+        files: {
+          'build/index.html': ['app/index.html']
+        }
+      }
     }
   });
 
@@ -354,10 +360,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-html2js');
   grunt.loadNpmTasks('grunt-text-replace');
   grunt.loadNpmTasks('grunt-protractor-runner');
+  grunt.loadNpmTasks('grunt-asset-cachebuster');
 
   // tasks
   grunt.registerTask('build',
-    ['copy', 'less', 'ngmin', 'html2js', 'concat', 'uglify']);
+    ['copy', 'asset_cachebuster', 'less', 'ngmin', 'html2js', 'concat', 'uglify']);
   grunt.registerTask('start',
     ['configureProxies:server','connect', 'watch']);
   grunt.registerTask('test',

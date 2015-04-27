@@ -101,6 +101,14 @@ angular.module('gsApp.layers.style', [
         });
       };
 
+      $scope.$watch('basemap', function(newVal) {
+        if (newVal != null && $scope.mapOpts) {
+          $scope.mapOpts.basemap = newVal;
+        } else if (newVal == null && $scope.mapOpts) {
+          $scope.mapOpts.basemap = null;
+        }
+      });
+
       $scope.refreshMap = function() {
         $scope.$broadcast('olmap-refresh');
       };

@@ -4,18 +4,24 @@
 /* globals $ */
 angular.module('gsApp.styleditor.basemap', [])
 .controller('BasemapModalCtrl', ['$scope', '$modalInstance', '$upload',
-  '$log', 'GeoServer', '$timeout', 'workspace', 'map',
+  '$log', 'GeoServer', '$timeout', 'workspace', 'mapOrLayer',
     function($scope, $modalInstance, $upload, $log, GeoServer,
-      $timeout, workspace, map) {
+      $timeout, workspace, mapOrLayer) {
 
       $scope.workspace = workspace;
-      $scope.map = map;
-      $scope.map.isMercator = false;
+      if (mapOrLayer) {
+        $scope.mapOrLayer = mapOrLayer;
+      } else {
+        $scope.mapOrLayer.isMercator = true;
+        $scope.mapOrLayer.proj = {'srs': 'EPSG:3857'};
+      }
 
-      if (map.proj.srs.indexOf('900913') > -1) {
-        $scope.map.isMercator = true;
-      } else if (map.proj.srs.indexOf('3857') > -1) {
-        $scope.map.isMercator = true;
+      var srs = $scope.mapOrLayer.proj.srs;
+
+      if (srs.indexOf('900913') > -1) {
+        $scope.mapOrLayer.isMercator = true;
+      } else if (srs.indexOf('3857') > -1) {
+        $scope.mapOrLayer.isMercator = true;
       }
 
       $scope.basemapOptions = [
@@ -57,7 +63,7 @@ angular.module('gsApp.styleditor.basemap', [])
         },
         {
           'type': 'tilewms',
-          'display_type': 'TileWMS (Custom)',
+          'display_type': 'WMS (Custom)',
           'url_req': true,
           'key_req': false,
           'isMercator': false,
