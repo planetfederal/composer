@@ -8,7 +8,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
       GeoServer, AppEvent) {
 
       $scope.workspace = workspace;
-      $scope.map = map;
+      $scope.map = angular.copy(map);
       $scope.mapname = map.name;
 
       $scope.form = {};
@@ -16,17 +16,24 @@ angular.module('gsApp.workspaces.maps.settings', [])
       var originalMap = angular.copy($scope.map);
 
       $scope.crsTooltip =
-      '<h5>Add a projection in EPSG</h5>' +
-      '<p>Coordinate Reference System (CRS) info is available at ' +
+      '<p>Add a projection in EPSG</p>' +
+      '<p><small>Coordinate Reference System (CRS) info is available at ' +
         '<a href="http://prj2epsg.org/search" target="_blank">' +
           'http://prj2epsg.org' +
         '</a>' +
-      '</p>';
+        '</small></p>';
+
+      $scope.renderToolTip =
+      '<p>Render Timeout</p>' +
+      '<small class="hint">Max time to wait for map to render in ' +
+      'Composer before the request is cancelled.<br/>A lower number prevents '+
+      'overloading GeoServer with resource-monopolizing<br/>rendering '+
+      'requests.<br/><br/>Minimum is 3 seconds.<br/><br/>Default is ' +
+      '120 seconds.<br/>(This is set high so you can still render ' +
+      'large datasets, but we<br/>recommend reducing this for a more ' +
+      'performant or shared GeoServer).</small>';
 
       $scope.saveChanges = function() {
-        // clear any error state
-        $scope.form.mapSettings.alerts = null;
-
         if ($scope.form.mapSettings.$dirty) {
           var patch = { 'bbox': {}, 'center': [2] };
           if (originalMap.name !== $scope.map.name) {
@@ -48,6 +55,10 @@ angular.module('gsApp.workspaces.maps.settings', [])
             patch.description = $scope.map.description;
           }
 
+          if (originalMap.timeout !== $scope.map.timeout) {
+            patch.timeout = $scope.map.timeout;
+          }
+
           GeoServer.map.update($scope.workspace, originalMap.name, patch).then(
             function(result) {
               if (result.success) {
@@ -55,26 +66,18 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 $scope.form.mapSettings.$setPristine();
                 $rootScope.$broadcast(AppEvent.MapUpdated, {
                   'original': originalMap,
-                  'new': $scope.map
+                  'new': result.data
                 });
+                $scope.map = result.data;
                 originalMap = angular.copy($scope.map);
               } else {
-                $scope.form.mapSettings.alerts = 'Map update failed: ' +
-                  result.data.message;
+                $scope.map = angular.copy(originalMap);
                 $rootScope.alerts = [{
                   type: 'danger',
-                  message: 'Map update failed: ' + result.data.message,
+                  message: 'Map update failed: ' +
+                    result.data.message,
                   fadeout: true
                 }];
-                // Reset settings to original
-                $scope.map.name = originalMap.name;
-                $scope.map.title = originalMap.title;
-                $scope.map.proj = originalMap.proj;
-                $scope.map.bbox.south = originalMap.bbox.south;
-                $scope.map.bbox.north = originalMap.bbox.north;
-                $scope.map.bbox.east = originalMap.bbox.east;
-                $scope.map.bbox.west = originalMap.bbox.west;
-                $scope.map.description = originalMap.description;
               }
             });
         }

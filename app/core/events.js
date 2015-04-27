@@ -71,6 +71,10 @@ angular.module('gsApp.core.event', [])
    */
   MapSettingsUpdated: 'map-settings-updated',
   /**
+   * Fired when map render timeout updated
+   */
+  MapRenderTimeoutUpdated: 'map-rendertimeout-updated',
+  /**
    * Fired when a map is edited
    */
   MapEdited: 'map-edited',

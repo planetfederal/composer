@@ -407,6 +407,12 @@ angular.module('gsApp.maps.compose', [
         });
       };
 
+      $rootScope.$on(AppEvent.MapUpdated, function(scope, maps) {
+        var newmap = maps.new;
+        delete newmap.layers;
+        angular.extend($scope.map, newmap);
+      });
+
       $rootScope.$on(AppEvent.EditorBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
       });
