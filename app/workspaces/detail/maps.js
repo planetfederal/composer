@@ -246,19 +246,20 @@ angular.module('gsApp.workspaces.maps', [
       };
 
       //TODO: Push modal to own controller/scope? 
-      $scope.generateMap = function(map) {
-        $scope.ol3js = OlExport.fromMapObj(map, true);
-        $modal.open({
-          templateUrl: '/workspaces/detail/modals/map.export.tpl.html',
-          scope: $scope
-        });
+      $scope.generateMapSrc = function(map) {
+        OlExport.wrapHtml(
+          OlExport.fromMapObj(map))
+          .then(function(src) {
+            $scope.ol3src = src;
+            $modal.open({
+              templateUrl: '/workspaces/detail/modals/map.export.tpl.html',
+              scope: $scope
+            });
+          });
       };
 
       $scope.preview = function() {
-        OlExport.wrapHtml($scope.ol3js)
-          .then(function(res) {
-            $window.open().document.write(res);
-          });
+        $window.open().document.write($scope.ol3src);
       };
 
       $rootScope.$on(AppEvent.MapsAllUpdated, function(scope, maps) {
