@@ -88,21 +88,28 @@ angular.module('gsApp.workspaces.layers.addtomap', [
       var modalWidth = 800;
       $scope.gridWidth = {'width': modalWidth};
 
-      $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
-        pageSize: 25,
-        currentPage: 1
+
+      $scope.opts = {
+        paging: {
+          pageSizes: [25, 50, 100],
+          pageSize: 25,
+          currentPage: 1
+        },
+        sort: {
+          fields: ['name'],
+          directions: ['asc']
+        },
+        filter: {
+          filterText: ''
+        }
       };
-      $scope.filterOptions = {
-          filterText: '',
-          useExternalFilter: true
-        };
+
       $scope.layerSelections = [];
 
       $scope.layerOptions = {
         data: 'layers',
         enableCellSelection: false,
-        filterOptions: $scope.filterOptions,
+        filterOptions: $scope.opts.filter,
         enableRowSelection: false,
         enableCellEdit: false,
         enableRowReordering: false,
@@ -113,8 +120,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
         int: function() {
           $log('done');
         },
-        sortInfo: {fields: ['name', 'title', 'modified.timestamp',
-        'geometry'], directions: ['asc']},
+        sortInfo: $scope.opts.sort,
         showSelectionCheckbox: false,
         selectWithCheckboxOnly: false,
         selectedItems: $scope.layerSelections,
@@ -145,7 +151,8 @@ angular.module('gsApp.workspaces.layers.addtomap', [
               '<div class="grid-text-padding"' +
                 'ng-show="row.entity.alreadyInMap">' +
               'In Map</div>',
-            width: '10%'
+            width: '10%',
+            sortable: false
           },
           {field: 'modified.timestamp',
             displayName: 'Modified',
@@ -155,7 +162,8 @@ angular.module('gsApp.workspaces.layers.addtomap', [
               '<div class="grid-text-padding"' +
                 'ng-show="row.entity.modified">' +
               '{{ row.entity.modified.pretty }}</div>',
-            width: '20%'
+            width: '20%',
+            sortable: false
           },
           {field: 'geometry',
             displayName: 'Type',
@@ -164,24 +172,22 @@ angular.module('gsApp.workspaces.layers.addtomap', [
               '<div get-type ' +
                 'geometry="{{row.entity.geometry}}">' +
               '</div>',
-            width: '10%'
+            width: '10%',
+            sortable: false
           }
         ],
         enablePaging: true,
         enableColumnResize: false,
         showFooter: false,
         totalServerItems: 'totalServerItems',
-        pagingOptions: $scope.pagingOptions
+        pagingOptions: $scope.opts.paging,
+        useExternalSorting: true
       };
 
-      $scope.$watch('pagingOptions.currentPage', function(newVal) {
-        if (newVal != null) {
+      $scope.$watch('opts', function(newVal, oldVal) {
+        if (newVal && newVal !== oldVal) {
           $scope.refreshLayers();
         }
-      });
-
-      $scope.$watch('layerOptions.ngGrid.config.sortInfo', function() {
-        $scope.refreshLayers();
       }, true);
 
       var refreshTimer = null;
@@ -208,28 +214,21 @@ angular.module('gsApp.workspaces.layers.addtomap', [
       }
 
       $scope.serverRefresh = function() {
-        $scope.sort = '';
-        if ($scope.filterOptions.filterText == '' &&
-          $scope.layerOptions.sortInfo.fields.length > 4) {
-          if ($scope.layerOptions.sortInfo.directions == 'asc') {
-            $scope.sort = $scope.layerOptions.sortInfo.fields+':asc';
-          } else {
-            $scope.sort = $scope.layerOptions.sortInfo.fields+':desc';
-          }
-        }
         if ($scope.workspace) {
+          var opts = $scope.opts;
           GeoServer.layers.get(
             $scope.workspace,
-            $scope.pagingOptions.currentPage-1,
-            $scope.pagingOptions.pageSize,
-            $scope.sort,
-            $scope.filterOptions.filterText
+            opts.paging.currentPage-1,
+            opts.paging.pageSize,
+            opts.sort.fields[0] + ':'
+              + opts.sort.directions[0],
+            opts.filter.filterText
           ).then(function(result) {
             if (result.success) {
               $scope.layers = result.data.layers;
               disableExistingLayers();
               $scope.totalServerItems = result.data.total;
-              $scope.itemsPerPage = $scope.pagingOptions.pageSize;
+              $scope.itemsPerPage = opts.paging.pageSize;
               $scope.totalItems = $scope.totalServerItems;
             } else {
               $rootScope.alerts = [{
