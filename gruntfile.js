@@ -202,6 +202,13 @@ module.exports = function(grunt) {
         }
       }
     },
+    cssmin: {
+      compress: {
+        files: {
+          'build/geoserver.min.css': ['build/geoserver.css']
+        }
+      }
+    },
     copy: {
       assets: {
         files: [{
@@ -284,9 +291,10 @@ module.exports = function(grunt) {
       },
       less: {
         files: sources.less,
-        tasks: ['less'],
+        tasks: ['less','cssmin'],
         options: {
-          livereload: true
+          livereload: true,
+          debounceDelay: 250
         }
       },
       js: {
@@ -362,10 +370,11 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-text-replace');
   grunt.loadNpmTasks('grunt-protractor-runner');
   grunt.loadNpmTasks('grunt-asset-cachebuster');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
 
   // tasks
   grunt.registerTask('build',
-    ['copy', 'asset_cachebuster', 'less', 'ngmin', 'html2js', 'concat', 'uglify']);
+    ['copy', 'asset_cachebuster', 'less', 'cssmin', 'ngmin', 'html2js', 'concat', 'uglify']);
   grunt.registerTask('start',
     ['configureProxies:server','connect', 'watch']);
   grunt.registerTask('test',
