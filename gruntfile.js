@@ -34,6 +34,7 @@ var sources = {
 var deps = {
   js: [
     '/node_modules/openlayers/dist/ol.js',
+    '/node_modules/mapcfg/mapcfg.js',
     'jquery/dist/jquery.js',
     'jquery-ui/ui/core.js',
     'jquery-ui/ui/widget.js',

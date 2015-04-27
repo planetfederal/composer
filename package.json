@@ -30,6 +30,7 @@
     "start": "grunt start"
   },
   "dependencies": {
+    "mapcfg": "boundlessgeo/mapcfg",
     "openlayers": "^3.4.0"
   }
 }

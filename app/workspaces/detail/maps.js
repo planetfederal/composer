@@ -6,6 +6,7 @@ angular.module('gsApp.workspaces.maps', [
   'gsApp.workspaces.maps.settings',
   'gsApp.alertpanel',
   'gsApp.core.utilities',
+  'gsApp.olexport',
   'ngSanitize'
 ])
 .config(['$stateProvider',
@@ -193,11 +194,10 @@ angular.module('gsApp.workspaces.maps', [
       });
 
     }])
-.controller('MapsMainCtrl', ['$scope', '$state', '$stateParams', '$sce',
-  '$window', '$log', 'GeoServer', '$modal', '$rootScope', 'AppEvent', '_',
-  'mapsListModel',
+.controller('MapsMainCtrl',
     function($scope, $state, $stateParams, $sce, $window, $log,
-      GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel) {
+      GeoServer, $modal, $rootScope, AppEvent, _, mapsListModel,
+      OlExport) {
 
       $scope.workspace = $stateParams.workspace;
 
@@ -245,6 +245,23 @@ angular.module('gsApp.workspaces.maps', [
         });
       };
 
+      //TODO: Push modal to own controller/scope? 
+      $scope.generateMapSrc = function(map) {
+        OlExport.wrapHtml(
+          OlExport.fromMapObj(map))
+          .then(function(src) {
+            $scope.ol3src = src;
+            $modal.open({
+              templateUrl: '/workspaces/detail/modals/map.export.tpl.html',
+              scope: $scope
+            });
+          });
+      };
+
+      $scope.preview = function() {
+        $window.open().document.write($scope.ol3src);
+      };
+
       $rootScope.$on(AppEvent.MapsAllUpdated, function(scope, maps) {
         if (maps) {
           $scope.maps = maps;
@@ -281,7 +298,7 @@ angular.module('gsApp.workspaces.maps', [
           }
         }
       });
-    }])
+    })
 .service('mapsListModel', function(GeoServer, _, $rootScope) {
   var _this = this;
   this.maps = null;
