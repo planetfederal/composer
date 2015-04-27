@@ -417,7 +417,8 @@ angular.module('gsApp.workspaces.maps.new', [
             '<div get-type ' +
               'geometry="{{row.entity.geometry}}">' +
             '</div>',
-          width: '10%'
+          width: '10%',
+          sortable: false
         }
       ],
       enableColumnResize: false,
