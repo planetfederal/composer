@@ -32,7 +32,7 @@
     "start": "grunt start"
   },
   "dependencies": {
-    "mapcfg": "git+ssh://git@github.com/boundlessgeo/mapcfg.git",
+    "mapcfg": "boundlessgeo/mapcfg",
     "openlayers": "^3.4.0"
   }
 }
