@@ -352,10 +352,10 @@ angular.module('gsApp.olmap', [])
                 params: {
                   'LAYERS': basemap.layer,
                   'VERSION': basemap.version,
-                  'TILED': basemap.tiled
+                  'TILED': basemap.tiled,
+                  'FORMAT': basemap.format
                 },
-                format: basemap.format,
-                crossOriginKeyword: 'anonymous'
+                crossOrigin: 'anonymous'
               }));
             } else { //imageWMS
               bLayer = new ol.layer.Image({group: 'background'});
@@ -364,10 +364,10 @@ angular.module('gsApp.olmap', [])
                 serverType: basemap.serverType,
                 params: {
                   'LAYERS': basemap.layer,
-                  'VERSION': basemap.version
+                  'VERSION': basemap.version,
+                  'FORMAT': basemap.format,
                 },
-                format: basemap.format,
-                crossOriginKeyword: 'anonymous'
+                crossOrigin: 'anonymous'
               }));
             }
 
@@ -375,14 +375,14 @@ angular.module('gsApp.olmap', [])
             bLayer = new ol.layer.Tile({group: 'background'});
             bLayer.setSource(new ol.source.OSM({
               'projection': 'EPSG:3857',
-              crossOriginKeyword: 'anonymous'
+              crossOrigin: 'anonymous'
             }));
 
           } else if (basemap.type == 'stamen') {
             bLayer = new ol.layer.Tile({group: 'background'});
             bLayer.setSource(new ol.source.Stamen({
               'projection': 'EPSG:3857',
-              crossOriginKeyword: 'anonymous',
+              crossOrigin: 'anonymous',
               layer: 'toner-lite'
             }));
 
@@ -395,7 +395,7 @@ angular.module('gsApp.olmap', [])
             bLayer.setSource(new ol.source.XYZ({
               'projection': 'EPSG:3857',
               url: basemap.url,
-              crossOriginKeyword: 'anonymous'
+              crossOrigin: 'anonymous'
             }));
 
           } else if (basemap.type == 'bing') {
@@ -412,7 +412,7 @@ angular.module('gsApp.olmap', [])
               key: basemap.key,
               'projection': 'EPSG:3857',
               imagerySet: basemap.style,
-              crossOriginKeyword: 'anonymous'
+              crossOrigin: 'anonymous'
             }));
 
           } else if (basemap.type == 'esri') {
@@ -422,7 +422,7 @@ angular.module('gsApp.olmap', [])
             bLayer = new ol.layer.Tile({group: 'background'});
             bLayer.setSource(new ol.source.XYZ({
               url: basemap.url,
-              crossOriginKeyword: 'anonymous'
+              crossOrigin: 'anonymous'
             }));
 
           }
