@@ -42,6 +42,21 @@ angular.module('gsApp.maps', [
         }
       });
 
+      $scope.opts = {
+        paging: {
+          pageSizes: [15, 50, 100],
+          pageSize: 15,
+          currentPage: 1
+        },
+        sort: {
+          fields: ['name'],
+          directions: ['asc']
+        },
+        filter: {
+          filterText: ''
+        }
+      };
+
       $scope.newOLWindow = function(map) {
         var baseUrl = GeoServer.map.openlayers.get(
           map.workspace, map.name, 800, 500);
@@ -112,51 +127,22 @@ angular.module('gsApp.maps', [
         });
       };
 
-      $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
-        if (_.contains($scope.gridOptions.sortInfo.fields, 'name') ||
-          _.contains($scope.gridOptions.sortInfo.fields, 'title')) {
-          $scope.refreshMaps();
-        } else {
-          $rootScope.alerts = [{
-              type: 'warning',
-              message: 'Sorting ' + $scope.gridOptions.sortInfo.fields[0] +
-                ' for this page only.',
-              fadeout: true
-            }];
-        }
-      }, true);
-
-
       $scope.refreshMaps = function() {
-        $scope.sort = '';
+        var opts = $scope.opts;
         $scope.ws = $scope.workspace.selected;
-        if ($scope.gridOptions.sortInfo.directions == 'asc') {
-          $scope.sort = $scope.gridOptions.sortInfo.fields+':asc';
-        }
-        else {
-          $scope.sort = $scope.gridOptions.sortInfo.fields+':desc';
-        }
 
         if ($scope.ws) {
           GeoServer.maps.get(
             $scope.ws.name,
-            $scope.pagingOptions.currentPage-1,
-            $scope.pagingOptions.pageSize,
-            $scope.sort,
-            $scope.filterOptions.filterText
+            opts.paging.currentPage-1,
+            opts.paging.pageSize,
+            opts.sort.fields[0] + ':' + opts.sort.directions[0],
+            opts.filter.filterText
           ).then(function(result) {
             if (result.success) {
               $scope.mapData = result.data.maps;
               $scope.totalServerItems = result.data.total;
-              $scope.itemsPerPage = $scope.pagingOptions.pageSize;
-
-              if ($scope.filterOptions.filterText.length > 0) {
-                $scope.totalItems =
-                  $scope.gridOptions.ngGrid.filteredRows.length;
-              }
-              else {
-                $scope.totalItems = $scope.totalServerItems;
-              }
+              $scope.itemsPerPage = opts.paging.pageSize;
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
@@ -169,21 +155,9 @@ angular.module('gsApp.maps', [
         }
       };
 
-      $scope.updatePaging = function () {
-        $scope.refreshMaps();
-      };
-
       $scope.setPage = function (page) {
-        $scope.pagingOptions.currentPage = page;
+        $scope.opts.paging.currentPage = page;
       };
-
-      $scope.$watch('pagingOptions', function (newVal, oldVal) {
-        if (newVal != null) {
-          if ($scope.workspace.selected) {
-            $scope.refreshMaps();
-          }
-        }
-      }, true);
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
@@ -254,14 +228,6 @@ angular.module('gsApp.maps', [
         GeoServer.map.update(map.workspace, map.name, {title: patch[field]});
       });
 
-      $scope.pagingOptions = {
-        pageSizes: [15, 50, 100],
-        pageSize: 15
-      };
-      $scope.filterOptions = {
-        filterText: ''
-      };
-
       $scope.gridSelections = [];
       $scope.gridOptions = {
         data: 'mapData',
@@ -271,7 +237,7 @@ angular.module('gsApp.maps', [
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
-        sortInfo: {fields: ['name'], directions: ['asc']},
+        sortInfo: $scope.opts.sort,
         showSelectionCheckbox: false,
         selectWithCheckboxOnly: false,
         selectedItems: $scope.gridSelections,
@@ -345,7 +311,9 @@ angular.module('gsApp.maps', [
               '<div class="grid-text-padding" style="font-size: .9em">' +
               '{{row.entity.modified.timestamp|amDateFormat:"MMM D, h:mm a"}}' +
               '</div>',
-            width: '11%'},
+            width: '11%',
+            sortable: false
+          },
           {field: '',
             displayName: '',
             cellClass: 'pull-left',
@@ -362,31 +330,22 @@ angular.module('gsApp.maps', [
         ],
         enablePaging: true,
         enableColumnResize: false,
-        showFooter: true,
-        footerTemplate: '/components/grid/footer.tpl.html',
         totalServerItems: 'totalServerItems',
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: $scope.filterOptions
+        pagingOptions: $scope.opts.paging,
+        filterOptions: $scope.opts.filter,
+        useExternalSorting: true
       };
 
       $scope.workspace = {};
       $scope.workspaces = [];
 
-      $scope.updatePaging = function () {
-        var ws = $scope.workspace.selected;
-        $scope.refreshLayers(ws);
-      };
-
       $scope.setPage = function (page) {
-        $scope.pagingOptions.currentPage = page;
+        $scope.opts.paging.currentPage = page;
       };
 
-      $scope.$watch('pagingOptions', function (newVal, oldVal) {
-        if (newVal != null) {
-          var ws = $scope.workspace.selected;
-          if (ws != null) {
-            $scope.refreshLayers(ws);
-          }
+      $scope.$watch('opts', function(newVal, oldVal) {
+        if (newVal && newVal !== oldVal) {
+          $scope.refreshMaps();
         }
       }, true);
 
