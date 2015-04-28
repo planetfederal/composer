@@ -261,18 +261,25 @@ angular.module('gsApp.layers', [
         layer.download_urls = $sce.trustAsHtml(layer.download_urls);
       };
 
+      $scope.opts = {
+        paging: {
+          pageSizes: [15, 50, 100],
+          pageSize: 15,
+          currentPage: 1
+        },
+        sort: {
+          fields: ['name'],
+          directions: ['asc']
+        },
+        filter: {
+          filterText: ''
+        }
+      };
 
-      $scope.pagingOptions = {
-        pageSizes: [15, 50, 100],
-        pageSize: 15,
-        currentPage: 1
-      };
-      $scope.filterOptions = {
-        filterText: ''
-      };
       $scope.layerSelections = [];
       $scope.gridOptions = {
         data: 'layerData',
+        primaryKey: 'name',
         enableCellSelection: false,
         enableRowSelection: true,
         enableCellEdit: false,
@@ -282,7 +289,7 @@ angular.module('gsApp.layers', [
         int: function() {
           $log('done');
         },
-        sortInfo: {fields: ['name'], directions: ['asc']},
+        sortInfo: $scope.opts.sort,
         showSelectionCheckbox: true,
         selectWithCheckboxOnly: true,
         selectedItems: $scope.layerSelections,
@@ -307,7 +314,8 @@ angular.module('gsApp.layers', [
               '<div get-type ' +
                 'geometry="{{row.entity.geometry}}">' +
               '</div>',
-            width: '5%'
+            width: '5%',
+            sortable: false
           },
           {field: 'srs',
             displayName: 'SRS',
@@ -316,7 +324,8 @@ angular.module('gsApp.layers', [
               '<div class="grid-text-padding">' +
                 '{{row.entity.proj.srs}}' +
               '</div>',
-            width: '8%'
+            width: '8%',
+            sortable: false
           },
           {field: 'settings',
             displayName: 'Settings',
@@ -380,44 +389,28 @@ angular.module('gsApp.layers', [
         ],
         enablePaging: true,
         enableColumnResize: false,
-        showFooter: true,
-        footerTemplate: '/components/grid/footer.tpl.html',
         totalServerItems: 'totalServerItems',
-        pagingOptions: $scope.pagingOptions,
-        filterOptions: $scope.filterOptions
+        pagingOptions: $scope.opts.paging,
+        filterOptions: $scope.opts.filter,
+        useExternalSorting: true
       };
 
-      $scope.$watch('gridOptions.ngGrid.config.sortInfo', function() {
-        if (selectedWorkspace) {
-          if (_.contains($scope.gridOptions.sortInfo.fields, 'name') ||
-            _.contains($scope.gridOptions.sortInfo.fields, 'title')) {
-            $scope.refreshLayers();
-          } else {
-            $rootScope.alerts = [{
-                type: 'warning',
-                message: 'Sorting ' + $scope.gridOptions.sortInfo.fields[0] +
-                  ' for this page only.',
-                fadeout: true
-              }];
-          }
+      $scope.$watch('opts', function(newVal, oldVal) {
+        if (newVal && newVal !== oldVal) {
+          $scope.refreshLayers();
         }
       }, true);
 
       $scope.refreshLayers = function() {
-        $scope.sort = '';
-        if ($scope.gridOptions.sortInfo.directions == 'asc') {
-          $scope.sort = $scope.gridOptions.sortInfo.fields+':asc';
-        }
-        else {
-          $scope.sort = $scope.gridOptions.sortInfo.fields+':desc';
-        }
+        var opts = $scope.opts;
+
         if (selectedWorkspace) {
           GeoServer.layers.get(
             selectedWorkspace,
-            $scope.pagingOptions.currentPage-1,
-            $scope.pagingOptions.pageSize,
-            $scope.sort,
-            $scope.filterOptions.filterText
+            opts.paging.currentPage - 1,
+            opts.paging.pageSize,
+            opts.sort.fields[0] + ':' +opts.sort.directions[0],
+            opts.filter.filterText
           ).then(function(result) {
             if (result.success) {
               $scope.layerData = _.map(result.data.layers,
@@ -431,16 +424,10 @@ angular.module('gsApp.layers', [
                     return layer;
                   }
                 });
-              $scope.totalServerItems = result.data.total;
-              $scope.itemsPerPage = $scope.pagingOptions.pageSize;
 
-              if ($scope.filterOptions.filterText.length > 0) {
-                $scope.totalItems =
-                  $scope.gridOptions.ngGrid.filteredRows.length;
-              }
-              else {
-                $scope.totalItems = $scope.totalServerItems;
-              }
+              $scope.totalServerItems = result.data.total;
+              $scope.itemsPerPage = opts.paging.pageSize;
+
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
@@ -469,22 +456,6 @@ angular.module('gsApp.layers', [
           }
         });
       };
-
-      $scope.updatePaging = function () {
-        $scope.refreshLayers();
-      };
-
-      $scope.setPage = function (page) {
-        $scope.pagingOptions.currentPage = page;
-      };
-
-      $scope.$watch('pagingOptions', function (newVal, oldVal) {
-        if (newVal != null) {
-          if (selectedWorkspace) {
-            $scope.refreshLayers();
-          }
-        }
-      }, true);
 
       $scope.$watch('workspace.selected', function(newVal) {
         if (newVal != null) {
