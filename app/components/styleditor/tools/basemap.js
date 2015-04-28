@@ -4,14 +4,16 @@
 /* globals $ */
 angular.module('gsApp.styleditor.basemap', [])
 .controller('BasemapModalCtrl', ['$scope', '$modalInstance', '$upload',
-  '$log', 'GeoServer', '$timeout', 'workspace', 'mapOrLayer',
+  '$log', 'GeoServer', '$timeout', 'workspace', 'mapOrLayer', '$rootScope',
+  'AppEvent',
     function($scope, $modalInstance, $upload, $log, GeoServer,
-      $timeout, workspace, mapOrLayer) {
+      $timeout, workspace, mapOrLayer, $rootScope, AppEvent) {
 
       $scope.workspace = workspace;
       if (mapOrLayer) {
         $scope.mapOrLayer = mapOrLayer;
       } else {
+        $scope.mapOrLayer = {};
         $scope.mapOrLayer.isMercator = true;
         $scope.mapOrLayer.proj = {'srs': 'EPSG:3857'};
       }
@@ -23,6 +25,8 @@ angular.module('gsApp.styleditor.basemap', [])
       } else if (srs.indexOf('3857') > -1) {
         $scope.mapOrLayer.isMercator = true;
       }
+
+      $scope.basemapExtraOptions = { 'tiled': true }; // Custom WMS
 
       $scope.basemapOptions = [
         {
@@ -72,9 +76,16 @@ angular.module('gsApp.styleditor.basemap', [])
           'layer': 'ne:ne_10m_admin_0_countries',
           'tiled': true,
           'format': 'image/png',
-          'version': '1.3.0'
+          'version': '1.3.0',
+          'tiledwms': true
         }
       ];
+
+      $scope.$watch('basemapExtraOptions.tiled', function(newVal) {
+        if (newVal != null) {
+          $scope.basemapOptions[5].tiledwms = newVal;
+        }
+      }, true);
 
       // mapbox-specific
       $scope.$watch('basemap.mapid', function(newVal) {
@@ -97,7 +108,7 @@ angular.module('gsApp.styleditor.basemap', [])
       };
 
       $scope.add = function() {
-        $scope.$parent.basemap = $scope.basemap;
+        $rootScope.$broadcast(AppEvent.BaseMapChanged, $scope.basemap);
         $scope.close();
       };
 

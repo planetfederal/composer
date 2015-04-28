@@ -326,14 +326,6 @@ angular.module('gsApp.maps.compose', [
         }
       });
 
-      $scope.$watch('basemap', function(newVal) {
-        if (newVal != null && $scope.mapOpts) {
-          $scope.mapOpts.basemap = newVal;
-        } else if (newVal == null && $scope.mapOpts) {
-          $scope.mapOpts.basemap = null;
-        }
-      });
-
       $scope.viewWorkspace = function(workspace) {
         $rootScope.workspace = workspace;
         $state.go('workspace', {workspace: workspace});
@@ -415,6 +407,12 @@ angular.module('gsApp.maps.compose', [
 
       $rootScope.$on(AppEvent.EditorBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
+      });
+
+      $rootScope.$on(AppEvent.BaseMapChanged, function(scope, basemap) {
+        if ($scope.mapOpts) {
+          $scope.mapOpts.basemap = basemap;
+        }
       });
 
       $scope.onUpdatePanels = function() {

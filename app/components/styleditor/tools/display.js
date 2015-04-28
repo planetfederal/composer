@@ -110,7 +110,7 @@ angular.module('gsApp.styleditor.display', [
           };
 
           $scope.hideBasemap = function() {
-            $scope.$parent.basemap = null;
+            $rootScope.$broadcast(AppEvent.BaseMapChanged, null);
           };
 
           $scope.chooseBasemapControl = function(ctrl) {

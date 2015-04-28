@@ -343,18 +343,33 @@ angular.module('gsApp.olmap', [])
             if (!basemap.serverType) {
               throw new Error('ServerType is required. Please enter one.');
             }
-            bLayer = new ol.layer.Tile({group: 'background'});
-            bLayer.setSource(new ol.source.TileWMS({
-              url: basemap.url,
-              serverType: basemap.serverType,
-              params: {
-                'LAYERS': basemap.layer,
-                'VERSION': basemap.version,
-                'TILED': basemap.tiled
-              },
-              format: basemap.format,
-              crossOriginKeyword: 'anonymous'
-            }));
+            // TiledwMS or ImageWMS?
+            if (basemap.tiledwms) {
+              bLayer = new ol.layer.Tile({group: 'background'});
+              bLayer.setSource(new ol.source.TileWMS({
+                url: basemap.url,
+                serverType: basemap.serverType,
+                params: {
+                  'LAYERS': basemap.layer,
+                  'VERSION': basemap.version,
+                  'TILED': basemap.tiled
+                },
+                format: basemap.format,
+                crossOriginKeyword: 'anonymous'
+              }));
+            } else { //imageWMS
+              bLayer = new ol.layer.Image({group: 'background'});
+              bLayer.setSource(new ol.source.ImageWMS({
+                url: basemap.url,
+                serverType: basemap.serverType,
+                params: {
+                  'LAYERS': basemap.layer,
+                  'VERSION': basemap.version
+                },
+                format: basemap.format,
+                crossOriginKeyword: 'anonymous'
+              }));
+            }
 
           } else if (basemap.type == 'osm') {
             bLayer = new ol.layer.Tile({group: 'background'});

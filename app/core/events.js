@@ -105,5 +105,9 @@ angular.module('gsApp.core.event', [])
  /**
    * Fire when map background color change is requested
    */
-  EditorBackground: 'editor-background'
+  EditorBackground: 'editor-background',
+   /**
+   * Fire when basemap added
+   */
+  BaseMapChanged: 'basemap-changed'
 });
