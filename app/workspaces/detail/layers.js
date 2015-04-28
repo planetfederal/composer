@@ -96,7 +96,7 @@ angular.module('gsApp.workspaces.layers', [
       $scope.$watch('opts', function(newVal, oldVal) {
         if (newVal != null && newVal !== oldVal) {
           $scope.serverRefresh();
-        };
+        }
       }, true);
 
     })

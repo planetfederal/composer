@@ -16,6 +16,10 @@
         <span class="attr-type pull-right">{{ attr.type }}</span>
       </div>
     </div>
+    <alert type="danger" ng-show="error">
+      <p>Error retrieving attributes for <strong>{{ layerOrResource.name }}</strong>:</p>
+      <p>{{ error }}</p>
+    </alert>
   </div>
   <div class="modal-footer">
     <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
