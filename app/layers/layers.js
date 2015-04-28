@@ -362,7 +362,8 @@ angular.module('gsApp.layers', [
               '<div class="grid-text-padding" style="font-size: .9em">' +
               '{{row.entity.modified.timestamp|amDateFormat:"MMM D, h:mm a"}}' +
               '</div>',
-            width: '11%'},
+            width: '11%',
+            sortable: false},
           {field: '',
             displayName: '',
             cellClass: 'text-center',

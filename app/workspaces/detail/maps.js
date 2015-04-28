@@ -64,46 +64,40 @@ angular.module('gsApp.workspaces.maps', [
         }
       }
 
-      $scope.currentPage = 1;
-      $scope.pagingOptions = {
-        pageSizes: [25, 50, 100],
-        pageSize: 25,
-        currentPage: 1
-      };
-      $scope.filterOptions = {
+      $scope.opts = {
+        paging: {
+          pageSizes: [25, 50, 100],
+          pageSize: 25,
+          currentPage: 1
+        },
+        sort: {
+          predicate: 'name',
+          order: 'asc'
+        },
+        filter: {
           filterText: ''
-        };
-      $scope.sortOptions = '';
-
-      $scope.serverRefresh = function() {
-        // only use paging if many layers on server
-        if ($scope.totalItems > $scope.pagingOptions.pageSize) {
-          mapsListModel.fetchPagedMaps(
-            $scope.workspace,
-            $scope.pagingOptions.currentPage,
-            $scope.pagingOptions.pageSize,
-            $scope.sortOptions,
-            $scope.filterOptions.filterText
-          ).then(function() {
-              $scope.maps = mapsListModel.getMaps();
-              $scope.totalItems = mapsListModel.getTotalServerItems();
-              if (!$scope.maps) {
-                return;
-              }
-              thumbnailize();
-            });
-        } else {
-          mapsListModel.fetchMaps($scope.workspace).then(
-            function() {
-              $scope.maps = mapsListModel.getMaps();
-              $scope.totalItems = mapsListModel.getTotalServerItems();
-              if (!$scope.maps) {
-                return;
-              }
-              thumbnailize();
-            });
         }
       };
+
+      $scope.serverRefresh = function() {
+        var opts = $scope.opts;
+
+        mapsListModel.fetchMaps(
+          $scope.workspace,
+          opts.paging.currentPage,
+          opts.paging.pageSize,
+          opts.sort.predicate + ':' + opts.sort.order,
+          opts.filter.filterText
+        ).then(function() {
+          $scope.maps = mapsListModel.getMaps();
+          $scope.totalItems = mapsListModel.getTotalServerItems();
+          if (!$scope.maps) {
+            return;
+          }
+          thumbnailize();
+        });
+      };
+
       $scope.serverRefresh();
 
       var refreshTimer = null;
@@ -193,6 +187,11 @@ angular.module('gsApp.workspaces.maps', [
         $scope.createMap();
       });
 
+      $scope.$watch('opts', function(newVal, oldVal) {
+        if (newVal && newVal !== oldVal) {
+          $scope.refreshMaps();
+        }
+      }, true);
     }])
 .controller('MapsMainCtrl',
     function($scope, $state, $stateParams, $sce, $window, $log,
@@ -201,22 +200,16 @@ angular.module('gsApp.workspaces.maps', [
 
       $scope.workspace = $stateParams.workspace;
 
-      $scope.$watch('predicate', function(newVal, oldVal) {
-        if (newVal && newVal !== oldVal) {
-          var sortOrder = ':asc';
-          if (newVal === 'modified.timestamp') {
-            sortOrder = ':desc';
-          }
-          $scope.sortOptions = newVal + sortOrder;
+      $scope.sortBy = function(pred) {
+        var sort = $scope.opts.sort;
+        if (pred === sort.predicate) { // flip order if selected same
+          sort.order = sort.order === 'asc' ? 'desc' : 'asc';
+        } else { // default to 'asc' order when switching
+          sort.predicate = pred;
+          sort.order = 'asc';
         }
         $scope.refreshMaps();
-      });
-
-      $scope.$watch('pagingOptions.currentPage', function(newVal) {
-        if (newVal != null) {
-          $scope.refreshMaps();
-        }
-      });
+      };
 
       $scope.sanitizeHTML = function(description) {
         return $sce.trustAsHtml(description);
@@ -273,7 +266,7 @@ angular.module('gsApp.workspaces.maps', [
         if (map) {
           mapsListModel.addMap(map);
           $scope.maps =
-            mapsListModel.sortByTime(mapsListModel.getMaps());
+            mapsListModel.getMaps();
         }
       });
 
@@ -333,35 +326,7 @@ angular.module('gsApp.workspaces.maps', [
     return sorted.reverse();
   };
 
-  this.fetchMaps = function(workspace) {
-    return GeoServer.maps.get(workspace).then(
-      function(result) {
-        if (result.success) {
-          var maps = _.map(result.data.maps,
-            function(map) {
-              if (map.modified) {  // convert time strings to Dates
-                return _.assign(map, {'modified': {
-                  'timestamp': new Date(map.modified.timestamp),
-                  'pretty': map.modified.pretty
-                }});
-              } else {
-                return map;
-              }
-            });
-          _this.totalServerItems = result.data.total;
-          // sort by timestamp
-          _this.setMaps(_this.sortByTime(maps));
-        } else {
-          $rootScope.alerts = [{
-            type: 'warning',
-            message: 'Unable to load workspace maps.',
-            fadeout: true
-          }];
-        }
-      });
-  };
-
-  this.fetchPagedMaps = function(workspace, currentPage,
+  this.fetchMaps = function(workspace, currentPage,
     pageSize, sort, filterText) {
     return GeoServer.maps.get(
       workspace,
@@ -384,7 +349,7 @@ angular.module('gsApp.workspaces.maps', [
             });
           _this.totalServerItems = result.data.total;
           // sort by timestamp
-          _this.setMaps(_this.sortByTime(maps));
+          _this.setMaps(maps);
         } else {
           $rootScope.alerts = [{
             type: 'warning',

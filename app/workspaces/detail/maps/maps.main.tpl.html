@@ -9,19 +9,17 @@
           <div class="sort-by">
             <span class="sort-label">Sort by:</span>
             <span class="dropdown" on-toggle="toggled(open)">
-              <a href class="dropdown-toggle" ng-init="last='name'">
-              {{ last | firstCaps }} <i class="fa fa-caret-down"></i>
+              <a href class="dropdown-toggle">
+              {{ opts.sort.predicate | firstCaps }} <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu">
-                <li><a class="sort-options" ng-click="predicate='name'; reverse = (last=='name')? !reverse : reverse; last='name';">Name</a></li>
-                <li><a class="sort-options" ng-click="predicate='title'; reverse = (last=='title')? !reverse : reverse; last='title';">Title</a></li>
-                <li><a class="sort-options" ng-click="predicate='modified.timestamp'; reverse = (last=='modified')? !reverse : reverse; last='modified';">Modified</a></li>
-                <li><a class="sort-options" ng-click="predicate='layer_count'; reverse = (last=='count')? !reverse : reverse; last='count';"># Layers</a></li>
+                <li><a class="sort-options" ng-click="sortBy('name')">Name</a></li>
+                <li><a class="sort-options" ng-click="sortBy('title')">Title</a></li>
               </ul>
             </span>
           </div>
           <div class="filter-box">
-            <input type="text" class="form-control input-sm grid-filter" ng-model="filterText" placeholder="Filter maps by..." size="30" />
+            <input type="text" class="form-control input-sm grid-filter" ng-model="opts.filter.filterText" placeholder="Filter maps by..." size="30" />
             <i class="fa fa-search"></i>
           </div>
         </div>
@@ -29,7 +27,7 @@
     </div>
   </div>
   <div class="map-summary" ng-show="maps.length > 0">
-    <div class="row" ng-repeat="row in maps | orderBy:predicate:reverse | partition:2 | filter:filterText">
+    <div class="row" ng-repeat="row in maps | partition:2">
       <div class="col-sm-6" ng-repeat="map in row">
         <div class="map-wrapper">
           <a href="" ui-sref="map.compose({workspace: map.workspace, name: map.name})">
@@ -68,6 +66,6 @@
     </div>
   </div>
   <div class="maps-paging">
-    <pagination total-items="totalItems" items-per-page ="pagingOptions.pageSize" ng-model="pagingOptions.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+    <pagination total-items="totalItems" items-per-page ="opts.paging.pageSize" ng-model="opts.paging.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
   </div>
 </div>
