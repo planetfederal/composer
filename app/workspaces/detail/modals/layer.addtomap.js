@@ -220,8 +220,8 @@ angular.module('gsApp.workspaces.layers.addtomap', [
             $scope.workspace,
             opts.paging.currentPage-1,
             opts.paging.pageSize,
-            opts.sort.fields[0] + ':'
-              + opts.sort.directions[0],
+            opts.sort.fields[0] + ':' +
+              opts.sort.directions[0],
             opts.filter.filterText
           ).then(function(result) {
             if (result.success) {

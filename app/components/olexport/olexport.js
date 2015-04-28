@@ -69,7 +69,7 @@ angular.module('gsApp.olexport', [])
         };
 
         if (mapObj.projectionExtent) {
-          cfg.view.projection.extent = [ 
+          cfg.view.projection.extent = [
             mapObj.projectionExtent.west,
             mapObj.projectionExtent.south,
             mapObj.projectionExtent.east,

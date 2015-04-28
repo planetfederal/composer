@@ -56,7 +56,7 @@
   </div>
   <div class="modal-footer">
     <div class="submit-buttons pull-right">
-      <button class="btn btn-default btn-sm" ng-click="back()" ng-show="!showImportFile && format!==null">&larr; Back</button>
+      <button class="btn btn-default btn-sm" style="display:none;" ng-click="back()" ng-show="!showImportFile && format!==null">&larr; Back</button>
       <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
       <button class="btn btn-success btn-sm" ng-show="mapInfo && !mapInfo.created && is('details')" ng-click="completeNewMap(selectedLayers)">Create Map {{ mapInfo.name }}</button>
       <button class="btn btn-success btn-sm" ng-click="createNewMapwithImported();" ng-show="is('newmap')">Create New Map</button>

@@ -78,6 +78,8 @@ angular.module('gsApp.workspaces.maps.settings', [])
                     result.data.message,
                   fadeout: true
                 }];
+                $scope.form.mapSettings.alerts =
+                  'Error: ' + result.data.message;
               }
             });
         }
