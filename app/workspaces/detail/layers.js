@@ -39,38 +39,38 @@ angular.module('gsApp.workspaces.layers', [
       $scope.lyrThumbsWidth = 75;
       $scope.lyrThumbsHeight = 75;
 
-      $scope.pagingOptions = {
-        pageSize: 25,
-        currentPage: 1
-      };
-
-      $scope.filterOptions = {
-        filterText: ''
-      };
-
-      $scope.sort = {
-        predicate: 'name',
-        order: 'asc'
+      $scope.opts = {
+        paging: {
+          pageSize: 25,
+          currentPage: 1
+        },
+        sort: {
+          predicate: 'name',
+          order: 'asc'
+        },
+        filter: {
+          filterText: ''
+        }
       };
 
       $scope.sortBy = function(pred) {
-        var sort = $scope.sort;
+        var sort = $scope.opts.sort;
         if (pred === sort.predicate) { // flip order if selected same
           sort.order = sort.order === 'asc' ? 'desc' : 'asc';
         } else { // default to 'asc' order when switching
           sort.predicate = pred;
           sort.order = 'asc';
         }
-        $scope.serverRefresh();
       };
 
       $scope.serverRefresh = function() {
+        var opts = $scope.opts;
         return layersListModel.fetchLayers(
           $scope.workspace,
-          $scope.pagingOptions.currentPage,
-          $scope.pagingOptions.pageSize,
-          $scope.sort.predicate + ':' + $scope.sort.order,
-          $scope.filterOptions.filterText
+          opts.paging.currentPage,
+          opts.paging.pageSize,
+          opts.sort.predicate + ':' + opts.sort.order,
+          opts.filter.filterText
         ).then(function() {
           $scope.layers = layersListModel.getLayers();
           $scope.totalItems = layersListModel.getTotalServerItems();
@@ -93,17 +93,11 @@ angular.module('gsApp.workspaces.layers', [
         $scope.createMap();
       });
 
-      $scope.$watch('pagingOptions.currentPage', function(newVal, oldVal) {
+      $scope.$watch('opts', function(newVal, oldVal) {
         if (newVal != null && newVal !== oldVal) {
           $scope.serverRefresh();
-        }
-      });
-
-      $scope.$watch('filterOptions.filterText', function(newVal, oldVal) {
-        if (newVal != null && newVal !== oldVal) {
-          $scope.serverRefresh();
-        }
-      });
+        };
+      }, true);
 
     })
 .controller('LayersMainCtrl', function($scope, $state, $stateParams,

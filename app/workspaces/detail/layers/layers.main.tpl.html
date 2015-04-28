@@ -10,7 +10,7 @@
             <span class="sort-label">Sort by:</span>
             <span class="dropdown" on-toggle="toggled(open)">
               <a href class="dropdown-toggle">
-              {{ sort.predicate | firstCaps }} <i class="fa fa-caret-down"></i>
+              {{ opts.sort.predicate | firstCaps }} <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu">
                 <li><a class="sort-options" ng-click="sortBy('name')">Name</a></li>
@@ -20,7 +20,7 @@
             </span>
           </div>
           <div class="filter-box">
-            <input type="text" class="form-control input-sm grid-filter" ng-model="filterOptions.filterText" placeholder="Filter layers by..." size="30" ng-model-options="{ debounce: 7000 }" />
+            <input type="text" class="form-control input-sm grid-filter" ng-model="opts.filter.filterText" placeholder="Filter layers by..." size="30" ng-model-options="{ debounce: 700 }" />
             <i class="fa fa-search"></i>
           </div>
         </div>
@@ -89,7 +89,7 @@
     </div>
   </div>
   <div class="layers-paging">
-    <pagination total-items="totalItems" items-per-page="pagingOptions.pageSize" ng-model="pagingOptions.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+    <pagination total-items="totalItems" items-per-page="opts.paging.pageSize" ng-model="opts.paging.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
     <a id="bottom"></a>
   </div>
   
