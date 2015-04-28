@@ -59,7 +59,7 @@ angular.module('gsApp.workspaces.layers', [
           sort.order = sort.order === 'asc' ? 'desc' : 'asc';
         } else { // default to 'asc' order when switching
           sort.predicate = pred;
-          sort.order = pred === 'modified' ? 'desc' : 'asc';
+          sort.order = 'asc';
         }
         $scope.serverRefresh();
       };
