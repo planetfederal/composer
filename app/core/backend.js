@@ -280,9 +280,15 @@ angular.module('gsApp.core.backend',[])
             });
           },
           getSLD: function(workspace, style) {
+            var url;
+            if (workspace != null) {
+              url = restRoot+'workspaces/'+workspace+'/styles/'+style+'.sld';
+            } else {
+              url = restRoot+'styles/'+style+'.sld';
+            }
             return http({
               method: 'GET',
-              url: restRoot+'workspaces/'+workspace+'/styles/'+style+'.sld',
+              url: url,
               data: '',
               dataType: 'xml',
               headers: {

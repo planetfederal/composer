@@ -21,7 +21,7 @@ angular.module('gsApp.workspaces.data.attributes', [])
               if (result.data) {
                 $scope.error = result.data.message;
               } else {
-                $scope.error = "Unable to load attributes.";
+                $scope.error = 'Unable to load attributes.';
               }
             }
           });

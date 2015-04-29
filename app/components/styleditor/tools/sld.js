@@ -84,7 +84,7 @@ angular.module('gsApp.styleditor.sld', [
         }
       }
 
-      GeoServer.style.getSLD(layer.workspace, layer.style.name).then(
+      GeoServer.style.getSLD(layer.style.workspace, layer.style.name).then(
         function(result) {
           if (result.success) {
             $scope.sld = result.data;
