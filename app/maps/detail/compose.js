@@ -199,7 +199,7 @@ angular.module('gsApp.maps.compose', [
             if (!(activeLayer.name in layerState)) {
               layerState[activeLayer.name] = {};
             }
-            layerState[activeLayer.name].style = $scope.style;
+            layerState[activeLayer.name].style = $scope.ysldstyle;
           }
           $scope.activeLayer = layer;
         }
@@ -251,7 +251,7 @@ angular.module('gsApp.maps.compose', [
 
       $scope.saveStyle = function() {
         var l = $scope.activeLayer;
-        GeoServer.style.put(l.workspace, l.name, $scope.style, $scope.map)
+        GeoServer.style.put(l.workspace, l.name, $scope.ysldstyle, $scope.map)
           .then(function(result) {
             if (result.success == true) {
               $scope.markers = null;
@@ -305,12 +305,12 @@ angular.module('gsApp.maps.compose', [
         if (newVal != null) {
           var l = newVal;
           if (l.name in $scope.layerState) {
-            $scope.style = $scope.layerState[l.name].style;
+            $scope.ysldstyle = $scope.layerState[l.name].style;
           }
           else {
             GeoServer.style.get(l.workspace, l.name)
               .then(function(result) {
-                $scope.style = result.data;
+                $scope.ysldstyle = result.data;
               });
           }
           $timeout(function() {

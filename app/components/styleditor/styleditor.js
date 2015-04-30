@@ -22,7 +22,7 @@ angular.module('gsApp.styleditor', [
         restrict: 'EA',
         scope: {
           layer: '=?',
-          style: '=',
+          ysldstyle: '=',
           markers: '=?',
           editor: '=?'
         },

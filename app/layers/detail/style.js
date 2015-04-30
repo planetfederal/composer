@@ -63,7 +63,7 @@ angular.module('gsApp.layers.style', [
 
           GeoServer.style.get(wsName, layerName).then(function(result) {
             if (result.success == true) {
-              $scope.style = result.data;
+              $scope.ysldstyle = result.data;
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
