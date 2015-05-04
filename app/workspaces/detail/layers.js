@@ -395,8 +395,7 @@ angular.module('gsApp.workspaces.layers', [
               }
             });
           _this.totalServerItems = result.data.total;
-          // sort by timestamp
-          _this.setLayers(_this.sortByTime(layers));
+          _this.setLayers(layers);
         } else {
           $rootScope.alerts = [{
             type: 'warning',
