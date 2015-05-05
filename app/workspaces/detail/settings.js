@@ -1,4 +1,4 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.settings', [
@@ -22,7 +22,7 @@ angular.module('gsApp.workspaces.settings', [
       $scope.form = {};
       var originalForm;
 
-      $scope.defaultDesc = 'If a project is not specified ' +
+      $scope.defaultDesc = 'If a project workspace is not specified ' +
         'in a GeoServer request, the DEFAULT project is used.';
       $scope.showDefaultDesc = false;
 

@@ -140,5 +140,10 @@ angular.module('gsApp.workspaces.home', [
         }
       });
 
+      // if no tab is active go to maps tab
+      if (!isActive('maps') && !isActive('layers') && !isActive('data')) {
+        $state.go('workspace.maps.main');
+      }
+
     }]);
 

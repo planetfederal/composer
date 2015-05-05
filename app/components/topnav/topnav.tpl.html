@@ -21,8 +21,8 @@
     <div class="collapse navbar-collapse" collapse="navCollapsed" id="collapse-items">
       <ul class="nav navbar-nav">
         <li><a href="/opengeo-docs/webmaps/composer/" target="_blank">Help</a></li>
-         <li ng-if="session.active" class="user dropdown">
-           <a class="dropdown-toggle" data-toggle="dropdown-user">
+         <li ng-if="session.active" class="user dropdown" dropdown>
+           <a class="dropdown-toggle" data-toggle="dropdown-user" dropdown-toggle>
              <span>{{ session.user }}</span> <span class="caret"></span>
            </a>
            <ul id="dropdown-user" class="dropdown-menu" role="menu">

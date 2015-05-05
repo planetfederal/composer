@@ -9,9 +9,9 @@
           'fa-arrow-circle-o-right': toggleSide}"></i>
       </a>
     </li>
-    <li class="dropdown">
-      <a class="dropdown-toggle" title="New Project Workspace" data-toggle="dropdown-new">
-        <i class="icon-plus" ng- show="toggleSide"></i>
+    <li class="dropdown" dropdown>
+      <a class="dropdown-toggle" dropdown-toggle title="New Project Workspace" data-toggle="dropdown-new">
+        <i class="icon-plus" ng-show="toggleSide"></i>
         <span class="txt">New <span class="caret"></span></span>
       </a>
       <ul id="dropdown-new" class="dropdown-menu" role="menu">
@@ -60,10 +60,10 @@
         </li>
       </ul>
     </li>
-    <li id="projects" ng-show="toggleSide" class="dropdown">
+    <li id="projects" ng-show="toggleSide" class="dropdown" dropdown>
       <a ng-click="openWorkspaces();" class="dropdown-toggle"
         data-toggle="tgdropdown" alt="Project Workspaces"
-        title="Project Workspaces">
+        title="Project Workspaces" dropdown-toggle>
         <i class="icon-folder-open"></i> <span class="txt">Project Workspaces</span>
       </a>
       <ul id="tgdropdown" class="dropdown-menu"
