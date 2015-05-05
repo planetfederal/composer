@@ -1,5 +1,6 @@
 <div class="data-import-details">
   <div ng-show="detailsLoading" class="text-center"><i class="fa fa-spinner fa-spin"></i> Loading...<br/><br/>(Large datasets may take some time to import.)</div>
+  <div ng-show="noImportData" class="text-center"><i class="fa fa-warning"></i> No data to import from this database.<br/><br/>Store will not be added.</div>
   <div ng-if="import.preimport.length > 0">
     <div style="display: inline-block; width: 100%;">
       <div class="pull-left">

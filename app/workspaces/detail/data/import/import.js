@@ -668,7 +668,14 @@ angular.module('gsApp.workspaces.data.import', [
           });
           $scope.preimportedLayers = imp.preimport;
 
-          $rootScope.$broadcast(AppEvent.StoreAdded);
+          var totalImported = imp.imported.length + imp.pending.length +
+            imp.preimport.length + imp.failed.length +
+            imp.running.length + imp.ignored.length;
+          if (totalImported == 0) {
+            $scope.noImportData = true;
+          } else {
+            $rootScope.$broadcast(AppEvent.StoreAdded);
+          }
 
         } else { // continue polling
           if (stopGetTimer) { $timeout.cancel(stopGetTimer); }
