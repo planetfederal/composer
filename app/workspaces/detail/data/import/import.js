@@ -291,6 +291,8 @@ angular.module('gsApp.workspaces.data.import', [
               $state.go('map.compose', {workspace: wsName,
                 name: map.name});
             } else {
+              $scope.errors = result.data.cause?
+                result.data.cause: result.data; // show errors in modal
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Error creating new map.',
@@ -877,17 +879,12 @@ angular.module('gsApp.workspaces.data.import', [
         var imported = $scope.importedLayers;
         for (var i=0; i < selectedLayers.length; i++) {
           for (var k=0; k < imported.length; k++) {
-            if (selectedLayers[i].layername &&
-                selectedLayers[i].layername===imported[k].name) {
+            var importedItem = imported[k];
+            if (selectedLayers[i].name &&
+                selectedLayers[i].name==importedItem.name) {
               newMapInfo.layers.push({
-                'name': imported[k].name,
-                'workspace': $scope.workspace
-              });
-            } else if (selectedLayers[i].source &&
-                selectedLayers[i].source===imported[k].source) {
-              newMapInfo.layers.push({
-                'name': imported[k].name,
-                'workspace': $scope.workspace
+                'name': importedItem.layer.name,
+                'workspace': importedItem.layer.workspace
               });
             }
           }
@@ -898,7 +895,6 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.addSelectedToMap = function(selectedLayers) {
         var map = $scope.selectedMap;
-
         var newMapInfo = {
           'name': map.name,
           'proj': map.proj,
@@ -908,16 +904,12 @@ angular.module('gsApp.workspaces.data.import', [
         var imported = $scope.importedLayers;
         for (var i=0; i < selectedLayers.length; i++) {
           for (var k=0; k < imported.length; k++) {
-            if (selectedLayers[i].file===imported[k].source) {
+            var importedItem = imported[k];
+            if (selectedLayers[i].name &&
+                selectedLayers[i].name==importedItem.name) {
               newMapInfo.layers.push({
-                'name': imported[k].name,
-                'workspace': $scope.workspace
-              });
-            } else if (selectedLayers[i].source &&
-              selectedLayers[i].source===imported[k].source) {
-              newMapInfo.layers.push({
-                'name': imported[k].name,
-                'workspace': $scope.workspace
+                'name': importedItem.layer.name,
+                'workspace': importedItem.layer.workspace
               });
             }
           }
@@ -1020,6 +1012,7 @@ angular.module('gsApp.workspaces.data.import', [
 .service('mapInfoModel', function(_) {
   var _this = this;
   this.mapInfo = null;
+  this.savedLayers = null;
 
   this.setMapInfo = function(mapInfo) {
     _this.mapInfo = mapInfo;
@@ -1033,10 +1026,20 @@ angular.module('gsApp.workspaces.data.import', [
       } else {
         _this.mapInfo.layers = layers;
       }
+    } else { // save for layer to be added to new maps
+      _this.savedLayers = layers.map(function(t) {
+        return t.layer;
+      });
     }
   };
 
   this.getMapInfo = function() {
+    if (_this.mapInfo) {  // check for saved layers
+      if (_this.mapInfo.layers.length == 0 && _this.savedLayers) {
+        _this.mapInfo.layers = _this.savedLayers;
+        _this.savedLayers = null;
+      }
+    }
     return _this.mapInfo;
   };
 })

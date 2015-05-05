@@ -77,6 +77,9 @@ angular.module('gsApp.workspaces.data', [
       };
 
       $scope.selectStore = function(store) {
+        if (store.name == null) {
+          return;
+        }
         if ($scope.selectedStore &&
               $scope.selectedStore.name===store.name) {
           return;
