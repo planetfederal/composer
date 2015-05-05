@@ -96,8 +96,8 @@ angular.module('gsApp.layers', [
           if (mapInfo.layers.length==0) {
             $rootScope.alerts = [{
                 type: 'warning',
-                message: 'Please import data and create a new Layer.' +
-                  ' A map requires at least 1 layer.',
+                message: 'Please select a layer. Or import data and ' +
+                  'create a new Layer. A map requires at least 1 layer.',
                 fadeout: true
               }];
           } else {

@@ -8,8 +8,8 @@
         <div class="pull-right">
           <div class="sort-by">
             <span class="sort-label">Sort by:</span>
-            <span class="dropdown" on-toggle="toggled(open)">
-              <a href class="dropdown-toggle">
+            <span class="dropdown" on-toggle="toggled(open)" dropdown>
+              <a href class="dropdown-toggle" dropdown-toggle>
               {{ opts.sort.predicate | firstCaps }} <i class="fa fa-caret-down"></i>
               </a>
               <ul class="dropdown-menu">
@@ -92,5 +92,5 @@
     <pagination total-items="totalItems" items-per-page="opts.paging.pageSize" ng-model="opts.paging.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
     <a id="bottom"></a>
   </div>
-  
+
 </div>
