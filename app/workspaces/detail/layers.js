@@ -150,7 +150,7 @@ angular.module('gsApp.workspaces.layers', [
           $rootScope.$broadcast(AppEvent.ImportData, {
             workspace: $scope.workspace
           });
-        }, 250);
+        }, 500);
         // go to this state to initiate listener for broadcast above!
         $state.go('workspace.data.main', {workspace: $scope.workspace});
       };
