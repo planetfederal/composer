@@ -231,6 +231,7 @@ angular.module('gsApp.maps.compose', [
               .then(function(result) {
                 if (result.success) {
                   $scope.map.layers.splice(index, 1);
+                  $scope.map.layer_count--;
                 }
                 else {
                   var err = result.data;

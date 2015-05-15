@@ -46,6 +46,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
             if (result.success) {
               $scope.map.layers =
                 reinstateVisibility($scope.map.layers, result.data);
+              $scope.map.layer_count++;
               $rootScope.alerts = [{
                 type: 'success',
                 message: mapInfo.layersToAdd.length +
