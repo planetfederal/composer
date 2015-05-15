@@ -714,12 +714,17 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.importTables = function() {
         $scope.importInProgress = true;
         var toImport;
-        if ($scope.layerSelections.length === $scope.preimportedLayers.length) {
+        var tasks = $scope.importedLayers.length
+        if (($scope.layerSelections.length === $scope.preimportedLayers.length) && ($scope.pendingLayers.length === 0)) {
           toImport = {'filter': 'ALL'};
+          tasks = $scope.preimportedLayers.length;
         } else {
           toImport = {'tasks': []};
-          $scope.layerSelections.forEach(function(item) {
-            toImport.tasks.push({'task': item.task});
+          $scope.layerSelections.filter(function(item) {
+            return $scope.preimportedLayers.filter(function(layer) {return layer === item && !layer.imported;}).length > 0;
+          }).forEach(function(item) {
+              toImport.tasks.push({'task': item.task});
+              tasks++;
           });
         }
 
@@ -730,7 +735,7 @@ angular.module('gsApp.workspaces.data.import', [
             var totalComplete = data.imported.length + data.failed.length;
 
             // Completed Imports
-            if ($scope.layerSelections.length <= totalComplete) {
+            if (tasks <= totalComplete) {
               $timeout.cancel(stopUpdateTimer);
               pollUpdateRetries = 500;
               $scope.importInProgress = false;
@@ -832,9 +837,7 @@ angular.module('gsApp.workspaces.data.import', [
           if (total_done >= total_todo) {
             $rootScope.$broadcast(AppEvent.StoreAdded);
             var imported = result.data.imported;
-            for (var t=0, len = imported.length; t < len; t++) {
-              $scope.importedLayers.push(imported[t].layer);
-            }
+            $scope.importedLayers = imported
             mapInfoModel.setMapInfoLayers($scope.importedLayers);
             if ($scope.importedLayers.length > 0) {
               var lname = $scope.importedLayers[0].name;
