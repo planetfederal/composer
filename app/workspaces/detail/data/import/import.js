@@ -90,7 +90,7 @@ angular.module('gsApp.workspaces.data.import', [
         $scope.showImportDetails = true;
         $state.go('workspace.data.import.details', {
           'workspace': wsName,
-          'import': imp.id
+          'import': String(imp.id)
         });
       };
 
