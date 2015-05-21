@@ -25,7 +25,7 @@ angular.module('gsApp.workspaces.data.import', [
             controller: 'DataImportDbCtrl'
           }
         },
-        params: { workspace: {}, import: {}, connectParams: {}, format: {} }
+        params: { workspace: {}, importId: {}, connectParams: {}, format: {} }
       });
       $stateProvider.state('workspace.data.import.details', {
         views: {
@@ -36,7 +36,7 @@ angular.module('gsApp.workspaces.data.import', [
             controller: 'DataImportDetailsCtrl',
           }
         },
-        params: { workspace: {}, import: {}, mapInfo: {} }
+        params: { workspace: {}, importId: {}, mapInfo: {} }
       });
       $stateProvider.state('workspace.data.import.newmap', {
         views: {
@@ -47,7 +47,7 @@ angular.module('gsApp.workspaces.data.import', [
             controller: 'ImportNewMapCtrl'
           }
         },
-        params: { workspace: {}, import: {}, mapInfo: {} }
+        params: { workspace: {}, importId: {}, mapInfo: {} }
       });
     }])
 .controller('DataImportCtrl', ['$scope', '$state', '$stateParams', 'GeoServer',
@@ -90,7 +90,7 @@ angular.module('gsApp.workspaces.data.import', [
         $scope.showImportDetails = true;
         $state.go('workspace.data.import.details', {
           'workspace': wsName,
-          'import': String(imp.id)
+          'importId': String(imp.id)
         });
       };
 
@@ -100,7 +100,7 @@ angular.module('gsApp.workspaces.data.import', [
         // back to Add File
           $state.go('workspace.data.import.fileordb', {
             workspace: wsName,
-            import: $scope.import
+            importId: $scope.importId
           });
         } else if ($scope.format) {  // back to DB connect
           if ($scope.is('fileordb')) {
@@ -111,7 +111,7 @@ angular.module('gsApp.workspaces.data.import', [
           } else {
             $state.go('workspace.data.import.fileordb', {
               workspace: wsName,
-              import: $scope.import,
+              importId: $scope.importId,
               connectParams: $scope.connectParams,
               format: $scope.format
             });
@@ -436,7 +436,7 @@ angular.module('gsApp.workspaces.data.import', [
       AppEvent, mapInfoModel, storesListModel, importPollingService, $timeout) {
 
       $scope.workspace = $stateParams.workspace;
-      $scope.import = $stateParams.import;
+      $scope.importId = $stateParams.importId;
       $scope.layerSelections = [];
       $scope.detailsLoading = true;
       var stopUpdateTimer, stopGetTimer;
@@ -684,7 +684,7 @@ angular.module('gsApp.workspaces.data.import', [
           if (poll_retries > 0) {
             poll_retries--;
             stopGetTimer = $timeout(function() {
-              importPollingService.pollGetOnce($scope.workspace, $scope.import,
+              importPollingService.pollGetOnce($scope.workspace, $scope.importId,
                 pollingGetCallback);
             }, 2000);
           } else {
@@ -697,7 +697,7 @@ angular.module('gsApp.workspaces.data.import', [
           }
         }
       };
-      importPollingService.pollGetOnce($scope.workspace, $scope.import,
+      importPollingService.pollGetOnce($scope.workspace, $scope.importId,
         pollingGetCallback);
 
       $scope.$on('destroy', function(event) {
@@ -733,7 +733,8 @@ angular.module('gsApp.workspaces.data.import', [
           if (result.success) {
             var data = result.data;
             var totalComplete = data.imported.length + data.failed.length;
-
+            $scope.import = data;
+            
             // Completed Imports
             if (tasks <= totalComplete) {
               $timeout.cancel(stopUpdateTimer);
@@ -756,6 +757,7 @@ angular.module('gsApp.workspaces.data.import', [
                 }
               }
               $rootScope.$broadcast(AppEvent.StoreAdded);
+
               $scope.importedLayers = data.imported;
               if ($scope.importedLayers.length > 0) {
                 $scope.setStoreFromLayername($scope.importedLayers[0].name);
@@ -768,7 +770,7 @@ angular.module('gsApp.workspaces.data.import', [
                 pollUpdateRetries--;
                 stopGetTimer = $timeout(function() {
                   importPollingService.pollGetOnce($scope.workspace,
-                    $scope.import.id, pollingUpdateCallback);
+                    $scope.importId, pollingUpdateCallback);
                 }, 2000);
               } else {
                 pollUpdateRetries = 500;
@@ -789,7 +791,7 @@ angular.module('gsApp.workspaces.data.import', [
         }; // end pollingUpdateCallback
 
         importPollingService.pollUpdateOnce($scope.workspace,
-          $scope.import.id, angular.toJson(toImport), pollingUpdateCallback);
+          $scope.importId, angular.toJson(toImport), pollingUpdateCallback);
       };
 
       $scope.reimport = function(items) {
@@ -849,7 +851,7 @@ angular.module('gsApp.workspaces.data.import', [
               pollUpdateRetries--;
               stopGetTimer = $timeout(function() {
                 importPollingService.pollGetOnce($scope.workspace,
-                  $scope.import.id, pollingReimportCallback);
+                  $scope.importId, pollingReimportCallback);
               }, 2000);
             } else {
               pollUpdateRetries = 500;
@@ -863,7 +865,7 @@ angular.module('gsApp.workspaces.data.import', [
         };
         if (toImport.tasks.length > 0) {
           importPollingService.pollUpdateOnce($scope.workspace,
-            $scope.import.id, angular.toJson(toImport),
+            $scope.importId, angular.toJson(toImport),
             pollingReimportCallback);
         }
       };
@@ -950,7 +952,7 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.workspace = $stateParams.workspace;
       $scope.mapInfo = mapInfoModel.getMapInfo();
-      $scope.import = $stateParams.import;
+      $scope.importId = $stateParams.importId;
       $scope.selectedLayers = $scope.mapInfo.layers;
 
       // Proj field
