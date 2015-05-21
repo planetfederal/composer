@@ -435,6 +435,8 @@ angular.module('gsApp.workspaces.data.import', [
     function($scope, $state, $stateParams, $log, GeoServer, $rootScope,
       AppEvent, mapInfoModel, storesListModel, importPollingService, $timeout) {
 
+      // Initialize scope
+
       $scope.workspace = $stateParams.workspace;
       $scope.importId = $stateParams.importId;
       $scope.layerSelections = [];
@@ -451,6 +453,8 @@ angular.module('gsApp.workspaces.data.import', [
           });
       }
 
+      // ng-grid configuration
+
       var baseGridOpts = {
         enableCellSelection: false,
         enableRowSelection: true,
@@ -466,9 +470,8 @@ angular.module('gsApp.workspaces.data.import', [
         }
       };
 
-      // For importing database tables
       $scope.preimportGridOpts = angular.extend({
-        data: 'preimportedLayers',
+        data: 'import.preimport',
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ' +
@@ -521,7 +524,7 @@ angular.module('gsApp.workspaces.data.import', [
         enablePaging: false,
         enableColumnResize: false,
         showFooter: false,
-        totalServerItems: 'preimportedLayers.length',
+        totalServerItems: 'import.preimport.length',
         pagingOptions: {
           pageSize: 50,
           currentPage: 1
@@ -529,7 +532,7 @@ angular.module('gsApp.workspaces.data.import', [
       }, baseGridOpts);
 
       $scope.completedGridOpts = angular.extend({
-        data: 'importedLayers',
+        data: 'import.imported',
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ng-init="toggleSelectAll(true);"' +
@@ -561,16 +564,15 @@ angular.module('gsApp.workspaces.data.import', [
         enablePaging: false,
         enableColumnResize: false,
         showFooter: false,
-        totalServerItems: 'importedLayers.length',
+        totalServerItems: 'import.imported.length',
         pagingOptions: {
           pageSize: 50,
           currentPage: 1
         }
       }, baseGridOpts);
-
-
+      
       $scope.pendingGridOpts = angular.extend({
-        data: 'pendingLayers',
+        data: 'import.pending',
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ' +
@@ -635,7 +637,8 @@ angular.module('gsApp.workspaces.data.import', [
         ]
       }, baseGridOpts);
 
-
+      //Function definitions
+  
       $scope.setStoreFromLayername = function(importedLayerName) {
         if (!$scope.selectedStore) {
           GeoServer.layer.get($scope.workspace, importedLayerName).then(
@@ -647,63 +650,83 @@ angular.module('gsApp.workspaces.data.import', [
         }
       };
 
-      var poll_retries = 1000;
-      var pollingGetCallback = function(result) {
-        if (result.success && result.data.preimport) {
-          // cleanup/reset
-          $timeout.cancel(stopGetTimer);
-          poll_retries = 1000;
+      $scope.pollingGetCallback = function(result) {
+        if (result.success) {
+          var data = result.data;
+          var totalComplete = data.imported.length + data.failed.length;
+          
+          // Completed
+          if (data.running && data.running.length == 0) {
+          
+            // cleanup/reset
+            $timeout.cancel(stopGetTimer);
+            $scope.pollRetries = 1000;
 
-          $scope.detailsLoading = false;
-          var imp = result.data;
-          $log.log(imp);
-          $scope.import = imp;
+            $scope.detailsLoading = false;
+            $scope.importInProgress = false;
 
-          $scope.importedLayers = imp.imported.map(function(t) {
-            t.layer.source = t.name;
-            $scope.setStoreFromLayername(t.layer.name);
-            return t.layer;
-          });
-          $scope.pendingLayers = imp.pending.map(function(t) {
-            t.success = false;
-            return t;
-          });
-          $scope.preimportedLayers = imp.preimport;
+            //configure pending
+            data.pending.forEach(function(t) {
+              t.success = false;
+              //Copy over any saved CRS values
+              if ($scope.import) {
+                for (var i=0; i < $scope.import.pending.length; i++) {
+                  var layer = $scope.import.pending[i];
+                  if (t.task == layer.task && typeof t.proj === 'undefined' 
+                      && typeof layer.proj !== 'undefined') {
+                    t.proj = layer.proj;
+                  }
+                }
+              }
+            });
 
-          var totalImported = imp.imported.length + imp.pending.length +
-            imp.preimport.length + imp.failed.length +
-            imp.running.length + imp.ignored.length;
-          if (totalImported == 0) {
-            $scope.noImportData = true;
-          } else {
-            $rootScope.$broadcast(AppEvent.StoreAdded);
+            //configure imported
+            if (data.imported.length > 0) {
+              $scope.setStoreFromLayername(data.imported[0].name);
+            }
+            mapInfoModel.setMapInfoLayers(data.imported);
+
+            data.imported.forEach(function(t) {
+              t.layer.source = t.name;
+            });
+
+            //set global import data
+            $scope.import = data;
+
+            var totalImported = data.imported.length + data.pending.length +
+              data.preimport.length + data.failed.length +
+              data.running.length + data.ignored.length;
+            if (totalImported == 0) {
+              $scope.noImportData = true;
+            } else {
+              $rootScope.$broadcast(AppEvent.StoreAdded);
+            }
+
+          } else { // continue polling
+            if (stopGetTimer) { $timeout.cancel(stopGetTimer); }
+            if ($scope.pollRetries > 0) {
+              $scope.pollRetries--;
+              stopGetTimer = $timeout(function() {
+                importPollingService.pollGetOnce($scope.workspace, $scope.importId,
+                  $scope.pollingGetCallback);
+              }, 2000);
+            } else {
+              $scope.pollRetries = 1000;
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Could not import store.',
+                fadeout: true
+              }];
+            }
           }
-
-        } else { // continue polling
-          if (stopGetTimer) { $timeout.cancel(stopGetTimer); }
-          if (poll_retries > 0) {
-            poll_retries--;
-            stopGetTimer = $timeout(function() {
-              importPollingService.pollGetOnce($scope.workspace, $scope.importId,
-                pollingGetCallback);
-            }, 2000);
-          } else {
-            poll_retries = 1000;
-            $rootScope.alerts = [{
-              type: 'danger',
-              message: 'Could not import store.',
-              fadeout: true
-            }];
-          }
+        } else { //import failed
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Error importing: ' + result.data.message,
+            fadeout: true
+          }];
         }
       };
-      importPollingService.pollGetOnce($scope.workspace, $scope.importId,
-        pollingGetCallback);
-
-      $scope.$on('destroy', function(event) {
-        $timeout.cancel(stopGetTimer);
-        $timeout.cancel(stopUpdateTimer);
-      });
 
       $scope.applyProjToAll = function(proj) {
         $scope.import.pending.forEach(function(task) {
@@ -714,84 +737,24 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.importTables = function() {
         $scope.importInProgress = true;
         var toImport;
-        var tasks = $scope.importedLayers.length
-        if (($scope.layerSelections.length === $scope.preimportedLayers.length) && ($scope.pendingLayers.length === 0)) {
+        var tasks = $scope.import.imported.length;
+        if (($scope.layerSelections.length === $scope.import.preimport.length) && ($scope.import.pending.length === 0)) {
           toImport = {'filter': 'ALL'};
-          tasks = $scope.preimportedLayers.length;
+          tasks = $scope.import.preimport.length;
         } else {
           toImport = {'tasks': []};
           $scope.layerSelections.filter(function(item) {
-            return $scope.preimportedLayers.filter(function(layer) {return layer === item && !layer.imported;}).length > 0;
+            return $scope.import.preimport.filter(function(layer) {return layer === item && !layer.imported;}).length > 0;
           }).forEach(function(item) {
               toImport.tasks.push({'task': item.task});
               tasks++;
           });
         }
 
-        var pollUpdateRetries = 500;
-        var pollingUpdateCallback = function(result) {
-          if (result.success) {
-            var data = result.data;
-            var totalComplete = data.imported.length + data.failed.length;
-            $scope.import = data;
-            
-            // Completed Imports
-            if (tasks <= totalComplete) {
-              $timeout.cancel(stopUpdateTimer);
-              pollUpdateRetries = 500;
-              $scope.importInProgress = false;
-              // find the imported table in the preimport list & update ui
-              var imported = data.imported;
-              var pending = data.pending;
-              for (var q=0; q < $scope.preimportedLayers.length; q++) {
-                for (var r=0; r < imported.length; r++) {
-                  if ($scope.preimportedLayers[q].task === imported[r].task) {
-                    $scope.preimportedLayers[q].imported = true;
-                    $scope.preimportedLayers[q].pending = false;
-                  }
-                }
-                for (var s=0; s < pending.length; s++) {
-                  if ($scope.preimportedLayers[q].task === pending[s].task) {
-                    $scope.preimportedLayers[q].pending = true;
-                  }
-                }
-              }
-              $rootScope.$broadcast(AppEvent.StoreAdded);
-
-              $scope.importedLayers = data.imported;
-              if ($scope.importedLayers.length > 0) {
-                $scope.setStoreFromLayername($scope.importedLayers[0].name);
-              }
-              mapInfoModel.setMapInfoLayers($scope.importedLayers);
-
-            } else { // Still importing
-              if (stopUpdateTimer) { $timeout.cancel(stopUpdateTimer); }
-              if (pollUpdateRetries > 0) {
-                pollUpdateRetries--;
-                stopGetTimer = $timeout(function() {
-                  importPollingService.pollGetOnce($scope.workspace,
-                    $scope.importId, pollingUpdateCallback);
-                }, 2000);
-              } else {
-                pollUpdateRetries = 500;
-                $rootScope.alerts = [{
-                  type: 'danger',
-                  message: 'Could not import store.',
-                  fadeout: true
-                }];
-              }
-            }
-          } else {
-            $rootScope.alerts = [{
-              type: 'danger',
-              message: 'Error importing: ' + result.data.message,
-              fadeout: true
-            }];
-          }
-        }; // end pollingUpdateCallback
-
+        $scope.pollRetries = 500;
+ 
         importPollingService.pollUpdateOnce($scope.workspace,
-          $scope.importId, angular.toJson(toImport), pollingUpdateCallback);
+          $scope.importId, angular.toJson(toImport), $scope.pollingGetCallback);
       };
 
       $scope.reimport = function(items) {
@@ -807,66 +770,12 @@ angular.module('gsApp.workspaces.data.import', [
           task.errorMsg = '';
         });
 
-        var pollUpdateRetries = 500;
-
-        var pollingReimportCallback = function(result) {
-          result.data.imported.forEach(function(imported_task) {
-            $scope.import.pending.filter(function(pending_task) {
-              return imported_task.name == pending_task.name;
-            }).forEach(function(task) {
-              task.loading = false;
-              task.success = true;
-              task.layername = imported_task.layer.name;
-            });
-          });
-
-          result.data.failed.forEach(function(failed_task) {
-            $scope.import.pending.filter(function(pending_task) {
-              return failed_task.name == pending_task.name;
-            }).forEach(function(task) {
-              task.loading = false;
-              task.error = true;
-              task.errorMsg = 'Import Error: ' + failed_task.message;
-            });
-          });
-
-          var total_done = result.data.pending.length +
-            result.data.failed.length;
-
-          var total_todo = result.data.pending.length +
-            result.data.running.length;
-
-          if (total_done >= total_todo) {
-            $rootScope.$broadcast(AppEvent.StoreAdded);
-            var imported = result.data.imported;
-            $scope.importedLayers = imported
-            mapInfoModel.setMapInfoLayers($scope.importedLayers);
-            if ($scope.importedLayers.length > 0) {
-              var lname = $scope.importedLayers[0].name;
-              $scope.setStoreFromLayername(lname);
-            }
-          } else {
-            if (stopUpdateTimer) { $timeout.cancel(stopUpdateTimer); }
-            if (pollUpdateRetries > 0) {
-              pollUpdateRetries--;
-              stopGetTimer = $timeout(function() {
-                importPollingService.pollGetOnce($scope.workspace,
-                  $scope.importId, pollingReimportCallback);
-              }, 2000);
-            } else {
-              pollUpdateRetries = 500;
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Could not import store.',
-                fadeout: true
-              }];
-            }
-          }
-        };
+        $scope.pollRetries = 500;
+        
         if (toImport.tasks.length > 0) {
           importPollingService.pollUpdateOnce($scope.workspace,
             $scope.importId, angular.toJson(toImport),
-            pollingReimportCallback);
+            $scope.pollingGetCallback);
         }
       };
 
@@ -881,7 +790,7 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.createNewMap = function(selectedLayers) {
         var newMapInfo = {};
         newMapInfo.layers = [];
-        var imported = $scope.importedLayers;
+        var imported = $scope.import.imported;
         for (var i=0; i < selectedLayers.length; i++) {
           for (var k=0; k < imported.length; k++) {
             var importedItem = imported[k];
@@ -906,7 +815,7 @@ angular.module('gsApp.workspaces.data.import', [
           'abstract': map.abstract
         };
         newMapInfo.layers = [];
-        var imported = $scope.importedLayers;
+        var imported = $scope.import.imported;
         for (var i=0; i < selectedLayers.length; i++) {
           for (var k=0; k < imported.length; k++) {
             var importedItem = imported[k];
@@ -924,7 +833,7 @@ angular.module('gsApp.workspaces.data.import', [
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
-                message: $scope.importedLayers.length +
+                message: $scope.import.imported.length +
                   ' layer(s) added to map ' + newMapInfo.name + '.',
                 fadeout: true
               }];
@@ -941,6 +850,18 @@ angular.module('gsApp.workspaces.data.import', [
             }
           });
       };
+
+      //Poll for import results
+      $scope.pollRetries = 1000;
+      
+      importPollingService.pollGetOnce($scope.workspace, $scope.importId,
+        $scope.pollingGetCallback);
+
+      $scope.$on('destroy', function(event) {
+        $timeout.cancel(stopGetTimer);
+        $timeout.cancel(stopUpdateTimer);
+      });
+
     }])
 .controller('ImportNewMapCtrl', ['$scope', '$state', '$stateParams',
   '$log', 'GeoServer', '$rootScope', 'mapsListModel', 'mapInfoModel',

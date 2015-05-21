@@ -14,9 +14,9 @@
         <div ng-if="importInProgress" class="next-import-button">
           <i class="fa fa-spinner fa-spin"></i> Importing...
         </div>
-        <div ng-if="importedLayers.length > 0" class="bg-success imported-msg">
-          {{ importedLayers.length }}
-           {{ importedLayers.length > 1 ? 'layers' : 'layer' }} imported.
+        <div ng-if="import.imported.length > 0" class="bg-success imported-msg">
+          {{ import.imported.length }}
+           {{ import.imported.length > 1 ? 'layers' : 'layer' }} imported.
         </div>
         <button class="btn btn-success btn-sm pull-left" ng-show="import.preimport.length > 0" ng-click="importTables(allSelected)">Import Selected Layers</button>
       </div>
@@ -62,8 +62,8 @@
     </p>
   </div>
 
-  <div class="row map-choice" ng-show="!mapInfo && (importedLayers.length > 0 || import.pending.length > 0)">
-    <div class="col-sm-12 text-center" ng-show="importedLayers.length==0" style="margin-bottom: 15px;">Please import some layers above to add to a map.</div>
+  <div class="row map-choice" ng-show="!mapInfo && (import.imported.length > 0 || import.pending.length > 0)">
+    <div class="col-sm-12 text-center" ng-show="import.imported.length==0" style="margin-bottom: 15px;">Please import some layers above to add to a map.</div>
     <div class="col-sm-6 text-center">
       <div class="lead">Add selected layer{{map.selected.length > 1 ? 's' : ''}} above<br/>to an existing map: </div>
       <div class="map-picker">
@@ -76,12 +76,12 @@
           </ui-select-choices>
         </ui-select>
       </div>
-      <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap || importedLayers.length==0" ng-click="addSelectedToMap(layerSelections)">Add to Map</button>
+      <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap || import.imported.length==0" ng-click="addSelectedToMap(layerSelections)">Add to Map</button>
     </div>
     <div class="col-sm-6 text-center divider">
       <span class="pull-left or">OR</span>
       <p class="lead" style="line-height: 3em;">Create a New Map:</p>
-      <button class="btn btn-primary btn-sm" ng-disabled="importedLayers.length==0" ng-click="createNewMap(layerSelections);">New Map &rarr;</button>
+      <button class="btn btn-primary btn-sm" ng-disabled="import.imported.length==0" ng-click="createNewMap(layerSelections);">New Map &rarr;</button>
     </div>
   </div>
   <div class="row">
