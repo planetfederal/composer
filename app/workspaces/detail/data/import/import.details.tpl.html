@@ -51,12 +51,15 @@
   </div>
   <div ng-if="import.ignored.length > 0">
     <h3>Ignored Layer{{import.ignored.length > 1 ? 's' : ''}}</h3>
-    <p>
-      The following layer{{import.ignored.length > 1 ? 's were' : ' was'}} not recognized:
+
+    <div ng-click="showIgnored = !showIgnored">
+      The following {{import.ignored.length}} file{{import.ignored.length > 1 ? 's were' : ' was'}} not recognized: <span class="icon"><i class="fa" ng-class="{ 'fa-chevron-right': !showIgnored, 'fa-chevron-down': showIgnored }"></i></span>
+    </div>
+    <div class="horizontal-divider" collapse="!showIgnored" ng-init="showIgnored = import.ignored.length < 10">
       <ul class="list-unstyled">
         <li ng-repeat="ignored in import.ignored">{{ ignored.name }}</li>
       </ul>
-    </p>
+    </div>
   </div>
 
   <div class="row map-choice" ng-show="!mapInfo && (import.imported.length > 0 || import.pending.length > 0)">
@@ -75,7 +78,7 @@
       </div>
       <button type="button" class="btn btn-success btn-sm inline map-button" ng-disabled="!selectedMap || import.imported.length==0" ng-click="addSelectedToMap(layerSelections)">Add to Map</button>
     </div>
-    <div class="col-sm-6 text-center divider">
+    <div class="col-sm-6 text-center vertical-divider">
       <span class="pull-left or">OR</span>
       <p class="lead" style="line-height: 3em;">Create a New Map:</p>
       <button class="btn btn-primary btn-sm" ng-disabled="import.imported.length==0" ng-click="createNewMap(layerSelections);">New Map &rarr;</button>
