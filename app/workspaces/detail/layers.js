@@ -330,9 +330,9 @@ angular.module('gsApp.workspaces.layers', [
   this.thumbnailize = function(layer) {
     var retina = $window.devicePixelRatio > 1;
     var url = GeoServer.layers.thumbnail.get(layer.workspace,
-      layer.name);
+      layer.name) + '?t='+(new Date()).getTime();
     if (retina) {
-      url = url + '?hiRes=true';
+      url = url + '&hiRes=true';
     }
     layer.thumbnail = url;
   };
