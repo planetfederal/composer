@@ -77,9 +77,11 @@ angular.module('gsApp.styleditor.icons', [
         $modalInstance.dismiss('cancel');
       };
 
-      $scope.chooseIcon = function(iconname) {
-        $scope.selectedIconName = iconname;
-        $scope.selectedIconPath = iconname;
+      $scope.chooseIcon = function(icon) {
+        $scope.selectedIconName = icon.name;
+        $scope.selectedIconPath = "- external:\n" +
+                                  "    url: " + icon.name + "\n" +
+                                  "    format: " + icon.mime;
       };
 
       $scope.uploadIcons = function(files) {

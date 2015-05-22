@@ -14,7 +14,7 @@
         <div>
           <div class="row icon-row" ng-repeat="row in icons | orderBy: 'name' | partition:3 ">
             <div class="col-xs-4" ng-repeat="item in row">
-              <span ng-click="chooseIcon(item.name);"
+              <span ng-click="chooseIcon(item);"
                 popover-trigger="mouseenter" popover-placement="bottom"
                 popover-append-to-body="true"
                 popover-popup-delay="400"
