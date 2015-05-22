@@ -11,9 +11,6 @@
         </p>
       </div>
       <div class="pull-right next-import-button">
-        <div ng-if="importInProgress" class="next-import-button">
-          <i class="fa fa-spinner fa-spin"></i> Importing...
-        </div>
         <div ng-if="import.imported.length > 0" class="bg-success imported-msg">
           {{ import.imported.length }}
            {{ import.imported.length > 1 ? 'layers' : 'layer' }} imported.

@@ -489,31 +489,15 @@ angular.module('gsApp.workspaces.data.import', [
               '</div>',
             width: '20%'},
           {
-            displayName: 'Projection Needed',
-            cellTemplate:
-              '<div ng-switch on="!row.entity.pending">' +
-                '<proj-field ng-switch-when="false" proj="row.entity.proj">' +
-                '</proj-field>' +
-                '<div ng-switch-when="true" class="ngCellText">' +
-                ' {{ row.entity.proj.srs }}'+
-                '<div>' +
-              '</div>',
-            width: '25%'
+            displayName: ''
           },
           {
             displayName: '',
             cellTemplate:
-              '<div class="ngCellText" ' +
-                'ng-show="row.entity.pending && row.entity.proj != null">'+
-                '<a ng-click="applyProjToAll(row.entity.proj)" ' +
-                '  title="Apply projection to all pending layers">'+
-                'Apply to all</a> ' +
-                '<i class="fa fa-mail-forward fa-rotate-180"></i>' +
-              '</div>' +
-              '<div class="ngCellText" ng-show="row.entity.imported">'+
-                '<i class="fa fa-check-circle"></i> Layer imported.' +
-              '</div>'
-          },
+              '<span class="loadingField" ng-show="row.entity.loading">' +
+              '<i class="fa fa-spinner fa-spin"></i> Importing</span>',
+            width: '20%'
+          }
         ],
         checkboxCellTemplate:
           '<div class="ngSelectionCell">' +
@@ -632,7 +616,8 @@ angular.module('gsApp.workspaces.data.import', [
               'popover-placement="top" popover-append-to-body="true">' +
               '<i class="fa fa-exclamation-triangle"></i> Error</span>' +
               '<span class="loadingField" ng-show="row.entity.loading">' +
-              '<i class="fa fa-spinner fa-spin"></i> Importing</span>'
+              '<i class="fa fa-spinner fa-spin"></i> Importing</span>',
+              width: '20%'
           }
         ]
       }, baseGridOpts);
@@ -653,7 +638,6 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.pollingGetCallback = function(result) {
         if (result.success) {
           var data = result.data;
-          var totalComplete = data.imported.length + data.failed.length;
           
           // Completed
           if (data.running && data.running.length == 0) {
@@ -745,8 +729,9 @@ angular.module('gsApp.workspaces.data.import', [
           toImport = {'tasks': []};
           $scope.layerSelections.filter(function(item) {
             return $scope.import.preimport.filter(function(layer) {return layer === item && !layer.imported;}).length > 0;
-          }).forEach(function(item) {
-              toImport.tasks.push({'task': item.task});
+          }).forEach(function(task) {
+              toImport.tasks.push({'task': task.task});
+              task.loading = true;
               tasks++;
           });
         }
