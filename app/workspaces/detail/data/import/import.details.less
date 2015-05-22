@@ -16,8 +16,9 @@
     margin-top: 2px;
   }
   .ngViewport.ng-scope {
-    min-height: 200px !important;
-    height: 100% !important;
+    min-height: 90px !important;
+    max-height: 330px;
+    height: auto !important;
   }
   input[type="checkbox"] {
     margin: -7px 5px 0px 0px !important;
@@ -87,7 +88,7 @@
     }
   }
 
-  .divider {
+  .vertical-divider {
     border-left: 1px solid @gray;
     height: 110px;
 
@@ -96,6 +97,10 @@
       background: #fff;
       margin-top: 40px;
     }
+  }
+
+  .horizontal-divider {
+    border-top: 2px solid #9c9a9a;
   }
 
 }
