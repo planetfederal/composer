@@ -13,19 +13,27 @@ angular.module('gsApp', [
   'gsApp.topnav',
   'gsApp.sidenav',
   'gsApp.login',
+  'gsApp.login.modal',
   'gsApp.home',
   'gsApp.layers',
   'gsApp.workspaces',
   'gsApp.maps'
 ])
-.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window',
-    function($scope, $state, AppEvent, AppSession, $window) {
+.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window', '$modal',
+    function($scope, $state, AppEvent, AppSession, $window, $modal) {
       $scope.session = AppSession;
 
       // handle an un-authorized event and forward to the login page
       $scope.$on(AppEvent.Unauthorized, function(e) {
         //TODO: figure out if session expired, etc...
-        $state.go('login');
+        if (!$scope.login) {
+          var modalInstance = $modal.open({
+            templateUrl: '/login/login.modal.tpl.html',
+            controller: 'LoginModalCtrl',
+            size: 'md'
+          });
+          $scope.login = true;
+        }
       });
       $scope.$on(AppEvent.Login, function(e, login) {
         // forward to previous state, or home
