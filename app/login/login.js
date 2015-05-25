@@ -41,7 +41,7 @@ angular.module('gsApp.login', [])
             if (result.success) {
               // redirect to the previous state
               var prev = $scope.state.prev;
-              if (prev.name === '' || prev.name.name === '') {
+              if (!prev || !prev.name || prev.name.url.indexOf('/login') != -1 || prev.name.name === '') {
                 $state.go('home');
               }
               else {

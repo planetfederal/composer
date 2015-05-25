@@ -26,8 +26,8 @@ angular.module('gsApp.login.modal', [])
             if (result.success) {
               $modalInstance.close('login');
               $rootScope.enableAlerts = true;
-              $scope.login = false;
-              //$rootScope.$broadcast(AppEvent.Login, result.data);
+              $scope.$parent.modal = false;
+              $rootScope.$broadcast(AppEvent.Login, result.data);
             }
             return result;
           })
@@ -37,7 +37,8 @@ angular.module('gsApp.login.modal', [])
       $scope.cancel = function() {
         //Stay logged out; go to the logout page.
         $modalInstance.dismiss('logout');
+        $scope.$parent.modal = false;
         $rootScope.$broadcast(AppEvent.Logout);
-        $scope.login = false;
+
       };
     }]);
