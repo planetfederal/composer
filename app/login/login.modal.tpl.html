@@ -2,9 +2,12 @@
   <div class="modal-header">
     <h4 class="modal-title">Login</h4>
   </div>
+  <div ng-show="message" class="alert alert-danger" role="alert">
+    {{ message }}
+  </div>
   <div ng-if="loginFailed" class="alert alert-danger" role="alert">
-      Login failed. Please try again.
-    </div>
+    Login failed. Please try again.
+  </div>
   <div class="modal-body">
     <form class="login-form" ng-init="alertsOff();">
       <div class="form-group row">

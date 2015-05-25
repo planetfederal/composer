@@ -19,31 +19,44 @@ angular.module('gsApp', [
   'gsApp.workspaces',
   'gsApp.maps'
 ])
-.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window', '$modal', '$modalStack', 'GeoServer',
-    function($scope, $state, AppEvent, AppSession, $window, $modal, $modalStack, GeoServer) {
+.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window', '$modal', '$modalStack', '$timeout', 'GeoServer',
+    function($scope, $state, AppEvent, AppSession, $window, $modal, $modalStack, $timeout, GeoServer) {
       $scope.session = AppSession;
 
-      // On an unauthorized event show a login modal
-      $scope.$on(AppEvent.Unauthorized, function(e) {
+      var timeout = null;
+      var timeoutWarning = 15;
+      //Show a login modal counting down from countdown. No countdown if countdown = 0.
+      var loginModal = function(countdown) {
         //If a modal is not already open, we are not currently changing states, and we are not on the login page
         if (!($scope.modal || $scope.stateChange) && ($state.current.url.indexOf('/login') == -1)) {
           $scope.modal = true;
-          var st = String.indexOf($state.current.url,'/login');
           var modalInstance = $modal.open({
             templateUrl: '/login/login.modal.tpl.html',
             controller: 'LoginModalCtrl',
             scope: $scope,
-            size: 'md'
+            size: 'md',
+            resolve: {
+              countdown: function () {
+                return countdown;
+              },
+            }
           });
-
         }
+      }
+      // On an unauthorized event show a login modal
+      $scope.$on(AppEvent.Unauthorized, function(e) {
+        loginModal(0);
       });
       $scope.$on(AppEvent.Login, function(e, login) {
         // update global session state
         AppSession.update(login.session, login.user);
+        $timeout.cancel(timeout);
+        timeout = $timeout(function() {loginModal(timeoutWarning)}, (login.timeout - timeoutWarning)*1000);
+
       });
       $scope.$on(AppEvent.Logout, function(e) {
         AppSession.clear();
+        $timeout.cancel(timeout);
         $state.go('login');
       });
 
@@ -69,6 +82,9 @@ angular.module('gsApp', [
                   if (!result.data.user && to.url.indexOf('/login') == -1) {
                     $state.go('login').then(function() {$scope.stateChange = false;});
                   } else {
+                    //Update timout
+                    $timeout.cancel(timeout);
+                    timeout = $timeout(function() {loginModal(timeoutWarning)}, (result.data.timeout - timeoutWarning)*1000);
                     $scope.stateChange = false;
                   }
                 } else {
