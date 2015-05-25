@@ -62,6 +62,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
           GeoServer.map.update($scope.workspace, originalMap.name, patch).then(
             function(result) {
               if (result.success) {
+                $scope.form.mapSettings.alerts = null;
                 $scope.form.mapSettings.saved = true;
                 $scope.form.mapSettings.$setPristine();
                 $rootScope.$broadcast(AppEvent.MapUpdated, {
@@ -71,7 +72,6 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 $scope.map = result.data;
                 originalMap = angular.copy($scope.map);
               } else {
-                $scope.map = angular.copy(originalMap);
                 $rootScope.alerts = [{
                   type: 'danger',
                   message: 'Map update failed: ' +

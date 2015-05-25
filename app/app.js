@@ -19,8 +19,8 @@ angular.module('gsApp', [
   'gsApp.workspaces',
   'gsApp.maps'
 ])
-.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window', '$modal', 'GeoServer',
-    function($scope, $state, AppEvent, AppSession, $window, $modal, GeoServer) {
+.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window', '$modal', '$modalStack', 'GeoServer',
+    function($scope, $state, AppEvent, AppSession, $window, $modal, $modalStack, GeoServer) {
       $scope.session = AppSession;
 
       // On an unauthorized event show a login modal
@@ -59,8 +59,13 @@ angular.module('gsApp', [
                 $scope.state.prev = {name: from, params: fromParams};
               }
               GeoServer.session().then(function(result) {
+                //If we are in a series of modal windows, don't redirect
+                if ($modalStack.getTop()) {
+                  $scope.stateChange = false;
+                  return result;
+                }
                 if (result.success) {
-                  //not logged in
+                  //not logged in, not on the login page, not in a modal window - redirect to login
                   if (!result.data.user && to.url.indexOf('/login') == -1) {
                     $state.go('login').then(function() {$scope.stateChange = false;});
                   } else {
@@ -71,7 +76,7 @@ angular.module('gsApp', [
                   AppSession.clear();
                   $state.go('login').then(function() {$scope.stateChange = false;});
                 }
-                
+                return result;
               });
             });
     }])

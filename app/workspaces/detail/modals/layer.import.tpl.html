@@ -32,6 +32,9 @@
         <label for="keywords">Keywords:</label> {{ layer.keywords }}
       </div>
     </form>
+    <alert ng-show="form.alerts" type="danger" style="margin-left: 0;">
+      {{ form.alerts }}
+    </alert>
   </div>
   <div class="modal-footer">
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
