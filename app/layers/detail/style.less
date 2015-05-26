@@ -3,6 +3,10 @@
 @import "../../variables.less";
 
 .layer-detail-style {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+
   .top {
     display: inline-block;
     width: 95%;
@@ -106,6 +110,11 @@
     height: 100%;
   }
   .style-editor {
-    width: 100%;
+    width: auto;
+    position: relative;
+    height: 100%;
+    z-index: 10;
+    padding-bottom: 137px; // Note: otherwise it overflows past the bototm
+    overflow: hidden;
   }
 }
