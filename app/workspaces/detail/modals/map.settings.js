@@ -63,6 +63,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
           GeoServer.map.update($scope.workspace, originalMap.name, patch).then(
             function(result) {
               if (result.success) {
+                $scope.form.mapSettings.alerts = null;
                 $scope.form.mapSettings.saved = true;
                 $scope.form.mapSettings.$setPristine();
                 $rootScope.$broadcast(AppEvent.MapUpdated, {
@@ -79,6 +80,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
                     result.data.message,
                   fadeout: true
                 }];
+                $scope.form.mapSettings.saved = false;
                 $scope.form.mapSettings.alerts =
                   'Error: ' + result.data.message;
               }
