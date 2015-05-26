@@ -39,6 +39,33 @@ angular.module('gsApp.styleditor', [
                 $rootScope.generation = cm.changeGeneration();
               }
             });
+            //Use custom events for all Cmd/Ctrl key events to override default functionality and enable OS X compatibility
+            editor.on('keydown', function(cm, change) {
+              if (navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? change.metaKey : change.ctrlKey) {
+                //Ctrl-Space / Cmd-Space
+                if (change.keyCode == 32) {
+                  change.preventDefault();
+                  cm.showHint({
+                    hint: function(cm, options) {
+                      return YsldHinter.hints(cm, angular.extend(options, {
+                        layer: $scope.layer
+                      }));
+                    }
+                  });
+                //Ctrl-F / Cmd-F
+                } else if (change.keyCode == 70) {
+                  change.preventDefault();
+                  var pos = cm.getCursor();
+                  while(pos.line > 0 && cm.isFolded(pos)) {
+                    pos = {line: pos.line-1, ch:0};
+                  }
+                  cm.foldCode(pos, {
+                    rangeFinder: CodeMirror.fold.indent,
+                    scanUp: true
+                  });
+                }
+              }
+            });
           };
 
           $scope.codeMirrorOpts = {
@@ -49,25 +76,6 @@ angular.module('gsApp.styleditor', [
             foldGutter: true,
             gutters: ['markers', 'CodeMirror-foldgutter'],
             extraKeys: {
-              'Ctrl-Space': function(cm) {
-                cm.showHint({
-                  hint: function(cm, options) {
-                    return YsldHinter.hints(cm, angular.extend(options, {
-                      layer: $scope.layer
-                    }));
-                  }
-                });
-              },
-              'Ctrl-F': function(cm) {
-                var pos = cm.getCursor();
-                while(pos.line > 0 && cm.isFolded(pos)) {
-                  pos = {line: pos.line-1, ch:0};
-                }
-                cm.foldCode(pos, {
-                  rangeFinder: CodeMirror.fold.indent,
-                  scanUp: true
-                });
-              },
               // tab remapping taken from:
               //   https://gist.github.com/danieleds/326903084a196055a7c3
               'Tab': function (cm) {

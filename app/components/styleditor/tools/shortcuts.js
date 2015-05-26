@@ -14,11 +14,13 @@ angular.module('gsApp.styleditor.shortcuts', [])
       $scope.chooseIcon = function(iconname) {
         $scope.selectedIconName = iconname;
       };
-
+      $scope.mac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i)
+      cmdKey =  $scope.mac ? 'Cmd-' : 'Ctrl-';
       $scope.shortcuts = [
-        { 'name': 'Save', 'keys': 'Ctrl-S'},
-        { 'name': 'Autocomplete', 'keys': 'Ctrl-Spacebar'},
-        { 'name': 'Code fold/unfold', 'keys': 'Ctrl-F'},
-        { 'name': 'Select line', 'keys': 'Shift-Up/Down'}
+        { 'name': 'Save', 'keys': cmdKey+'S'},
+        { 'name': 'Autocomplete', 'keys': cmdKey+'Spacebar' + ($scope.mac ? '*' : '')},
+        { 'name': 'Code fold/unfold', 'keys': cmdKey+'F'},
+        { 'name': 'Select line', 'keys': 'Shift-Up/Down'},
+        { 'name': 'Increase/reduce indent', 'keys': 'Tab/Shift-Tab'}
       ];
     }]);

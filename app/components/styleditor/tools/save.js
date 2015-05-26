@@ -21,13 +21,13 @@ angular.module('gsApp.styleditor.save', [])
           $scope.$watch('editor', function(newVal) {
             if (newVal != null) {
               var ed = newVal;
-              ed.addKeyMap({
-                'Ctrl-S': function(cm) {
+              ed.on('change', function(cm, change) { });
+              ed.on('keydown', function(cm, change) {
+                if (change.keyCode == 83 && (navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? change.metaKey : change.ctrlKey)) {
+                  change.preventDefault();
                   $scope.click();
-                },
-              });
-              ed.on('change', function(cm, change) {
-              });
+                }
+              }); 
             }
           });
         }
