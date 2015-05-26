@@ -95,6 +95,7 @@ angular.module('gsApp.projfield', [
   };
 
   this.fetchProjections = function() {
+    _this.defaultProjections = [];
     GeoServer.proj.get('EPSG:4326').then(function(result) {
       _this.defaultProjections.push(result.data);
       _this.defaultProj = result.data;
@@ -106,8 +107,8 @@ angular.module('gsApp.projfield', [
     return GeoServer.proj.recent().then(function(result) {
       _this.projections = _.remove(result.data,
         function(prj) {
-          return (prj.srs.toLowerCase() !== 'epsg:4326' &&
-            prj.srs.toLowerCase() !== 'epsg:3857');
+          return (prj.srs.toLowerCase() != 'epsg:4326' &&
+            prj.srs.toLowerCase() != 'epsg:3857');
         });
     });
   };

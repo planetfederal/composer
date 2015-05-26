@@ -43,7 +43,8 @@ angular.module('gsApp.workspaces.maps.settings', [])
             patch.title = $scope.map.title;
           }
 
-          if (originalMap.bbox !== $scope.map.bbox) {
+          //bbox and proj are interdependant for maps
+          if (originalMap.bbox !== $scope.map.bbox || originalMap.proj.srs !== $scope.map.proj.srs) {
             patch.proj = $scope.map.proj.srs;
             patch.bbox.south = $scope.map.bbox.south;
             patch.bbox.west = $scope.map.bbox.west;
