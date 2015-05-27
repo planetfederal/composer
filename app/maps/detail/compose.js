@@ -34,95 +34,73 @@ angular.module('gsApp.maps.compose', [
       }
       $rootScope.$broadcast(AppEvent.ToggleSidenav);
 
-      $rootScope.$on('$stateChangeStart', function(event){
+      $scope.$on('$stateChangeStart', function(event, state, args){
         if (!$rootScope.editor.isClean($rootScope.generation)){
           event.preventDefault();
-          $scope.editorSave('workspace');
+          $scope.editorSave('state', state, args);
         }
       });
 
-      $rootScope.$on('$stateChangeSuccess', function(event){
-        //Sometimes the modal backdrop doesn't go away.
-        angular.element($document[0].querySelectorAll('.modal-backdrop'))
-          .css('display', 'none');
-      });
-
-      $scope.editorSave = function(nextWindowType) {
-        //Sometimes the modal backdrop doesn't appear.
-        angular.element($document[0].querySelectorAll('.modal-backdrop'))
-          .css('display', 'block');
-
-        var modalInstance = $modal.open({
+      $scope.editorSave = function(nextWindowType, state, args) {
+        $modal.open({
           templateUrl: '/maps/detail/editorsave-modal.tpl.html',
-          scope: $scope,
-          controller: ['$scope', '$window', '$modalInstance', '$state',
-            '$document',
-            function($scope, $window, $modalInstance, $state, $document) {
-              //Check to see if the editor contains any syntax errors, if it
-              //does then we won't show the save button on the modal dialog.
-              $scope.linterIsvalid = $rootScope.editor.getStateAfter().pair;
+          controller: ['linterIsvalid', '$scope', '$modalInstance',
+            function(linterIsvalid, $scope, $modalInstance) {
+              $scope.linterIsvalid = linterIsvalid;
 
               $scope.cancel = function() {
-                //Sometimes the modal backdrop doesn't go away.
-                angular.element($document[0].querySelectorAll(
-                  '.modal-backdrop')).css('display', 'none');
-                $modalInstance.dismiss('hide');
+                $modalInstance.dismiss('cancel');
               };
 
               $scope.saveChanges = function() {
-                $scope.saveStyle();
-                $scope.goToNextWindow();
+                $modalInstance.close('save');
               };
 
               $scope.discardChanges = function() {
-                $rootScope.alerts = [{
-                  type: 'success',
-                  message: 'Editor changes have been discarded.',
-                  fadeout: true
-                }];
-                $scope.undoChanges();
-                $scope.goToNextWindow();
+                $modalInstance.close('discard');
               };
-
-              $scope.undoChanges = function() {
-                //Undo all of the changes made to the editor.
-                for (var i = $rootScope.generation; i >= 0; i--) {
-                  $rootScope.editor.undo();
-                }
-
-                //If you don't explicitly set the value of the editor to the
-                //current value, the content reverts back to the last typed
-                //entry rather than discarding all of the changes.
-                $rootScope.editor.setValue($rootScope.editor.getValue());
-              };
-
-              $scope.goToNextWindow = function() {
-                if($rootScope.popoverElement) {
-                  $rootScope.popoverElement.remove();
-                }
-                $rootScope.generation = $rootScope.editor.changeGeneration();
-
-                if (nextWindowType == 'layer') {
-                  $scope.selectLayer($scope.gotoLayer);
-                }
-                else
-                {
-                  $scope.viewWorkspace($rootScope.workspace);
-                }
-
-                //Sometimes the modal backdrop doesn't go away.
-                angular.element($document[0].querySelectorAll(
-                  '.modal-backdrop')).css('display', 'none');
-                $scope.gotoLayer = null;
-                $rootScope.worksapce = null;
-                $rootScope.linterError = false;
-                $modalInstance.dismiss('hide');
-              };
-            }],
+          }],
           backdrop: 'static',
-          size: 'med'
+          size: 'med',
+          resolve: {
+            linterIsvalid: function() {
+              return $rootScope.editor.getStateAfter().pair;
+            }
+          }
+        }).result.then(function(result) {
+          var nextWindow = function() {
+            if (nextWindowType == 'layer') {
+              $scope.selectLayer($scope.gotoLayer);
+            } else {
+              $state.go(state, args);
+            }
+          };
+          if (result == 'save') {
+            $scope.saveStyle().then(nextWindow);
+          } else {
+            $scope.discardChanges();
+            nextWindow();
+          }
         });
       };
+
+      $scope.discardChanges = function() {
+        //Undo all of the changes made to the editor.
+        //TODO: Make sure this doesn't revert saves
+        for (var i = $rootScope.generation; i >= 0; i--) {
+          $rootScope.editor.undo();
+        }
+        //If you don't explicitly set the value of the editor to the
+        //current value, the content reverts back to the last typed
+        //entry rather than discarding all of the changes.
+        $rootScope.editor.setValue($rootScope.editor.getValue());
+
+        $rootScope.alerts = [{
+          type: 'success',
+          message: 'Editor changes have been discarded.',
+          fadeout: true
+        }];
+      }
 
       GeoServer.map.get(wsName, name).then(function(result) {
         var map = result.data;
@@ -252,7 +230,7 @@ angular.module('gsApp.maps.compose', [
 
       $scope.saveStyle = function() {
         var l = $scope.activeLayer;
-        GeoServer.style.put(l.workspace, l.name, $scope.ysldstyle, $scope.map)
+        return GeoServer.style.put(l.workspace, l.name, $scope.ysldstyle, $scope.map)
           .then(function(result) {
             if (result.success == true) {
               $scope.markers = null;
