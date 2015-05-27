@@ -73,6 +73,7 @@ angular.module('gsApp.workspaces.layers.import', [])
         GeoServer.layer.create($scope.workspace, layerInfo).then(
           function(result) {
             if (result.success) {
+              $scope.form.alerts = null;
               $scope.resource = result.data.resource;
               if ($scope.resource.layers) {
                 $scope.resource.layers.push(result.data);
@@ -87,6 +88,7 @@ angular.module('gsApp.workspaces.layers.import', [])
                 fadeout: true
               }];
               $scope.layerAdded = true;
+              $modalInstance.close($scope.layerAdded);
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
@@ -94,8 +96,8 @@ angular.module('gsApp.workspaces.layers.import', [])
                   $scope.resource.name + ': ' + result.data.message,
                 fadeout: true
               }];
+              $scope.form.alerts = 'Error: ' + result.data.message;
             }
-            $modalInstance.close($scope.layerAdded);
           });
       };
 

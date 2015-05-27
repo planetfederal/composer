@@ -73,11 +73,6 @@ angular.module('gsApp.workspaces.layers.settings', [])
                   message: 'Layer update failed: ' + result.data.message,
                   fadeout: true
                 }];
-                // Reset settings to original
-                $scope.layer.name = originalLayer.name;
-                $scope.layer.title = originalLayer.title;
-                $scope.layer.proj = originalLayer.proj;
-                $scope.layer.description = originalLayer.description;
               }
             });
         }

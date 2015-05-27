@@ -43,11 +43,16 @@ angular.module('gsApp.core.auth', [])
 
         responseError: function(response) {
           if (response.status == 401) {
+            if (!response.data) {
+              //No message from the server; fill in our own
+              response.data = {message: "401 Unauthorized"};
+            }
             // don't broadcast if already trying to login
             if (response.config.url.indexOf('/login') == -1) {
               $rootScope.$broadcast(AppEvent.Unauthorized);
             }
           }
+
           return response;
         }
       };
