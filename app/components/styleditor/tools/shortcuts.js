@@ -14,11 +14,12 @@ angular.module('gsApp.styleditor.shortcuts', [])
       $scope.chooseIcon = function(iconname) {
         $scope.selectedIconName = iconname;
       };
-
+      cmdKey =  navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? 'Cmd' : 'Ctrl';
       $scope.shortcuts = [
-        { 'name': 'Save', 'keys': 'Ctrl-S'},
-        { 'name': 'Autocomplete', 'keys': 'Ctrl-Spacebar'},
-        { 'name': 'Code fold/unfold', 'keys': 'Ctrl-F'},
-        { 'name': 'Select line', 'keys': 'Shift-Up/Down'}
+        { 'name': 'Save', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'S'}]},
+        { 'name': 'Autocomplete', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'Enter'}]},
+        { 'name': 'Code fold/unfold', 'keys': [{'key':cmdKey,'delim':'+'},{'key':',','delim':'/'},{'key':'.'}]},
+        { 'name': 'Select line', 'keys': [{'key':'Shift','delim':'+'},{'key':'Up','delim':'/'},{'key':'Down'}]},
+        { 'name': 'Increase/reduce indent', 'keys': [{'key':'Tab','delim':'/'},{'key':'Shift','delim':'+'},{'key':'Tab'}]}
       ];
     }]);
