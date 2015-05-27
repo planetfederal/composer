@@ -8,13 +8,14 @@
     </div>
   </div>
   <div class="modal-body">
-    <ul class="list-unstyled" style="line-height: 1.8em;">
+    <ul class="list-unstyled" style="line-height: 2.4em;">
       <li ng-repeat="shortcut in shortcuts">{{ shortcut.name }}
-        <span class="pull-right">{{ shortcut.keys }}</span>
+        <span class="pull-right">
+          <span ng-repeat="key in shortcut.keys">
+            <span class="key">{{ key.key }}</span><span class="delim">{{ key.delim }}</span>
+          </span>
+        </span>
       </li>
     </ul>
-    <div class="form-group" ng-show="mac">
-      <small>* The "Show Spotlight search" keyboard shortcut must be disabled or re-mapped</small>
-    </div>
   </div>
 </div>

@@ -14,13 +14,12 @@ angular.module('gsApp.styleditor.shortcuts', [])
       $scope.chooseIcon = function(iconname) {
         $scope.selectedIconName = iconname;
       };
-      $scope.mac = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i)
-      cmdKey =  $scope.mac ? 'Cmd-' : 'Ctrl-';
+      cmdKey =  navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? 'Cmd' : 'Ctrl';
       $scope.shortcuts = [
-        { 'name': 'Save', 'keys': cmdKey+'S'},
-        { 'name': 'Autocomplete', 'keys': cmdKey+'Spacebar' + ($scope.mac ? '*' : '')},
-        { 'name': 'Code fold/unfold', 'keys': cmdKey+'F'},
-        { 'name': 'Select line', 'keys': 'Shift-Up/Down'},
-        { 'name': 'Increase/reduce indent', 'keys': 'Tab/Shift-Tab'}
+        { 'name': 'Save', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'S'}]},
+        { 'name': 'Autocomplete', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'Enter'}]},
+        { 'name': 'Code fold/unfold', 'keys': [{'key':cmdKey,'delim':'+'},{'key':',','delim':'/'},{'key':'.'}]},
+        { 'name': 'Select line', 'keys': [{'key':'Shift','delim':'+'},{'key':'Up','delim':'/'},{'key':'Down'}]},
+        { 'name': 'Increase/reduce indent', 'keys': [{'key':'Tab','delim':'/'},{'key':'Shift','delim':'+'},{'key':'Tab'}]}
       ];
     }]);

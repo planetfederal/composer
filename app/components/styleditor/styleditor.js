@@ -42,8 +42,8 @@ angular.module('gsApp.styleditor', [
             //Use custom events for all Cmd/Ctrl key events to override default functionality and enable OS X compatibility
             editor.on('keydown', function(cm, change) {
               if (navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? change.metaKey : change.ctrlKey) {
-                //Ctrl-Space / Cmd-Space
-                if (change.keyCode == 32) {
+                //Hint: Ctrl/Cmd Enter
+                if (change.keyCode == 13) {
                   change.preventDefault();
                   cm.showHint({
                     hint: function(cm, options) {
@@ -52,18 +52,35 @@ angular.module('gsApp.styleditor', [
                       }));
                     }
                   });
-                //Ctrl-F / Cmd-F
-                } else if (change.keyCode == 70) {
+
+                //Fold: Ctrl/Cmd <
+                } else if (change.keyCode == 188) {
                   change.preventDefault();
-                  var pos = cm.getCursor();
+                  var pos = {line: cm.getCursor().line, ch:cm.getLine(cm.getCursor().line).length};
+                  //get end of first unfolded line
                   while(pos.line > 0 && cm.isFolded(pos)) {
-                    pos = {line: pos.line-1, ch:0};
+                    pos = {line: pos.line-1, ch:cm.getLine(pos.line-1).length};
                   }
                   cm.foldCode(pos, {
                     rangeFinder: CodeMirror.fold.indent,
                     scanUp: true
-                  });
+                  }, "fold");
+
+                //Unfold: Ctrl/Cmd >
+                } else if (change.keyCode == 190) {
+                  change.preventDefault();
+                  var pos = {line: cm.getCursor().line, ch:0};
+                  //get beginning of first unfolded line
+                  while(pos.line > 0 && cm.isFolded(pos)) {
+                    pos = {line: pos.line-1, ch:0};
+                  }
+                  
+                  cm.foldCode(pos, {
+                    rangeFinder: CodeMirror.fold.indent,
+                    scanUp: true
+                  }, "unfold");
                 }
+
               }
             });
           };
