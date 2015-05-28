@@ -2,7 +2,7 @@
   <div class="modal-header">
     <div class="inline">
       <h4 class="modal-title"><strong>{{ layer.name }}</strong></h4>
-      <small>{{ attributes.length }} Attributes - Click to Select</small>
+      <small>{{ attributes.schema.attributes.length }} Attributes - Click to Select</small>
     </div>
     <div class="pull-right inline top-buttons">
       <button class="btn btn-warning btn-sm" id="copyAttr">Copy to Clipboard</button>
@@ -10,21 +10,25 @@
     </div>
   </div>
   <div class="modal-body">
-    <div class="row" ng-if="attributes.length > 20" ng-repeat="row in attributes | partition:3 ">
-      <div class="col-xs-4 attr-cols" ng-repeat="item in row">
-        <a class="attr-name" ng-class="{selectedAttr: selectedAttrName==item.name}" ng-click="selectName(item.name);">
-          {{ item.name }}
-        </a>
-        <span class="attr-type pull-right">{{ item.type }}</span>
-      </div>
+    <div class="attr-table">
+      <table>
+        <thead><tr class="attr-header">
+          <th ng-repeat="attr in attributes.schema.attributes">
+            <a class="attr-name" ng-class="{selectedAttr: selectedAttrName==attr.name}" ng-click="selectName(attr.name);">
+              {{ attr.name }}
+            </a>
+            <div class="attr-type">{{ attr.type }}</div>
+          </th>
+        </tr></thead>
+        <tbody>
+          <tr ng-repeat="values in attributes.values track by $index">
+            <td ng-repeat="value in values track by $index">
+            {{ value }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-    <div class="row" ng-if="attributes.length < 20" ng-repeat="attr in attributes">
-      <div class="col-xs-6 col-xs-offset-3 attr-cols">
-        <a class="attr-name" ng-class="{selectedAttr: selectedAttrName==attr.name}" ng-click="selectName(attr.name);">
-          {{ attr.name }}
-        </a>
-        <span class="attr-type pull-right">{{ attr.type }}</span>
-      </div>
-    </div>
+    <div class="text-center hint">(Only the first 10 rows of attribute data are shown)</div>
   </div>
 </div>

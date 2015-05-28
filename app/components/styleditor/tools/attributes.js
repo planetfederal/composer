@@ -22,31 +22,36 @@ angular.module('gsApp.styleditor.attributes', [
         controller: function($scope, $element, $modal) {
 
           $scope.showAttributes = function() {
-            $scope.attributes = $scope.layer.schema.attributes;
+            GeoServer.datastores.getAttributes($scope.layer.resource.workspace, $scope.layer.resource.store, $scope.layer.resource.name).then(
+              function(result) {
+                if (result.success) {
+                  $scope.attributes = result.data;
 
-            if ($scope.attributes.length===0) {
-              $scope.$parent.alerts = [{
-                type: 'warning',
-                message: 'No attributes.',
-                fadeout: true
-              }];
-              return;
-            }
-            $modal.open({
-              templateUrl:
-                '/components/styleditor/tools/attributes.modal.tpl.html',
-              controller: 'AttributesModalCtrl',
-              size: 'lg',
-              resolve: {
-                layer: function() {
-                  return $scope.layer;
-                },
-                attributes: function() {
-                  return $scope.attributes;
+                  if (!$scope.attributes || !$scope.attributes.schema || $scope.attributes.schema.attributes.length===0) {
+                    $scope.$parent.alerts = [{
+                      type: 'warning',
+                      message: 'No attributes.',
+                      fadeout: true
+                    }];
+                    return;
+                  }
+                  $modal.open({
+                    templateUrl:
+                      '/components/styleditor/tools/attributes.modal.tpl.html',
+                    controller: 'AttributesModalCtrl',
+                    size: 'lg',
+                    resolve: {
+                      layer: function() {
+                        return $scope.layer;
+                      },
+                      attributes: function() {
+                        return $scope.attributes;
+                      }
+                    }
+                  });
                 }
-              }
-            });
-          };
+              });
+          }
         }
       };
     }])

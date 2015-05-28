@@ -187,6 +187,13 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot+'/stores/'+workspace+'/'+store+'/'+resource
             });
           },
+          getAttributes: function(workspace, store, resource, count) {
+            count = count ? count : 10;
+            return http({
+              method: 'GET',
+              url: apiRoot+'/stores/'+workspace+'/'+store+'/'+resource+'/attributes?count='+count
+            });
+          },
         },
 
         layers: {

@@ -3,7 +3,6 @@
 @import "../../../variables.less";
 
 .attr-modal {
-
   .top-buttons {
     margin-top: 8px;
   }
@@ -15,23 +14,49 @@
     margin-right: 10px;
   }
 
-  a.attr-name {
-    display: inline-block;
+  .attr-table {
+    overflow-x: auto;
 
-    &.selectedAttr {
-      color: @nectarine;
-    }
-  }
+    thead {
+      border: 1px solid @gray;
 
-  .attr-row {
-    margin: 4px 0;
 
-    a {
-      color: @almost-black;
-      &:hover {
-        text-decoration: underline;
+      th {
+        font-size: 13px;
+        padding: 5px;
+
+        a.attr-name {
+          display: inline-block;
+          color: @almost-black;
+          &:hover {
+            text-decoration: underline;
+          }
+
+          &.selectedAttr {
+            color: @nectarine;
+          }
+        }
+
+        .attr-type {
+          font-weight: normal;
+          color: @md-lt-gray;
+        }
       }
     }
+
+    tbody {
+      td {
+        font-size: 11px;
+        padding: 5px;
+        white-space: nowrap;
+        max-width: 110px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+    }
+  }
+  .hint {
+    color: @md-lt-gray;
   }
 
   .modal-body {
