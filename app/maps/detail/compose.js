@@ -126,14 +126,25 @@ angular.module('gsApp.maps.compose', [
                 return l;
               }),
               error: function(err) {
-                $scope.$apply(function() {
-                  $rootScope.alerts = [{
-                    type: 'warning',
-                    message: 'Map rendering may take a while...',
-                    details: err.exceptions ? err.exceptions[0].text : err,
-                    fadeout: true
-                  }];
-                });
+                if (err && typeof err == 'string' && err.startsWith("Delays are occuring in rendering the map.")) {
+                  $scope.$apply(function() {
+                    $rootScope.alerts = [{
+                      type: 'warning',
+                      message: 'Map rendering may take a while...',
+                      details: err,
+                      fadeout: true
+                    }];
+                  });
+                } else {
+                  $scope.$apply(function() {
+                    $rootScope.alerts = [{
+                      type: 'danger',
+                      message: 'Map rendering error',
+                      details: err.exceptions ? err.exceptions[0].text : err,
+                      fadeout: true
+                    }];
+                  });
+                }
               },
               progress: function(state) {
                 if (state == 'start') {
