@@ -187,6 +187,20 @@ angular.module('gsApp.workspaces.maps', [
         $scope.createMap();
       });
 
+      $scope.$on(AppEvent.MapUpdated, function(scope, map) {
+        // Update thumbnail if name changed
+        if (map && map.new) {
+          var _new = map.new;
+          var _original = map.original;
+
+          for (var i=0; i < $scope.maps.length; i++) {
+            if (angular.equals($scope.maps[i], _original)) {
+              $scope.maps[i] = angular.copy(_new);
+            }
+          }
+        }
+      });
+
       $scope.$watch('opts', function(newVal, oldVal) {
         if (newVal && newVal !== oldVal) {
           $scope.refreshMaps();
@@ -270,11 +284,11 @@ angular.module('gsApp.workspaces.maps', [
         }
       });
 
-      $rootScope.$on(AppEvent.MapSettingsUpdated, function(scope, maps) {
+      $rootScope.$on(AppEvent.MapUpdated, function(scope, map) {
         // Update thumbnail if name changed
-        if (maps && maps.new) {
-          var _new = maps.new;
-          var _original = maps.original;
+        if (map && map.new) {
+          var _new = map.new;
+          var _original = map.original;
           if (!_original || _new.name !== _original.name) {
             var retina = $window.devicePixelRatio > 1;
             var url = GeoServer.map.thumbnail.get(_new.workspace,

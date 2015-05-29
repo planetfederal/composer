@@ -9,7 +9,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
       $modalInstance, GeoServer, AppEvent, layersListModel, $sce) {
 
       $scope.workspace = workspace;
-      $scope.layer = layer;
+      $scope.layer = angular.copy(layer);
       $scope.layername = {};
       $scope.layername = layer.name;
 
