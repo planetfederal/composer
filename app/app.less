@@ -199,6 +199,11 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
 
 .popover {
   max-width: 500px;
+  z-index: 1040;
+}
+
+.modal .popover {
+  z-index: 1060;
 }
 
 @tooltip-arrow-outer-width:  @popover-arrow-width + 1;
@@ -225,11 +230,15 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
     border-style: solid;
 }
 
+.modal .tooltip {
+  z-index: 1060;
+}
+
 .tooltip {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: @zindex-popover;
+  z-index: 1040;
   display: none;
   max-width: 276px;
   padding: 1px;
