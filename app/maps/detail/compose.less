@@ -30,15 +30,15 @@
   }
 
   .top {
+    height: 33px;
+    margin-top: 1.5px;
     display: inline-block;
     width: 95%;
-    vertical-align: middle;
-    text-align: bottom;
     color: @slate-blue;
 
     .layers-toggle {
-      padding-top: 3px;
-      line-height: 32px;
+      display: inline-block;
+      vertical-align: top;
       color: @slate-blue;
 
       &:hover {
@@ -48,6 +48,8 @@
     }
 
     .add-layer {
+      display: inline-block;
+      vertical-align: top;
       margin-left: 10px;
       background-color: @light-bl-gray;
       color: @slate-blue;
@@ -56,10 +58,31 @@
         color: lighten(@dark-gray, 10%);
       }
     }
+    .currently_editing {
+        display: inline-block;
+        margin-left: 6%;
+        .editing {
+          vertical-align: top;
+          margin-right: 0.5em;
+          display: inline-block;
+          text-transform: uppercase;
+        }
+        
+        .target {
+          width: 100px;
+          max-width: 100px;
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          text-transform: none;
+          font-weight: bold;
+        }
+      }
     .shortcuts {
       margin-right: 20%;
       float: right;
-      margin-top: 6px;
+      margin-top: 4.5px;
       a {
         text-decoration: none;
         i {
@@ -71,16 +94,7 @@
       }
     }
   }
-  .currently_editing {
-    display: inline-block;
-    margin-left: 6%;
-    text-transform: uppercase;
-    .target {
-      text-transform: none;
-      font-weight: bold;
-    }
-  }
-
+  
   .map-name, .map-name-row, .navbar-brand, ul.nav.navbar-nav, ul.nav.navbar-nav > li > a {
     min-height: 35px;
     height: 35px;

@@ -20,7 +20,7 @@
               <a class="layers-toggle" ng-click="toggleLayers()">{{ map.layers.length }} Layer<span ng-if="map.layers.length > 1">s</span></a>
               <button class="btn btn-default btn-sm add-layer" ng-click="addMapLayer()"><i class="fa fa-plus"></i> Add Layer</button>
               <div class="currently_editing">
-                Editing: <span class="target">{{ activeLayer.name }}</span>
+                <span class="editing">Editing: </span><span class="target">{{ activeLayer.name }}</span>
               </div>
               <div class="shortcuts">
                 <a ng-click="showShortcuts()">
