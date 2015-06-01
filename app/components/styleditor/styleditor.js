@@ -149,7 +149,6 @@ angular.module('gsApp.styleditor', [
                   'popover="' +
                   $sce.trustAsHtml($sanitize(mark.problem)) +
                   '" ' + 'popover-placement="left" ' +
-                  'popover-append-to-body="true"' +
                   'title="Click to toggle the error message on/off." ' +
                   'alt="Click to toggle the error message on/off."' +
                   'ng-click="setPopup()"></a>';

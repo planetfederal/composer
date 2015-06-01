@@ -613,7 +613,7 @@ angular.module('gsApp.workspaces.data.import', [
               '<span class="errorField" ng-show="row.entity.error" ' +
               'popover={{row.entity.errorMsg}} ' +
               'popover-trigger="mouseenter" ' +
-              'popover-placement="top" popover-append-to-body="true">' +
+              'popover-placement="top">' +
               '<i class="fa fa-exclamation-triangle"></i> Error</span>' +
               '<span class="loadingField" ng-show="row.entity.loading">' +
               '<i class="fa fa-spinner fa-spin"></i> Importing</span>',

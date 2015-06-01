@@ -98,7 +98,6 @@ angular.module('gsApp.maps', [
                   function(result) {
                     $modalInstance.dismiss('cancel');
                     if (result.success) {
-                      $rootScope.$broadcast(AppEvent.MapRemoved, map);
                       $rootScope.alerts = [{
                         type: 'success',
                         message: 'Map "' + $scope.map + '"" has been deleted ' +
@@ -297,7 +296,7 @@ angular.module('gsApp.maps', [
             cellClass: 'text-center',
             sortable: false,
             cellTemplate:
-              '<a popover-placement="bottom" popover-append-to-body="true"' +
+              '<a popover-placement="bottom"' +
               'popover-html-unsafe="{{ row.entity.download_urls }}" pop-show=' +
               '"{{ row.entity.showSourcePopover && row.entity.urls_ready }}"' +
                 'ng-click="closePopovers(row.entity);' +
