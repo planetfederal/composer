@@ -98,6 +98,7 @@ angular.module('gsApp.maps', [
                   function(result) {
                     $modalInstance.dismiss('cancel');
                     if (result.success) {
+                      $rootScope.$broadcast(AppEvent.MapRemoved, map);
                       $rootScope.alerts = [{
                         type: 'success',
                         message: 'Map "' + $scope.map + '"" has been deleted ' +

@@ -279,9 +279,15 @@ angular.module('gsApp.workspaces.maps', [
       $rootScope.$on(AppEvent.MapAdded, function(scope, map) {
         if (map) {
           mapsListModel.addMap(map);
-          $scope.maps =
-            mapsListModel.getMaps();
+          $scope.maps = mapsListModel.getMaps();
         }
+      });
+      $rootScope.$on(AppEvent.MapRemoved, function(scope, map) {
+        if (map) {
+          mapsListModel.removeMap(map);
+          $scope.maps = mapsListModel.getMaps();
+        }
+
       });
 
       $rootScope.$on(AppEvent.MapUpdated, function(scope, map) {
@@ -328,6 +334,15 @@ angular.module('gsApp.workspaces.maps', [
       _this.maps = [];
     }
     _this.maps.push(map);
+  };
+
+  this.removeMap = function(map) {
+    if (!_this.maps) {
+      _this.maps = [];
+    }
+    _.remove(this.maps, function(_map) {
+      return _map.name == map.name;
+    });
   };
 
   this.sortByTime = function(maps) {
