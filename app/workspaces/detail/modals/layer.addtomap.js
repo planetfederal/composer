@@ -75,7 +75,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
 
       $scope.addToLayerSelections = function (layer) {
         if (!layer.selected) {
-          $scope.layerSelections = _.remove($scope.layerSelections,
+          _.remove($scope.layerSelections,
             function(lyr) {
               return lyr.name===layer.name;
             });
@@ -83,6 +83,20 @@ angular.module('gsApp.workspaces.layers.addtomap', [
           $scope.layerSelections.push(layer);
         }
       };
+
+      $scope.addAllToLayerSelections = function(add) {
+        //clear the selections
+        $scope.layerSelections.length = 0;
+        for (var i = 0; i < $scope.layerOptions.ngGrid.filteredRows.length; i++) {
+          var layer = $scope.layerOptions.ngGrid.filteredRows[i].entity;
+          if (add && !layer.alreadyInMap) {
+            layer.selected = true;
+            $scope.layerSelections.push(layer);
+          } else {
+            layer.selected = false;
+          }
+        }
+      }
 
       // Available Layers Table with custom checkbox
 
@@ -127,11 +141,13 @@ angular.module('gsApp.workspaces.layers.addtomap', [
         selectedItems: $scope.layerSelections,
         multiSelect: true,
         columnDefs: [
-          {field: 'select', displayName: 'Select', width: '10%',
+          {field: 'select', displayName: 'S', width: '24px',
           cellTemplate: '<div ng-if="!row.entity.alreadyInMap"' +
-            'style="margin: 12px 0 0px 20px; padding: 0;">' +
+            'style="margin: 12px 0px 6px 6px; padding: 0;">' +
             '<input type="checkbox" ng-model="row.entity.selected" ' +
-            'ng-click="addToLayerSelections(row.entity);"></div>'
+            'ng-click="addToLayerSelections(row.entity);"></div>',
+          headerCellTemplate: '<input class="ngSelectionHeader" type="checkbox"' +
+            'ng-model="$parent.allSelected" ng-change="addAllToLayerSelections($parent.allSelected)"/>'
           },
           {field: 'name', displayName: 'Layer', width: '20%'},
           {field: 'title',
@@ -228,6 +244,10 @@ angular.module('gsApp.workspaces.layers.addtomap', [
             if (result.success) {
               $scope.layers = result.data.layers;
               disableExistingLayers();
+              if ($scope.layerOptions) {
+                $scope.layerSelections.length = 0;
+                $scope.layerOptions.$gridScope['allSelected'] = false;
+              }
               $scope.totalServerItems = result.data.total;
               $scope.itemsPerPage = opts.paging.pageSize;
               $scope.totalItems = $scope.totalServerItems;

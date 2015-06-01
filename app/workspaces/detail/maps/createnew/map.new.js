@@ -89,34 +89,6 @@ angular.module('gsApp.workspaces.maps.new', [
         filterText: ''
       }
     };
-    $scope.loadLayers = function() {
-      var opts = $scope.opts;
-
-      GeoServer.layers.get(
-        $scope.workspace,
-        opts.paging.currentPage - 1,
-        opts.paging.pageSize,
-        opts.sort.fields[0] + ':' + opts.sort.directions[0],
-        opts.filter.filterText
-      ).then(function(result) {
-        if (result.success) {
-          $scope.layers = result.data.layers;
-          $scope.totalServerItems = result.data.total;
-
-          if ($scope.hasLayers === undefined) {
-            $scope.hasLayers = result.data.total !== 0;
-          }
-        } else {
-          $rootScope.alerts = [{
-            type: 'danger',
-            message: 'Layers for workspace ' + $scope.workspace.name +
-              ' could not be loaded.',
-            fadeout: true
-          }];
-        }
-      });
-    };
-    $scope.loadLayers();
 
     $scope.close = function (closeOrImport) {
       if (closeOrImport === 'import') {
@@ -161,17 +133,6 @@ angular.module('gsApp.workspaces.maps.new', [
       projs: $scope.projs,
       maps: $scope.maps
     });
-
-    /**
-     * Refresh if scope updated
-     */
-    function reloadLayers(newVal, oldVal) {
-      if (newVal && newVal !== oldVal) {
-        $scope.loadLayers();
-      }
-    }
-
-    $scope.$watch('opts', reloadLayers, true);
   }])
 // for creating a new map after selecting layers on the Layers tab
 .controller('NewMapFromSelectedCtrl', ['$scope', '$state', '$stateParams',
@@ -323,10 +284,53 @@ angular.module('gsApp.workspaces.maps.new', [
     $window, AppEvent, _, $modal) {
 
     var modalWidth = 800;
-    $scope.selectedLayers = [];
     $scope.newMap = {};
     $scope.map = {};
     $scope.workspace = $stateParams.workspace;
+
+    $scope.loadLayers = function() {
+      var opts = $scope.opts;
+
+      GeoServer.layers.get(
+        $scope.workspace,
+        opts.paging.currentPage - 1,
+        opts.paging.pageSize,
+        opts.sort.fields[0] + ':' + opts.sort.directions[0],
+        opts.filter.filterText
+      ).then(function(result) {
+        if (result.success) {
+          $scope.layers = result.data.layers;
+          $scope.totalServerItems = result.data.total;
+          if ($scope.layerOptions) {
+            $scope.layerSelections.length = 0;
+            $scope.layerOptions.$gridScope['allSelected'] = false;
+          }
+          
+          if ($scope.hasLayers === undefined) {
+            $scope.hasLayers = result.data.total !== 0;
+          }
+        } else {
+          $rootScope.alerts = [{
+            type: 'danger',
+            message: 'Layers for workspace ' + $scope.workspace.name +
+              ' could not be loaded.',
+            fadeout: true
+          }];
+        }
+      });
+    };
+    $scope.loadLayers();
+
+    /**
+     * Refresh if scope updated
+     */
+    function reloadLayers(newVal, oldVal) {
+      if (newVal && newVal !== oldVal) {
+        $scope.loadLayers();
+      }
+    }
+
+    $scope.$watch('opts', reloadLayers, true);
 
     $scope.createMap = function(layerSelections) {
       $scope.mapInfo.layers = [];
@@ -377,7 +381,7 @@ angular.module('gsApp.workspaces.maps.new', [
     // Available Layers Table
 
     $scope.gridWidth = {'width': modalWidth};
-
+    $scope.selectAll = false;
     $scope.layerSelections = [];
 
     $scope.layerOptions = {
@@ -389,7 +393,7 @@ angular.module('gsApp.workspaces.maps.new', [
       jqueryUIDraggable: false,
       checkboxHeaderTemplate:
         '<input class="ngSelectionHeader" type="checkbox"' +
-          'ng-model="allSelected" ng-change="toggleSelectAll(allSelected)"/>',
+          'ng-model="$parent.allSelected" ng-change="toggleSelectAll($parent.allSelected)"/>',
       int: function() {
         $log('done');
       },

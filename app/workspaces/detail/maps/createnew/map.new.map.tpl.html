@@ -8,7 +8,7 @@
           <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
           <span ng-show="newMap.name.$error.maxlength" class="error">Max 10 characters allowed.</span>
           <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
-          <span ng-show="newMap.name.$dirty && newMap.name.$error.alreadyExists" class="error">Name already exists</span>
+          <span ng-show="newMap.name.$dirty && !newMap.name.$error.required && newMap.name.$error.alreadyExists" class="error">Name already exists</span>
           <small>(No spaces, max 10 characters, for web URLs.)</small>
         </div>
         <div class="form-group" name="newMapTitle">
