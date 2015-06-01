@@ -377,6 +377,16 @@ angular.module('gsApp.core.backend',[])
               data: data
             });
           },
+
+          // calculate bounds
+          bounds: function(workspace, name, proj) {
+            return http({
+              method: 'PUT',
+              url: apiRoot+'/maps/'+workspace+'/'+name+'/bounds',
+              data: proj
+            });
+          },
+
           // map.thumbnail
           thumbnail: {
             get: function(workspace, map, width, height) {

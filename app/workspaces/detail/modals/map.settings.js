@@ -23,14 +23,22 @@ angular.module('gsApp.workspaces.maps.settings', [])
         '</a>' +
         '</small></p>';
 
-      $scope.renderToolTip =
+      $scope.extentTooltip =
+      '<p>Map Extent</p>' +
+      '<small class="hint"> The default region visible when rendering ' +
+      'the map.<br/>The map extent should be provided in the same units ' +
+      'as the projection: degrees for EPSG:4326 or meters for most ' +
+      'other EPSG codes.<br/><br/>"Generate Bounds" will calculate the ' +
+      'net layer bounds in the current projection.</small>';
+
+      $scope.renderTooltip =
       '<p>Render Timeout</p>' +
       '<small class="hint">Max time to wait for map to render in ' +
       'Composer before the request is cancelled.<br/>A lower number prevents '+
-      'overloading GeoServer with resource-monopolizing<br/>rendering '+
+      'overloading GeoServer with resource-monopolizing rendering '+
       'requests.<br/><br/>Minimum is 3 seconds.<br/><br/>Default is ' +
       '120 seconds.<br/>(This is set high so you can still render ' +
-      'large datasets, but we<br/>recommend reducing this for a more ' +
+      'large datasets, but we ecommend reducing this for a more ' +
       'performant or shared GeoServer).</small>';
 
       $scope.saveChanges = function() {
@@ -107,6 +115,23 @@ angular.module('gsApp.workspaces.maps.settings', [])
             }
           });
       };
+
+      $scope.calculateBounds = function() {
+        GeoServer.map.bounds($scope.workspace, $scope.map.name, {"proj":$scope.map.proj.srs}).then(function(result) {
+            if (result.success) {
+              if ($scope.form.mapSettings && $scope.map.bbox != result.data.native) {
+                $scope.form.mapSettings.$dirty = true;
+              }
+              $scope.map.bbox = result.data.native;
+            } else {
+              $rootScope.alerts = [{
+                type: 'danger',
+                message: 'Error calculating bounds: '+result.message,
+                fadeout: true
+              }];
+            }
+          });
+      }
 
       $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
