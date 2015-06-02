@@ -95,14 +95,14 @@ angular.module('gsApp.workspaces.maps.settings', [])
         }
       };
 
-      $scope.deleteMap = function (map) {
-        GeoServer.map.delete($scope.workspace, map.name, {'name': map.name})
+      $scope.deleteMap = function () {
+        GeoServer.map.delete($scope.workspace, originalMap.name, {'name': originalMap.name})
         .then(function(result) {
             if (result.success) {
-              $rootScope.$broadcast(AppEvent.MapRemoved, map);
+              $rootScope.$broadcast(AppEvent.MapRemoved, originalMap);
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Map ' + map.name + ' successfully deleted.',
+                message: 'Map ' + originalMap.name + ' successfully deleted.',
                 fadeout: true
               }];
               $modalInstance.dismiss('close');
@@ -117,7 +117,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
       };
 
       $scope.calculateBounds = function() {
-        GeoServer.map.bounds($scope.workspace, $scope.map.name, {"proj":$scope.map.proj.srs}).then(function(result) {
+        GeoServer.map.bounds($scope.workspace, originalMap.name, {"proj":$scope.map.proj.srs}).then(function(result) {
             if (result.success) {
               if ($scope.form.mapSettings && $scope.map.bbox != result.data.native) {
                 $scope.form.mapSettings.$dirty = true;

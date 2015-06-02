@@ -69,7 +69,7 @@
 </div>
   <div class="modal-footer map-settings-footer">
     <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
-    <button ng-click="deleteMap(map)" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
+    <button ng-click="deleteMap()" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
     <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty || form.mapSettings.name.$error.maxlength || form.mapSettings.name.$error.required || form.mapSettings.name.$error.pattern">Update Map Settings</button>
     <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
   </div>
