@@ -119,10 +119,10 @@ angular.module('gsApp.workspaces.maps.settings', [])
       $scope.calculateBounds = function() {
         GeoServer.map.bounds($scope.workspace, originalMap.name, {"proj":$scope.map.proj.srs}).then(function(result) {
             if (result.success) {
-              if ($scope.form.mapSettings && $scope.map.bbox != result.data.native) {
+              if ($scope.form.mapSettings && $scope.map.bbox != result.data.bbox.native) {
                 $scope.form.mapSettings.$dirty = true;
               }
-              $scope.map.bbox = result.data.native;
+              $scope.map.bbox = result.data.bbox.native;
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
