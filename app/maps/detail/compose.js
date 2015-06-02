@@ -389,19 +389,11 @@ angular.module('gsApp.maps.compose', [
         });
       };
 
-      $rootScope.$on(AppEvent.MapUpdated, function(scope, maps) {
-        if (maps != null) {
-          var newmap = maps.new;
-          delete newmap.layers;
-          angular.extend($scope.map, newmap);
-        }
-      });
-
-      $rootScope.$on(AppEvent.EditorBackground, function(scope, color) {
+      $scope.$on(AppEvent.EditorBackground, function(scope, color) {
         $scope.mapBackground = {'background': color};
       });
 
-      $rootScope.$on(AppEvent.BaseMapChanged, function(scope, basemap) {
+      $scope.$on(AppEvent.BaseMapChanged, function(scope, basemap) {
         if ($scope.mapOpts) {
           $scope.mapOpts.basemap = basemap;
         }
@@ -422,5 +414,18 @@ angular.module('gsApp.maps.compose', [
           $scope.hideCtrl[ctrl] = !val;
         }
       });
+
+      $scope.$on(AppEvent.MapUpdated, function(scope, map) {
+        if ($scope.map.name == map.original.name) {
+          $scope.map = map.new;
+
+          if (map.new.proj != map.original.proj) {
+            $scope.mapOpts.proj = map.new.proj;
+          }
+          if (map.new.bounds!= map.original.bounds) {
+            $scope.mapOpts.bounds = map.new.bounds;
+          }
+        }
+      }); 
 
     }]);

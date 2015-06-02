@@ -538,6 +538,16 @@ angular.module('gsApp.olmap', [])
             }, 500);
           }, true);
 
+          $scope.$watch('mapOpts.proj', function(newVal, oldVal) {
+            if (newVal && newVal != oldVal) {
+              //Need to re-create the map if the projection changes
+              //Delete the current map element, else new one will be appended offscreen
+              $scope.map.olMap.getViewport().remove();
+              $scope.map = MapFactory.createMap($scope.mapOpts, $element);
+              $scope.map.refresh();
+            }
+          })
+
           $scope.$on('olmap-refresh', function() {
             $scope.map.refresh();
           });

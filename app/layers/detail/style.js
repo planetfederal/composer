@@ -180,6 +180,16 @@ angular.module('gsApp.layers.style', [
         $scope.mapBackground = {'background': color};
       });
 
+      $rootScope.$on(AppEvent.MapUpdated, function(scope, layer) {
+        if ($scope.layer.name == layer.original.name) {
+          $scope.layer = layer.new;
+
+          if (layer.new.proj != layer.original.proj) {
+            $scope.mapOpts.proj = layer.new.proj;
+          }
+        }
+      }); 
+
       $scope.onUpdatePanels = function() {
         $rootScope.$broadcast(AppEvent.SidenavResized); // update map
       };
