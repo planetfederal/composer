@@ -454,7 +454,21 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             });
         };
 
-        var color = function(state, cm) {};
+        var color = function(state, cm) {
+          var selection = cm.getSelection();
+          //If nothing is selected, select val
+          if (!selection && state.line.val.length > 0) {
+            var cur = cm.getCursor();
+            var line = cm.getCursor().line;
+            var selstart = state.line.raw.indexOf(state.line.val);
+            var selstop = selstart +  state.line.val.length;
+            cm.setSelection({line:line, ch:selstart}, {line:line, ch:selstop});
+          }
+          //Show the color dialog
+          $('.styleditor-color').click();
+
+
+        };
         var icon = function(state, cm) {};
         var font = function(state, cm) {};
 
@@ -604,8 +618,13 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         // preparse, remove sequence '-'
         var pre = line.replace(/^[ -]*/,'');
 
-        // ignore any comments
-        pre = pre.replace(/ *#.*/g, '');
+        // ignore any comments (but not color strings)
+        pre = pre.replace(/ *#.*/g, function(match, offset) {
+          if (offset > 0 && pre.indexOf('\'#') == offset-1) {
+            return match
+          }
+          return '';
+        });
 
         // split into key / value
         return {
