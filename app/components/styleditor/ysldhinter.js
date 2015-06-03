@@ -12,6 +12,10 @@ angular.module('gsApp.styleditor.ysldhinter', [])
 
         var tuple = scalar;
 
+        var vardef = function(name, state, cm) {
+          return name + ': &';
+        }
+
         var mapping = function(name, state, cm) {
           var indent = state.indent + cm.getOption('indentUnit');
           return name+':\n'+ new Array(indent+1).join(' ');
@@ -23,10 +27,14 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           return name+':\n'+ new Array(indent+1).join(' ') + '- ';
         };
 
+        //Determines the behavior of key completion
         this.completions = {
+          'define': vardef,
+          'grid': mapping,
           'name': scalar,
           'title': scalar,
           'abstract': scalar,
+          'transform': mapping,
           'feature-styles': sequence,
           'rules': sequence,
           'scale': tuple,
@@ -39,6 +47,8 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'polygon': mapping,
           'text': mapping,
           'raster': mapping,
+          'geometry': scalar,
+          'uom': scalar,
           'symbols': sequence,
           'anchor': tuple,
           'displacement': tuple,
@@ -57,7 +67,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'stroke-dasharray': scalar,
           'stroke-dashoffset': scalar,
           'stroke-graphic-fill': mapping,
-          'stroke-graphic-stroke': mapping,
+          'stroke-graphic': mapping,
           'fill-color': scalar,
           'fill-opacity': scalar,
           'fill-graphic': mapping,
@@ -71,12 +81,18 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'color-map': mapping,
           'contrast-enhancement': mapping,
           'mark': mapping,
+          'shape': scalar,
           'external': mapping,
           'url': scalar,
           'format': scalar,
           'type': scalar,
           'halo': mapping,
           'radius': scalar,
+          'params': mapping,
+          'x-FirstMatch': scalar,
+          'x-composite': scalar,
+          'x-composite-base': scalar,
+          'x-labelObstacle': scalar,
           'x-allowOverruns': scalar,
           'x-autoWrap': scalar,
           'x-conflictResolution': scalar,
@@ -96,15 +112,22 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'x-spaceAround': scalar
         };
 
+        //Mappings between parent and child keys
         this.mappings = {
-          '': ['name', 'title', 'abstract', 'feature-styles'],
+          '': ['define', 'grid', 'name', 'title', 'abstract', 'feature-styles'],
           'feature-styles': [
             'name',
             'title',
             'abstract',
-            'rules'
+            'transform',
+            'rules',
+            'x-FirstMatch',
+            'x-composite',
+            'x-composite-base'
           ],
           'rules': [
+            'name',
+            'title',
             'scale',
             'zoom',
             'filter',
@@ -127,7 +150,10 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'size',
             'gap',
             'initial-gap',
-            'options'
+            'options',
+            'geometry',
+            'uom',
+            'x-labelObstacle'
           ],
           'line': [
             'stroke-color',
@@ -138,9 +164,11 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'stroke-dasharray',
             'stroke-dashoffset',
             'stroke-graphic-fill',
-            'stroke-graphic-stroke',
+            'stroke-graphic',
             'offset',
-            'options'
+            'geometry',
+            'uom',
+            'x-labelObstacle'
           ],
           'polygon': [
             'fill-color',
@@ -154,10 +182,12 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'stroke-dasharray',
             'stroke-dashoffset',
             'stroke-graphic-fill',
-            'stroke-graphic-stroke',
+            'stroke-graphic',
             'offset',
             'displacement',
-            'options'
+            'geometry',
+            'uom',
+            'x-labelObstacle'
           ],
           'text': [
             'label',
@@ -192,6 +222,39 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'contrast-enhancement',
             'options'
           ],
+          'stroke-graphic-fill': [
+            'symbols',
+            'anchor',
+            'displacement',
+            'opacity',
+            'rotation',
+            'size',
+            'gap',
+            'initial-gap',
+            'options'
+          ],
+          'stroke-graphic': [
+            'symbols',
+            'anchor',
+            'displacement',
+            'opacity',
+            'rotation',
+            'size',
+            'gap',
+            'initial-gap',
+            'options'
+          ],
+          'fill-graphic': [
+            'symbols',
+            'anchor',
+            'displacement',
+            'opacity',
+            'rotation',
+            'size',
+            'gap',
+            'initial-gap',
+            'options'
+          ],
           'symbols': [
             'mark',
             'external'
@@ -209,7 +272,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'stroke-dasharray',
             'stroke-dashoffset',
             'stroke-graphic-fill',
-            'stroke-graphic-stroke'
+            'stroke-graphic'
           ],
           'external': [
             'url',
@@ -227,9 +290,17 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'fill-opacity',
             'fill-graphic',
             'radius'
-          ]
+          ],
+          'grid': [
+            'name'
+          ],
+          'transform': [
+            'name',
+            'params',
+          ],
         };
 
+        //Completion function for attribute values
         var completeAttribute = function(state, cm) {
           var atts = state.options.layer.schema.attributes;
 
@@ -247,10 +318,205 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           });
         };
 
-        this.values = {
-          'label': completeAttribute,
-          'priority': completeAttribute
+        var bool = ['true', 'false'];
+        var mappingValues = {
+          'else':bool,
+          'uom':[
+            'pixel',
+            'metre',
+            'foot'
+          ],
+          'shape':[
+            'square',
+            'circle',
+            'triangle',
+            'cross',
+            'x',
+            'star'
+          ],
+          'stroke-linejoin':[
+            'mitre',
+            'round',
+            'bevel'
+          ],
+          'stroke-linecap':[
+            'butt',
+            'round',
+            'square'
+          ],
+          'format':[
+            'image/gif',
+            'image/jpeg',
+            'image/png',
+            'image/bmp',
+            'image/svg+xml',
+            'image/tiff',
+          ],
+          'font-style':[
+            'normal',
+            'italic',
+            'oblique'
+          ],
+          'font-weight':[
+            'normal',
+            'bold'
+          ],
+          'placement':[
+            'point',
+            'line'
+          ],
+          'type':[
+            'ramp',
+            'interval',
+            'values'
+          ],
+          'mode':[
+            'normalize',
+            'histogram'
+          ],
+          'x-FirstMatch':bool,
+          'x-composite':[
+            'copy',
+            'destination',
+            'source-over',
+            'destination-over',
+            'source-in',
+            'destination-in',
+            'source-out',
+            'destination-out',
+            'source-atop',
+            'destination-atop',
+            'xor',
+            'multiply',
+            'screen',
+            'overlay',
+            'darken',
+            'lighten',
+            'color-dodge',
+            'color-burn',
+            'hard-light',
+            'soft-light',
+            'difference',
+            'exclusion'
+          ],
+          'x-composite-base':bool,
+          'x-labelObstacle':bool,
+          'x-allowOverruns': bool,
+          'x-conflictResolution': bool,
+          'x-followLine': bool,
+          'x-forceLeftToRight': bool,
+          'x-graphic-resize':[
+            'none',
+            'proportional',
+            'stretch'
+          ],
+          'x-group': bool,
+          'x-labelAllGroup': bool,
+          'x-partials': bool,
+          'x-polygonAlign': bool,
+          'x-random':[
+            'free',
+            'grid'
+          ],
+          'x-random-rotation':[
+            'none',
+            'free'
+          ]
+
         };
+        //Completion function for mapped values
+        var mappingValue = function(state, cm) {
+          var values = mappingValues[state.line.key];
+
+          if (state.line.val.length > 0) {
+              // filter out values based on content of line
+              values = values.filter(function(value) {
+                return value.indexOf(state.line.val) == 0;
+              });
+          }
+
+          return values.map(function(value) {
+              var text = value;
+              if (state.line.val.length > 0) {
+                // strip off the current element prefix to complete only
+                // the rest
+                text = text.replace(new RegExp('^'+state.line.val), '');
+              }
+
+              return {displayText: value, text: text};
+            }).filter(function(value) {
+              return value != null;
+            });
+        };
+
+        var color = function(state, cm) {};
+        var icon = function(state, cm) {};
+        var font = function(state, cm) {};
+
+        var hint = function(hint) {
+          return function(state, cm) {
+
+          };
+        };
+
+        var hintNumber = hint('<number>');
+        var hintText = hint('<text>');
+
+
+        //Controls the behaviour of value completions
+        this.values = {
+          'filter':hint('${<filter>}'),
+          'else':mappingValue,
+          'scale':hint('(<min>,<max>)'),
+          'zoom':hint('(<min>,<max>)'),
+          'label':completeAttribute,
+          'priority':completeAttribute,
+          'uom':mappingValue,
+          'shape':mappingValue,
+          'anchor':hint('(<x>,<y>)'),
+          'opacity':hintNumber,
+          'fill-color':color,
+          'stroke-color':color,
+          'stroke-linejoin':mappingValue,
+          'stroke-linecap':mappingValue,
+          'displacement':hint('(<x>,<y>)'),
+          'url':icon,
+          'format':mappingValue,
+          'font-family':font,
+          'font-style':mappingValue,
+          'font-weight':mappingValue,
+          'placement':mappingValue,
+          'type':mappingValue,
+          'mode':mappingValue,
+          'gamma':hintNumber,
+
+          'x-FirstMatch':mappingValue,
+          'x-composite':mappingValue,
+          'x-composite-base':mappingValue,
+          'x-labelObstacle':mappingValue,
+          'x-allowOverruns':mappingValue,
+          'x-autoWrap': hintNumber,
+          'x-conflictResolution':mappingValue,
+          'x-followLine':mappingValue,
+          'x-forceLeftToRight':mappingValue,
+          'x-goodnessOfFit':hintNumber,
+          'x-graphic-margin':hintNumber,
+          'x-graphic-resize':mappingValue,
+          'x-group':mappingValue,
+          'x-labelAllGroup':mappingValue,
+          'x-labelPriority':hintNumber,
+          'x-repeat':hintNumber,
+          'x-maxAngleDelta':hintNumber,
+          'x-maxDisplacement':hintNumber,
+          'x-minGroupDistance':hintNumber,
+          'x-partials':mappingValue,
+          'x-polygonAlign':mappingValue,
+          'x-spaceAround':hintNumber,
+          'x-random':mappingValue,
+          'x-random-rotation':mappingValue
+        };
+
+        
       };
 
       YsldHinter.prototype.parseLine = function(line) {
@@ -343,23 +609,20 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           options: options
         };
 
-        if (cursor.ch == 0) {
+        var parentLine = this.findParent(cm);
+        if (parentLine != null) {
           state.parent = {
-            line: {key: null, val: null},
+            line: parentLine,
+            indent: this.indent(parentLine.raw)
+          };
+
+          hints = this.lookupHints(state, cm);
+        } else {
+          state.parent = {
+            line: {key: '', val: ''},
             indent: 0
           };
           hints = this.lookupHints(state, cm);
-        }
-        else {
-          var parentLine = this.findParent(cm);
-          if (parentLine != null) {
-            state.parent = {
-              line: parentLine,
-              indent: this.indent(parentLine.raw)
-            };
-
-            hints = this.lookupHints(state, cm);
-          }
         }
 
         return {list:hints, from:cm.getCursor()};
