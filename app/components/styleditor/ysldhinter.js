@@ -109,7 +109,12 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'x-minGroupDistance': scalar,
           'x-partials': scalar,
           'x-polygonAlign': scalar,
-          'x-spaceAround': scalar
+          'x-spaceAround': scalar,
+          'x-random': scalar,
+          'x-random-tile-size': scalar,
+          'x-random-rotation': scalar,
+          'x-random-symbol-count': scalar,
+          'x-random-seed': scalar
         };
 
         //Mappings between parent and child keys
@@ -453,9 +458,65 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         var icon = function(state, cm) {};
         var font = function(state, cm) {};
 
+        //Constructs a function to display a hint/template for a value
+        //The first argument is a string value. Any parts enclosed in <> 
+        //are treated as user data. The dialog will display this data in light gray, 
+        //and will not insert anything for these parts during autocomplete
         var hint = function(hint) {
+          //Split hint on user data '<...>'
+          var tokens = hint.split(/<\w*>/g).filter(function(val) {
+            return val.length > 0;
+          });
           return function(state, cm) {
+            //
+            var display = hint.replace(/</g,'&lt');
+            display = display.replace(/>/g,'&gt');
+            display = display.replace(/&lt/g, '<font style="color:gray">&lt');
+            display = display.replace(/&gt/g, '&gt</font>');
 
+            var text = '';
+            
+            if (tokens && tokens.length > 0) {
+              text = tokens[0];
+
+              //If there is a partial value, iterate through it 
+              //and determine what we should add, if anything
+              if (state.line.val.length > 0) {
+                text = '';
+                if (state.line.val.indexOf(tokens[0] == 0) && state.line.val.length > tokens[0].length) {
+                  var index = 0;
+                  var lastIndex = 0;
+                  for (var i = 1; i < tokens.length; i++) {
+                    index = state.line.val.indexOf(tokens[i])
+                    //Current token exists
+                    if (index > lastIndex) {
+                      //If there is already a token at the end of
+                      //val, don't add anything
+                      if (index == state.line.val.length-1) {
+                        text = '';
+                        break;
+                      }
+                      //keep looking
+                      lastIndex = index;
+                    } else {
+                      //not found, use the current token
+                      text = tokens[i];
+                      break;
+                    }
+                  }
+                } 
+              }
+            }
+            
+            return [{displayText: display, text: text,
+              render: function(Element, self, data) {
+                Element.innerHTML = data.displayText;
+                //Hide element selection for hints
+                Element.style.color='black';
+                Element.style.backgroundColor='transparent';
+              }
+              //Return an extra item to override completeSingle: false
+            }, {text: text, render: function() {}}];
           };
         };
 
@@ -465,20 +526,32 @@ angular.module('gsApp.styleditor.ysldhinter', [])
 
         //Controls the behaviour of value completions
         this.values = {
+          'name':hintText,
+          'title':hintText,
+          'abstract':hintText,
           'filter':hint('${<filter>}'),
           'else':mappingValue,
           'scale':hint('(<min>,<max>)'),
           'zoom':hint('(<min>,<max>)'),
           'label':completeAttribute,
           'priority':completeAttribute,
+          'geometry':completeAttribute,
           'uom':mappingValue,
           'shape':mappingValue,
+          'size':hintNumber,
           'anchor':hint('(<x>,<y>)'),
           'opacity':hintNumber,
+          'rotation':hintNumber,
           'fill-color':color,
+          'fill-opacity':hintNumber,
           'stroke-color':color,
+          'stroke-width': hintNumber,
+          'stroke-opacity': hintNumber,
           'stroke-linejoin':mappingValue,
           'stroke-linecap':mappingValue,
+          'stroke-dasharray': hint('"<length> <gap>"'),
+          'stroke-dashoffset': hintNumber,
+          'offset': hintNumber,
           'displacement':hint('(<x>,<y>)'),
           'url':icon,
           'format':mappingValue,
@@ -486,9 +559,14 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'font-style':mappingValue,
           'font-weight':mappingValue,
           'placement':mappingValue,
+          'radius':hintNumber,
           'type':mappingValue,
           'mode':mappingValue,
           'gamma':hintNumber,
+          'gray':hintNumber,
+          'red':hintNumber,
+          'green':hintNumber,
+          'blue':hintNumber,
 
           'x-FirstMatch':mappingValue,
           'x-composite':mappingValue,
@@ -513,7 +591,10 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'x-polygonAlign':mappingValue,
           'x-spaceAround':hintNumber,
           'x-random':mappingValue,
-          'x-random-rotation':mappingValue
+          'x-random-tile-size':hintNumber,
+          'x-random-rotation':mappingValue,
+          'x-random-symbol-count':hintNumber,
+          'x-random-seed':hintNumber
         };
 
         
