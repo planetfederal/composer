@@ -15,7 +15,7 @@ angular.module('gsApp.styleditor.icons', [
           editor: '='
         },
         template:
-          '<li ' +
+          '<li class="styleditor-icon"' +
             'ng-click="selectIcon();">'+
             '<i class="icon-flag"></i>'+
             '<span>Icons</span>'+
@@ -30,6 +30,8 @@ angular.module('gsApp.styleditor.icons', [
             .then(function(result) {
               if (result.success) {
                 $scope.icons = result.data;
+                //propagate data upstream for easier access by other components
+                $scope.$parent.icons = $scope.icons;
               } else {
                 $scope.$parent.alerts = [{
                   type: 'warning',

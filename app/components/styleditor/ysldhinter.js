@@ -77,7 +77,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'font-style': scalar,
           'font-weight': scalar,
           'priority': scalar,
-          'placement': mapping,
+          'placement': scalar,
           'color-map': mapping,
           'contrast-enhancement': mapping,
           'mark': mapping,
@@ -466,10 +466,25 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           }
           //Show the color dialog
           $('.styleditor-color').click();
+        };
 
+        var icon = function(state, cm) {
+          //Show the icon uploader
+          //$('.styleditor-icon').click();
+          //Show the list of icons
+          var icons = angular.element($('.styleditor-icon')).scope().icons;
+
+          return icons.map(function(icon) {
+            text = icon.name;
+            if (state.line.val.length > 0) {
+              text = text.replace(new RegExp('^'+state.line.val), '');
+            }
+            return {displayText:icon.name, text:text};
+          }).filter(function(icon) {
+            return icon.displayText.indexOf(state.line.val) == 0;
+          });
 
         };
-        var icon = function(state, cm) {};
         var font = function(state, cm) {};
 
         //Constructs a function to display a hint/template for a value
