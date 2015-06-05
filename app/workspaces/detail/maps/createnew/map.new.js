@@ -203,9 +203,13 @@ angular.module('gsApp.workspaces.maps.new', [
             $state.go('map.compose', {workspace: $scope.workspace,
                 name: map.name});
           } else {
+            var message = 'Could not create map: ' + result.data.message;
+            if (result.data.trace.indexOf("too close to a pole") > -1) {
+              message = 'Cannot create map in Mercator: the layer bounds touch the poles'
+            }
             $rootScope.alerts = [{
               type: 'danger',
-              message: 'Could not create map: ' + result.data.message,
+              message: message,
               fadeout: true
             }];
           }
@@ -357,14 +361,18 @@ angular.module('gsApp.workspaces.maps.new', [
             $state.go('map.compose', {workspace: $scope.workspace,
                 name: map.name});
           } else {
+            var message = 'Could not create map: ' + result.data.message;
+            if (result.data.trace.indexOf("too close to a pole") > -1) {
+              message = 'Cannot create map in Mercator: the layer bounds touch the poles'
+            }
             $rootScope.alerts = [{
               type: 'danger',
-              message: 'Could not create map: ' + result.data.message,
+              message: message,
               fadeout: true
             }];
             $scope.errors = [{
               type: 'danger',
-              message: 'Could not create map: ' + result.data.message,
+              message: message,
               fadeout: true
             }];
           }
