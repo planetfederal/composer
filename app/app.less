@@ -197,13 +197,12 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
 
 /* Custom Tooltip Style */
 
-.modal .popover {
-  z-index: 1060;
+.under-modal .popover {
+  z-index: 1040;
 }
 
 .popover {
   max-width: 500px;
-  z-index: 1040;
 }
 
 @tooltip-arrow-outer-width:  @popover-arrow-width + 1;
@@ -230,15 +229,15 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
     border-style: solid;
 }
 
-.modal .tooltip {
-  z-index: 1060;
+.under-modal .tooltip {
+  z-index: 1040;
 }
 
 .tooltip {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1040;
+  z-index: @zindex-popover;
   display: none;
   max-width: 276px;
   padding: 1px;

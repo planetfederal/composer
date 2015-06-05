@@ -296,7 +296,7 @@ angular.module('gsApp.maps', [
             cellClass: 'text-center',
             sortable: false,
             cellTemplate:
-              '<a popover-placement="bottom"' +
+              '<a popover-placement="bottom" popover-append-to-body="true"' +
               'popover-html-unsafe="{{ row.entity.download_urls }}" pop-show=' +
               '"{{ row.entity.showSourcePopover && row.entity.urls_ready }}"' +
                 'ng-click="closePopovers(row.entity);' +

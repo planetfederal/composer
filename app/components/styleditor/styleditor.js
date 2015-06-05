@@ -137,6 +137,10 @@ angular.module('gsApp.styleditor', [
             $timeout(function() {
               $rootScope.popoverElement = angular.element(
                 $document[0].querySelectorAll('.popover'));
+              //Put the popovers below any modals:
+              for (var i = 0; i < $rootScope.popoverElement.length; i++) {
+                $rootScope.popoverElement[i].style['z-index'] = 1040;
+              }
             }, 250);
           };
 
@@ -149,6 +153,7 @@ angular.module('gsApp.styleditor', [
                   'popover="' +
                   $sce.trustAsHtml($sanitize(mark.problem)) +
                   '" ' + 'popover-placement="left" ' +
+                  'popover-append-to-body="true"' +
                   'title="Click to toggle the error message on/off." ' +
                   'alt="Click to toggle the error message on/off."' +
                   'ng-click="setPopup()"></a>';
