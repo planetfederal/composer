@@ -101,7 +101,7 @@ angular.module('gsApp.workspaces.maps', [
       $scope.mapsLoading = true;
       $scope.serverRefresh().then(function() {
         $scope.mapsLoading = false;
-      })
+      });
 
       var refreshTimer = null;
       $scope.refreshMaps = function() {
