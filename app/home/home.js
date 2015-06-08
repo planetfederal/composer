@@ -22,14 +22,23 @@ angular.module('gsApp.home', [])
 
       GeoServer.workspaces.recent().then(function(result) {
         $scope.recentWorkspaces = result.data;
+        if ($scope.recentWorkspaces.length > 0) {
+          $scope.isCollapsed = true;
+        }
       });
 
       GeoServer.maps.recent().then(function(result) {
         $scope.recentMaps = result.data;
+        if ($scope.recentMaps.length > 0) {
+          $scope.isCollapsed = true;
+        }
       });
 
       GeoServer.layers.recent().then(function(result) {
         $scope.recentLayers = result.data;
+        if ($scope.recentLayers.length > 0) {
+          $scope.isCollapsed = true;
+        }
       });
 
     }]);
