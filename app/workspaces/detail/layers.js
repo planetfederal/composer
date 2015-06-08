@@ -77,7 +77,10 @@ angular.module('gsApp.workspaces.layers', [
         });
       };
 
-      $scope.serverRefresh();
+      $scope.layersLoading = true;
+      $scope.serverRefresh().then(function() {
+        $scope.layersLoading = false;
+      })
 
       $scope.mapsHome = function() {
         if (!$state.is('workspace.maps.main')) {

@@ -467,8 +467,10 @@ angular.module('gsApp.layers', [
         }
       });
 
+      $scope.layersLoading=true;
       GeoServer.workspaces.get().then(
         function(result) {
+          $scope.layersLoading=false;
           if (result.success) {
             var workspaces = result.data;
             $scope.workspaces = workspaces;

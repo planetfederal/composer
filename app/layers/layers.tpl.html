@@ -67,7 +67,12 @@
       </div>
       <div class="row">
         <div class="col-sm-12">
-          <div ng-grid="gridOptions"></div>
+          <div ng-grid="gridOptions" ng-show="!layersLoading"></div>
+        <div class="layers-loading" ng-show="layersLoading">
+          <i class="fa fa-spinner fa-spin"></i>
+            Loading Layers ...
+          <div class="hint">If layers do not load after a short time, verify GeoServer is running.</div>
+        </div>
           <div class="paging">
             <pagination total-items="totalServerItems" items-per-page ="opts.paging.pageSize" ng-model="opts.paging.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
           </div>

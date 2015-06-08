@@ -88,6 +88,11 @@
       </div>
     </div>
   </div>
+  <div class="layers-loading" ng-show="layersLoading">
+    <i class="fa fa-spinner fa-spin"></i>
+      Loading Layers ...
+    <div class="hint">If layers do not load after a short time, verify GeoServer is running.</div>
+  </div>
   <div class="layers-paging">
     <pagination total-items="totalItems" items-per-page="opts.paging.pageSize" ng-model="opts.paging.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
     <a id="bottom"></a>

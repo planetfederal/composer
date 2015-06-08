@@ -59,7 +59,7 @@ angular.module('gsApp.workspaces.data', [
       }, 300);
 
       $scope.getDataStores = function(workspace) {
-        storesListModel.fetchStores($scope.workspace).then(
+        return storesListModel.fetchStores($scope.workspace).then(
           function() {
             $scope.datastores = storesListModel.getStores();
             if ($scope.datastores && $scope.datastores.length > 0) {
@@ -68,7 +68,10 @@ angular.module('gsApp.workspaces.data', [
             }
           });
       };
-      $scope.getDataStores($scope.workspace);
+      $scope.dataLoading=true;
+      $scope.getDataStores($scope.workspace).then(function() {
+        $scope.dataLoading=false;
+      });
 
       $scope.storesHome = function() {
         if (!$state.is('workspace.data.main')) {

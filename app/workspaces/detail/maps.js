@@ -82,7 +82,7 @@ angular.module('gsApp.workspaces.maps', [
       $scope.serverRefresh = function() {
         var opts = $scope.opts;
 
-        mapsListModel.fetchMaps(
+        return mapsListModel.fetchMaps(
           $scope.workspace,
           opts.paging.currentPage,
           opts.paging.pageSize,
@@ -98,7 +98,10 @@ angular.module('gsApp.workspaces.maps', [
         });
       };
 
-      $scope.serverRefresh();
+      $scope.mapsLoading = true;
+      $scope.serverRefresh().then(function() {
+        $scope.mapsLoading = false;
+      })
 
       var refreshTimer = null;
       $scope.refreshMaps = function() {

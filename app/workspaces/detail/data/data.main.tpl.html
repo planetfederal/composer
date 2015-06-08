@@ -16,7 +16,7 @@
   </div>
   <div class="row datastores">
     <div class="col-sm-6">
-      <ul class="list-unstyled stores-list" ng-style="storesListHeight">
+      <ul class="list-unstyled stores-list" ng-show="datastores && datastores.length > 0" ng-style="storesListHeight">
         <li class="store-row" ng-repeat="ds in $parent.datastores | filter:filterText" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
           <div class="icon-column" ng-click="getTypeDetails(ds);">
             <h3 class="datastore-icons"><i ng-class="{'icon-file-4': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'icon-image-2': ds.sourcetype=='raster'}"></i></h3>
@@ -36,6 +36,11 @@
           </div>
         </li>
       </ul>
+      <div class="data-loading" ng-show="dataLoading">
+        <i class="fa fa-spinner fa-spin"></i>
+          Loading Data ...
+        <div class="hint">If data does not load after a short time, verify GeoServer is running.</div>
+      </div>
     </div>
     <div class="col-sm-6">
       <div>
