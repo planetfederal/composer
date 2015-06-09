@@ -85,31 +85,30 @@ angular.module('gsApp.maps', [
         $state.go('workspace.data.import', { workspace: workspace });
       };
 
-      $scope.deleteMap = function(map, workspace) {
+      $scope.deleteMap = function(map) {
         var modalInstance = $modal.open({
           templateUrl: '/maps/deletemap-modal.tpl.html',
           controller: ['$scope', '$window', '$modalInstance', '$state',
             function($scope, $window, $modalInstance, $state) {
-              $scope.workspace = workspace.name;
-              $scope.map = map.name;
-
+              $scope.selectedMap = map;
+              
               $scope.ok = function() {
-                GeoServer.map.remove($scope.workspace, $scope.map).then(
+                GeoServer.map.delete(map.workspace, map.name).then(
                   function(result) {
                     $modalInstance.dismiss('cancel');
                     if (result.success) {
                       $rootScope.alerts = [{
                         type: 'success',
-                        message: 'Map "' + $scope.map + '"" has been deleted ' +
-                          'from the workspace "' + $scope.workspace + '".',
+                        message: 'Map "' + map.name + '" has been deleted ' +
+                          'from the workspace "' + map.workspace + '".',
                         fadeout: true
                       }];
+                      $scope.refreshMaps();
                     } else {
                       $rootScope.alerts = [{
                         type: 'danger',
-                        message: 'Map "' + $scope.map + '"" could not be ' +
-                          'deleted from the workspace "' +
-                          $scope.workspace + '".',
+                        message: 'Map "' + map.name + '" could not be ' +
+                          'deleted from the workspace "' + map.workspace + '".',
                         fadeout: true
                       }];
                     }
@@ -123,7 +122,8 @@ angular.module('gsApp.maps', [
               };
             }],
           backdrop: 'static',
-          size: 'med'
+          size: 'med',
+          scope: $scope
         });
       };
 
@@ -320,7 +320,7 @@ angular.module('gsApp.maps', [
             sortable: false,
             cellTemplate:
               '<div ng-class="col.colIndex()">' +
-                '<a ng-click="deleteMap(row.entity, workspace.selected)">' +
+                '<a ng-click="deleteMap(row.entity)">' +
                   '<img ng-src="images/delete.png" alt="Remove Map"' +
                     'title="Remove Map" />' +
                 '</a>' +

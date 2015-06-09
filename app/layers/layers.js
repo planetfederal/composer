@@ -159,10 +159,28 @@ angular.module('gsApp.layers', [
           templateUrl: '/layers/deletelayer-modal.tpl.html',
           controller: ['$scope', '$window', '$modalInstance',
             function($scope, $window, $modalInstance) {
-              $scope.layer = layer.name;
+              $scope.selectedLayer = layer;
 
               $scope.ok = function() {
-                GeoServer.layer.delete(layer.workspace, layer.name);
+                GeoServer.layer.delete(layer.workspace, layer.name).then(function(result) {
+                  if (result.success) {
+                      $rootScope.alerts = [{
+                        type: 'success',
+                        message: 'Layer "' + layer.name + '" has been deleted ' +
+                          'from the workspace "' + layer.workspace + '".',
+                        fadeout: true
+                      }];
+                      $scope.refreshLayers();
+                    } else {
+                      $rootScope.alerts = [{
+                        type: 'danger',
+                        message: 'Layer "' + layer.name + '" could not be ' +
+                          'deleted from the workspace "' + layer.workspace + '".',
+                        fadeout: true
+                      }];
+                    }
+
+                });
                 $modalInstance.dismiss('cancel');
               };
 
@@ -171,7 +189,8 @@ angular.module('gsApp.layers', [
               };
             }],
           backdrop: 'static',
-          size: 'med'
+          size: 'med',
+          scope: $scope
         });
       };
 
