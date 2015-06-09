@@ -100,17 +100,32 @@ angular.module('gsApp.styleditor.icons', [
         });
       };
 
+      $scope.hasFlash = false;
       $timeout(function() {
-        new ZeroClipboard($('#copyIcon')).on('copy',
-          function(event) {
-            var clipboard = event.clipboardData;
-            if ($scope.selectedIconName) {
-              clipboard.setData('text/plain',
-                $scope.selectedIconPath
-              );
-              $scope.close();
+        try {
+            var swf = new ActiveXObject('ShockwaveFlash.ShockwaveFlash');
+            if (swf) {
+                $scope.hasFlash = true;
             }
-          });
+        } catch (e) {
+            if (navigator.mimeTypes
+                && navigator.mimeTypes['application/x-shockwave-flash'] != undefined
+                && navigator.mimeTypes['application/x-shockwave-flash'].enabledPlugin) {
+              $scope.hasFlash = true;
+            }
+        }
+        if ($scope.hasFlash) {
+            new ZeroClipboard($('#copyIcon')).on('copy',
+              function(event) {
+                var clipboard = event.clipboardData;
+                if ($scope.selectedIconName) {
+                  clipboard.setData('text/plain',
+                    $scope.selectedIconPath
+                  );
+                  $scope.close();
+                }
+              });
+        }
       }, 500);
 
     }]);

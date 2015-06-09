@@ -6,7 +6,14 @@
             </div>
             <div class="col-xs-6">
               <button class="btn btn-default btn-sm cancel pull-right" ng-click="close()">Cancel</button>
-              <button id="copyIcon" class="btn btn-warning btn-sm pull-right" ng-click="ok()">Copy Selected to Clipboard</button>
+              <button ng-show="hasFlash" id="copyIcon" class="btn btn-warning btn-sm pull-right" ng-click="copy()">Copy Selected to Clipboard</button>
+			  <button ng-show="!hasFlash" id="copyDisabled" class="btn btn-warning btn-sm pull-right" 
+			    popover-trigger="mouseenter" popover-placement="bottom"
+                popover-append-to-body="true" popover-popup-delay="400"
+                popover="Install or enable Adobe Flash to support clipboard integration."
+				>
+				  Copy Selected to Clipboard
+				</button>
             </div>
         </div>
     </div>
