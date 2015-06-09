@@ -4,6 +4,21 @@
 button#copyIcon {
   margin-right: 20px;
 }
+button#copyDisabled {
+  //Fake disabled style so that we still trigger mouseover for the popover
+  cursor: not-allowed;
+  -moz-opacity: 0.65;
+  -khtml-opacity: 0.65;
+  -webkit-opacity: 0.65;
+  -ms-filter: progid:DXImageTransform.Microsoft.Alpha(opacity=65);
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color: #f0ad4e;
+  border-color: #eea236;
+}
 button.cancel {
   margin-right: 10px;
 }
