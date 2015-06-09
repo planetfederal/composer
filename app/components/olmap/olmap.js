@@ -405,8 +405,6 @@ angular.module('gsApp.olmap', [])
             }
             bLayer = new ol.layer.Tile({
               group: 'background',
-              visible: false,
-              preload: Infinity
             });
             bLayer.setSource(new ol.source.BingMaps({
               key: basemap.key,
