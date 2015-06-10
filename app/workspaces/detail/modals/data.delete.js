@@ -27,7 +27,7 @@ angular.module('gsApp.workspaces.data.delete', [])
         GeoServer.datastores.delete($scope.workspace, $scope.store.name)
         .then(
           function(result) {
-            if (result.success || result) {
+            if (result && result.success) {
               $scope.storeRemoved($scope.store);
               $rootScope.alerts = [{
                 type: 'success',
