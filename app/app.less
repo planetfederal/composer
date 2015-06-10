@@ -176,6 +176,13 @@ input[type="file"] > input[type="button"]::-moz-focus-inner {
 
 .paging {
   float: right;
+
+  .remove-boundaries.pagination>li:last-child>a, 
+  .remove-boundaries.pagination>li:last-child>span,
+  .remove-boundaries.pagination>li:first-child>a, 
+  .remove-boundaries.pagination>li:first-child>span {
+    display: none;
+  }
 }
 .pagination {
   & > li > a {
