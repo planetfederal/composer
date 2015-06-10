@@ -6,7 +6,7 @@ angular.module('gsApp.workspaces.data.update', [])
   '$scope', '$rootScope', '$state', '$log', '$modalInstance',
   'GeoServer', 'AppEvent',
     function(store, workspace, $scope, $rootScope, $state, $log,
-      $modalInstance, GeoServer) {
+      $modalInstance, GeoServer, AppEvent) {
 
       $scope.store = store;
       $scope.workspace = workspace;
@@ -17,13 +17,15 @@ angular.module('gsApp.workspaces.data.update', [])
       $scope.desiredStateTitle = enabled? 'Enable ' : 'Disable ';
 
       $scope.toggleStore = function () {
-        GeoServer.datastores.getDetails(
+        GeoServer.datastores.update(
           $scope.workspace, store.name, { 'enabled': enabled })
         .then(function(result) {
 
           if (result.success && result.data.enabled===enabled) {
             $scope.store.enabled = !$scope.store.enabled;
             $scope.store.resource = {};
+            $rootScope.$broadcast(AppEvent.StoreUpdated, 
+              {original: $scope.store, updated: result.data});
             $rootScope.alerts = [{
               type: 'danger',
               message: 'Store ' + $scope.store.name + $scope.desiredState,
