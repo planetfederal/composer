@@ -53,8 +53,21 @@
         padding: 3px 8px;
         background-color: @gray;
         color: @almost-white;
+        position: relative;
+        height: 26px;
+        
+        .resources-name {
+          position: absolute;
+          left: 8px;
+          right: 150px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space:nowrap;
+        }
+
         .sort-by {
-          float:right;
+          position: absolute;
+          right: 8px;
           vertical-align: text-bottom;
           line-height: 18px;
         }

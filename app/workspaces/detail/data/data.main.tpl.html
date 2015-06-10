@@ -50,7 +50,7 @@
         <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Location:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:35:true }}</span></div>
         <div class="resources">
           <div class="resources-header">
-            <span>Data Sets in {{ selectedStore.name }}</span>
+            <span class="resources-name">Data Sets in {{ selectedStore.name }}</span>
             <small class="sort-by">
               Sort by
               <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
