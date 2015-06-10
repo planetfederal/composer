@@ -291,6 +291,7 @@ angular.module('gsApp.workspaces.layers', [
                 layersListModel.sortByTime(layersListModel.getLayers());
               });
           }
+          $scope.totalItems = $scope.layers.length;
         }
       });
 
