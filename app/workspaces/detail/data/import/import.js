@@ -725,6 +725,9 @@ angular.module('gsApp.workspaces.data.import', [
         if (($scope.layerSelections.length === $scope.import.preimport.length) && ($scope.import.pending.length === 0)) {
           toImport = {'filter': 'ALL'};
           tasks = $scope.import.preimport.length;
+          $scope.layerSelections.forEach(function(task) {
+              task.loading = true;
+          });
         } else {
           toImport = {'tasks': []};
           $scope.layerSelections.filter(function(item) {
