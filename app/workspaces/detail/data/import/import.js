@@ -403,7 +403,7 @@ angular.module('gsApp.workspaces.data.import', [
           .then(function(result) {
             if (result.success) {
               $scope.error = null;
-              if (result.data.id) {
+              if (typeof result.data.id !== 'undefined') {
                 $scope.setImportResultId(result.data);
               } else if (result.data.store) {
                 $scope.alert = result.data;
