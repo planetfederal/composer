@@ -3,9 +3,10 @@
  * License: BSD
  */
 angular.module('gsApp.styleditor.ysldhinter', [])
-.factory('YsldHinter', ['$log',
-    function($log) {
+.factory('YsldHinter', ['$log', 'GeoServer',
+    function($log, GeoServer) {
       var YsldHinter = function() {
+        var self = this;
         //Escape strings in regexes
         var escapeForRegExp = function(s) {
           return s.replace(/[.?*+^$[\]\\(){}|-]/g, '\\$&');
@@ -765,6 +766,23 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           ],
         };
 
+        //gridsets
+        this.gridsets = [];
+
+        this.getGridsets = function() {
+          GeoServer.gridsets.getAll().then(function(result) {
+            if (result.success) {
+              self.gridsets = result.data.map(function(entry) {
+                return entry.name;
+              }).filter(function(entry) {
+                return entry != 'EPSG:4326' && entry != 'EPSG:3857';
+              }).sort();
+            }
+          });
+        };
+
+        this.getGridsets();
+
       };
 
       YsldHinter.prototype.parseLine = function(line) {
@@ -920,11 +938,9 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         }
         var numVariables = values.length;
 
-        //grid: name
+        //grid: name - default gridsets
         if (state.line.key == 'name' && state.parent.line.key == 'grid') {
-          values = values.concat(['EPSG:3857', 'EPSG:4326']);
-          //TODO: Add api endpoint for GeoWebCache gridsets
-
+          values = values.concat(['EPSG:3857', 'EPSG:4326']).concat(this.gridsets);
         }
 
         //transform: name
@@ -941,6 +957,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         } else if (valueFunction) {
           hints = valueFunction(state, cm);
         }
+
 
         //If variables are the only suggestion, we are probably at a top-level mapping
         if (hints.length == numVariables) {

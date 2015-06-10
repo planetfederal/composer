@@ -490,6 +490,15 @@ angular.module('gsApp.core.backend',[])
               url: apiRoot + '/formats/' + name
             });
           }
+        },
+
+        gridsets: {
+          getAll: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/gwc/gridsets'
+            });
+          },
         }
       };
     }]);
