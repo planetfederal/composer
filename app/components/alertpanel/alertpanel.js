@@ -26,9 +26,19 @@ angular.module('gsApp.alertpanel', [
             }
           }, true);
 
+          $rootScope.alertList = [];
+          var maxLength = 100;
+
           $scope.$watch('alerts', function(newVal) {
             if (newVal != null) {
+
               $scope.messages = newVal.map(function(val) {
+                //Save the message
+                $rootScope.alertList.push(val);
+                if ($rootScope.alertList.length > maxLength) {
+                  $rootScope.alertList.shift();
+                }
+
                 var msg = angular.extend({show: $scope.showMessages}, val);
                 if (msg.fadeout == true) {
                   $interval(function() {

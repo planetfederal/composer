@@ -1,0 +1,73 @@
+/* alertlist.less */
+
+@import "../../variables.less";
+
+.alert-filter {
+  font-weight: bold;
+
+  width: 100%;
+  border: 1px solid @very-lt-bl-gray;
+  .box-shadow(0 1px 1px @very-lt-bl-gray);
+  .border-radius(3px, 3px, 3px, 3px);
+  padding: 8px 12px;
+
+  span {
+    input {
+      margin: 0px 5px; 
+    }
+    padding: 0px 5px;
+    margin: 5px: 0px;
+    font-weight: normal;
+  }
+
+  .left-border {
+    border-left-color: @very-lt-bl-gray;
+    border-left-style: solid;
+    border-left-width: 1px;
+  }
+
+}
+
+.alert-list {
+  max-height: 400px;
+  overflow-y: scroll;
+  margin-top: 5px;
+
+  .no-alert {
+    text-align: center;
+    font-size: 13px;
+    color: @gray;
+    margin: 5px;
+  }
+
+  .alert {
+    padding: 5px 25px 5px 10px;
+    margin-bottom: 5px;
+  }
+
+  .alert>div {
+    //propagate parent border
+    border: inherit;
+    border-width: 0px;
+
+    .alert-text {
+      color: 000;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 5px;
+
+      border: inherit;
+      border-width: 1px;
+      border-radius: 4px;
+
+
+      white-space: pre;
+      overflow-x: scroll;
+      
+    }
+  }
+
+  .alert-details {
+    cursor: pointer;
+    float: right;
+  }
+}
