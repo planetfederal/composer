@@ -1,0 +1,28 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Recent Alerts</h4>
+  </div>
+  <div class="modal-body">
+    <div class="alert-filter" ng-init="filter={}">
+      Filter alerts:
+      <span><input type="checkbox" ng-model="filter.danger" ng-init="filter.danger=true" ng-click="scrollToBottom()"></input>Danger</span>
+      <span class="left-border"><input type="checkbox" ng-model="filter.warning" ng-init="filter.warning=true" ng-click="scrollToBottom()"></input>Warning</span>
+      <span class="left-border"><input type="checkbox" ng-model="filter.success" ng-init="filter.success=true" ng-click="scrollToBottom()"></input>Success</span>
+    </div>
+    <ul id="alert-list" class="alert-list list-unstyled">
+      <div class="no-alert" ng-if="alertList.length == 0">(No alerts)</div>
+      <li ng-repeat="alert in alertList">
+        <alert type="{{alert.type}}" ng-show="(alert.type=='danger' && filter.danger) || (alert.type=='success' && filter.success) || ((!alert.type || alert.type=='warning') && filter.warning)">
+          {{ alert.message }}
+          <a ng-if="alert.details" ng-click="alert.showDetails = !alert.showDetails" ng-init="alert.showDetails = false" class="alert-details">{{ alert.showDetails ? 'Hide details' : 'Details' }} </a>
+          <div class="alert-text horizontal-divider" collapse="!alert.showDetails">
+          {{ alert.details }}
+          </div>
+        </alert>
+      </li>
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+  </div>
+</div>

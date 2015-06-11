@@ -27,7 +27,7 @@ angular.module('gsApp.workspaces.data.update', [])
             $rootScope.$broadcast(AppEvent.StoreUpdated, 
               {original: $scope.store, updated: result.data});
             $rootScope.alerts = [{
-              type: 'danger',
+              type: 'success',
               message: 'Store ' + $scope.store.name + $scope.desiredState,
               fadeout: true
             }];
