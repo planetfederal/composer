@@ -51,7 +51,7 @@
           <h4 class="underline">Recent Project Workspaces: {{ recentWorkspaces.length }}</h4>
           <ul class="list-unstyled">
             <div ng-repeat="row in recentWorkspaces | partition:2" class="row workspace-row">
-              <li ng-repeat="recentWorkspace in row" class="workspace" ng-class="{'workspace-center-offset': $index%2 != 0}">
+              <li ng-repeat="recentWorkspace in row" class="workspace" ng-class="{'workspace-center-offset': $index%2 != 0}" ui-sref="workspace({workspace: recentWorkspace.name})">
                 <div class="icon-marker"><i class="icon-folder"></i></div>
                 <p class="info">
                   <a ui-sref="workspace({workspace: recentWorkspace.name})">{{ recentWorkspace.name }}</a><br />
@@ -70,14 +70,14 @@
         <div class="maps">
           <h4 class="underline">Recent Maps</h4>
           <ul class="list-unstyled">
-            <li ng-repeat="map in recentMaps" class="map">
+            <li ng-repeat="map in recentMaps" class="map" ui-sref="map.compose({workspace: map.workspace, name: map.name})">
               <div class="icon-marker"><i class="icon-map"></i></div>
               <p class="info">
-                <a ui-sref="map.compose({workspace: map.workspace, name: map.name})">{{ map.name }}</a><br />
+                <a ui-sref="map.compose({workspace: map.workspace, name: map.name})" ng-click="$event.stopPropagation()">{{ map.name }}</a><br />
                 Title: {{ map.title }}<br />
               </p>
               <p class="footer">
-                <small class="time">Modified {{ map.modified.pretty }}</small> <small class="project">Project Workspace: <a ui-sref="workspace({workspace: map.workspace})">{{ map.workspace }}</a></small>
+                <small class="time">Modified {{ map.modified.pretty }}</small> <small class="project">Project Workspace: <a ui-sref="workspace({workspace: map.workspace})" ng-click="$event.stopPropagation()">{{ map.workspace }}</a></small>
               </p>
             </li>
           </ul>
@@ -89,14 +89,14 @@
         <div class="layers">
           <h4 class="underline">Recent Layers</h4>
           <ul class="list-unstyled">
-            <li ng-repeat="layer in recentLayers" class="layer">
+            <li ng-repeat="layer in recentLayers" class="layer" ui-sref="layer.style({workspace: layer.workspace, name: layer.name})">
               <div class="icon-marker"><i class="icon-stack"></i></div>
               <p class="info">
-                <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})">{{ layer.name }}</a><br />
+                <a ui-sref="layer.style({workspace: layer.workspace, name: layer.name})" ng-click="$event.stopPropagation()">{{ layer.name }}</a><br />
                 Title: {{ layer.title }}<br />
               </p>
               <p class="footer">
-                <small class="time">Modified {{ layer.modified.pretty }}</small>  <small class="project">Project Workspace: <a ui-sref="workspace({workspace: layer.workspace})">{{ layer.workspace }}</a></small>
+                <small class="time">Modified {{ layer.modified.pretty }}</small>  <small class="project">Project Workspace: <a ui-sref="workspace({workspace: layer.workspace})" ng-click="$event.stopPropagation()">{{ layer.workspace }}</a></small>
               </p>
             </li>
           </ul>
