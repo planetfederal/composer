@@ -79,8 +79,35 @@ angular.module('gsApp.styleditor', [
                     rangeFinder: CodeMirror.fold.indent,
                     scanUp: true
                   }, "unfold");
-                }
+                //Comment: 3/#
+                } else if (change.keyCode == 51) {
+                  change.preventDefault();
 
+                  var cur = cm.getCursor();
+                  var line = cm.getLine(cur.line);
+
+                  //Comment lines; otherwise uncomment lines
+                  if (line.search(/^\s*#/) == -1) {
+                    var comment = true;
+                  }
+
+                  var ranges = cm.listSelections();
+                  for (var i = 0; i < ranges.length; i++) {
+                    var range = ranges[i];
+                    var start = range.head.line > range.anchor.line ? range.anchor.line : range.head.line;
+                    var end = range.head.line > range.anchor.line ? range.head.line : range.anchor.line;
+                    for (var j = start; j <= end; j++) {
+                      line = cm.getLine(j);
+                      var length = line.length;
+                      line = line.replace(/^(\s*)(#)/, "$1");
+                      if (comment) {
+                        line = "#" + line;
+                      }
+                      cm.replaceRange(line, {ch:0, line:j}, {ch:length, line:j});
+
+                    }
+                  }
+                }
               }
             });
           };

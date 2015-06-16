@@ -19,6 +19,7 @@ angular.module('gsApp.styleditor.shortcuts', [])
         { 'name': 'Save', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'S'}]},
         { 'name': 'Autocomplete', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'Enter'}]},
         { 'name': 'Code fold/unfold', 'keys': [{'key':cmdKey,'delim':'+'},{'key':',','delim':'/'},{'key':'.'}]},
+        { 'name': 'Comment/uncomment selection', 'keys':[{'key':cmdKey,'delim':'+'}, {'key':'3'}]},
         { 'name': 'Select line', 'keys': [{'key':'Shift','delim':'+'},{'key':'Up','delim':'/'},{'key':'Down'}]},
         { 'name': 'Increase/reduce indent', 'keys': [{'key':'Tab','delim':'/'},{'key':'Shift','delim':'+'},{'key':'Tab'}]}
       ];
