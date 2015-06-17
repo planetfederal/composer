@@ -389,7 +389,8 @@ angular.module('gsApp.workspaces.data', [
         } else {
           $rootScope.alerts = [{
             type: 'warning',
-            message: 'Unable to load workspace data stores.',
+            message: 'Unable to load data stores for workspace '+workspace,
+            details: result.data.trace,
             fadeout: true
           }];
         }
@@ -407,7 +408,8 @@ angular.module('gsApp.workspaces.data', [
         } else {
           $rootScope.alerts = [{
             type: 'danger',
-            message: 'Unable to add store.',
+            message: 'Unable to add data store in workspace '+workspace,
+            details: result.data.trace,
             fadeout: true
           }];
         }

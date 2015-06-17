@@ -40,7 +40,8 @@ angular.module('gsApp.workspaces.layers.duplicate', [])
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Could not copy layer ' + $scope.layer.name + '.',
+                message: 'Could not copy layer ' + $scope.layer.name + ': ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
               $scope.form.layerSettings.alerts = 'Copy Failed: ' +

@@ -58,7 +58,8 @@ angular.module('gsApp.workspaces.layers.addtomap', [
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Layer(s) could not be added to map ' +
-                  mapInfo.name + '.',
+                  mapInfo.name + ': ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }

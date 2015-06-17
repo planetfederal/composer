@@ -13,8 +13,10 @@
       <div class="no-alert" ng-if="alertList.length == 0">(No alerts)</div>
       <li ng-repeat="alert in alertList">
         <alert type="{{alert.type}}" ng-show="(alert.type=='danger' && filter.danger) || (alert.type=='success' && filter.success) || ((!alert.type || alert.type=='warning') && filter.warning)">
-          {{ alert.message }}
-          <a ng-if="alert.details" ng-click="alert.showDetails = !alert.showDetails" ng-init="alert.showDetails = false" class="alert-details">{{ alert.showDetails ? 'Hide details' : 'Details' }} </a>
+          <div class="alert-content">
+            <div ng-class="alert.details? 'alert-message-details' : 'alert-message'">{{ alert.message }}</div>
+            <div><a ng-if="alert.details" ng-click="alert.showDetails = !alert.showDetails" ng-init="alert.showDetails = false" class="alert-details">{{ alert.showDetails ? 'Hide details' : 'Details' }} </a></div>
+          </div>
           <div class="alert-text horizontal-divider" collapse="!alert.showDetails">
           {{ alert.details }}
           </div>

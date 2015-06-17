@@ -210,6 +210,7 @@ angular.module('gsApp.workspaces.maps.new', [
             $rootScope.alerts = [{
               type: 'danger',
               message: message,
+              details: result.data.trace,
               fadeout: true
             }];
           }
@@ -317,7 +318,8 @@ angular.module('gsApp.workspaces.maps.new', [
           $rootScope.alerts = [{
             type: 'danger',
             message: 'Layers for workspace ' + $scope.workspace.name +
-              ' could not be loaded.',
+              ' could not be loaded: '+result.data.message,
+            details: result.data.trace,
             fadeout: true
           }];
         }
@@ -368,6 +370,7 @@ angular.module('gsApp.workspaces.maps.new', [
             $rootScope.alerts = [{
               type: 'danger',
               message: message,
+              details: result.data.trace,
               fadeout: true
             }];
             $scope.errors = [{

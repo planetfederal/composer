@@ -39,7 +39,8 @@ angular.module('gsApp.workspaces.data.delete', [])
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
-                message: 'Store deletion failed.',
+                message: 'Store deletion failed: '+result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }

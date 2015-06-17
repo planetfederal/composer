@@ -130,7 +130,7 @@ angular.module('gsApp.layers.style', [
             $scope.markers = null;
             $rootScope.alerts = [{
               type: 'success',
-              message: 'Styled saved.',
+              message: 'Style saved for layer: '+layerName,
               fadeout: true
             }];
             $scope.refreshMap();

@@ -38,8 +38,9 @@ angular.module('gsApp.workspaces.layers.import', [])
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Could not create get resource details for ' +
+                message: 'Could not get resource details for ' +
                   $scope.resource.name + ': ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }
@@ -94,6 +95,7 @@ angular.module('gsApp.workspaces.layers.import', [])
                 type: 'danger',
                 message: 'Could not create layer from resource ' +
                   $scope.resource.name + ': ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
               $scope.form.alerts = 'Error: ' + result.data.message;

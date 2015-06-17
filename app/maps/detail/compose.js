@@ -162,8 +162,9 @@ angular.module('gsApp.maps.compose', [
           } else {
             $rootScope.alerts = [{
               type: 'danger',
-              message: 'Could not load ' + name + ': ' +
+              message: 'Could not load map ' + name + ': ' +
                 result.data.message,
+              details: result.data.trace,
               fadeout: true
             }];
           }
@@ -226,7 +227,7 @@ angular.module('gsApp.maps.compose', [
                   var err = result.data;
                   $rootScope.alerts = [{
                     type: 'danger',
-                    message: 'Unable to delete layer from map: ' + err.message,
+                    message: 'Unable to delete layer '+layer.name+' from map'+$scope.map.name+': ' + err.message,
                     details: err
                   }];
                 }
@@ -247,7 +248,7 @@ angular.module('gsApp.maps.compose', [
               $scope.markers = null;
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Style saved.',
+                message: 'Style saved for layer: '+l.name,
                 fadeout: true
               }];
               $rootScope.generation = $rootScope.editor.changeGeneration();

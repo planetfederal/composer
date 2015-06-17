@@ -385,7 +385,8 @@ angular.module('gsApp.workspaces.maps', [
         } else {
           $rootScope.alerts = [{
             type: 'warning',
-            message: 'Unable to load paged workspace maps.',
+            message: 'Unable to load paged workspace maps: '+result.data.message,
+            details: result.data.trace,
             fadeout: true
           }];
         }

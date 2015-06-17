@@ -27,7 +27,8 @@ angular.module('gsApp.workspaces.delete', [])
             } else {
               $rootScope.alerts = [{
                 type: 'warning',
-                message: 'Workspace deletion failed.',
+                message: 'Workspace deletion failed: '+result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }

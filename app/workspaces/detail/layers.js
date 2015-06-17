@@ -213,8 +213,8 @@ angular.module('gsApp.workspaces.layers', [
           if (mapInfo.layers.length==0) {
             $rootScope.alerts = [{
                 type: 'warning',
-                message: 'Please select a layer. Or import data and ' +
-                  'create a new Layer. A map requires at least 1 layer.',
+                message: 'Please select a layer or import data and ' +
+                  'create a new layer. A map requires at least one layer.',
                 fadeout: true
               }];
           } else {
@@ -263,7 +263,8 @@ angular.module('gsApp.workspaces.layers', [
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Layer(s) could not be added to map ' +
-                  mapInfo.name + '.',
+                  mapInfo.name + ': '+result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }
@@ -417,7 +418,8 @@ angular.module('gsApp.workspaces.layers', [
         } else {
           $rootScope.alerts = [{
             type: 'warning',
-            message: 'Unable to load paged workspace layers.',
+            message: 'Unable to load paged workspace layers: '+result.data.message,
+            details: result.data.trace,
             fadeout: true
           }];
         }

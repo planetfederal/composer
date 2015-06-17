@@ -96,8 +96,8 @@ angular.module('gsApp.layers', [
           if (mapInfo.layers.length==0) {
             $rootScope.alerts = [{
                 type: 'warning',
-                message: 'Please select a layer. Or import data and ' +
-                  'create a new Layer. A map requires at least 1 layer.',
+                message: 'Please select a layer or import data and ' +
+                  'create a new layer. A map requires at least one layer.',
                 fadeout: true
               }];
           } else {
@@ -122,7 +122,7 @@ angular.module('gsApp.layers', [
         if (mapInfo.layers.length==0) {
           $rootScope.alerts = [{
             type: 'warning',
-            message: 'Select layers to add to a map below.',
+            message: 'Select layers to add to the map below.',
             fadeout: true
           }];
           return;
@@ -577,7 +577,8 @@ angular.module('gsApp.layers', [
               $modalInstance.dismiss('cancel');
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Could not create layer.',
+                message: 'Could not create layer '+layer.name + ': ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }

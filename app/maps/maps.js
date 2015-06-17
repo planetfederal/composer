@@ -109,6 +109,7 @@ angular.module('gsApp.maps', [
                         type: 'danger',
                         message: 'Map "' + map.name + '" could not be ' +
                           'deleted from the workspace "' + map.workspace + '".',
+                        details: result.data.trace,
                         fadeout: true
                       }];
                     }
@@ -148,6 +149,7 @@ angular.module('gsApp.maps', [
                 type: 'warning',
                 message: 'Maps for workspace ' + $scope.ws.name +
                   ' could not be loaded.',
+                details: result.data.trace,
                 fadeout: true
               }];
             }
@@ -363,7 +365,8 @@ angular.module('gsApp.maps', [
           } else {
             $scope.alerts = [{
               type: 'warning',
-              message: 'Workspace update failed.',
+              message: 'Could not get workspaces: '+result.data.message,
+              details: result.data.trace,
               fadeout: true
             }];
           }

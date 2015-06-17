@@ -19,8 +19,8 @@ angular.module('gsApp', [
   'gsApp.workspaces',
   'gsApp.maps'
 ])
-.controller('AppCtrl', ['$scope', '$state', 'AppEvent', 'AppSession', '$window', '$modal', '$modalStack', '$timeout', 'GeoServer',
-    function($scope, $state, AppEvent, AppSession, $window, $modal, $modalStack, $timeout, GeoServer) {
+.controller('AppCtrl', ['$scope', '$rootScope', '$state', 'AppEvent', 'AppSession', '$window', '$modal', '$modalStack', '$timeout', 'GeoServer',
+    function($scope, $rootScope, $state, AppEvent, AppSession, $window, $modal, $modalStack, $timeout, GeoServer) {
       $scope.session = AppSession;
 
       var timeout = null;
@@ -71,7 +71,24 @@ angular.module('gsApp', [
                 $scope.state.curr = {name: to, params: toParams};
                 $scope.state.prev = {name: from, params: fromParams};
               }
+              var slowConnection = $timeout(function() {
+                $rootScope.alerts = [{
+                  type: 'warning',
+                  message: 'Experiencing connection delays. Please verify GeoServer is running.',
+                  fadeout: true
+                }];
+              }, 10000);
               GeoServer.session().then(function(result) {
+                $timeout.cancel(slowConnection);
+                //if status is 0, request cancelled - check server connectivity
+                if (!result.success && result.status == 0) {
+                  $rootScope.alerts = [{
+                    type: 'danger',
+                    message: 'Could not connect to the server',
+                    fadeout: true
+                  }];
+                }
+
                 //If we are in a series of modal windows, don't redirect
                 if ($modalStack.getTop()) {
                   $scope.stateChange = false;
@@ -100,8 +117,8 @@ angular.module('gsApp', [
     function(lodash) {
       return lodash;
     }])
-.run(['$rootScope', 'GeoServer', 'AppSession',
-    function($rootScope, GeoServer, AppSession) {
+.run(['$rootScope', 'GeoServer', 'AppSession', '$timeout',
+    function($rootScope, GeoServer, AppSession, $timeout) {
       GeoServer.session().then(function(result) {
         if (result.success) {
           AppSession.update(result.data.id, result.data.user);

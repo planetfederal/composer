@@ -35,7 +35,9 @@ angular.module('gsApp.workspaces.data.update', [])
             $rootScope.alerts = [{
               type: 'danger',
               message: 'Store ' + $scope.store.name +
-                ' could not be' + $scope.desiredState,
+                ' could not be' + $scope.desiredState + 
+                ': ' + result.data.message,
+              details: result.data.trace,
               fadeout: true
             }];
           }

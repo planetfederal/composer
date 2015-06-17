@@ -71,6 +71,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
                 $rootScope.alerts = [{
                   type: 'warning',
                   message: 'Layer update failed: ' + result.data.message,
+                  details: result.data.trace,
                   fadeout: true
                 }];
               }
@@ -87,14 +88,15 @@ angular.module('gsApp.workspaces.layers.settings', [])
                 layersListModel.getLayers());
               $rootScope.alerts = [{
                 type: 'success',
-                message: 'Layer ' + layer.name + ' successfully unpublished.',
+                message: 'Layer ' + layer.name + ' successfully deleted.',
                 fadeout: true
               }];
               $modalInstance.dismiss('close');
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Layer could not be deleted.',
+                message: 'Layer could not be deleted: ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }

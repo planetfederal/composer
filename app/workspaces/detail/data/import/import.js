@@ -217,11 +217,11 @@ angular.module('gsApp.workspaces.data.import', [
               $state.go('map.compose', {workspace: wsName,
                 name: map.name});
             } else {
-              $scope.errors = result.data.cause?
-                result.data.cause: result.data; // show errors in modal
+              $scope.errors = result.data.message; // show errors in modal
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Error creating new map.',
+                message: 'Error creating new map: '+result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }
@@ -261,12 +261,12 @@ angular.module('gsApp.workspaces.data.import', [
               $state.go('map.compose', {'workspace': wsName,
                 'name': mapInfo.name, 'hiddenLayers': hiddenLayers});
             } else {
-              $scope.errors = result.data.cause?
-                result.data.cause: result.data; // show errors in modal
+              $scope.errors = result.data.message; // show errors in modal
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'New layer(s) could not be added to map ' +
-                  mapInfo.name + '.',
+                  mapInfo.name + ': ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }
@@ -291,11 +291,12 @@ angular.module('gsApp.workspaces.data.import', [
               $state.go('map.compose', {workspace: wsName,
                 name: map.name});
             } else {
-              $scope.errors = result.data.cause?
-                result.data.cause: result.data; // show errors in modal
+              $scope.errors = result.data.message?
+                result.data.message: result.data; // show errors in modal
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Error creating new map.',
+                message: 'Error creating new map: '+result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }
@@ -698,7 +699,7 @@ angular.module('gsApp.workspaces.data.import', [
               $scope.pollRetries = 1000;
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Could not import store.',
+                message: 'Could not import store: Import took too long',
                 fadeout: true
               }];
             }
@@ -706,7 +707,8 @@ angular.module('gsApp.workspaces.data.import', [
         } else { //import failed
           $rootScope.alerts = [{
             type: 'danger',
-            message: 'Error importing: ' + result.data.message,
+            message: 'Error importing store: ' + result.data.message,
+            details: result.data.trace,
             fadeout: true
           }];
         }
@@ -832,7 +834,8 @@ angular.module('gsApp.workspaces.data.import', [
               $rootScope.alerts = [{
                 type: 'danger',
                 message: 'Layer(s) could not be added to map ' +
-                  newMapInfo.name + '.',
+                  newMapInfo.name + ': ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }

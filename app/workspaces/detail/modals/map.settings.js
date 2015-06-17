@@ -83,8 +83,8 @@ angular.module('gsApp.workspaces.maps.settings', [])
               } else {
                 $rootScope.alerts = [{
                   type: 'danger',
-                  message: 'Map update failed: ' +
-                    result.data.message,
+                  message: 'Map update failed: ' + result.data.message,
+                  details: result.data.trace,
                   fadeout: true
                 }];
                 $scope.form.mapSettings.saved = false;
@@ -109,7 +109,8 @@ angular.module('gsApp.workspaces.maps.settings', [])
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Map could not be deleted.',
+                message: 'Map ' + originalMap.name + ' could not be deleted: ' + result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }
@@ -126,7 +127,8 @@ angular.module('gsApp.workspaces.maps.settings', [])
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
-                message: 'Error calculating bounds: '+result.message,
+                message: 'Error calculating bounds: '+result.data.message,
+                details: result.data.trace,
                 fadeout: true
               }];
             }

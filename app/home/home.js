@@ -11,8 +11,8 @@ angular.module('gsApp.home', [])
         controller: 'HomeCtrl'
       });
     }])
-.controller('HomeCtrl', ['$scope', 'GeoServer', '$state',
-    function($scope, GeoServer, $state) {
+.controller('HomeCtrl', ['$scope', '$rootScope', 'GeoServer', '$state',
+    function($scope, $rootScope, GeoServer, $state) {
 
       $scope.title = 'Recent';
 
@@ -21,23 +21,47 @@ angular.module('gsApp.home', [])
       });
 
       GeoServer.workspaces.recent().then(function(result) {
-        $scope.recentWorkspaces = result.data;
-        if ($scope.recentWorkspaces.length > 0) {
-          $scope.isCollapsed = true;
+        if (result.success) {
+          $scope.recentWorkspaces = result.data;
+          if ($scope.recentWorkspaces.length > 0) {
+            $scope.isCollapsed = true;
+          }
+        } else {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Could not get recent workspaces',
+            fadeout: true
+          }];
         }
       });
 
       GeoServer.maps.recent().then(function(result) {
-        $scope.recentMaps = result.data;
-        if ($scope.recentMaps.length > 0) {
-          $scope.isCollapsed = true;
+        if (result.success) {
+          $scope.recentMaps = result.data;
+          if ($scope.recentMaps.length > 0) {
+            $scope.isCollapsed = true;
+          }
+        } else {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Could not get recent maps',
+            fadeout: true
+          }];
         }
       });
 
       GeoServer.layers.recent().then(function(result) {
-        $scope.recentLayers = result.data;
-        if ($scope.recentLayers.length > 0) {
-          $scope.isCollapsed = true;
+        if (result.success) {
+          $scope.recentLayers = result.data;
+          if ($scope.recentLayers.length > 0) {
+            $scope.isCollapsed = true;
+          }
+        } else {
+          $rootScope.alerts = [{
+            type: 'warning',
+            message: 'Could not get recent layers',
+            fadeout: true
+          }];
         }
       });
 

@@ -117,7 +117,8 @@ angular.module('gsApp.workspaces.list', [
           if (result.status != 401) {
             $rootScope.alerts = [{
               type: 'warning',
-              message: 'Could not get workspaces.',
+              message: 'Could not get workspaces: ' + result.data.message,
+              details: result.data.trace,
               fadeout: true
             }];
           }

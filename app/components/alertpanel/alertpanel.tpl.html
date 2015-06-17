@@ -14,7 +14,9 @@
   </script>
   <alert ng-repeat="msg in messages" ng-show="msg.show" type="{{msg.type}}"
     close="closeAlert($index)">
-    {{msg.message}}
-    <a ng-if="msg.details" ng-click="showDetails(msg)" class="alert-details">Details</a>
+    <div class="alert-content">
+      <div ng-class="msg.details? 'alert-message-details' : 'alert-message'">{{msg.message}}</div>
+      <div><a ng-if="msg.details" ng-click="showDetails(msg)" class="alert-details">Details</a></div>
+    </div>
   </alert>
 </div>

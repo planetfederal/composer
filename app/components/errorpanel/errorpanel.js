@@ -38,7 +38,7 @@ angular.module('gsApp.errorPanel', [
         templateUrl: '/components/errorpanel/errorpanel.tpl.html',
         controller: function($scope, $element, $window) {
           $scope.$watch('errors', function(newVal) {
-            if (newVal != null) {
+            if (newVal != null && angular.isArray(newVal)) {
               $scope.messages = newVal.map(function(val) {
                 $scope.msg = angular.extend({show:true}, val);
                 $scope.exception = $scope.msg.exception;
