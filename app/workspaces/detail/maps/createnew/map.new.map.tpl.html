@@ -4,12 +4,12 @@
       <form ng-hide="step==2" name="newMap" role="form" class="new-map-form form-1">
         <div class="form-group" name="newMapName">
           <label for="name">Map Name *</label>
-          <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur', debounce: {default: 500}}" focus-init>
-          <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
-          <span ng-show="newMap.name.$error.maxlength" class="error">Max 10 characters allowed.</span>
-          <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
+          <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" maxlength="10" required ng-pattern="/^[a-zA-Z][a-zA-Z\d\-_]*$/" ng-model-options="{updateOn: 'default blur'}" focus-init>
+          <span ng-show="newMap.name.$error.pattern" class="errorInput">Invalid characters in map name.</span>
+          <span ng-show="newMap.name.$error.maxlength" class="errorInput">Max 10 characters allowed.</span>
+          <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="errorInput">Required</span>
           <span ng-show="newMap.name.$dirty && !newMap.name.$error.required && newMap.name.$error.alreadyExists" class="error">Name already exists</span>
-          <small>(No spaces, max 10 characters, for web URLs.)</small>
+          <small class="hint">(No spaces, max 10 characters, for web URLs.)</small>
         </div>
         <div class="form-group" name="newMapTitle">
           <label for="title">Title</label>

@@ -7,7 +7,7 @@
     <form name="form.mapSettings" role="form" class="mapSettings">
       <div class="form-group">
         <label for="mapName">Map Name *</label>
-        <input name="name" type="text" class="form-control input-sm" id="mapName" ng-model="map.name" focus-init ng-pattern="/^[a-zA-Z][a-zA-Z\d\-*_]*$/" ng-maxlength="10" required ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}" />
+        <input name="name" type="text" class="form-control input-sm" id="mapName" ng-model="map.name" focus-init ng-pattern="/^[a-zA-Z][a-zA-Z\d\-_]*$/" maxlength="10" required ng-model-options="{updateOn: 'default blur'}" />
         <span ng-show="!form.mapSettings.name.$error.required && !form.mapSettings.name.$error.maxlength && form.mapSettings.name.$error.pattern" class="errorInput">Invalid characters in map name.</span>
         <span ng-show="!form.mapSettings.name.$error.required && form.mapSettings.name.$error.maxlength" class="errorInput">Max 10 characters.</span>
         <span ng-show="form.mapSettings.name.$error.required" class="errorInput">Required.</span>

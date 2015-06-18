@@ -4,11 +4,13 @@
     <small class="pull-right required-star">* Required</small>
   </div>
   <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
-    <form name="form.layerSettings" role="form" class="layerSettings">
+    <form name="form.layerSettings" role="form" class="layer-settings">
       <div class="form-group">
         <label for="layerName">New Layer Name *</label>
-        <input name="form.layerSettings.name" type="text" class="form-control input-sm" id="layerName" ng-model="layer.name" focus-init />
-        <small>(No spaces, max 10 characters, for web URLs.)</small>
+        <input name="name" type="text" class="form-control input-sm" id="layerName" ng-model="layer.name" value="{{layer.name}}" focus-init maxlength="10" ng-pattern="/^[a-zA-Z][a-zA-Z\d\-_]*$/" required ng-model-options="{updateOn: 'default blur'}" />
+        <span ng-show="!form.layerSettings.name.$error.required && form.layerSettings.name.$error.pattern" class="errorInput">Invalid characters in layer name.</span>
+        <span ng-show="form.layerSettings.name.$dirty && form.layerSettings.name.$error.required" class="errorInput">Required.</span>
+        <small class="hint">(No spaces, max 10 characters, for web URLs.)</small>
       </div>
       <div class="form-group">
         <label for="mapTitle">New Layer Title</label>
@@ -38,6 +40,6 @@
   </div>
   <div class="modal-footer">
     <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
-    <button class="btn btn-success btn-sm" ng-click="importAsLayer();" style="margin-left:20px; margin-right:20px;">Copy to New Layer</button>
+    <button class="btn btn-success btn-sm" ng-click="importAsLayer();" ng-disabled="!form.layerSettings.$valid || form.layerSettings.name.$error.pattern || form.layerSettings.name.$error.required" style="margin-left:20px; margin-right:20px;">Copy to New Layer</button>
   </div>
 </div>

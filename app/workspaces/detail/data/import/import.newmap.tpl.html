@@ -14,8 +14,8 @@
       <form name="newMap" role="form" class="new-map-form">
         <div class="form-group" name="newMapName">
           <label for="name">Map Name *</label>
-          <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" ng-maxlength="10" ng-minlength="1" required ng-pattern="/^[^\s]+$/" ng-model-options="{updateOn: 'blur'}" focus-init>
-          <span ng-show="newMap.name.$error.pattern" class="error">No spaces allowed.</span>
+          <input type="text" class="form-control input-sm" name="name" ng-model="mapInfo.name" maxlength="10" required ng-pattern="/^[a-zA-Z][a-zA-Z\d\-_]*$/" ng-model-options="{updateOn: 'blur'}" focus-init>
+          <span ng-show="newMap.name.$error.pattern" class="error">Invalid characters in map name.</span>
           <span ng-show="newMap.name.$error.maxlength" class="error">Max 10 characters allowed.</span>
           <span ng-show="newMap.name.$dirty && newMap.name.$error.required" class="error">Required</span>
           <small>(No spaces, max 10 characters, for web URLs.)</small>
