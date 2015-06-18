@@ -209,8 +209,7 @@
             height: 28px;
             display: table-cell;
             vertical-align: middle;
-            background-color: @dark-gray;
-            padding-right: 5px;
+            padding-right: 16px;
             padding-left: 6px;
 
             i {
@@ -223,15 +222,14 @@
           }
         }
 
-        .map-layer-overlay:hover {
-          visibility: visible;
-        }
       }
 
       > li:hover {
         background-color: @dark-gray;
         color: white;
-
+        .map-layer {
+          overflow: hidden;
+        }
         .map-layer-overlay {
           visibility: visible;
         }
