@@ -89,7 +89,7 @@ angular.module('gsApp.styleditor.icons', [
       $scope.uploadIcons = function(files) {
         $scope.uploadRunning = true;
         $upload.upload({
-          url: GeoServer.icons.url($scope.workspace),
+          url: GeoServer.icon.url($scope.workspace),
           method: 'POST',
           file: files[0]
         }).success(function(result) {

@@ -444,7 +444,16 @@ angular.module('gsApp.core.backend',[])
           get: function(workspace) {
             return http({
               method: 'GET',
-              url: apiRoot+'/icons/'+workspace
+              url: apiRoot+'/icons/list/'+workspace
+            });
+          }
+        },
+        
+        icon: {
+          get: function(workspace, name) {
+            return http({
+              method: 'GET',
+              url: apiRoot+'/icons/'+workspace+'/'+name
             });
           },
           url: function(workspace) {
