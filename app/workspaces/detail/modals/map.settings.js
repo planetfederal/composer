@@ -80,6 +80,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 });
                 $scope.map = result.data;
                 originalMap = angular.copy($scope.map);
+                $scope.form.mapSettings.alerts = null;
               } else {
                 $rootScope.alerts = [{
                   type: 'danger',
@@ -124,6 +125,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 $scope.form.mapSettings.$dirty = true;
               }
               $scope.map.bbox = result.data.bbox.native;
+              $scope.form.mapSettings.alerts = null;
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
@@ -131,6 +133,8 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 details: result.data.trace,
                 fadeout: true
               }];
+              $scope.form.mapSettings.alerts =
+                  'Error calculating bounds: ' + result.data.message;
             }
           });
       }
