@@ -208,7 +208,7 @@ angular.module('gsApp.core.backend',[])
             page = page? page : 0;
             count = count? count : 25;
             sort = sort? '&sort='+sort : '';
-            filter = filter? '&filter='+filter : '';
+            filter = filter? '&filter='+filter.replace(/#/g, '%23') : '';
             return http({
               method: 'GET',
               url: apiRoot+'/layers/'+workspace+'?page='+page+
@@ -318,7 +318,7 @@ angular.module('gsApp.core.backend',[])
             page = page? page : 0;
             count = count? count : 25;
             sort = sort? '&sort='+sort : '';
-            filter = filter? '&filter='+filter : '';
+            filter = filter? '&filter='+filter.replace(/#/g, '%23') : '';
             return http({
               method: 'GET',
               url: apiRoot+'/maps/'+workspace+'?page='+page+
