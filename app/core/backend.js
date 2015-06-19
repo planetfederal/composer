@@ -286,12 +286,15 @@ angular.module('gsApp.core.backend',[])
               }
             });
           },
-          getSLD: function(workspace, style) {
+          getSLD: function(workspace, style, pretty) {
             var url;
             if (workspace != null) {
               url = restRoot+'workspaces/'+workspace+'/styles/'+style+'.sld';
             } else {
               url = restRoot+'styles/'+style+'.sld';
+            }
+            if (pretty) {
+                url += "?pretty="+pretty;
             }
             return http({
               method: 'GET',

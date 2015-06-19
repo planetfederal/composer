@@ -68,29 +68,10 @@ angular.module('gsApp.styleditor.sld', [
         $scope.editor = editor;
       };
 
-      function autoFormatSelection() {
-        var e = $scope.editor;
-        if(typeof e.autoFormatRange !== 'function') {
-          return;
-        }
-        var lastLine = e.lineCount();
-        if (lastLine > 0) {
-          var str = e.getLine(lastLine-1);
-          if (str) {
-            var totalChars = str.length;
-            e.autoFormatRange({line:0, ch:0}, {line:lastLine, ch:totalChars});
-            e.execCommand('goDocStart');
-          }
-        }
-      }
-
-      GeoServer.style.getSLD(layer.style.workspace, layer.style.name).then(
+      GeoServer.style.getSLD(layer.style.workspace, layer.style.name, true).then(
         function(result) {
           if (result.success) {
             $scope.sld = result.data;
-            $timeout(function() {
-              autoFormatSelection();
-            }, 800);
           } else {
             $scope.sld = 'Could not load SLD';
           }
