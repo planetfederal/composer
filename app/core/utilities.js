@@ -187,6 +187,20 @@ angular.module('gsApp.core.utilities', [])
       $element.addClass('active');
     });
 
+    $scope.$watch('fullscreen', function(newVal) {
+      if (newVal) {
+        lastMapWidth = angular.element('#mapPanel').width();
+        lastEditorWidth = angular.element('#editingPanel').width();
+
+        angular.element('#mapPanel').css({
+          width: ''
+        });
+        angular.element('#editingPanel').css({
+          width: ''
+        });
+      } 
+    });
+
     function mousemove(event) {
       event.preventDefault();
       var xPos = event.pageX;

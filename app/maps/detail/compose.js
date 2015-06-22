@@ -41,6 +41,10 @@ angular.module('gsApp.maps.compose', [
         }
       });
 
+      $scope.toggleFullscreen = function() {
+        $rootScope.broadcast(AppEvent.ToggleFullscreen);
+      };
+
       $scope.editorSave = function(nextWindowType, state, args) {
         $modal.open({
           templateUrl: '/maps/detail/editorsave-modal.tpl.html',
