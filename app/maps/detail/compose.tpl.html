@@ -3,7 +3,7 @@
   <div class="row">
     <div class="col-xs-12 map-name-row">
       <nav class="navbar navbar-default map-name" role="navigation">
-        <div class="row">
+        <div class="row map-detail-compose-nav">
           <div class="col-xs-6 col-lg-7">
             <div class="navbar-brand">
               <a ng-click="viewWorkspace(workspace);"><i class="icon-lg icon-folder-open"></i>{{ workspace }}</a>
@@ -68,6 +68,7 @@
         <div class="map-editor">
           <div class="style-toolbar">
             <ul class="list-unstyled list-inline">
+              <style-editor-fullscreen click="toggleFullscreen"></style-editor-fullscreen>
               <style-editor-layers click="toggleLayers"></style-editor-layers>
               <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
               <style-editor-undo editor="editor"></style-editor-undo>

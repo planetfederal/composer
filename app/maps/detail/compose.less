@@ -2,13 +2,6 @@
 
 @import "../../variables.less";
 
-.transition(@property, @duration, @effect) {
-  -webkit-transition: @property @duration @effect;
-  -moz-transition:  @property @duration @effect;
-  -o-transition:  @property @duration @effect;
-  transition: @property @duration @effect;
-}
-
 .editor-background {
   height: 100%;
   background: @gray;
@@ -152,20 +145,28 @@
   }
 
   .map-layers {
+    -webkit-transition: width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+    -moz-transition:  width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+    -o-transition:  width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+
     border-right: none;
-    padding-top: 5px;
     padding-bottom: 113px;
+    width: 0px;
     max-width: 0px;
+    min-width: 0px;
+    height: 100%;
     box-shadow: inset -5px -1px 5px -3px @dark-gray;
     overflow: hidden;
+
     position: relative;
     float: left;
-    .transition(max-width, 0.4s, ease-in-out);
+    
 
     .reorder-info {
       font-size: 11px;
       color: @md-lt-gray;
-      margin-top: 3px;
+      margin-top: 8px;
       margin-bottom: 8px;
       text-align: center;
     }
@@ -243,12 +244,10 @@
   }
 
   .map-layers.show {
-    border-right: 1px solid @md-dk-gray;
     width: auto;
     min-width: 20%;
     max-width: 50%;
-    height: 100%;
-    margin-left: 5px;
+    padding-left: 5px;
   }
 
   .optional {
@@ -257,17 +256,16 @@
       color: @white;
       margin-left: 5px;
     }
-  }
+  } 
+}
 
-  .map-editor {
-    width: auto;
-    position: relative;
-    height: 100%;
-    z-index: 10;
-    padding-bottom: 137px; // Note: otherwise it overflows past the bototm
-    overflow: hidden;
-    .transition(width, 0.5s, ease-in-out);
-  }
+.map-editor {
+  width: auto;
+  position: relative;
+  height: 100%;
+  z-index: 10;
+  padding-bottom: 137px; // Note: otherwise it overflows past the bototm
+  overflow: hidden;
 }
 
 /* Resizer bar */
@@ -294,4 +292,92 @@
 
 #editingPanel {
   display: inline-block;
+}
+
+/*
+  Fullscreen mode
+  Map covers window with editing panel on top, all else is hidden
+ */
+.fullscreen {
+
+  .main-nav,
+  .map-name-row,
+  .layer-name-row,
+  #sidebar-wrapper,
+  #resizer {
+    display: none;
+  }
+  #page-content-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 200;
+  }
+  #mapPanel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #editingPanel {
+
+    position: absolute;
+    border: 3px solid #ccc;
+    border-radius: 3px;
+    top: 50px;
+    right: 50px;
+    height: 80%;
+    width: auto;
+    max-width: 80%;
+
+    .editor-background {      
+      position: relative;
+    }
+
+    opacity: 0.8;
+    &:hover {
+      opacity: 1;
+    }
+
+    .map-layers {
+      -webkit-transition: width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+      -moz-transition:  width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+      -o-transition:  width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out, max-width 0.4s ease-in-out, min-width 0.4s ease-in-out;
+
+      border-left: 3px solid #ccc;
+      border-top: 3px solid #ccc;
+      border-bottom: 3px solid #ccc;
+      border-radius: 3px;
+
+      background: @gray;
+
+      position: absolute;
+      right: 100%;
+      top: -2.5px;
+
+      height: 100%;
+      box-sizing: content-box;
+      padding-bottom: 0px;
+
+      float: left;
+
+    }
+
+    .map-editor {
+      float: right;
+      padding-bottom: 0px;
+      max-width: 100%;
+      display: inline-block;
+    }
+    .style-editor {
+       padding-bottom: 4em;
+       position:absolute;
+       display:block;
+       width: 100%;
+       height: 100%;
+       overflow: hidden;
+    }
+  }
 }

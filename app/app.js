@@ -43,6 +43,11 @@ angular.module('gsApp', [
           });
         }
       }
+      //handle fullscreen mode
+      $scope.$on(AppEvent.ToggleFullscreen, function(e) {
+        $scope.fullscreen = !$scope.fullscreen;
+      });
+
       // On an unauthorized event show a login modal
       $scope.$on(AppEvent.Unauthorized, function(e) {
         loginModal(0);
