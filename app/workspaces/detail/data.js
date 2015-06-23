@@ -49,6 +49,20 @@ angular.module('gsApp.workspaces.data', [
         workspace = $stateParams.workspace;
       }
 
+      $scope.opts = {
+        paging: {
+          pageSize: 25,
+          currentPage: 1
+        },
+        sort: {
+          predicate: 'name',
+          order: 'asc'
+        },
+        filter: {
+          filterText: ''
+        }
+      };
+
       // Set stores list to window height
       $scope.storesListHeight = {'height': $window.innerHeight-250};
 
@@ -57,21 +71,6 @@ angular.module('gsApp.workspaces.data', [
           $scope.$parent.tabs[2].active = true;
         }
       }, 300);
-
-      $scope.getDataStores = function(workspace) {
-        return storesListModel.fetchStores($scope.workspace).then(
-          function() {
-            $scope.datastores = storesListModel.getStores();
-            if ($scope.datastores && $scope.datastores.length > 0) {
-              $scope.datastores.reverse();  // sorts by last added
-              $scope.selectStore($scope.datastores[0]);
-            }
-          });
-      };
-      $scope.dataLoading=true;
-      $scope.getDataStores($scope.workspace).then(function() {
-        $scope.dataLoading=false;
-      });
 
       $scope.storesHome = function() {
         if (!$state.is('workspace.data.main')) {
@@ -104,6 +103,47 @@ angular.module('gsApp.workspaces.data', [
             }
           });
       };
+
+      $scope.sortBy = function(pred) {
+        var sort = $scope.opts.sort;
+        if (pred === sort.predicate) { // flip order if selected same
+          sort.order = sort.order === 'asc' ? 'desc' : 'asc';
+        } else { // default to 'asc' order when switching
+          sort.predicate = pred;
+          sort.order = 'asc';
+        }
+      };
+
+      $scope.serverRefresh = function() {
+        var opts = $scope.opts;
+        return storesListModel.fetchStores(
+          $scope.workspace,
+          opts.paging.currentPage,
+          opts.paging.pageSize,
+          opts.sort.predicate + ':' + opts.sort.order,
+          opts.filter.filterText
+        ).then(function() {
+          $scope.datastores = storesListModel.getStores();
+          $scope.totalItems = storesListModel.getTotalServerItems();
+          //TODO: Handle selected store
+        });
+      };
+
+      $scope.dataLoading=true;
+      $scope.serverRefresh().then(function() {
+        $scope.dataLoading=false;
+        if ($scope.datastores && $scope.datastores.length > 0) {
+          $scope.selectStore($scope.datastores[0]);
+        }
+      });
+
+      $scope.$watch('opts', function(newVal, oldVal) {
+        if (newVal != null && newVal !== oldVal) {
+          $scope.serverRefresh();
+        }
+      }, true);
+
+
 
       // for some reason modal below's being called twice without this lock
       $rootScope.importInitiated = false;
@@ -335,6 +375,11 @@ angular.module('gsApp.workspaces.data', [
 .service('storesListModel', function(GeoServer, _, $rootScope) {
   var _this = this;
   this.stores = null;
+  this.totalServerItems = 0;
+
+  this.getTotalServerItems = function() {
+    return _this.totalServerItems;
+  };
 
   this.getStores = function() {
     return _this.stores;
@@ -379,12 +424,16 @@ angular.module('gsApp.workspaces.data', [
     return stores;
   };
 
-  this.fetchStores = function(workspace) {
-    return GeoServer.datastores.get(workspace).then(
+  this.fetchStores = function(workspace, currentPage, pageSize, sort, filterText) {
+    if (currentPage) {
+      currentPage = currentPage - 1;
+    }
+    return GeoServer.datastores.get(workspace, currentPage, pageSize, sort, filterText).then(
       function(result) {
         if (result.success) {
-          var stores = result.data;
+          var stores = result.data.stores;
           // tag for display
+          _this.totalServerItems = result.data.total;
           _this.setStores(_this.tagStores(stores));
         } else {
           $rootScope.alerts = [{

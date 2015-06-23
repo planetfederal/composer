@@ -3,11 +3,23 @@
     <div class="col-sm-12">
       <div class="data-count-sort">
         <div class="data-count">
-          <strong>{{ datastores.length }} Data Store<span ng-if="datastores.length==0 || datastores.length>1">s</span></strong> in current project.
+          <strong>{{ totalItems }} Data Store<span ng-if="datastores.length==0 || datastores.length>1">s</span></strong> in current project.
         </div>
         <div class="pull-right">
+          <div class="sort-by">
+            <span class="sort-label">Sort by:</span>
+            <span class="dropdown" on-toggle="toggled(open)" dropdown>
+              <a href class="dropdown-toggle" dropdown-toggle>
+              {{ opts.sort.predicate | firstCaps }} <i class="fa fa-caret-down"></i>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="sort-options" ng-click="sortBy('name')">Name</a></li>
+                <li><a class="sort-options" ng-click="sortBy('type')">Type</a></li>
+              </ul>
+            </span>
+          </div>
           <div class="filter-box">
-            <input type="text" class="form-control input-sm grid-filter" ng-model="filterText" placeholder="Filter data stores by..." size="30" />
+            <input type="text" class="form-control input-sm grid-filter" ng-model="opts.filter.filterText" placeholder="Filter data stores by..." size="30" />
             <i class="fa fa-search"></i>
           </div>
         </div>
@@ -17,13 +29,16 @@
   <div class="row datastores">
     <div class="col-sm-6">
       <ul class="list-unstyled stores-list" ng-show="datastores && datastores.length > 0" ng-style="storesListHeight">
-        <li class="store-row" ng-repeat="ds in $parent.datastores | filter:filterText" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
+        <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
           <div class="icon-column" ng-click="getTypeDetails(ds);">
             <h3 class="datastore-icons"><i ng-class="{'icon-file-4': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'icon-image-2': ds.sourcetype=='raster'}"></i></h3>
             <p class="datastore-label">{{ ds.sourcetype }}</p>
           </div>
           <div class="info-column">
             <p><strong>{{ ds.name }}</strong></p>
+            <div title="{{ ds.source }}" class="source-info" collapse="ds.name!=selectedStore.name">
+              <strong>Location:</strong><span>{{ ds.source }}</span>
+            </div>
             <p>
               <div class="btn-group toggle-group">
                 <label class="btn btn-xs" ng-class="{'btn-success': ds.enabled, 'btn-default': !ds.enabled}" ng-click="enableDisableStore(ds)" ng-model="ds.enabled">Enabled</label>
@@ -41,22 +56,23 @@
           Loading Data ...
         <div class="hint">If data does not load after a short time, verify GeoServer is running.</div>
       </div>
+      <div class="data-paging">
+        <pagination total-items="totalItems" items-per-page="opts.paging.pageSize" max-size="10" boundary-links="true" rotate="false" ng-class="{'remove-boundaries': !totalItems || totalItems < (opts.paging.pageSize*10)}" ng-model="opts.paging.currentPage" class="pagination-sm" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;"></pagination>
+        <a id="bottom"></a>
+      </div>
     </div>
     <div class="col-sm-6">
       <div>
-        <div>
-          <div ng-show="selectedStore && !selectedStore.enabled">Source is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
-        </div>
-        <div class="info source-loc" pop="{{selectedStore.source}}" pop-show="{{ selectedStore.showSourcePopover }}" pop-placement="left" ng-click="closePopovers(selectedStore);" pop-title="Store: {{selectedStore.name}}"><strong>Location:</strong><span class="source-info"> {{ selectedStore.source | truncate:false:35:true }}</span></div>
         <div class="resources">
           <div class="resources-header">
-            <span class="resources-name">Data Sets in {{ selectedStore.name }}</span>
+            <span class="resources-name">{{ selectedStore.resources.length }} Data Set<span ng-if="!selectedStore.enabled || selectedStore.resources.length==0 || selectedStore.resources.length>1">s</span> in {{ selectedStore.name }}</span>
             <small class="sort-by">
               Sort by
               <a class="sort-options" ng-click="predicate='name'; reverse=!reverse;">Name</a> |
               <a class="sort-options" ng-click="predicate='layers.length'; reverse=!reverse;">Published</a>
             </small>
           </div>
+          <div class="store-disabled" ng-show="selectedStore && !selectedStore.enabled">Source is disabled. <a ng-click="enableDisableStore(selectedStore)">Enable</a> to view resources.</div>
           <ul class="list-unstyled">
             <li class="singleResource" ng-repeat="rsrc in selectedStore.resources | orderBy:predicate:reverse">
               <div>

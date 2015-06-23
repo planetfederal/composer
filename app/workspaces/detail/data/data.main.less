@@ -11,35 +11,76 @@
     padding: 8px 12px;
     display: inline-block;
     margin-bottom: 10px;
+
+    .sort-by {
+      width: 140px;
+      padding-right: 5px;
+      text-align: right;
+      font-size: 11px;
+      display: inline-block;
+      color: @text-lt-gray;
+      vertical-align: middle;
+
+      .sort-label {
+        margin-right: 10px;
+        float: left;
+      }
+      .dropdown {
+        float: left;
+      }
+      a {
+        color: @dark-gray;
+        font-weight: bold;
+        i {
+          padding-left: 5px;
+        }
+      }
+      li a {
+        font-weight: normal;
+      }
+
+      .dropdown-menu {
+        font-size: 11px;
+        .box-shadow(0 2px 3px @gray);
+      }
+    }
+
+    .filter-box {
+      border-left: 1px solid @very-lt-bl-gray;
+      padding-left: 10px;
+      font-size: 11px;
+      margin-left: 3px;
+      display: inline-block;
+      vertical-align: middle;
+
+      input {
+        font-size: 11px;
+        color: @text-lt-gray;
+        border: 0;
+        box-shadow: none;
+        width: 150px;
+        height: 20px;
+        padding: 3px 5px;
+      }
+      i {
+        color: @dark-gray;
+      }
+    }
   }
   .data-count {
     display: inline-block;
     padding-left: 10px;
   }
 
-  .filter-box {
-    border-left: 1px solid @very-lt-bl-gray;
-    padding-left: 10px;
-    font-size: 11px;
-    margin-left: 3px;
-    display: inline-block;
-    vertical-align: middle;
-
-    input {
-      font-size: 11px;
-      color: @text-lt-gray;
-      border: 0;
-      box-shadow: none;
-      width: 150px;
-      height: 20px;
-      padding: 3px 5px;
-    }
-    i {
-      color: @dark-gray;
-    }
-  }
-
   .datastores {
+    .stores-list {
+      .source-info {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+
     .resources {
       background-color: @almost-white;
       clear:both;
@@ -74,6 +115,12 @@
         .sort-options {
           color: @skyblue;
         }
+      }
+
+      .store-disabled {
+        text-align: center;
+        margin: 5px;
+        color: @gray;
       }
 
       li.singleResource {
@@ -153,6 +200,16 @@
         height: 70%;
       }
     }
+  }
+}
+.data-paging {
+  float: right;
+
+  .remove-boundaries.pagination>li:last-child>a, 
+  .remove-boundaries.pagination>li:last-child>span,
+  .remove-boundaries.pagination>li:first-child>a, 
+  .remove-boundaries.pagination>li:first-child>span {
+    display: none;
   }
 }
 
