@@ -427,8 +427,8 @@ angular.module('gsApp.maps.compose', [
           if (map.new.proj != map.original.proj) {
             $scope.mapOpts.proj = map.new.proj;
           }
-          if (map.new.bounds!= map.original.bounds) {
-            $scope.mapOpts.bounds = map.new.bounds;
+          if (map.new.bbox != map.original.bbox) {
+            $scope.mapOpts.bbox = map.new.bbox;
           }
         }
       }); 

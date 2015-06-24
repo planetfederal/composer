@@ -273,6 +273,33 @@ angular.module('gsApp.olmap', [])
           $timeout(function() {self.olMap.updateSize});
         });
 
+        if (typeof(Storage) !== "undefined") {
+          var savedExtent = null;
+
+          //map
+          if (mapOpts.name) {
+            savedExtent = JSON.parse("[" + localStorage.getItem("bounds.maps."
+              +mapOpts.workspace+"."+mapOpts.name) + "]");
+          //layer
+          } else {
+            savedExtent = JSON.parse("[" + localStorage.getItem("bounds.layers."
+              +mapOpts.workspace+"."+mapOpts.layers[0].name) + "]");
+          }
+          if (savedExtent && !isNaN(savedExtent[0]) && !isNaN(savedExtent[1]) &&
+                  !isNaN(savedExtent[2]) && !isNaN(savedExtent[3])) {
+            map.getView().fitExtent(savedExtent, map.getSize());
+          }
+          map.on('moveend', function(evt) {
+            var map = evt.map;
+            var extent = map.getView().calculateExtent(map.getSize());
+            if (mapOpts.name) {
+              localStorage.setItem("bounds.maps."+mapOpts.workspace+"."+mapOpts.name, extent);
+            } else {
+              localStorage.setItem("bounds.layers."+mapOpts.workspace+"."+mapOpts.layers[0].name, extent);
+            }
+          });
+        }
+
         if (mapOpts.featureInfo) {
           map.on('singleclick', function(evt) {
             if (mapOpts.activeLayer) {
@@ -541,7 +568,16 @@ angular.module('gsApp.olmap', [])
           }, true);
 
           $scope.$watch('mapOpts.proj', function(newVal, oldVal) {
-            if (newVal && newVal != oldVal) {
+            if (newVal && oldVal && newVal != oldVal) {
+              
+              //Reset any stored extent
+              if (typeof(Storage) !== "undefined") {
+                if ($scope.mapOpts.name) {
+                  localStorage.setItem("bounds.maps."+$scope.mapOpts.workspace+"."+$scope.mapOpts.name, null);
+                } else {
+                  localStorage.setItem("bounds.layers."+$scope.mapOpts.workspace+"."+$scope.mapOpts.layers[0].name, null);
+                }
+              }
               //Need to re-create the map if the projection changes
               //Delete the current map element, else new one will be appended offscreen
               $scope.map.olMap.getViewport().remove();
