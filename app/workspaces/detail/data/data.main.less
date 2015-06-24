@@ -82,12 +82,16 @@
     }
 
     .resources {
+      margin-top: 5px;
+      margin-bottom: 10px;
       background-color: @almost-white;
-      clear:both;
-      min-height: 60%;
-      max-height: 90%;
       border: 1px solid @gray;
-      overflow-y:scroll;
+
+      clear:both;
+
+      display: inline-block;
+      height: auto;
+      width: 100%;
 
       div.resources-header {
         border-bottom: 1px solid @gray;
@@ -100,20 +104,140 @@
         .resources-name {
           position: absolute;
           left: 8px;
-          right: 150px;
+          right: 285px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space:nowrap;
         }
 
         .sort-by {
-          position: absolute;
-          right: 8px;
-          vertical-align: text-bottom;
-          line-height: 18px;
+
+          width: 120px;
+          text-align: right;
+          font-size: 11px;
+          display: inline-block;
+          color: @almost-white;
+          vertical-align: middle;
+
+          .sort-label {
+            margin-right: 10px;
+            float: left;
+          }
+          .dropdown {
+            float: left;
+          }
+          a {
+            color: @skyblue;
+            font-weight: bold;
+            i {
+              padding-left: 5px;
+            }
+          }
+          li a {
+            font-weight: normal;
+          }
+
+          .dropdown-menu {
+            font-size: 11px;
+            .box-shadow(0 2px 3px @gray);
+          }
         }
-        .sort-options {
-          color: @skyblue;
+
+        .filter-box {
+          border-left: 1px solid @almost-white;
+
+          margin-left: 5px;
+          padding-left: 5px;
+          font-size: 11px;
+          display: inline-block;
+          vertical-align: middle;
+
+          input {
+            font-size: 11px;
+            color: @almost-white;
+            background-color: @gray;
+            border: 0;
+            box-shadow: none;
+            width: 120px;
+            padding: 0px 10px;
+            height: 20px;
+          }
+          ::-webkit-input-placeholder {
+            color: @light-gray;
+          }
+          :-moz-placeholder {
+            color: @light-gray;
+          }
+          ::-moz-placeholder {
+             color: @light-gray;
+          }
+          :-ms-input-placeholder {
+             color: @light-gray;
+          }
+
+          i {
+            color: @almost-white;
+          }
+        }
+      }
+
+      .resources-content {
+        //height: 100%;
+        padding-bottom: 25px;
+
+        ul {
+          margin-bottom: 0px;
+          display: inline-block;
+          width: 100%
+          //box-model: content-box;
+          //height: 100%;
+          //overflow-y:scroll;
+        }
+      }
+
+      .resources-paging {
+        background-color: @gray;
+        height: 26px;
+
+        position: absolute;
+        bottom: 10px;
+        left: 15px;
+        right: 15px;
+
+        .pagination {
+          margin: 0px;
+          float: right;
+
+          li>a {
+            padding: 4px 6px;
+            line-height: 18px;
+            border: none;
+            border-radius: 0px;
+            background-color: @gray;
+            color: @skyblue;
+          }
+
+          li>a:hover {
+            text-decoration: underline;
+          }
+          li.active>a:hover, li.disabled>a:hover {
+            text-decoration: none;
+          }
+
+          li.active>a {
+            color: @almost-white;
+            font-weight: bold;
+          }
+          li.disabled>a {
+            color: @almost-white;
+          }
+        }
+
+        .remove-boundaries.pagination>li:last-child>a, 
+        .remove-boundaries.pagination>li:last-child>span,
+        .remove-boundaries.pagination>li:first-child>a, 
+        .remove-boundaries.pagination>li:first-child>span {
+          display: none;
         }
       }
 
@@ -121,6 +245,12 @@
         text-align: center;
         margin: 5px;
         color: @gray;
+      }
+      .data-loading {
+        font-size: 1em;
+        text-align: center;
+        padding-top: 0px;
+        margin: 5px;
       }
 
       li.singleResource {
@@ -192,12 +322,6 @@
             }
           }
         }
-      }
-    }
-
-    @-moz-document url-prefix() {
-      .resources {
-        height: 70%;
       }
     }
   }

@@ -197,26 +197,7 @@ angular.module('gsApp.core.backend',[])
           getResource: function(workspace, store, resource) {
             return http({
               method: 'GET',
-              url: apiRoot+'/stores/resources/'+workspace+'/'+store+'/'+resource
-            });
-          },
-          getResources: function(workspace, store, page, count, sort, filter) {
-            if (workspace) {
-              if (workspace.name) {
-                workspace = workspace.name;
-              }
-            } else {
-              workspace = 'default';
-            }
-            page = page? page : 0;
-            count = count? count : 25;
-            sort = sort? '&sort='+sort : '';
-            filter = filter? '&filter='+filter.replace(/#/g, '%23') : '';
-
-            return http({
-              method: 'GET',
-              url: apiRoot+'/stores/resources/'+workspace+'/'+store+'?page='+page+
-                '&count='+count + sort + filter
+              url: apiRoot+'/stores/'+workspace+'/'+store+'/'+resource
             });
           },
           getAttributes: function(workspace, store, resource, count) {

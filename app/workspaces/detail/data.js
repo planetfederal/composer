@@ -38,9 +38,9 @@ angular.module('gsApp.workspaces.data', [
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
   '$stateParams', '$modal', '$window', '$log', 'GeoServer', '_',
-  'AppEvent', '$timeout', 'storesListModel',
+  'AppEvent', '$timeout', 'storesListModel', 'resourcesListModel',
     function($scope, $rootScope, $state, $stateParams, $modal, $log,
-      $window, GeoServer, _, AppEvent, $timeout, storesListModel) {
+      $window, GeoServer, _, AppEvent, $timeout, storesListModel, resourcesListModel) {
 
       var workspace;
       if ($scope.workspace) {
@@ -51,7 +51,21 @@ angular.module('gsApp.workspaces.data', [
 
       $scope.opts = {
         paging: {
-          pageSize: 25,
+          pageSize: 10,
+          currentPage: 1
+        },
+        sort: {
+          predicate: 'name',
+          order: 'asc'
+        },
+        filter: {
+          filterText: ''
+        },
+      };
+
+      $scope.resourceOpts = {
+        paging: {
+          pageSize: 10,
           currentPage: 1
         },
         sort: {
@@ -61,7 +75,7 @@ angular.module('gsApp.workspaces.data', [
         filter: {
           filterText: ''
         }
-      };
+      }
 
       // Set stores list to window height
       $scope.storesListHeight = {'height': $window.innerHeight-250};
@@ -87,11 +101,20 @@ angular.module('gsApp.workspaces.data', [
           return;
         }
         $scope.selectedStore = store;
+        $scope.pagedResources = null;
 
         GeoServer.datastores.getDetails($scope.workspace, store.name).then(
           function(result) {
             if (result.success) {
               var storeData = result.data;
+              resourcesListModel.setResources(result.data.resources);
+              var opts = $scope.resourceOpts;
+              $scope.pagedResources = resourcesListModel.getResourcesPage(
+                opts.paging.currentPage, 
+                opts.paging.pageSize, 
+                opts.sort.predicate +':'+opts.sort.order, 
+                opts.filter.filterText);
+              $scope.totalResources = resourcesListModel.getTotalServerItems();
               $scope.selectedStore = storeData;
             } else {
               $rootScope.alerts = [{
@@ -104,8 +127,7 @@ angular.module('gsApp.workspaces.data', [
           });
       };
 
-      $scope.sortBy = function(pred) {
-        var sort = $scope.opts.sort;
+      $scope.sortBy = function(sort, pred) {
         if (pred === sort.predicate) { // flip order if selected same
           sort.order = sort.order === 'asc' ? 'desc' : 'asc';
         } else { // default to 'asc' order when switching
@@ -124,8 +146,16 @@ angular.module('gsApp.workspaces.data', [
           opts.filter.filterText
         ).then(function() {
           $scope.datastores = storesListModel.getStores();
-          $scope.totalItems = storesListModel.getTotalServerItems();
-          //TODO: Handle selected store
+          $scope.totalStores = storesListModel.getTotalServerItems();
+          //refresh selected store
+          if ($scope.selectedStore && $scope.selectedStore.enabled) {
+            $scope.selectedStore = null;
+            $scope.selectStore(info.updated);
+          } else {
+            resourcesListModel.setResources(null);
+            $scope.pagedResources = null;
+            $scope.totalResources = null;
+          }
         });
       };
 
@@ -140,6 +170,18 @@ angular.module('gsApp.workspaces.data', [
       $scope.$watch('opts', function(newVal, oldVal) {
         if (newVal != null && newVal !== oldVal) {
           $scope.serverRefresh();
+        }
+      }, true);
+
+      $scope.$watch('resourceOpts', function(newVal, oldVal) {
+        if (newVal != null && newVal !== oldVal) {
+          var opts = $scope.resourceOpts;
+          $scope.pagedResources = resourcesListModel.getResourcesPage(
+            opts.paging.currentPage, 
+            opts.paging.pageSize, 
+            opts.sort.predicate +':'+opts.sort.order, 
+            opts.filter.filterText);
+          $scope.totalResources = resourcesListModel.getTotalServerItems();
         }
       }, true);
 
@@ -182,7 +224,7 @@ angular.module('gsApp.workspaces.data', [
       });
 
       $rootScope.$on(AppEvent.StoreAdded, function(scope, workspace) {
-        $scope.getDataStores(workspace);
+        $scope.serverRefresh();
       });
 
       $rootScope.$on(AppEvent.StoreUpdated, function(scope, info) {
@@ -191,6 +233,14 @@ angular.module('gsApp.workspaces.data', [
             $scope.datastores[i] = info.updated;
             if ($scope.selectedStore.name = info.original.name) {
               $scope.selectedStore = info.updated;
+              if ($scope.selectedStore.enabled) {
+                $scope.selectedStore = null;
+                $scope.selectStore(info.updated);
+              } else {
+                resourcesListModel.setResources(null);
+                $scope.pagedResources = null;
+                $scope.totalResources = null;
+              }
             }
             break;
           }
@@ -464,4 +514,84 @@ angular.module('gsApp.workspaces.data', [
         }
       });
   };
+}).service('resourcesListModel', function( _, $rootScope) {
+  var _this = this;
+  this.resources = null;
+  this.totalServerItems = 0;
+
+  this.currentPage = null;
+  this.pageSize = null;
+  this.sort = null;
+  this.filterText = null;
+  this.filteredResources = null;
+
+  this.getTotalServerItems = function() {
+    return _this.totalServerItems;
+  };
+
+  this.getResources = function() {
+    return _this.resources;
+  };
+
+  this.setResources = function(resources) {
+    _this.resources = resources;
+    _this.filteredResources = null;
+    if (resources) {
+      _this.totalServerItems = resources.length;
+    } else {
+      _this.totalServerItems = null;
+    }
+
+  };
+
+  this.getResourcesPage = function(currentPage, pageSize, sort, filterText) {
+    var changed = false;
+
+    if (_this.resources == null) {
+      return null;
+    }
+
+    if (this.filteredResources == null) {
+      changed = true;
+      this.filteredResources = _this.resources;
+    }
+
+    //filter
+    if (changed || _this.filterText != filterText) {
+      changed = true
+      _this.filterText = filterText
+      _this.filteredResources = _this.resources.filter(function(value) {
+        return value.name.indexOf(filterText) >= 0;
+      });
+      _this.totalServerItems = _this.filteredResources.length;
+    }
+
+    //sort
+    if (changed || _this.sort != sort) {
+      changed = true
+      _this.sort = sort
+      var parsedSort = sort.split(":")
+      reverse = 1;
+
+      if (parsedSort[1] && parsedSort[1] == 'desc') {
+        reverse = -1;
+      }
+
+      _this.filteredResources = _this.filteredResources.sort(function(o1, o2) {
+        if (parsedSort[0] == 'name') {
+          return ((o1.name > o2.name) - (o1.name < o2.name))*reverse;
+        }
+        if (parsedSort[0] == 'published') {
+          return ((o1.layers.length > o2.layers.length) - (o1.layers.length < o2.layers.length))*reverse;
+        }
+        return 0;
+      });
+    }
+
+    //page
+    _this.currentPage = currentPage;
+    _this.pageSize = pageSize;
+
+    return _this.filteredResources.slice((currentPage-1)*pageSize, currentPage*pageSize);
+  }
 });
