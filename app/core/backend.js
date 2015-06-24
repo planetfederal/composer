@@ -149,10 +149,23 @@ angular.module('gsApp.core.backend',[])
         },
 
         datastores: {
-          get: function(workspace) {
+          get: function(workspace, page, count, sort, filter) {
+            if (workspace) {
+              if (workspace.name) {
+                workspace = workspace.name;
+              }
+            } else {
+              workspace = 'default';
+            }
+            page = page? page : 0;
+            count = count? count : 25;
+            sort = sort? '&sort='+sort : '';
+            filter = filter? '&filter='+filter.replace(/#/g, '%23') : '';
+
             return http({
               method: 'GET',
-              url: apiRoot+'/stores/'+workspace
+              url: apiRoot+'/stores/'+workspace+'?page='+page+
+                '&count='+count + sort + filter
             });
           },
           getDetails: function(workspace, store) {
