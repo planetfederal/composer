@@ -101,16 +101,15 @@
   }
 
   function batchUpdate(editor, change) {
-    // If pasted more lines of code than was prior to that in buffer,
-    // change passed in will contain changes upto prior state. There
-    // for take last change from history that should contain all changes.
-    if (change.origin === "paste") {
-      var done = editor.getHistory().done;
-      change = done[done.length - 1].changes[0]
-    }
-
     while (change) {
-      updatePaletteWidgets(editor, change);
+      var chEnd = change.text[change.text.length-1].length;
+      if (change.text.length == 1) {
+        chEnd = chEnd + change.from.ch;
+      }
+      updatePaletteWidgets(editor, {
+        from: change.from,
+        to: {line: change.from.line + change.text.length - 1, ch: chEnd}
+      });
       change = change.next;
     }
   }
