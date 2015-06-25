@@ -118,6 +118,7 @@ angular.module('gsApp.styleditor', [
             lineNumbers: true,
             styleActiveLine: true,
             mode: 'yaml',
+            paletteHints: true,
             foldGutter: true,
             gutters: ['markers', 'CodeMirror-foldgutter'],
             extraKeys: {
