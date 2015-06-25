@@ -51,6 +51,7 @@ var deps = {
     'codemirror/addon/fold/foldgutter.js',
     'codemirror/addon/fold/indent-fold.js',
     '/vendor/codemirror/formatting.js',
+    '/vendor/codemirror/palette.js',
     'spectrum/spectrum.js',
     'angular/angular.js',
     'angular-resource/angular-resource.js',
