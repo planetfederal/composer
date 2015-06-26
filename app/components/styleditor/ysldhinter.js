@@ -3,8 +3,8 @@
  * License: BSD
  */
 angular.module('gsApp.styleditor.ysldhinter', [])
-.factory('YsldHinter', ['$log', 'GeoServer',
-    function($log, GeoServer) {
+.factory('YsldHinter', ['$log', 'YsldColors','GeoServer',
+    function($log, YsldColors, GeoServer) {
       var YsldHinter = function() {
         var self = this;
         //Escape strings in regexes
@@ -600,6 +600,15 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         };
 
         var color = function(state, cm) {
+          //Try text completion
+          if (state.line.val.length > 0) {
+            var hints = buildHints(state, cm, YsldColors.names);
+            if (hints && hints.length > 0) {
+              return hints;
+            }
+          }
+
+          //If no completions, open the color picker
           var selection = cm.getSelection();
           //If nothing is selected, select val
           if (!selection && state.line.val.length > 0) {

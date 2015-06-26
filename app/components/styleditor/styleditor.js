@@ -16,8 +16,8 @@ angular.module('gsApp.styleditor', [
   'gsApp.styleditor.fullscreen'
 ])
 .directive('styleEditor', ['$compile', '$sanitize', '$timeout', '$log',
-    'YsldHinter', '$rootScope', '$sce', '$document',
-    function($compile, $sanitize, $timeout, $log, YsldHinter,
+    'YsldHinter', 'YsldColors', '$rootScope', '$sce', '$document',
+    function($compile, $sanitize, $timeout, $log, YsldHinter, YsldColors,
       $rootScope, $sce, $document) {
       return {
         restrict: 'EA',
@@ -29,6 +29,9 @@ angular.module('gsApp.styleditor', [
         },
         templateUrl: '/components/styleditor/styleditor.tpl.html',
         controller: function($scope, $element) {
+          //Make this available to palette.js (external to angular)
+          window.YsldColors = YsldColors;
+
           $scope.onCodeMirrorLoad = function(editor) {
             $rootScope.editor = editor;
 

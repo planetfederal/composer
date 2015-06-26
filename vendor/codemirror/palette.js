@@ -8,6 +8,8 @@
  *
  * Source:
  * https://github.com/Gozala/CodeMirror/blob/addon/palette/addon/display/palette.js
+ *
+ * Requires utilities.js YsldColors factory on window scope: window.YsldColors = YsldColors
  */
 
 (function() {
@@ -69,14 +71,8 @@
       var text = line.text;
       var match = null;
       var offset = 0;
-      while ((match = text.match(COLOR_PATTERN))) {
-        var color = match[0];
-        for (var i = 1; i < match.length; i++) {
-          if (match[i]) {
-            color = '#'+match[i];
-            break;
-          }
-        }
+      while ((match = text.match(YsldColors.COLOR_PATTERN))) {
+        var color = YsldColors.decode(match[0]);
         var start = text.indexOf(match[0]);
         var index = start + match[0].length;
         var before = text[start - 1];
