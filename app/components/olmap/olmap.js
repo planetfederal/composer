@@ -270,7 +270,12 @@ angular.module('gsApp.olmap', [])
         });
 
         $rootScope.$on(AppEvent.ToggleFullscreen, function() {
-          $timeout(function() {self.olMap.updateSize});
+          if (mapsizeTimer === null) {
+            mapsizeTimer = $timeout(function() {
+              self.olMap.updateSize();
+              mapsizeTimer = null;
+            }, 50);
+          }
         });
 
         if (typeof(Storage) !== "undefined") {

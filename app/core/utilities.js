@@ -169,7 +169,7 @@ angular.module('gsApp.core.utilities', [])
  */
 .directive('resizer', function($document, $window) {
   return function($scope, $element, $attrs) {
-    var screenWidth, sideWidth, panelsWidth, rightMin = 0, leftMin = 0;
+    var screenWidth, sideWidth, panelsWidth, lastMapWidth, lastEditorWidth, rightMin = 0, leftMin = 0;
 
     $element.on('mousedown', function(event) {
       event.preventDefault();
