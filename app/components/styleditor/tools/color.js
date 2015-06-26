@@ -36,7 +36,7 @@ angular.module('gsApp.styleditor.color', [])
               return true;
             },
             change: function(col) {
-              $scope.editor.insertOrReplace("'#"+col.toHex()+"'");
+              $scope.editor.insertOrReplace(("'#"+col.toHex()+"'").toUpperCase());
             }
           });
         }
