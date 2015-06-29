@@ -294,15 +294,18 @@ angular.module('gsApp.olmap', [])
                   !isNaN(savedExtent[2]) && !isNaN(savedExtent[3])) {
             map.getView().fitExtent(savedExtent, map.getSize());
           }
-          map.on('moveend', function(evt) {
-            var map = evt.map;
-            var extent = map.getView().calculateExtent(map.getSize());
-            if (mapOpts.name) {
-              localStorage.setItem("bounds.maps."+mapOpts.workspace+"."+mapOpts.name, extent);
-            } else {
-              localStorage.setItem("bounds.layers."+mapOpts.workspace+"."+mapOpts.layers[0].name, extent);
+          //Fix for SUITE-1031 - wait until the map loads before registering this listener
+          $timeout(function() {
+            map.on('moveend', function(evt) {
+              var map = evt.map;
+              var extent = map.getView().calculateExtent(map.getSize());
+              if (mapOpts.name) {
+                localStorage.setItem("bounds.maps."+mapOpts.workspace+"."+mapOpts.name, extent);
+              } else {
+                localStorage.setItem("bounds.layers."+mapOpts.workspace+"."+mapOpts.layers[0].name, extent);
+              }
             }
-          });
+          )}, 100);
         }
 
         if (mapOpts.featureInfo) {
