@@ -655,15 +655,15 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'abstract':hintText,
           'filter':hintTemplate('${<filter>}'),
           'else':mappingValue,
-          'scale':hintTemplate('(<min>,<max>)'),
-          'zoom':hintTemplate('(<min>,<max>)'),
+          'scale':hintTemplate('[<min>,<max>]'),
+          'zoom':hintTemplate('[<min>,<max>]'),
           'label':completeAttribute,
           'priority':completeAttribute,
           'geometry':completeAttribute,
           'uom':mappingValue,
           'shape':mappingValue,
           'size':hintNumber,
-          'anchor':hintTemplate('(<x>,<y>)'),
+          'anchor':hintTemplate('[<x>,<y>]'),
           'opacity':hintNumber,
           'rotation':hintNumber,
           'fill-color':color,
@@ -676,7 +676,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'stroke-dasharray': hintTemplate('"<length> <gap>"'),
           'stroke-dashoffset': hintNumber,
           'offset': hintNumber,
-          'displacement':hintTemplate('(<x>,<y>)'),
+          'displacement':hintTemplate('[<x>,<y>]'),
           'url':icon,
           'format':mappingValue,
           'font-family':font,
@@ -735,7 +735,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'noDataValue':hintNumber,
           'pixelsPerCell':hintNumber,
           'queryBuffer':hintNumber,
-          'outputBBOX':hintTemplate('(<x1>,<y1>:<x2>,<y2>)'),
+          'outputBBOX':hintTemplate('${<envelope>}'),
           'outputWidth':hintNumber,
           'outputHeight':hintNumber
         };
@@ -923,7 +923,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         });
 
         if (state.parent.line.key == 'entries') {
-           var hint = self.hintTemplate('(<color>, <opacity>, <band_value>, <text_label>)');
+           var hint = self.hintTemplate('[<color>, <opacity>, <band_value>, <text_label>]');
            return hint(state, cm).concat(values);
         }
         return values;
