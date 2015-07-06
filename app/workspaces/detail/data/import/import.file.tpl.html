@@ -6,7 +6,7 @@
     </p>
 
     <button class="btn btn-primary btn-sm" type="button"
-      ng-file-select="onFileSelect($files)">
+      ng-file-select="onFileSelect($files)" data-multiple="true">
       Browse
     </button>
 
@@ -19,16 +19,30 @@
             ng-show="!dropSupported">HTML5 Drop File is not supported</div>
     </p>
   </div>
-  <div class="file-list" ng-show="file != null">
-    <div class="file-name">
+  <div class="file-list" ng-show="files != null && files.length > 0">
+    <div class="file-name" ng-repeat="file in files">
       <h4>{{ file.name }}</h4>
+      <button class="btn btn-default btn-xs" ng-click="onFileRemove(file)"><i class="icon-close"></i></button>
       <span>{{ file.size | bytesize }}</span>
+    </div>
+    <div>
+    <div class="file-space">
+    <table>
+      <tr>
+        <td class="file-space-heading">Space required:</td>
+        <td class="file-space-value">{{ fileSize | bytesize }}</td>
+      </tr>
+      <tr>
+        <td class="file-space-heading">Space available:</td>
+        <td class="file-space-value" ng-class="fileSize >= diskSize ? 'file-space-warning' : ''">{{ diskSize | bytesize }}</td>
+      </tr>
+    </table>
     </div>
     <div class="row">
       <div class="col-sm-6">
         <span>
           <button class="btn btn-primary btn-sm" type="button"
-          ng-click="upload()" ng-disabled="file == null">Upload</button>
+          ng-click="upload()" ng-disabled="files == null  || files.length == 0">Upload</button>
           <button class="btn btn-sm" type="button"
           ng-click="cancel()" ng-disabled="progress.percent == 0">Cancel</button>
         </span>

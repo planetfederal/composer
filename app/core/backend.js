@@ -54,6 +54,12 @@ angular.module('gsApp.core.backend',[])
               data: content
             });
           },
+          wsInfo: function(workspace) {
+            return http({
+              method: 'GET',
+              url: importRoot + workspace
+            });
+          },
           get: function(workspace, id) {
             return http({
               method: 'GET',

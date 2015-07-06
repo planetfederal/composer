@@ -306,9 +306,9 @@ angular.module('gsApp.workspaces.data.import', [
 
     }])
 .controller('DataImportFileCtrl', ['$scope', '$state', '$upload', '$log',
-    'GeoServer', '$stateParams', 'AppEvent', '$rootScope', 'storesListModel',
+    'GeoServer', '$stateParams', 'AppEvent', '$rootScope', 'storesListModel', '_',
     function($scope, $state, $upload, $log, GeoServer, $stateParams,
-      AppEvent, $rootScope, storesListModel) {
+      AppEvent, $rootScope, storesListModel, _) {
 
       var wsName = $stateParams.workspace;
       $scope.existingStores = [];
@@ -322,15 +322,51 @@ angular.module('gsApp.workspaces.data.import', [
       if ($scope.existingStores.length > 0) {
         $scope.chosenImportStore = $scope.existingStores[0];
       }
+      $scope.diskSize = 0;
+      GeoServer.import.wsInfo(wsName).then(function(result) {
+        if (result.success) {
+          $scope.diskSize = result.data.spaceAvailable;
+        }
+      });
 
       $scope.initProgress = function() {
         $scope.progress = {percent: 0};
       };
 
+      $scope.calcFileSize = function(files) {
+        var size = 0;
+        for (var i = 0; i < files.length; i++) {
+          size += files[i].size;
+        }
+        return size;
+      };
+
       $scope.onFileSelect = function(files) {
-        $scope.file = files[0];
+        if (!$scope.files) {
+          $scope.files = [];
+        }
+        //Add unique files
+        files.forEach(function(file) {
+          for (var i = 0; i < $scope.files.length; i++) {
+            if (angular.equals($scope.files[i], file)) {
+              return;
+            }
+          }
+          $scope.files.push(file);
+        });
+        $scope.fileSize = $scope.calcFileSize($scope.files);
+        
         $scope.setImportResult(null);
         $scope.initProgress();
+      };
+
+      $scope.onFileRemove = function(file) {
+        if ($scope.files) {
+          while ($scope.files.indexOf(file) >= 0) {
+            $scope.files.splice($scope.files.indexOf(file), 1);
+          }
+          $scope.fileSize = $scope.calcFileSize($scope.files);
+        }
       };
 
       $scope.upload = function() {
@@ -345,7 +381,7 @@ angular.module('gsApp.workspaces.data.import', [
         $upload.upload({
           url: postURL,
           method: 'POST',
-          file: $scope.file
+          file: $scope.files
         }).progress(function(e) {
           $scope.progress.percent = parseInt(100.0 * e.loaded / e.total);
         }).success(function(e) {
@@ -353,10 +389,17 @@ angular.module('gsApp.workspaces.data.import', [
           $scope.$broadcast(AppEvent.StoreAdded,
             {workspace: $scope.workspace});
         }).then(function(result) {
+          GeoServer.import.wsInfo().then(function(result) {
+            if (result.success) {
+              $scope.diskSize = result.data.spaceAvailable;
+            }
+          });
           if (result.status > 201) {
             $rootScope.alerts = [{
               type: 'danger',
-              message: 'Could not import file: ' + $scope.file.name,
+              message: 'Could not import ' + ($scope.files.length == 1 
+                        ? 'file: ' + $scope.files[0].name
+                        : +$scope.files.length + ' files'),
               fadeout: true
             }];
             $scope.close();
