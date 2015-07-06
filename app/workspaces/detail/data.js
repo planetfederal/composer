@@ -561,7 +561,7 @@ angular.module('gsApp.workspaces.data', [
       changed = true
       _this.filterText = filterText
       _this.filteredResources = _this.resources.filter(function(value) {
-        return value.name.indexOf(filterText) >= 0;
+        return value.name && value.name.indexOf(filterText) >= 0;
       });
       _this.totalServerItems = _this.filteredResources.length;
     }
