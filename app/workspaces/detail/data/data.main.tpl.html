@@ -31,7 +31,7 @@
       <ul class="list-unstyled stores-list" ng-show="datastores && datastores.length > 0" ng-style="storesListHeight">
         <li class="store-row" ng-repeat="ds in datastores" ng-click="selectStore(ds);" ng-class="{'selected': ds.name==selectedStore.name}">
           <div class="icon-column" ng-click="getTypeDetails(ds);">
-            <h3 class="datastore-icons"><i ng-class="{'icon-file-4': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'icon-image-2': ds.sourcetype=='raster'}"></i></h3>
+            <h3 class="datastore-icons"><i ng-class="{'icon-file-4': ds.sourcetype=='shp', 'icon-folder-open': ds.sourcetype=='shp_dir', 'fa fa-database fa-md': ds.sourcetype=='database', 'icon-image-2': ds.sourcetype=='raster', 'icon-earth': ds.sourcetype=='web'}"></i></h3>
             <p class="datastore-label">{{ ds.sourcetype }}</p>
           </div>
           <div class="info-column">

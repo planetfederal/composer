@@ -17,37 +17,54 @@
     </div>
   </div>
   <div ng-if="params" class="db-details">
-    <h3>{{format.description}}</h3>
+    <h3>{{format.title}}</h3>
+    <small>{{format.description}}</small>
     <form>
-      <div class="form-group" ng-if="params.host">
-        <div class="col-sm-10">
-          <label for="host">Host</label>
-          <input ng-model="params.host.value" name="host" type="text" class="form-control" focus-init>
+      <div class="db-format-db" ng-if="format.type.toLowerCase()=='database'">
+        <div class="form-group" ng-if="params.host">
+          <div class="col-sm-10">
+            <label for="host">Host</label>
+            <input ng-model="params.host.value" name="host" type="text" class="form-control" focus-init>
+          </div>
+          <div class="col-sm-2">
+            <label for="port">Port</label>
+            <input ng-model="params.port.value" name="port" type="text" class="form-control">
+          </div>
         </div>
-        <div class="col-sm-2">
-          <label for="port">Port</label>
-          <input ng-model="params.port.value" name="port" type="text" class="form-control">
+        <div class="form-group" ng-if="params.database">
+          <div class="col-sm-6">
+            <label for="database">Database</label>
+            <input ng-model="params.database.value" name="database" type="text" class="form-control">
+          </div>
+          <div class="col-sm-6" ng-if="params.schema">
+            <label for="schema">Schema</label>
+            <input ng-model="params.schema.value" name="schema" type="text" class="form-control">
+          </div>
+        </div>
+        <div class="form-group" ng-if="params.user">
+          <div class="col-sm-6">
+            <label for="user">Username</label>
+            <input ng-model="params.user.value" name="user" type="text" class="form-control">
+          </div>
+          <div class="col-sm-6">
+            <label for="passwd">Password</label>
+            <input ng-model="params.passwd.value" name="passwd" type="password" class="form-control">
+          </div>
         </div>
       </div>
-      <div class="form-group" ng-if="params.database">
-        <div class="col-sm-6">
-          <label for="database">Database</label>
-          <input ng-model="params.database.value" name="database" type="text" class="form-control">
+      <div class="db-format-generic" ng-if="format.type && format.type.toLowerCase()!='database'">
+        <div class="col-sm-12" ng-repeat="param in params">
+          <div class="form-group row" ng-if="param.required || param.level=='user'" ng-switch on="param.isPassword? 'password' : param.type.toLowerCase()">
+            <label ng-attr-title="{{param.description ? param.description:''}}" for="{param.title}">
+              {{ param.title }}
+            </label>
+            <span ng-if="param.required" style="color:red">*</span>
+            <input ng-switch-when="password" ng-model="param.value" name="{param.title}" class="form-control" type="password">
+            <input ng-switch-when="boolean" ng-model="param.value" name="{param.title}" class="form-control" type="checkbox" checked="{!!param.default}">
+            <input ng-switch-default ng-model="param.value" name="{param.title}" class="form-control" type="text" value="{param.default}">
+          </div>
         </div>
-        <div class="col-sm-6" ng-if="params.schema">
-          <label for="schema">Schema</label>
-          <input ng-model="params.schema.value" name="schema" type="text" class="form-control">
-        </div>
-      </div>
-      <div class="form-group" ng-if="params.user">
-        <div class="col-sm-6">
-          <label for="user">Username</label>
-          <input ng-model="params.user.value" name="user" type="text" class="form-control">
-        </div>
-        <div class="col-sm-6">
-          <label for="passwd">Password</label>
-          <input ng-model="params.passwd.value" name="passwd" type="password" class="form-control">
-        </div>
+        <div class="hint-required col-sm-12"><span style="color:red">*</span> Required</div>
       </div>
       <div class="form-group row">
         <div class="col-sm-12 text-center" style="margin-top: 20px;">

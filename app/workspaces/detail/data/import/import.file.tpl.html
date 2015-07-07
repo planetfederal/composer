@@ -1,11 +1,14 @@
 <div class="data-import-file">
   <div class="text-center">
     <p class="lead">
-      Upload one or more spatial files or .zip files<br/>containing any number of spatial files.
+      Upload one or more spatial files or .zip files<br/>containing any number of spatial files. 
+      <span popover-html-unsafe="{{fileTooltip}}" popover-trigger="click" popover-placement="bottom">
+        <i class="fa fa-info-circle"></i>
+      </span>
       <small>When uploading .shp files, remember to include .prj, .dbx, and .shx files.</small>
     </p>
 
-    <button class="btn btn-primary btn-sm" type="button"
+    <button class="btn btn-primary btn-sm browse-button" type="button"
       ng-file-select="onFileSelect($files)" data-multiple="true">
       Browse
     </button>
