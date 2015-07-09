@@ -315,7 +315,7 @@ angular.module('gsApp.workspaces.data.import', [
 
       storesListModel.getStores().forEach(function (store) {
         if (store.sourcetype == 'database' ||
-          store.sourcetype == 'shp_dir') {
+            store.sourcetype == 'shp_dir') {
           $scope.existingStores.push(store);
         }
       });
@@ -408,6 +408,24 @@ angular.module('gsApp.workspaces.data.import', [
       };
       $scope.initProgress();
 
+      GeoServer.formats.get().then(function(result) {
+        var fileTooltip = 
+          "<div class='data-import-file-tooltip'>" +
+          "<h5>Spatial Files</h5>" +
+          "<p>Supported file types:</p>";
+
+        if (result.success) {
+          result.data.forEach(function(f) {
+            if (f.type == 'file') {
+              fileTooltip += "<div class='file-type'><div><strong>"+f.title+"</strong></div>" +
+                                    "<div>"+f.description+"</div></div>"
+            }
+          });
+        }
+        fileTooltip += "</div>";
+        $scope.fileTooltip = fileTooltip;
+      });
+
     }])
 .controller('DataImportDbCtrl', ['$scope', '$state', '$stateParams', '$log',
     'GeoServer', '_', '$sce',
@@ -468,7 +486,7 @@ angular.module('gsApp.workspaces.data.import', [
       GeoServer.formats.get().then(function(result) {
         if (result.success) {
           $scope.formats = result.data.filter(function(f) {
-            return f.type == 'database';
+            return f.type == 'database' || f.type == 'generic';
           });
         }
       });
