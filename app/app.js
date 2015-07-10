@@ -72,7 +72,7 @@ angular.module('gsApp', [
               //Whenever we change states, pre-emptively check if we are logged in. If not, go to the login page.
               $scope.stateChange = true;
               //If this is not a login redirect, save curr/prev states
-              if (to.url.indexOf('/login') == -1) {
+              if (to.url && to.url.indexOf('/login') == -1) {
                 $scope.state.curr = {name: to, params: toParams};
                 $scope.state.prev = {name: from, params: fromParams};
               }
@@ -101,7 +101,7 @@ angular.module('gsApp', [
                 }
                 if (result.success) {
                   //not logged in, not on the login page, not in a modal window - redirect to login
-                  if (!result.data.user && to.url.indexOf('/login') == -1) {
+                  if (!result.data.user && to.url && to.url.indexOf('/login') == -1) {
                     $state.go('login').then(function() {$scope.stateChange = false;});
                   } else {
                     //Update timout

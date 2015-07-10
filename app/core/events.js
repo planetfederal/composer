@@ -7,9 +7,33 @@
 angular.module('gsApp.core.event', [])
 .constant('AppEvent', {
   /**
-   * Fired when app makes un-authorized request to backend
+   * Fire when basemap added
    */
-  Unauthorized: 'app-auth-unauthorized',
+  BaseMapChanged: 'basemap-changed',
+  /**
+   * Fired when a new map is requested
+   */
+  CreateNewMap: 'create-new-map',
+  /**
+   * Fired when a new workspace is requested
+   */
+  CreateNewWorkspace: 'create-new-workspace',
+  /**
+   * Fire when map background color change is requested
+   */
+  EditorBackground: 'editor-background',
+  /**
+   * Fired when data import is requested
+   */
+  ImportData: 'import-data',
+  /**
+   * Fire when a new layer is added
+   */
+  LayerAdded: 'layers-added',
+  /**
+   * Fire when layers list in a workspace is updated
+   */
+  LayersAllUpdated: 'layers-all-updated',
   /**
    * Fired when user successfully logs in.
    */
@@ -18,7 +42,35 @@ angular.module('gsApp.core.event', [])
    * Fired on logout.
    */
   Logout: 'app-logout',
-   /**
+  /**
+   * Fired when a map is added
+   */
+  MapAdded: 'map-added',
+  /**
+   * Fired when all maps are updated
+   */
+  MapsAllUpdated: 'maps-all-updated',
+  /**
+   * Fired when a map controls hide/show requested
+   */
+  MapControls: 'map-controls',
+  /**
+   * Fired when a map is edited
+   */
+  MapEdited: 'map-edited',
+  /**
+   * Fired when map render timeout updated
+   */
+  MapRenderTimeoutUpdated: 'map-rendertimeout-updated',
+  /**
+   * Fired when a single map's settings are updated
+   */
+  MapSettingsUpdated: 'map-settings-updated',
+  /**
+   * Fire when custom projection is set
+   */
+  ProjSet: 'projection-set',
+  /**
    * Fired when GeoServer is not responding.
    */
   ServerError: 'server-error',
@@ -27,33 +79,25 @@ angular.module('gsApp.core.event', [])
    */
   SidenavResized: 'app-sidenav-resized',
   /**
-   * Fired when sidenav resize is requested.
+   * Fired when a new store is added
    */
-  ToggleSidenav: 'toggle-sidenav',
+  StoreAdded: 'store-added',
+  /**
+   * Fired when an existing store is modified
+   */
+  StoreUpdated: 'store-updated',
   /**
    * Fired when fullscreen is toggled
    */
   ToggleFullscreen: 'toggle-fullscreen',
-    /**
-   * Fired when a workspaces are fetched.
-   */
-  WorkspacesFetched: 'workspaces-fetched',
   /**
-   * Fired when a workspace is selected.
+   * Fired when sidenav resize is requested.
    */
-  WorkspaceSelected: 'workspaces-selected',
+  ToggleSidenav: 'toggle-sidenav',
   /**
-   * Fired when a workspace name is changed.
+   * Fired when app makes un-authorized request to backend
    */
-  WorkspaceNameChanged: 'workspace-name-changed',
-  /**
-   * Fired when a new workspace is requested
-   */
-  CreateNewWorkspace: 'create-new-workspace',
-  /**
-   * Fired when a new workspace is created
-   */
-  WorkspaceTab: 'workspace-tab',
+  Unauthorized: 'app-auth-unauthorized',
   /**
    * Fired when a workspace tab is requested
    */
@@ -63,55 +107,22 @@ angular.module('gsApp.core.event', [])
    */
   WorkspaceDeleted: 'workspace-deleted',
   /**
-   * Fired when a new map is requested
+   * Fired when a workspaces are fetched.
    */
-  CreateNewMap: 'create-new-map',
+  WorkspacesFetched: 'workspaces-fetched',
   /**
-   * Fired when data import is requested
+   * Fired when a workspace name is changed.
    */
-  ImportData: 'import-data',
+  WorkspaceNameChanged: 'workspace-name-changed',
   /**
-   * Fired when a single map's settings are updated
+   * Fired when a workspace is selected.
    */
-  MapSettingsUpdated: 'map-settings-updated',
+  WorkspaceSelected: 'workspaces-selected',
+
   /**
-   * Fired when map render timeout updated
+   * Fired when a new workspace is created
    */
-  MapRenderTimeoutUpdated: 'map-rendertimeout-updated',
-  /**
-   * Fired when a map is edited
-   */
-  MapEdited: 'map-edited',
-  /**
-   * Fired when a map controls hide/show requested
-   */
-  MapControls: 'map-controls',
-  /**
-   * Fired when all maps are updated
-   */
-  MapsAllUpdated: 'maps-all-updated',
-  /**
-   * Fired when a map is added
-   */
-  MapAdded: 'map-added',
-  /**
-   * Fire when layers list in a workspace is updated
-   */
-  LayersAllUpdated: 'layers-all-updated',
-   /**
-   * Fire when a new layer is added
-   */
-  LayerAdded: 'layers-added',
-  /**
-   * Fire when custom projection is set
-   */
-  ProjSet: 'projection-set',
- /**
-   * Fire when map background color change is requested
-   */
-  EditorBackground: 'editor-background',
-   /**
-   * Fire when basemap added
-   */
-  BaseMapChanged: 'basemap-changed'
+  WorkspaceTab: 'workspace-tab'
+
+   
 });

@@ -149,8 +149,9 @@ angular.module('gsApp.workspaces.data', [
           $scope.totalStores = storesListModel.getTotalServerItems();
           //refresh selected store
           if ($scope.selectedStore && $scope.selectedStore.enabled) {
+            var store = $scope.selectedStore;
             $scope.selectedStore = null;
-            $scope.selectStore(info.updated);
+            $scope.selectStore(store);
           } else {
             resourcesListModel.setResources(null);
             $scope.pagedResources = null;
