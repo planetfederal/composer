@@ -573,7 +573,7 @@ angular.module('gsApp.workspaces.data', [
       changed = true
       _this.sort = sort
       var parsedSort = sort.split(":")
-      reverse = 1;
+      var reverse = 1;
 
       if (parsedSort[1] && parsedSort[1] == 'desc') {
         reverse = -1;
