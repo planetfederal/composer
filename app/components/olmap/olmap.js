@@ -25,8 +25,8 @@ angular.module('gsApp.olmap', [])
           source: new ol.source.ImageWMS({
             url: GeoServer.baseUrl()+'/'+mapOpts.workspace+'/wms',
             params: {'LAYERS': layerNames, 'VERSION': '1.1.1',
-                'EXCEPTIONS': 'application/json',
-                'FORMAT': 'composer'
+                'EXCEPTIONS': 'application/vnd.gs.wms_partial',
+                'FORMAT': 'image/png'
             },
             serverType: 'geoserver',
             imageLoadFunction: function(image, src) {
@@ -76,10 +76,28 @@ angular.module('gsApp.olmap', [])
                     var data = binaryString.join('');
                     var type = xhr.getResponseHeader('content-type');
                     if (type.indexOf('image') === 0) {
+                      //Image or partial image
                       img.src = 'data:' + type + ';base64,' +
                           window.btoa(data);
                     } else {
-                      error($.parseJSON(data));
+                      //XML exception; parse out text data
+                      var xml = $.parseXML(data);
+                      var err = {exceptions:[]};
+
+                      var parseXMLErr = function(element) {
+                        for (var i = 0; i < element.childNodes.length; i++) {
+                          var child = element.childNodes[i];
+                          if (child.nodeName == "#text") {
+                            if (child.data.trim() != "") {
+                              err.exceptions.push({text:child.data});
+                            }
+                          } else {
+                            parseXMLErr(child);
+                          }
+                        }
+                      };
+                      parseXMLErr(xml);
+                      error(err);
                     }
                   } else {
                     error(this.statusText);
