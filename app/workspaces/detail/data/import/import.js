@@ -313,15 +313,22 @@ angular.module('gsApp.workspaces.data.import', [
       var wsName = $stateParams.workspace;
       $scope.existingStores = [];
 
-      storesListModel.getStores().forEach(function (store) {
-        if (store.sourcetype == 'database' ||
-            store.sourcetype == 'shp_dir') {
-          $scope.existingStores.push(store);
-        }
-      });
-      if ($scope.existingStores.length > 0) {
-        $scope.chosenImportStore = $scope.existingStores[0];
-      }
+      GeoServer.datastores.get(wsName, 0, null, null, null).then(
+        function(result) {
+          if (result.success) {
+
+            result.data.stores.forEach(function (store) {
+              if (store.type.toLowerCase() === 'database' 
+                || store.type.toLowerCase() === 'generic' 
+                || store.format.indexOf('directory of spatial files')!==-1) {
+
+                $scope.existingStores.push(store);
+              }
+            });
+            if ($scope.existingStores.length > 0) {
+              $scope.chosenImportStore = $scope.existingStores[0];
+            }
+      }});
       $scope.diskSize = 0;
       GeoServer.import.wsInfo(wsName).then(function(result) {
         if (result.success) {
