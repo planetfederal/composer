@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "mapcfg": "boundlessgeo/mapcfg",
-    "openlayers": "^3.4.0"
+    "openlayers": "^3.7.0"
   }
 }

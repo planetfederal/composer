@@ -273,7 +273,7 @@ angular.module('gsApp.olmap', [])
           scaleControl.innerHTML =  '1 : ' + scale;
         });
 
-        map.getView().fitExtent(extent, map.getSize());
+        map.getView().fit(extent, map.getSize());
         this.olMap = map;
 
         // Update map 550 ms after sidebar is resized
@@ -310,7 +310,7 @@ angular.module('gsApp.olmap', [])
           }
           if (savedExtent && !isNaN(savedExtent[0]) && !isNaN(savedExtent[1]) &&
                   !isNaN(savedExtent[2]) && !isNaN(savedExtent[3])) {
-            map.getView().fitExtent(savedExtent, map.getSize());
+            map.getView().fit(savedExtent, map.getSize());
           }
           //Fix for SUITE-1031 - wait until the map loads before registering this listener
           $timeout(function() {
@@ -565,7 +565,7 @@ angular.module('gsApp.olmap', [])
                   'EPSG:4326', map.getView().getProjection());
               if (!isNaN(extent[0]) && !isNaN(extent[1]) &&
                   !isNaN(extent[2]) && !isNaN(extent[3])) {
-                map.getView().fitExtent(extent, map.getSize());
+                map.getView().fit(extent, map.getSize());
               }
             }
           });
