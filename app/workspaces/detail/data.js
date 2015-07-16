@@ -160,6 +160,34 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
+      $scope.storeEdit = function (store, editing) {
+        if (editing) {
+          store.editing = true;
+          $timeout(function() {
+            $('.store-edit').focus();
+          }, 10);
+        } else {
+          store.refresh = true;
+          var newName = $('.store-edit').val();
+          GeoServer.datastores.update($scope.workspace, store.name, {name: newName})
+          .then(function(result) {
+            store.refresh = false;
+            if (result.success) {
+              store.name = result.data.name;
+              $scope.selectStore(store);
+            } else {
+              $rootScope.alerts = [{
+                type: 'warning',
+                message: 'Could not change store name from '+store.name+" to "+newName,
+                details: result.data.trace,
+                fadeout: true
+              }];
+            }
+          });
+          store.editing = false;
+        }
+      }
+
       $scope.dataLoading=true;
       $scope.serverRefresh().then(function() {
         $scope.dataLoading=false;

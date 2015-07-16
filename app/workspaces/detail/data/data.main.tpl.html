@@ -35,7 +35,11 @@
             <p class="datastore-label">{{ ds.sourcetype }}</p>
           </div>
           <div class="info-column">
-            <p><strong>{{ ds.name }}</strong></p>
+            <div ng-if="!ds.editing" ng-click="storeEdit(ds, true)">
+              <strong>{{ ds.name }}</strong>
+              <span ng-show="ds.refresh"><i class="fa fa-spinner fa-spin"></i></span>
+            </div>
+            <div ng-if="ds.editing"><input class="store-edit" type="text" value="{{ds.name}}" ng-blur="storeEdit(ds, false)"></input></div>
             <div title="{{ ds.source }}" class="source-info" collapse="ds.name!=selectedStore.name">
               <strong>Location:</strong><span>{{ ds.source }}</span>
             </div>
