@@ -67,6 +67,7 @@ angular.module('gsApp', [
 
       // track app state changes
       $scope.state = {};
+      $rootScope.title = "Composer";
       $scope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {
               //Whenever we change states, pre-emptively check if we are logged in. If not, go to the login page.
@@ -76,6 +77,34 @@ angular.module('gsApp', [
                 $scope.state.curr = {name: to, params: toParams};
                 $scope.state.prev = {name: from, params: fromParams};
               }
+              //Update page title
+              if (to.url) {
+                var title = "Composer";
+                switch(to.url) {
+                    case '/':
+                      if (toParams.workspace) {
+                        title += ' | ' + toParams.workspace;
+                      }
+                      break;
+                    case '/compose':
+                      title += ' | Editing Map: ' + toParams.name;
+                      break;
+                    case '/layers':
+                      title += ' | All Layers';
+                      break;
+                    case '/list':
+                      title += ' | All Workspaces';
+                      break;
+                    case '/maps':
+                      title += ' | All Maps';
+                      break;
+                    case '/style':
+                      title += ' | Editing Layer: ' + toParams.name;
+                      break;
+                  }
+                  $rootScope.title = title;
+              }
+
               var slowConnection = $timeout(function() {
                 $rootScope.alerts = [{
                   type: 'warning',
