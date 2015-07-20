@@ -111,12 +111,6 @@ angular.module('gsApp.workspaces.home', [
 
         $scope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {
-            if(loc.indexOf('settings') > -1) {
-              $scope.showSettings = $state.go('workspace.settings', {
-                workspace: wsName
-              });
-            }
-
             $scope.tabs.forEach(function(tab) {
               if ($state.is(tab.routeCategory)) {
                 tab.active = $state.is(tab.routeCategory);
@@ -140,10 +134,11 @@ angular.module('gsApp.workspaces.home', [
         }
       });
 
+      $scope.showSettings = $state.is('workspace.settings');
+
       // if no tab is active go to maps tab
-      if (!isActive('maps') && !isActive('layers') && !isActive('data')) {
+      if (!isActive('maps') && !isActive('layers') && !isActive('data') && !isActive('settings')) {
         $state.go('workspace.maps.main');
       }
-
     }]);
 
