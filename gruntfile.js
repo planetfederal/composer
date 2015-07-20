@@ -231,6 +231,12 @@ module.exports = function(grunt) {
           src: prefixDeps(olDeps()),
           dest: 'build/'
         }]
+      },
+      config: {
+        files: [{
+          src: 'config.js',
+          dest: 'build/'
+        }]
       }
     },
     ngmin: {
