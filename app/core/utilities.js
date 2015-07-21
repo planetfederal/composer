@@ -189,14 +189,17 @@ angular.module('gsApp.core.utilities', [])
 
     $scope.$watch('fullscreen', function(newVal) {
       if (newVal) {
-        lastMapWidth = angular.element('#mapPanel').width();
-        lastEditorWidth = angular.element('#editingPanel').width();
 
-        angular.element('#mapPanel').css({
-          width: ''
+        var left = $('.resizable-left');
+        var right = $('.resizable-right');
+        //lastMapWidth = left[0].width();
+        //lastEditorWidth = right[0].width();
+
+        left.each(function (i, element) {
+          element.style.width = '';
         });
-        angular.element('#editingPanel').css({
-          width: ''
+        right.each(function (i, element) {
+          element.style.width = '';
         });
       } 
     });
@@ -214,11 +217,14 @@ angular.module('gsApp.core.utilities', [])
       var mapWidth = xPos - sideWidth;
       var editorWidth = screenWidth - xPos;
 
-      angular.element('#mapPanel').css({
-        width: 100 * mapWidth/panelsWidth + '%'
+      var left = $('.resizable-left');
+      var right = $('.resizable-right');
+
+      left.each(function (i, element) {
+        element.style.width = 100 * mapWidth/panelsWidth + '%';
       });
-      angular.element('#editingPanel').css({
-        width: 100 * editorWidth/panelsWidth + '%'
+      right.each(function (i, element) {
+        element.style.width =  100 * editorWidth/panelsWidth + '%';
       });
     }
     function mouseup() {
