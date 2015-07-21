@@ -4,6 +4,9 @@
     <exec executable="npm" failonerror="true">
        <arg line="install"/>
     </exec>
+
+    <replace file="build/config.js" value="${suite.version}" token="suite.version"/>
+
   </target>
 
   <target name="clean">

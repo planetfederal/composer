@@ -5,10 +5,10 @@
 /**
  * Module for backend api service.
  */
-angular.module('gsApp.core.backend',[])
+angular.module('gsApp.core.backend',['gsApp.config'])
 .factory('GeoServer', ['$http', '$resource', '$q', '$log',
-  'AppEvent', '$rootScope',
-    function($http, $resource, $q, $log, AppEvent, $rootScope) {
+  'AppEvent', 'AppConfig', '$rootScope',
+    function($http, $resource, $q, $log, AppEvent, AppConfig, $rootScope) {
       var gsRoot = '/geoserver';
       var apiRoot = gsRoot + '/app/api';
       var importRoot = apiRoot + '/imports/';
@@ -35,9 +35,62 @@ angular.module('gsApp.core.backend',[])
         return d.promise;
       };
 
+      var getRemote = function (url) {
+        return $q(function (resolve, reject) {
+          var result = {success: false, status: 0, data: {}};
+          $.ajax({
+            type : "HEAD",
+            url : url,
+            timeout:3000,
+            dataType : "jsonp",
+            jsonp : "jsonp",
+
+            success : function (response, message, xhr) {
+              result.status = xhr.status;
+              result.success = (xhr.status >= 200 && xhr.status < 304)
+              result.data.message = message;
+              resolve(result);
+            },
+            error : function (xhr, message, errorThrown) {
+              result.status = xhr.status;
+              result.success = (xhr.status >= 200 && xhr.status < 304)
+              result.data.message = message;
+              result.data.trace = errorThrown;
+              resolve(result);
+            }
+          });
+        });
+      };
+
       return {
         baseUrl: function() {
           return gsRoot;
+        },
+
+        docUrl: function() {
+          var url = '/opengeo-docs/';
+          return getRemote(url).then(function (result) {
+            if (result.success) {
+              result.data.url = url;
+              return result;
+            } else {
+              url = 'http://suite.opengeo.org/docs/'+AppConfig.SuiteVersion+'/';
+              return getRemote(url);
+            }
+          }).then(function (result) {
+            if (result.success) {
+              result.data.url = url;
+              return result;
+            } else {
+              url = 'http://suite.opengeo.org/docs/latest/';
+              return getRemote(url);
+            }
+          }).then(function (result) {
+            if (result.success) {
+              result.data.url = url;
+            }
+            return result;
+          });
         },
 
         import: {
