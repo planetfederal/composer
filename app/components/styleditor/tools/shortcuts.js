@@ -14,7 +14,7 @@ angular.module('gsApp.styleditor.shortcuts', [])
       $scope.chooseIcon = function(iconname) {
         $scope.selectedIconName = iconname;
       };
-      cmdKey =  navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? 'Cmd' : 'Ctrl';
+      var cmdKey =  navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? 'Cmd' : 'Ctrl';
       $scope.shortcuts = [
         { 'name': 'Save', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'S'}]},
         { 'name': 'Autocomplete', 'keys': [{'key':cmdKey,'delim':'+'},{'key':'Enter'}]},
