@@ -5,8 +5,8 @@
 angular.module('gsApp.styleditor.attributes', [
   'gsApp.core.utilities'
 ])
-.directive('styleEditorAttrs', ['$modal', '$log', 'GeoServer',
-    function($modal, $log, GeoServer) {
+.directive('styleEditorAttrs', ['$modal', '$log', 'GeoServer', '$rootScope',
+    function($modal, $log, GeoServer, $rootScope) {
       return {
         restrict: 'EA',
         scope: {
@@ -28,9 +28,9 @@ angular.module('gsApp.styleditor.attributes', [
                   $scope.attributes = result.data;
 
                   if (!$scope.attributes || !$scope.attributes.schema || $scope.attributes.schema.attributes.length===0) {
-                    $scope.$parent.alerts = [{
+                    $rootScope.alerts = [{
                       type: 'warning',
-                      message: 'No attributes.',
+                      message: 'No attributes for resource '+$scope.layer.resource.name,
                       fadeout: true
                     }];
                     return;

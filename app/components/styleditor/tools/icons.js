@@ -7,8 +7,8 @@ angular.module('gsApp.styleditor.icons', [
   'angularFileUpload',
   'gsApp.core.utilities'
 ])
-.directive('styleEditorIcons', ['$modal', '$log', 'GeoServer',
-    function($modal, $log, GeoServer) {
+.directive('styleEditorIcons', ['$modal', '$log', 'GeoServer', '$rootScope',
+    function($modal, $log, GeoServer, $rootScope) {
       return {
         restrict: 'EA',
         scope: {
@@ -33,7 +33,7 @@ angular.module('gsApp.styleditor.icons', [
                 //propagate data upstream for easier access by other components
                 $scope.$parent.icons = $scope.icons;
               } else {
-                $scope.$parent.alerts = [{
+                $rootScope.alerts = [{
                   type: 'warning',
                   message: 'Cannot load icons.',
                   fadeout: true
@@ -43,7 +43,7 @@ angular.module('gsApp.styleditor.icons', [
 
           $scope.selectIcon = function() {
             if ($scope.icons.length===-1) {
-              $scope.$parent.alerts = [{
+              $rootScope.alerts = [{
                 type: 'warning',
                 message: 'Cannot load icons.',
                 fadeout: true
