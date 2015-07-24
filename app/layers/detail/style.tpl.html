@@ -3,7 +3,7 @@
     <div class="col-xs-12 layer-name-row">
       <nav class="navbar navbar-default layer-name" role="navigation">
         <div class="row">
-          <div class="col-xs-6 col-lg-7">
+          <div class="col-xs-6 col-lg-7 resizable-left">
             <div class="navbar-brand">
               <a ng-click="viewWorkspace(workspace);"><i class="icon-lg icon-folder-open"></i> {{ workspace }}</a>
               <a ng-click="editLayerSettings(layer);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> <span class="icon-wonky"></span> <span class="map-name-span">{{ layer.name }} layer</span></a>
@@ -16,7 +16,7 @@
               <featureinfo-panel featureinfo="featureinfo" active-layer="layer"></featureinfo-panel>
             </div>
           </div>
-          <div class="col-xs-6 col-lg-5 info">
+          <div class="col-xs-6 col-lg-5 info resizable-right">
             <div class="top">
               <div class="shortcuts">
                 <a ng-click="showShortcuts()">
@@ -33,11 +33,11 @@
     </div>
   </div>
   <div class="row">
-    <div id="mapPanel" class="col-xs-6 col-lg-7" ng-style="mapBackground">
+    <div id="mapPanel" class="col-xs-6 col-lg-7 resizable-left" ng-style="mapBackground">
       <div ol-map class="map" map-opts="mapOpts"
         ng-class="{'hide-all': hideCtrl.all, 'hide-lonlat': hideCtrl.lonlat}"></div>
     </div>
-    <div id="editingPanel" class="col-xs-6 col-lg-5">
+    <div id="editingPanel" class="col-xs-6 col-lg-5 resizable-right">
       <div class="editor-background">
         <div id="resizer" resizer="vertical" alt="Drag to resize" title="Drag to resize" left-min="300" right-min="300"></div>
         <div class="map-editor">
