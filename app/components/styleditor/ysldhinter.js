@@ -254,7 +254,19 @@ angular.module('gsApp.styleditor.ysldhinter', [])
 
         //Mappings between parent and child keys
         this.mappings = {
-          '': ['define', 'grid', 'name', 'title', 'abstract', 'feature-styles'],
+          '': [
+            'point',
+            'line',
+            'polygon',
+            'raster',
+            'symbolizers',
+            'rules',
+            'define',
+            'grid',
+            'name',
+            'title',
+            'abstract',
+            'feature-styles'],
           'feature-styles': [
             'name',
             'title',
