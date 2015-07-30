@@ -209,7 +209,6 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'data':scalar,
           'radiusPixels':scalar,
           'weightAttr':scalar,
-          'pixelsPerCell':scalar,
           'cellSize':scalar,
           'valueAttr':scalar,
           'dataLimit':scalar,
