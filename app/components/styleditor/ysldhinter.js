@@ -734,7 +734,6 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'data':completeAttribute,
           'radiusPixels':hintNumber,
           'weightAttr':completeAttribute,
-          'pixelsPerCell':hintNumber,
           'cellSize':hintNumber,
           'valueAttr':completeAttribute,
           'dataLimit':hintNumber,
