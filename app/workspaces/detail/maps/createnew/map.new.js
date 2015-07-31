@@ -76,6 +76,8 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.mapInfo = {};
     $scope.workspace = $stateParams.workspace;
     $scope.maps = maps;
+    $scope.proj = null;
+
     $scope.opts = {
       paging: {
         pageSize: 25,
@@ -228,6 +230,7 @@ angular.module('gsApp.workspaces.maps.new', [
     $scope.title = 'New Map';
     $scope.step = 1;
     $scope.proj = null;
+    $scope.mapInfo.proj = 'EPSG:4326';
 
     $scope.crsTooltip =
       '<h5>Add a projection in EPSG</h5>' +
