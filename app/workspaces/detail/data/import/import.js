@@ -709,7 +709,7 @@ angular.module('gsApp.workspaces.data.import', [
           var data = result.data;
           
           // Completed
-          if (data.running && data.running.length == 0) {
+          if (data.running && data.running.length == 0 && data.state != "running") {
           
             // cleanup/reset
             $timeout.cancel(stopGetTimer);
