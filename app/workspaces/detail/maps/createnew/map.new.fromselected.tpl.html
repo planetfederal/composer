@@ -36,7 +36,7 @@
             </div>
             <div class="proj-check other">
               <input type="radio" ng-model="proj" value="other" ng-click="custom.proj = true"> Other
-              <proj-field name="crs" id="otherproj" proj="customproj" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
+              <proj-field name="crs" id="otherproj" proj="customproj" ng-class="{'hide-proj-msg': proj != 'other'}" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
               <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
               <span ng-show="!newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
             </div>
