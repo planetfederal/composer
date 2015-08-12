@@ -88,20 +88,20 @@ angular.module('gsApp.projfield', [
 
   this.fetchProjections = function() {
     _this.defaultProjections = [];
-    GeoServer.proj.get('EPSG:4326').then(function(result) {
+    return GeoServer.proj.get('EPSG:4326').then(function(result) {
       _this.defaultProjections.push(result.data);
-    });
-    GeoServer.proj.get('EPSG:3857').then(function(result) {
-      _this.defaultProjections.push(result.data);
-    });
-    // non-default recently used projections
-    return GeoServer.proj.recent().then(function(result) {
-      _this.projections = _.remove(result.data,
-        function(prj) {
-          return (prj.srs.toLowerCase() != 'epsg:4326' &&
-            prj.srs.toLowerCase() != 'epsg:3857');
-        });
-    });
+    }).then(function() {
+      GeoServer.proj.get('EPSG:3857').then(function(result) {
+        _this.defaultProjections.push(result.data);
+    }).then(function() {
+      // non-default recently used projections
+      return GeoServer.proj.recent().then(function(result) {
+        _this.projections = _.remove(result.data,
+          function(prj) {
+            return (prj.srs.toLowerCase() != 'epsg:4326' &&
+              prj.srs.toLowerCase() != 'epsg:3857');
+          });
+    })})});
   };
 })
 .directive('focusMe', function($timeout) {
