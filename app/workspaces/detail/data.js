@@ -290,7 +290,8 @@ angular.module('gsApp.workspaces.data', [
         if (index > -1) {
           $scope.datastores.splice(index, 1);
         }
-        $scope.selectedStore = null;
+        $scope.selectedStore=null;
+        $scope.serverRefresh();
       };
 
       $scope.deleteStore = function() {
