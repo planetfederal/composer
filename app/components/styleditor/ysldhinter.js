@@ -640,7 +640,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           var self = this;
 
           return icons.map(function(icon) {
-            text = icon.name;
+            var text = icon.name;
             if (state.line.val.length > 0) {
               text = text.replace(new RegExp('^'+escapeForRegExp(state.line.val)), '');
             }
@@ -976,8 +976,10 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         }
 
 
-        //If variables are the only suggestion, we are probably at a top-level mapping
-        if (hints.length == numVariables) {
+        //If variables are the only suggestion, we are either:
+        //  1. At a top-level mapping (such as feature-styles:), in which case we do not suggest anything
+        //  2. At a varblock, in which case we return possible varblocks
+        if (hints.length == numVariables && state.line.key != '<<') {
           return [];
         } else {
           return hints;
