@@ -160,6 +160,7 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
+      //Change store name
       $scope.storeEdit = function (store, editing) {
         if (editing) {
           store.editing = true;
@@ -167,23 +168,32 @@ angular.module('gsApp.workspaces.data', [
             $('.store-edit').focus();
           }, 10);
         } else {
-          store.refresh = true;
           var newName = $('.store-edit').val();
-          GeoServer.datastores.update($scope.workspace, store.name, {name: newName})
-          .then(function(result) {
-            store.refresh = false;
-            if (result.success) {
-              store.name = result.data.name;
-              $scope.selectStore(store);
-            } else {
-              $rootScope.alerts = [{
-                type: 'warning',
-                message: 'Could not change store name from '+store.name+" to "+newName,
-                details: result.data.trace,
-                fadeout: true
-              }];
-            }
-          });
+
+          if (newName.match(/^[a-zA-Z\d][a-zA-Z\d\-_]*$/)) {
+            store.refresh = true;
+            GeoServer.datastores.update($scope.workspace, store.name, {name: newName})
+            .then(function(result) {
+              store.refresh = false;
+              if (result.success) {
+                store.name = result.data.name;
+                $scope.selectStore(store);
+              } else {
+                $rootScope.alerts = [{
+                  type: 'warning',
+                  message: 'Could not change store name from '+store.name+' to '+newName,
+                  details: result.data.trace,
+                  fadeout: true
+                }];
+              }
+            });
+          } else {
+            $rootScope.alerts = [{
+              type: 'warning',
+              message: 'Could not change store name to '+newName+': Invalid characters in store name',
+              fadeout: true
+            }];
+          }
           store.editing = false;
         }
       }
