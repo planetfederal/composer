@@ -9,6 +9,8 @@ angular.module('gsApp.login.modal', [])
       $scope.creds = {};
       $scope.loginFailed = false;
       $rootScope.enableAlerts = true;
+      
+      var interval;
 
       if (countdown) {
         $scope.countdown = countdown;
