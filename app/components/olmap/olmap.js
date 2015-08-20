@@ -135,6 +135,7 @@ angular.module('gsApp.olmap', [])
           $rootScope.alerts = [{
             type: 'danger',
             message: 'Error rendering map with projection: ' + e,
+            details: e.message,
             fadeout: true
           }];
         }
