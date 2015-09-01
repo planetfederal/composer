@@ -134,6 +134,18 @@ angular.module('gsApp.layers.style', [
               fadeout: true
             }];
             $scope.refreshMap();
+            return GeoServer.layer.get(wsName, layerName)
+                .then(function(result) {
+                  if (result.success) {
+                    $scope.layer.style = result.data.style;
+                  } else {
+                    $rootScope.alerts = [{
+                      type: 'warning',
+                      message: 'Error getting layer details: '+$l.name,
+                      fadeout: true
+                    }];
+                  }
+                });
           }
           else {
             if (result.status == 400) {

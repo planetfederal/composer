@@ -257,8 +257,20 @@ angular.module('gsApp.maps.compose', [
               }];
               $rootScope.generation = $rootScope.editor.changeGeneration();
               $scope.refreshMap();
-            }
-            else {
+
+              return GeoServer.layer.get(l.workspace, l.name)
+                .then(function(result) {
+                  if (result.success) {
+                    l.style = result.data.style;
+                  } else {
+                    $rootScope.alerts = [{
+                      type: 'warning',
+                      message: 'Error getting layer details: '+$l.name,
+                      fadeout: true
+                    }];
+                  }
+                });
+            } else {
               if (result.status == 400) {
                 // validation error
                 $scope.markers = result.data.errors;
