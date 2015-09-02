@@ -200,6 +200,8 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'color-map': mapping,
           'entries': sequence,
           'contrast-enhancement': mapping,
+          'mode': scalar,
+          'gamma': scalar,
           'mark': mapping,
           'shape': scalar,
           'external': mapping,
@@ -400,6 +402,10 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'initial-gap',
             'options'
           ],
+          'contrast-enhancement': [
+            'mode',
+            'gamma'
+          ],
           'stroke-graphic': [
             'symbols',
             'anchor',
@@ -538,7 +544,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           ],
           'type':[
             'ramp',
-            'interval',
+            'intervals',
             'values'
           ],
           'mode':[
