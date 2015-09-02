@@ -356,6 +356,10 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             'halo',
             'priority',
             'placement',
+            'offset',
+            'anchor',
+            'displacement',
+            'rotation',
             'x-allowOverruns',
             'x-autoWrap',
             'x-conflictResolution',
@@ -440,13 +444,6 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'external': [
             'url',
             'format'
-          ],
-          'placement': [
-            'type',
-            'offset',
-            'anchor',
-            'displacement',
-            'rotation'
           ],
           'halo': [
             'fill-color',
