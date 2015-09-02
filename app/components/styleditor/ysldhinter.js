@@ -112,6 +112,8 @@ angular.module('gsApp.styleditor.ysldhinter', [])
                   } 
                 }
               }
+              text = text.replace(/\n/, '\n'+Array(state.indent+1).join(' '));
+
               values.push({displayText: display, text: text,
               render: function(Element, self, data) {
                 Element.innerHTML = data.displayText;
@@ -151,6 +153,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'title': scalar,
           'abstract': scalar,
           'transform': mapping,
+          'input': scalar,
           'feature-styles': sequence,
           'rules': sequence,
           'scale': tuple,
@@ -456,7 +459,13 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           ],
           'transform': [
             'name',
-            'params',
+            'input',
+            'params'
+          ],
+          'data': [
+            'name',
+            'input',
+            'params'
           ],
           'params': [
             'outputBBOX',
@@ -701,6 +710,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           'red':hintNumber,
           'green':hintNumber,
           'blue':hintNumber,
+          'input':hintTemplate('<parameter>'),
 
           'x-FirstMatch':mappingValue,
           'x-composite':mappingValue,
@@ -961,9 +971,11 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         }
 
         //transform: name
-        if (state.line.key == 'name' && state.parent.line.key == 'transform') {
+        if (state.line.key == 'name' && (state.parent.line.key == 'transform' || state.parent.line.key == 'data')) {
           values = values.concat(this.transform.mappingValues['name']);
         }
+
+
 
         if (values.length > 0) {
           hints = this.buildHints(state, cm, values)
@@ -975,6 +987,10 @@ angular.module('gsApp.styleditor.ysldhinter', [])
           hints = valueFunction(state, cm);
         }
 
+        //nested transform
+        if (state.line.key == 'data' && state.parent.line.key == "params") {
+          hints = hints.concat(this.hintTemplate('\n  <transform>')(state, cm));
+        }
 
         //If variables are the only suggestion, we are either:
         //  1. At a top-level mapping (such as feature-styles:), in which case we do not suggest anything
@@ -992,7 +1008,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         if (state.parent.line.key in this.mappings) {
           var children = this.mappings[state.parent.line.key];
           //add special context-sensitive mappings
-          children = children.concat(this.contextMappings(state, cm));
+          children = this.contextMappings(state, cm).concat(children);
           if (children != null) {
             if (state.line.key.length > 0) {
               // filter out children based on content of line
