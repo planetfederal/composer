@@ -998,7 +998,7 @@ angular.module('gsApp.styleditor.ysldhinter', [])
         //If variables are the only suggestion, we are either:
         //  1. At a top-level mapping (such as feature-styles:), in which case we do not suggest anything
         //  2. At a varblock, in which case we return possible varblocks
-        if (hints.length == numVariables && state.line.key != '<<') {
+        if (!hints || (hints.length == numVariables && state.line.key != '<<')) {
           return [];
         } else {
           return hints;

@@ -39,6 +39,25 @@ angular.module('gsApp.styleditor.color', [])
               $scope.editor.insertOrReplace(("'#"+col.toHex()+"'").toUpperCase());
             }
           });
+
+          $scope.$watch('editor', function(newVal) {
+            if (newVal != null) {
+              var ed = newVal;
+              ed.on('keydown', function(cm, change) {
+                var container = $scope.colorPicker.spectrum("container")[0];
+                if (!container.classList.contains('sp-hidden')) {
+                  //Not an autocomplete command, to avoid conflics
+                  if (!(change.keyCode == 13 && navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) ? change.metaKey : change.ctrlKey)) {
+                    if (change.keyCode == 13) {
+                      $scope.editor.insertOrReplace(("'#"+$scope.colorPicker.spectrum("get").toHex()+"'").toUpperCase());
+                    }
+                    change.preventDefault();
+                    $scope.colorPicker.spectrum("hide");
+                  }
+                }
+              });
+            }
+          });
         }
       };
     }]);
