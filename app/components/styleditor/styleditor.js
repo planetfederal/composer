@@ -178,7 +178,7 @@ angular.module('gsApp.styleditor', [
 
           $scope.$watch('markers', function(newVal) {
             //Clear popovers
-            while ($rootScope.popoverElement && $rootScope.popoverElement[0]) {
+            if ($rootScope.popoverElement) {
               $rootScope.popoverElement.remove();
             }
             $scope.editor.clearGutter('markers');
