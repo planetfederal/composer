@@ -130,7 +130,7 @@ angular.module('gsApp.maps.compose', [
                 return l;
               }),
               error: function(err) {
-                if (err && typeof err == 'string' && err.startsWith("Delays are occuring in rendering the map.")) {
+                if (err && typeof err == 'string' && err.lastIndexOf("Delays are occuring in rendering the map.", 0) === 0) {
                   $scope.$apply(function() {
                     $rootScope.alerts = [{
                       type: 'warning',
