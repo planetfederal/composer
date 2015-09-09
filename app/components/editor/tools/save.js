@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
-angular.module('gsApp.styleditor.save', [])
+angular.module('gsApp.editor.tools.save', [])
 .directive('styleEditorSave', ['$log',
     function($log) {
       return {

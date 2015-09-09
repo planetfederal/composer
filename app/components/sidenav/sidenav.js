@@ -6,7 +6,6 @@
 angular.module('gsApp.sidenav', [
   'gsApp.workspaces.home',
   'ui.bootstrap',
-  'gsApp.olmap'
 ])
 .directive('sidenav', function() {
     return {

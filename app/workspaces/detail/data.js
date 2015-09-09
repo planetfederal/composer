@@ -309,7 +309,7 @@ angular.module('gsApp.workspaces.data', [
           $state.go('workspace.data.main', {workspace:$scope.workspace});
         }
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/data.delete.tpl.html',
+          templateUrl: '/components/modals/data/data.delete.tpl.html',
           controller: 'WorkspaceDeleteDataCtrl',
           backdrop: 'static',
           size: 'md',
@@ -373,7 +373,7 @@ angular.module('gsApp.workspaces.data', [
 
       $scope.showAttrs = function(layerOrResource, storename) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/data.attributes.tpl.html',
+          templateUrl: '/components/modals/data/data.attributes.tpl.html',
           controller: 'WorkspaceAttributesCtrl',
           size: 'md',
           resolve: {
@@ -392,7 +392,7 @@ angular.module('gsApp.workspaces.data', [
 
       $scope.enableDisableStore = function(store) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/data.update.tpl.html',
+          templateUrl: '/components/modals/data/data.update.tpl.html',
           controller: 'UpdateStoreCtrl',
           size: 'md',
           resolve: {
@@ -409,7 +409,7 @@ angular.module('gsApp.workspaces.data', [
       $scope.importAsNewLayer = function(resource, store) {
         $scope.resourceToUpdate = resource;
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.import.tpl.html',
+          templateUrl: '/components/modals/layer/layer.import.tpl.html',
           controller: 'ImportLayerCtrl',
           size: 'md',
           resolve: {

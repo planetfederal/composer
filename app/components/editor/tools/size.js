@@ -3,7 +3,7 @@
  * License: BSD
  */
 /* globals $ */
-angular.module('gsApp.styleditor.size', [])
+angular.module('gsApp.editor.tools.size', [])
 .directive('styleEditorSize', ['$log',
     function($log) {
       return {

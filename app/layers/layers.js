@@ -6,10 +6,10 @@ angular.module('gsApp.layers', [
   'ui.select',
   'ngSanitize',
   'gsApp.alertpanel',
+  'gsApp.editor.layer',
   'gsApp.core.utilities',
   'gsApp.workspaces.data',
-  'gsApp.layers.style',
-  'gsApp.errorPanel',
+  'gsApp.errorPanel'
 ])
 .config(['$stateProvider',
   function($stateProvider) {
@@ -35,7 +35,7 @@ angular.module('gsApp.layers', [
       $scope.dropdownBoxSelected = '';
 
       $scope.onStyleEdit = function(layer) {
-        $state.go('layer.style', {
+        $state.go('layer.edit', {
           workspace: layer.workspace,
           name: layer.name
         });
@@ -137,7 +137,7 @@ angular.module('gsApp.layers', [
                   ', now with ' + result.data.length + ' total.',
                 fadeout: true
               }];
-              $state.go('map.compose', {workspace: selectedWorkspace,
+              $state.go('map.edit', {workspace: selectedWorkspace,
                 name: mapInfo.name});
             } else {
               $rootScope.alerts = [{
@@ -196,7 +196,7 @@ angular.module('gsApp.layers', [
 
       $scope.editLayerSettings = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.settings.tpl.html',
+          templateUrl: '/components/modals/layer/layer.settings.tpl.html',
           controller: 'EditLayerSettingsCtrl',
           backdrop: 'static',
           size: 'md',

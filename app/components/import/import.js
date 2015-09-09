@@ -214,7 +214,7 @@ angular.module('gsApp.workspaces.data.import', [
               }];
               mapsListModel.addMap(map);
               $scope.close();
-              $state.go('map.compose', {workspace: wsName,
+              $state.go('editor.map', {workspace: wsName,
                 name: map.name});
             } else {
               $scope.errors = result.data.message; // show errors in modal
@@ -258,7 +258,7 @@ angular.module('gsApp.workspaces.data.import', [
               }];
               $scope.close();
               var hiddenLayers = mapInfo.hiddenLayers;
-              $state.go('map.compose', {'workspace': wsName,
+              $state.go('map.edit', {'workspace': wsName,
                 'name': mapInfo.name, 'hiddenLayers': hiddenLayers});
             } else {
               $scope.errors = result.data.message; // show errors in modal
@@ -288,7 +288,7 @@ angular.module('gsApp.workspaces.data.import', [
               }];
               mapsListModel.addMap(map);
               $scope.close();
-              $state.go('map.compose', {workspace: wsName,
+              $state.go('map.edit', {workspace: wsName,
                 name: map.name});
             } else {
               $scope.errors = result.data.message?
@@ -896,7 +896,7 @@ angular.module('gsApp.workspaces.data.import', [
                 fadeout: true
               }];
               $scope.close('close');
-              $state.go('map.compose', {workspace: map.workspace,
+              $state.go('map.edit', {workspace: map.workspace,
                 name: newMapInfo.name});
             } else {
               $rootScope.alerts = [{

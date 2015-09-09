@@ -6,9 +6,9 @@ angular.module('gsApp.maps', [
   'ui.select',
   'ngSanitize',
   'gsApp.alertpanel',
+  'gsApp.editor.map',
   'gsApp.projfield',
   'gsApp.core.utilities',
-  'gsApp.maps.compose',
   'angularMoment'
 ])
 .config(['$stateProvider',
@@ -163,7 +163,7 @@ angular.module('gsApp.maps', [
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/map.settings.tpl.html',
+          templateUrl: '/components/modals/map/map.settings.tpl.html',
           controller: 'EditMapSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -214,7 +214,7 @@ angular.module('gsApp.maps', [
       };
 
       $scope.onCompose = function(map) {
-        $state.go('map.compose', {
+        $state.go('map.edit', {
           workspace: map.workspace,
           name: map.name
         });

@@ -1,4 +1,4 @@
-angular.module('gsApp.styleditor.fullscreen', [])
+angular.module('gsApp.editor.tools.fullscreen', [])
 .directive('styleEditorFullscreen', ['AppEvent',
   function(AppEvent) {
     return {

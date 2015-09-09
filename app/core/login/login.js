@@ -6,7 +6,7 @@ angular.module('gsApp.login', [])
     function($stateProvider) {
       $stateProvider.state('login', {
         url: '/login',
-        templateUrl: '/login/login.tpl.html',
+        templateUrl: '/core/login/login.tpl.html',
         controller: 'LoginCtrl'
       });
     }])

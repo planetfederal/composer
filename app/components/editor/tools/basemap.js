@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /* globals $ */
-angular.module('gsApp.styleditor.basemap', [])
+angular.module('gsApp.editor.tools.basemap', [])
 .controller('BasemapModalCtrl', ['$scope', '$modalInstance', '$upload',
   '$log', 'GeoServer', '$timeout', 'workspace', 'mapOrLayer', '$rootScope',
   'AppEvent',

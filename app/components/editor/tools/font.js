@@ -3,7 +3,7 @@
  * License: BSD
  */
 /* globals $ */
-angular.module('gsApp.styleditor.font', [])
+angular.module('gsApp.editor.tools.font', [])
 .directive('styleEditorFont', ['$log',
     function($log) {
       return {

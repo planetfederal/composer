@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
-angular.module('gsApp.styleditor.undo', [])
+angular.module('gsApp.editor.tools.undo', [])
 .directive('styleEditorUndo', ['$timeout', '$log',
     function($timeout, $log) {
       return {

@@ -1,9 +1,31 @@
-/* 
+/*
  * (c) 2014 Boundless, http://boundlessgeo.com
- * License: BSD
  */
-/*global window, document, ZeroClipboard, $ */
-angular.module('gsApp.styleditor.shortcuts', [])
+angular.module('gsApp.editor.tools.shortcuts', [])
+.directive('styleEditorShortcuts', ['$log', '$rootScope', 'AppEvent', '$modal',
+    function($log, $rootScope, AppEvent, $modal) {
+      return {
+        restrict: 'EA',
+        scope: {
+          editor: '=',
+        },
+        template:
+          '<a ng-click="showShortcuts()">' +
+             '<i class="icon-keyboard icon-lg"></i>' +
+          '</a>',
+        replace: true,
+        controller: function($scope, $element) {
+          $scope.showShortcuts = function() {
+            var modalInstance = $modal.open({
+              templateUrl: '/components/editor/tools/shortcuts.modal.tpl.html',
+              controller: 'ShortcutsCtrl',
+              backdrop: 'false',
+              size: 'md'
+            });
+          };
+        }
+      };
+    }])
 .controller('ShortcutsCtrl', ['$scope', '$modalInstance',
     function($scope, $modalInstance) {
 

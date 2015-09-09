@@ -30,7 +30,7 @@
     <div class="row" ng-repeat="row in maps | partition:2">
       <div class="col-sm-6" ng-repeat="map in row">
         <div class="map-wrapper">
-          <a href="" ui-sref="map.compose({workspace: map.workspace, name: map.name})">
+          <a href="" ui-sref="map.edit({workspace: map.workspace, name: map.name})">
             <img ng-src="{{ thumbnails[map.name] }}" class="mapthumb" title="Edit Map" width="{{mapThumbsWidth}}" height="{{mapThumbsHeight}}"/>
           </a>
           <div class="map-summary-detail">

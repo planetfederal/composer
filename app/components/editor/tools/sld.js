@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /*global window, document, ZeroClipboard, $ */
-angular.module('gsApp.styleditor.sld', [
+angular.module('gsApp.editor.tools.sld', [
   'gsApp.core.utilities'
 ])
 .directive('styleEditorSld', ['$modal', '$log', 'GeoServer', '$rootScope',
@@ -34,7 +34,7 @@ angular.module('gsApp.styleditor.sld', [
             }
             $modal.open({
               templateUrl:
-                '/components/styleditor/tools/sld.modal.tpl.html',
+                '/components/editor/tools/sld.modal.tpl.html',
               controller: 'SldModalCtrl',
               size: 'lg',
               resolve: {

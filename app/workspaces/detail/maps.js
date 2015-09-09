@@ -5,6 +5,7 @@ angular.module('gsApp.workspaces.maps', [
   'gsApp.workspaces.maps.new',
   'gsApp.workspaces.maps.settings',
   'gsApp.alertpanel',
+  'gsApp.editor.map',
   'gsApp.core.utilities',
   'gsApp.olexport',
   'ngSanitize'
@@ -135,7 +136,7 @@ angular.module('gsApp.workspaces.maps', [
         if ($scope.layers && $scope.layers.length===0) {
           if (! $scope.datastores.length) {
             var nostores_modal = $modal.open({
-              templateUrl: '/workspaces/detail/modals/nostores.tpl.html',
+              templateUrl: '/components/modals/map/nostores.tpl.html',
               controller: function($scope, $modalInstance) {
                 $scope.close = function() {
                   $modalInstance.close('close');
@@ -146,7 +147,7 @@ angular.module('gsApp.workspaces.maps', [
             });
           } else {
             var nolayer_modal = $modal.open({
-              templateUrl: '/workspaces/detail/modals/nolayers.tpl.html',
+              templateUrl: '/components/modals/map/nolayers.tpl.html',
               controller: function($scope, $modalInstance) {
                 $scope.close = function() {
                   $modalInstance.close('close');
@@ -240,7 +241,7 @@ angular.module('gsApp.workspaces.maps', [
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/map.settings.tpl.html',
+          templateUrl: '/components/modals/map/map.settings.tpl.html',
           controller: 'EditMapSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -262,7 +263,7 @@ angular.module('gsApp.workspaces.maps', [
           .then(function(src) {
             $scope.ol3src = src;
             $modal.open({
-              templateUrl: '/workspaces/detail/modals/map.export.tpl.html',
+              templateUrl: '/components/modals/map/map.export.tpl.html',
               scope: $scope
             });
           });

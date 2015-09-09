@@ -1,34 +1,93 @@
 /*
  * (c) 2014 Boundless, http://boundlessgeo.com
+ *
+ * editor.layer.js, editor.layer.less, editor.layer.tpl.html
+ * Also uses editor.less for styling shared with editor.map.tpl.html
+ *
+ * Layer view of the style editor. Sets up the layer context and provides links to layer and workspace modals
+ *
+ * NOTE: This module should only contain logic specific to the layer veiw. 
+ * General editor or map functionality should go in styleeditor.js or olmap.js respectively.
  */
-angular.module('gsApp.layers.style', [
+angular.module('gsApp.editor.layer', [
   'ui.codemirror',
-  'gsApp.olmap',
-  'gsApp.styleditor',
-  'gsApp.featureinfopanel',
-  'gsApp.alertpanel'
+  'gsApp.editor.olmap',
+  'gsApp.editor.styleeditor',
+  'gsApp.editor.tools.shortcuts',
+  'gsApp.editor.tools.save',
+  'gsApp.editor.tools.undo',
+  'gsApp.editor.tools.color',
+  'gsApp.editor.tools.icons',
+  'gsApp.editor.tools.attributes',
+  'gsApp.editor.tools.display',
+  'gsApp.editor.tools.sld',
+  'gsApp.editor.tools.fullscreen',
+  'gsApp.alertpanel',
+  'gsApp.featureinfopanel'
+  
 ])
 .config(['$stateProvider',
     function($stateProvider) {
-      $stateProvider.state('layer.style', {
-        url: '/style',
-        templateUrl: '/layers/detail/style.tpl.html',
+      $stateProvider.state('layer.edit', {
+        url: '/edit',
+        templateUrl: '/components/editor/editor.layer.tpl.html',
         controller: 'LayerStyleCtrl'
       });
     }])
-.controller('LayerStyleCtrl', ['$scope', '$rootScope', '$stateParams',
-    'GeoServer', 'AppEvent', '$log', '$modal', '$state',
-    function($scope, $rootScope, $stateParams, GeoServer, AppEvent, $log,
-      $modal, $state) {
-
+.controller('LayerStyleCtrl', ['$log', '$modal', '$rootScope', '$scope', '$state', '$stateParams',
+    'AppEvent', 'GeoServer',
+    function($log, $modal, $rootScope, $scope, $state, $stateParams, 
+      AppEvent, GeoServer) {
+      
       var wsName = $stateParams.workspace;
-      $scope.workspace = wsName;
       var layerName = $stateParams.name;
 
+      /** Editor scope variables **/
+      /* The $scope of the editor pages is shared between editor.map / editor.layer, 
+       * olmap, layerlist, and styleeditor. As such, care must be taken when adding
+       * or modifying these scope variables.
+       * The following scope variables are used among these modules:
+       */
+
+      /* Initialized in editor.layer.js or editor.map.js
+      $scope.olMapOpts    //OL Map parameters, used by olmap.js to construct $scope.olMap
+      $scope.map          //map object obtained from GeoServer. null for editor.layer.js
+      $scope.map.layers   //list of layers for the map object
+      $scope.layer        //layer object obtained from geoserver. Represents the current layer for editor.map.js
+      $scope.workspace    //name of the current workspace
+      $scope.isRendering  //boolean indicating if the map is currently rendering. Used to show the "Rendering map" spinner
+      $scope.ysldstyle    //text content of the current style. Used by styleeditor.js when constructing $scope.editor
+      */
+
+      /* Initialized in olmap.js
+      $scope.olMap      //OL3 Map object. Generated from $scope.olMapOpts
+      $scope.hideCtrl   //List of map controls to hide. Set by tools/display.js and used by editor.*.tpl.html
+      */
+
+      /* Initialized in styleeditor.js
+      $scope.editor           //Codemirror editor object
+      $scope.generation       //editor generation; used to handle undo
+      $scope.markers          //List of errors, displayed as line markers in the editor
+      $scope.popoverElement   //Popover element for error markers
+      */
+
+      /* initialized in layerlist.js
+      $scope.showLayerList  //boolean indicating wheter to display the layer list
+      */
+      $scope.workspace = wsName;
+      $scope.layer = null;
+      $scope.map = null
+      $scope.mapOpts = null;
+      $scope.isRendering = false;
+      $scope.ysldstyle = null;
+
+      //Todo - hide sidenav
       $rootScope.$broadcast(AppEvent.ToggleSidenav);
+
       GeoServer.layer.get(wsName, layerName).then(function(result) {
-        if (result.success == true) {
-          $scope.layer = result.data;
+        if (result.success) {
+          var layer = result.data;
+          $scope.layer = layer;
 
           $scope.mapOpts = {
             workspace: wsName,
@@ -97,7 +156,7 @@ angular.module('gsApp.layers.style', [
 
       $scope.editLayerSettings = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.settings.tpl.html',
+          templateUrl: '/components/modals/layer/layer.settings.tpl.html',
           controller: 'EditLayerSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -112,86 +171,6 @@ angular.module('gsApp.layers.style', [
         });
       };
 
-      $scope.$watch('basemap', function(newVal) {
-        if (newVal != null && $scope.mapOpts) {
-          $scope.mapOpts.basemap = newVal;
-        } else if (newVal == null && $scope.mapOpts) {
-          $scope.mapOpts.basemap = null;
-        }
-      });
-
-      $scope.refreshMap = function() {
-        $scope.$broadcast('olmap-refresh');
-      };
-      $scope.saveStyle = function() {
-        var content = $scope.editor.getValue();
-        GeoServer.style.put(wsName, layerName, content).then(function(result) {
-          if (result.success == true) {
-            $scope.markers = null;
-            $rootScope.alerts = [{
-              type: 'success',
-              message: 'Style saved for layer: '+layerName,
-              fadeout: true
-            }];
-            $scope.refreshMap();
-            return GeoServer.layer.get(wsName, layerName)
-                .then(function(result) {
-                  if (result.success) {
-                    $scope.layer.style = result.data.style;
-                  } else {
-                    $rootScope.alerts = [{
-                      type: 'warning',
-                      message: 'Error getting layer details: '+$l.name,
-                      fadeout: true
-                    }];
-                  }
-                });
-          }
-          else {
-            if (result.status == 400) {
-              // validation error
-              $scope.markers = result.data.errors;
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Style not saved due to validation error'
-              }];
-            }
-            else {
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Error occurred saving style: ' + result.data.message,
-                details: result.data.trace
-              }];
-            }
-          }
-        });
-      };
-
-      $scope.showShortcuts = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/components/styleditor/tools/shortcuts.tpl.html',
-          controller: 'ShortcutsCtrl',
-          backdrop: 'false',
-          size: 'md'
-        });
-      };
-
-      $scope.hideCtrl = {
-        'all': false,
-        'lonlat': false
-      };
-
-      $scope.$on(AppEvent.MapControls, function(scope, ctrl) {
-        var val = $scope.hideCtrl[ctrl];
-        if (ctrl &&  val !== undefined) {
-          $scope.hideCtrl[ctrl] = !val;
-        }
-      });
-
-      $rootScope.$on(AppEvent.EditorBackground, function(scope, color) {
-        $scope.mapBackground = {'background': color};
-      });
-
       $rootScope.$on(AppEvent.MapUpdated, function(scope, layer) {
         if ($scope.layer.name == layer.original.name) {
           $scope.layer = layer.new;
@@ -204,6 +183,10 @@ angular.module('gsApp.layers.style', [
 
       $scope.onUpdatePanels = function() {
         $rootScope.$broadcast(AppEvent.SidenavResized); // update map
+      };
+
+      $scope.toggleFullscreen = function() {
+        $rootScope.broadcast(AppEvent.ToggleFullscreen);
       };
 
     }]);

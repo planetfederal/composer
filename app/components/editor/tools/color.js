@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /* global $ */
-angular.module('gsApp.styleditor.color', [])
+angular.module('gsApp.editor.tools.color', [])
 .directive('styleEditorColor', ['$log', 'YsldColors',
     function($log, YsldColors) {
       return {
@@ -11,13 +11,13 @@ angular.module('gsApp.styleditor.color', [])
           editor: '=',
         },
         template:
-          '<li class="styleditor-color">'+
+          '<li class="styleeditor-color">'+
             '<i class="icon-droplet"></i>'+
             '<span>Color</span>'+
           '</li>',
         replace: true,
         controller: function($scope, $element) {
-          $scope.colorPicker = $('.styleditor-color');
+          $scope.colorPicker = $('.styleeditor-color');
           $scope.colorPicker.spectrum({
             showPalette: true,
             showInitial: true,

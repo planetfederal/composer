@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
  */
-angular.module('gsApp.styleditor.ysldhinter', [])
+angular.module('gsApp.editor.styleeditor.ysldhinter', [])
 .factory('YsldHinter', ['$log', 'YsldColors','GeoServer',
     function($log, YsldColors, GeoServer) {
       var YsldHinter = function() {
@@ -641,14 +641,14 @@ angular.module('gsApp.styleditor.ysldhinter', [])
             cm.setSelection({line:line, ch:selstart}, {line:line, ch:selstop});
           }
           //Show the color dialog
-          $('.styleditor-color').click();
+          $('.styleeditor-color').click();
         };
 
         var icon = function(state, cm) {
           //Show the icon uploader
-          //$('.styleditor-icon').click();
+          //$('.styleeditor-icon').click();
           //Show the list of icons
-          var icons = angular.element($('.styleditor-icon')).scope().icons;
+          var icons = angular.element($('.styleeditor-icon')).scope().icons;
           var self = this;
 
           return icons.map(function(icon) {

@@ -31,7 +31,7 @@ angular.module('gsApp', [
         if (!($scope.modal || $scope.stateChange) && ($state.current.url.indexOf('/login') == -1)) {
           $scope.modal = true;
           var modalInstance = $modal.open({
-            templateUrl: '/login/login.modal.tpl.html',
+            templateUrl: '/core/login/login.modal.tpl.html',
             controller: 'LoginModalCtrl',
             scope: $scope,
             size: 'md',
@@ -86,8 +86,8 @@ angular.module('gsApp', [
                         title += ' | ' + toParams.workspace;
                       }
                       break;
-                    case '/compose':
-                      title += ' | Editing Map: ' + toParams.name;
+                    case '/edit':
+                      title += ' | Editing: ' + toParams.workspace + ":" + toParams.name;
                       break;
                     case '/layers':
                       title += ' | All Layers';
@@ -97,9 +97,6 @@ angular.module('gsApp', [
                       break;
                     case '/maps':
                       title += ' | All Maps';
-                      break;
-                    case '/style':
-                      title += ' | Editing Layer: ' + toParams.name;
                       break;
                   }
                   $rootScope.title = title;

@@ -1,12 +1,12 @@
-<div class="layer-detail-style">
+<div class="editor editor-layer">
   <div class="row">
     <div class="col-xs-12 layer-name-row">
       <nav class="navbar navbar-default layer-name" role="navigation">
         <div class="row">
           <div class="col-xs-6 col-lg-7 resizable-left">
             <div class="navbar-brand">
-              <a ng-click="viewWorkspace(workspace);"><i class="icon-lg icon-folder-open"></i> {{ workspace }}</a>
-              <a ng-click="editLayerSettings(layer);"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> <span class="icon-wonky"></span> <span class="map-name-span">{{ layer.name }} layer</span></a>
+              <a ng-click="viewWorkspace(workspace);" title="{{ workspace }}"><i class="icon-lg icon-folder-open"></i> {{ workspace }}</a>
+              <a ng-click="editLayerSettings(layer);" title="{{ layer.name }}"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> <span class="icon-wonky"><i class="icon-stack"></i></span> <span class="map-name-span">{{ layer.name }}</span></a>
             </div>
             <div class="render-progress-container">
               <span ng-show="isRendering" class="render-progress">
@@ -19,9 +19,7 @@
           <div class="col-xs-6 col-lg-5 info resizable-right">
             <div class="top">
               <div class="shortcuts">
-                <a ng-click="showShortcuts()">
-                  <i class="icon-keyboard icon-lg"></i>
-                </a>
+                <style-editor-shortcuts></style-editor-shortcuts>
                 <a ng-click="editLayerSettings(layer);" style="margin-left: 10px;">
                   <i class="icon-cog icon-lg"></i>
                 </a>
@@ -53,7 +51,7 @@
               <style-editor-sld editor="editor" layer="layer"></style-editor-sld>
             </ul>
           </div>
-          <style-editor editor="editor" layer="layer" ysldstyle="ysldstyle" markers="markers"></style-editor>
+          <style-editor></style-editor>
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ angular.module('gsApp.workspaces.layers', [
   'gsApp.workspaces.layers.duplicate',
   'gsApp.workspaces.layers.addtomap',
   'gsApp.alertpanel',
+  'gsApp.editor.layer',
   'gsApp.core.utilities',
   'ngSanitize',
   'ui.scrollfix'
@@ -131,7 +132,7 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.showAttrs = function(layerOrResource, attributes) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/data.attributes.tpl.html',
+          templateUrl: '/components/modals/data/data.attributes.tpl.html',
           controller: 'WorkspaceAttributesCtrl',
           size: 'md',
           resolve: {
@@ -147,7 +148,7 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.editLayerSettings = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.settings.tpl.html',
+          templateUrl: '/components/modals/layer/layer.settings.tpl.html',
           controller: 'EditLayerSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -257,7 +258,7 @@ angular.module('gsApp.workspaces.layers', [
                 fadeout: true
               }];
               mapsListModel.addMap(result.data);
-              $state.go('map.compose', {workspace: map.workspace,
+              $state.go('map.edit', {workspace: map.workspace,
                 name: mapInfo.name});
             } else {
               $rootScope.alerts = [{
@@ -325,7 +326,7 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.copyToNewLayer = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.duplicate.tpl.html',
+          templateUrl: '/components/modals/layer/layer.duplicate.tpl.html',
           controller: 'DuplicateLayerCtrl',
           size: 'md',
           resolve: {

@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /* globals $ */
-angular.module('gsApp.styleditor.bg', [])
+angular.module('gsApp.editor.tools.bg', [])
 .directive('styleEditorBg', ['$log', '$rootScope', 'AppEvent',
     function($log, $rootScope, AppEvent) {
       return {

@@ -1,13 +1,15 @@
 /*
  * (c) 2014 Boundless, http://boundlessgeo.com
  * License: BSD
+ *
+ * olmap.js, olmap.less, olmap.tpl.html
+ *
+ * Composer map viewer. Includes an OL3 Map view with dynamic response to map, layer, and style changes
  */
-/*global window, document, ZeroClipboard, XMLHttpRequest, Uint8Array, proj4, $
-*/
-angular.module('gsApp.olmap', [])
+angular.module('gsApp.editor.olmap', [])
 .factory('MapFactory',
-    ['GeoServer', 'AppEvent', '$timeout', '$rootScope', '$log',
-    function(GeoServer, AppEvent, $timeout, $rootScope, $log) {
+    ['$log', '$rootScope', '$timeout', 'AppEvent', 'GeoServer',
+    function($log, $rootScope, $timeout, AppEvent, GeoServer) {
       function OLMap(mapOpts, element, options) {
         var self = this;
         this.mapOpts = mapOpts;
@@ -527,31 +529,64 @@ angular.module('gsApp.olmap', [])
         }
       };
     }])
-.directive('olMap', ['$timeout', 'MapFactory', 'GeoServer', '$log', '$window',
-    function($timeout, MapFactory, GeoServer, $log, $window) {
+.directive('olMap', ['$log', '$timeout', '$window', 'AppEvent', 'GeoServer', 'MapFactory',
+    function($log, $timeout, $window, AppEvent, GeoServer, MapFactory) {
       return {
         restrict: 'EA',
-        scope: {
-          mapOpts: '=?',
-          mapCtrls: '@'
-        },
-        templateUrl: '/components/olmap/olmap.tpl.html',
+        templateUrl: '/components/editor/olmap/olmap.tpl.html',
         controller: function($scope, $element) {
+
+          /** Editor scope variables **/
+          /* The $scope of the editor pages is shared between editor.map / editor.layer, 
+           * olmap, layerlist, and styleeditor. As such, care must be taken when adding
+           * or modifying these scope variables.
+           * The following scope variables are used among these modules:
+           */
+
+          /* Initialized in editor.layer.js or editor.map.js
+          $scope.olMapOpts    //OL Map parameters, used by olmap.js to construct $scope.olMap
+          $scope.map          //map object obtained from GeoServer. null for editor.layer.js
+          $scope.map.layers   //list of layers for the map object
+          $scope.layer        //layer object obtained from geoserver. Represents the current layer for editor.map.js
+          $scope.workspace    //name of the current workspace
+          $scope.isRendering  //boolean indicating if the map is currently rendering. Used to show the "Rendering map" spinner
+          $scope.ysldstyle    //text content of the current style. Used by styleeditor.js when constructing $scope.editor
+          */
+
+          /* Initialized in olmap.js
+          $scope.olMap      //OL3 Map object. Generated from $scope.olMapOpts
+          $scope.hideCtrl   //List of map controls to hide. Set by tools/display.js and used by editor.*.tpl.html
+          */
+
+          /* Initialized in styleeditor.js
+          $scope.editor           //Codemirror editor object
+          $scope.generation       //editor generation; used to handle undo
+          $scope.markers          //List of errors, displayed as line markers in the editor
+          $scope.popoverElement   //Popover element for error markers
+          */
+
+          /* Initialized in layerlist.js
+          $scope.showLayerList  //boolean indicating wheter to display the layer list
+          */
+          $scope.olMap = null;
+          $scope.hideCtrl = {
+            'all': false,
+            'lonlat': false
+          };
 
           var timer = null;
 
           $scope.$watch('mapOpts.layers', function(newVal, oldVal) {
             if (newVal == null) {
               return;
-            }
-            if (!$scope.map) {
-              $scope.map = MapFactory.createMap($scope.mapOpts, $element);
+            } if (!$scope.olMap) {
+              $scope.olMap = MapFactory.createMap($scope.mapOpts, $element);
             } else {
               if (timer) {
                 $timeout.cancel(timer);
               }
               timer = $timeout(function() {
-                $scope.map.update();
+                $scope.olMap.update();
                 timer = null;
               }, 750);
             }
@@ -559,7 +594,7 @@ angular.module('gsApp.olmap', [])
 
           $scope.$watch('mapOpts.bounds', function(newVal, oldVal) {
             if (newVal && newVal !== oldVal) {
-              var map = $scope.map.olMap;
+              var map = $scope.olMap.olMap;
               var bounds = newVal.bbox.lonlat;
               var extent = ol.proj.transformExtent(
                   [bounds.west, bounds.south, bounds.east, bounds.north],
@@ -573,23 +608,23 @@ angular.module('gsApp.olmap', [])
 
           $scope.$watch('mapOpts.timeout', function(newVal, oldVal) {
             if (newVal && newVal !== oldVal) {
-              $scope.map.updateTimeout(newVal);
+              $scope.olMap.updateTimeout(newVal);
             }
           });
 
           $scope.$watch('mapOpts.basemap', function(newVal) {
-            if (!$scope.map) {
+            if (!$scope.olMap) {
               return;
             }
             if (newVal == null) {
-              $scope.map.hideBasemap();
+              $scope.olMap.hideBasemap();
               return;
             }
             if (timer) {
               $timeout.cancel(timer);
             }
             timer = $timeout(function() {
-              $scope.map.addBasemap();
+              $scope.olMap.addBasemap();
               timer = null;
             }, 500);
           }, true);
@@ -607,15 +642,36 @@ angular.module('gsApp.olmap', [])
               }
               //Need to re-create the map if the projection changes
               //Delete the current map element, else new one will be appended offscreen
-              $scope.map.olMap.getViewport().remove();
-              $scope.map = MapFactory.createMap($scope.mapOpts, $element);
-              $scope.map.refresh();
+              $scope.olMap.olMap.getViewport().remove();
+              $scope.olMap = MapFactory.createMap($scope.mapOpts, $element);
+              $scope.olMap.refresh();
             }
-          })
-
-          $scope.$on('olmap-refresh', function() {
-            $scope.map.refresh();
           });
+
+          $scope.$watch('basemap', function(newVal) {
+            if (newVal != null && $scope.mapOpts) {
+              $scope.mapOpts.basemap = newVal;
+            } else if (newVal == null && $scope.mapOpts) {
+              $scope.mapOpts.basemap = null;
+            }
+          });
+
+
+
+          $scope.$on(AppEvent.MapControls, function(scope, ctrl) {
+            var val = $scope.hideCtrl[ctrl];
+            if (ctrl &&  val !== undefined) {
+              $scope.hideCtrl[ctrl] = !val;
+            }
+          });
+
+          $scope.$on(AppEvent.EditorBackground, function(scope, color) {
+            $scope.mapBackground = {'background': color};
+          });
+
+          $scope.refreshMap = function() {
+            $scope.olMap.refresh();
+          }
         }
       };
     }]);

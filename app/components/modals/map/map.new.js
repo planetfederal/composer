@@ -202,7 +202,7 @@ angular.module('gsApp.workspaces.maps.new', [
             }];
             $rootScope.$broadcast(AppEvent.MapAdded, map);
             $scope.close();
-            $state.go('map.compose', {workspace: $scope.workspace,
+            $state.go('map.edit', {workspace: $scope.workspace,
                 name: map.name});
           } else {
             var message = 'Could not create map: ' + result.data.message;
@@ -362,7 +362,7 @@ angular.module('gsApp.workspaces.maps.new', [
             map.layergroupname = $scope.workspace + ':' + map.name;
             $rootScope.$broadcast(AppEvent.MapAdded, map);
             $scope.close();
-            $state.go('map.compose', {workspace: $scope.workspace,
+            $state.go('map.edit', {workspace: $scope.workspace,
                 name: map.name});
           } else {
             var message = 'Could not create map: ' + result.data.message;

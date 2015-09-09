@@ -2,8 +2,8 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 /* globals $ */
-angular.module('gsApp.styleditor.display', [
-  'gsApp.styleditor.basemap'
+angular.module('gsApp.editor.tools.display', [
+  'gsApp.editor.tools.basemap'
 ])
 .directive('styleEditorDisplay', ['$log', '$rootScope', 'AppEvent',
   '$modal',
@@ -13,7 +13,7 @@ angular.module('gsApp.styleditor.display', [
         scope: {
           editor: '=',
         },
-        templateUrl: '/components/styleditor/tools/display.tpl.html',
+        templateUrl: '/components/editor/tools/display.tpl.html',
         replace: true,
         controller: function($scope, $element) {
 
@@ -92,7 +92,7 @@ angular.module('gsApp.styleditor.display', [
           $scope.addBasemap = function() {
             $modal.open({
               templateUrl:
-                '/components/styleditor/tools/basemap.modal.tpl.html',
+                '/components/editor/tools/basemap.modal.tpl.html',
               controller: 'BasemapModalCtrl',
               size: 'md',
               resolve: {
@@ -120,6 +120,12 @@ angular.module('gsApp.styleditor.display', [
               $scope.hideBasemap();
             }
           };
+          
+          $scope.$on(AppEvent.BaseMapChanged, function(scope, basemap) {
+            if ($scope.mapOpts) {
+              $scope.mapOpts.basemap = basemap;
+            }
+          });
         }
       };
     }]);

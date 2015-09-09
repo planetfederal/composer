@@ -3,7 +3,7 @@
  * License: BSD
  */
 /*global window, document, ZeroClipboard, $ */
-angular.module('gsApp.styleditor.icons', [
+angular.module('gsApp.editor.tools.icons', [
   'angularFileUpload',
   'gsApp.core.utilities'
 ])
@@ -15,7 +15,7 @@ angular.module('gsApp.styleditor.icons', [
           editor: '='
         },
         template:
-          '<li class="styleditor-icon"' +
+          '<li class="styleeditor-icon"' +
             'ng-click="selectIcon();">'+
             '<i class="icon-flag"></i>'+
             '<span>Icons</span>'+
@@ -51,7 +51,7 @@ angular.module('gsApp.styleditor.icons', [
               return;
             }
             $modal.open({
-              templateUrl: '/components/styleditor/tools/icons.modal.tpl.html',
+              templateUrl: '/components/editor/tools/icons.modal.tpl.html',
               controller: 'IconsModalCtrl',
               size: 'lg',
               resolve: {
