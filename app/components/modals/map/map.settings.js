@@ -2,10 +2,12 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.maps.settings', [])
-.controller('EditMapSettingsCtrl', ['workspace', 'map', '$scope', '$rootScope',
-  '$state', '$log', '$modalInstance', 'GeoServer', 'AppEvent',
-    function(workspace, map, $scope, $rootScope, $state, $log, $modalInstance,
-      GeoServer, AppEvent) {
+.controller('EditMapSettingsCtrl', ['$controller', '$log', '$modalInstance', '$rootScope', '$scope', '$state', 
+    'AppEvent', 'GeoServer', 'map', 'workspace', 
+    function($controller, $log, $modalInstance, $rootScope, $scope, $state, 
+    AppEvent, GeoServer, map, workspace) {
+
+      angular.extend(this, $controller('ModalCtrl', {$scope: $scope}));
 
       $scope.workspace = workspace;
       $scope.map = angular.copy(map);
@@ -14,32 +16,6 @@ angular.module('gsApp.workspaces.maps.settings', [])
       $scope.form = {};
       $scope.form.mapSettings = {};
       var originalMap = angular.copy($scope.map);
-
-      $scope.crsTooltip =
-      '<p>Add a projection in EPSG</p>' +
-      '<p><small>Coordinate Reference System (CRS) info is available at ' +
-        '<a href="http://prj2epsg.org/search" target="_blank">' +
-          'http://prj2epsg.org' +
-        '</a>' +
-        '</small></p>';
-
-      $scope.extentTooltip =
-      '<p>Map Extent</p>' +
-      '<small class="hint"> The default region visible when rendering ' +
-      'the map.<br/>The map extent should be provided in the same units ' +
-      'as the projection: degrees for EPSG:4326 or meters for most ' +
-      'other EPSG codes.<br/><br/>"Generate Bounds" will calculate the ' +
-      'net layer bounds in the current projection.</small>';
-
-      $scope.renderTooltip =
-      '<p>Render Timeout</p>' +
-      '<small class="hint">Max time to wait for map to render in ' +
-      'Composer before the request is cancelled.<br/>A lower number prevents '+
-      'overloading GeoServer with resource-monopolizing rendering '+
-      'requests.<br/><br/>Minimum is 3 seconds.<br/><br/>Default is ' +
-      '120 seconds.<br/>(This is set high so you can still render ' +
-      'large datasets, but we ecommend reducing this for a more ' +
-      'performant or shared GeoServer).</small>';
 
       $scope.saveChanges = function() {
         if ($scope.form.mapSettings.$dirty) {

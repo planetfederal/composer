@@ -1,16 +1,5 @@
 <div class="new-map">
-  <div class="row options" ng-show="step==2 && hasLayers">
-    <div class="col-sm-6 text-center">
-      <p class="lead"><i class="fa fa-check-square-o gray"></i> Select available layers<br/>below for new map:</p>
-      <button class="btn btn-primary btn-sm" ng-disabled="layerSelections.length==0" ng-click="createMap(layerSelections);">Create Map with Selected</button>
-    </div>
-    <div class="col-sm-6 text-center divider">
-      <span class="pull-left or">OR</span>
-      <p class="lead"><i class="fa fa-share gray"></i> Import data to create<br/>new layers:</p>
-      <button class="btn btn-primary btn-sm" ng-click="importNewLayers();">Import New Data &rarr;</button>
-    </div>
-  </div>
-  <form ng-show="step==2" name="newMapLayers" role="form" class="new-map-form form-2">
+  <form ng-show="step==3" name="newMapLayers" role="form" class="new-map-form form-2">
     <div class="form-group new-layers-group" name="create-new-layers" ng-show="hasLayers == false">
       <p>No published layers in this workspace.</p>
       <button class="btn btn-primary btn-sm" ng-click="importNewLayers();">Import Data to New Layers &rarr;</button>
@@ -20,7 +9,7 @@
         <div class="col-sm-12">
           <div class="layers-count-sort">
             <div class="layers-count">
-              <strong>{{ totalServerItems }} layer<span ng-if="layers.length==0 || layers.length>1">s</span></strong> in current workspace.
+              <strong>{{ totalServerItems }} layer<span ng-if="totalServerItems==0 || totalServerItems>1">s</span></strong> in current workspace.
             </div>
             <div class="pull-right">
               <div class="filter-box">

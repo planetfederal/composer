@@ -31,7 +31,7 @@ angular.module('gsApp.workspaces.data', [
       });
       $stateProvider.state('workspace.data.import', {
         url: '',
-        templateUrl: '/workspaces/detail/data/import/import.tpl.html',
+        templateUrl: '/components/import/import.tpl.html',
         controller: 'DataImportCtrl',
         params: { workspace: {} }
       });
@@ -237,7 +237,7 @@ angular.module('gsApp.workspaces.data', [
           $rootScope.importInitiated = true;
           $scope.mapInfo = mapInfo;
           var importModalInstance = $modal.open({
-            templateUrl: '/workspaces/detail/data/import/import.tpl.html',
+            templateUrl: '/components/import/import.tpl.html',
             controller: 'DataImportCtrl',
             backdrop: 'static',
             size: 'lg',

@@ -1,0 +1,10 @@
+<div class="form-group">
+  <label for="mapName">{{label}} *</label>
+  <input name="mapName" type="text" class="form-control input-sm" ng-model="model" value="{{model}}" maxlength="10" required ng-pattern="/^[a-zA-Z][a-zA-Z\d\-_]*$/" ng-model-options="{updateOn: 'default blur'}" focus-init
+  ng-blur="setInvalid(form.mapName.$dirty && (form.mapName.$error.required || form.mapName.$error.pattern || form.mapName.$error.maxlength))"/>
+  <span ng-show="form.mapName.$error.pattern" class="errorInput">Invalid characters in layer name.</span>
+  <span ng-show="!form.mapName.$error.pattern && form.mapName.$error.maxlength" class="errorInput">Max 10 characters allowed.</span>
+  <span ng-show="form.mapName.$dirty && !form.mapName.$error.pattern && !form.mapName.$error.maxlength && form.mapName.$error.required" class="errorInput">Required</span>
+  <span ng-show="form.mapName.$dirty && !form.mapName.$error.pattern && !form.mapName.$error.maxlength && !form.mapName.$error.required && form.mapName.$error.alreadyExists" class="error">Name already exists</span>
+  <small class="hint">(No spaces, max 10 characters, for web URLs.)</small>
+</div>

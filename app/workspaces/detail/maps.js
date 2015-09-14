@@ -2,7 +2,7 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.maps', [
-  'gsApp.workspaces.maps.new',
+  'gsApp.modals.maps.new',
   'gsApp.workspaces.maps.settings',
   'gsApp.alertpanel',
   'gsApp.editor.map',
@@ -160,7 +160,7 @@ angular.module('gsApp.workspaces.maps', [
           return;
         }
         var createModalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/maps/createnew/map.new.tpl.html',
+          templateUrl: '/components/modals/map/map.new.tpl.html',
           controller: 'NewMapCtrl',
           backdrop: 'static',
           size: 'lg',
@@ -168,21 +168,9 @@ angular.module('gsApp.workspaces.maps', [
             workspace: function() {
               return $scope.workspace;
             },
-            maps: function() {
-              return $scope.maps;
+            mapInfo: function() {
+              return null;
             }
-          }
-        }).result.then(function(response) {
-          if (response.importOrClose==='import') {
-            var mapInfo = response.mapInfo;
-            $timeout(function() {
-              $rootScope.$broadcast(AppEvent.ImportData, {
-                mapInfo: mapInfo,
-                workspace: $scope.workspace
-              });
-            }, 250);
-            // go to this state to initiate listener for broadcast above!
-            $state.go('workspace.data.import', {workspace: $scope.workspace});
           }
         });
       };
