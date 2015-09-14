@@ -103,8 +103,25 @@ angular.module('gsApp.workspaces.home', [
           $scope.selectTab($scope.tabs[2]);
           $scope.tabs[2].active = true;
           $timeout(function() {
-            $rootScope.$broadcast(AppEvent.ImportData, {
-              workspace: $scope.workspace
+            $modal.open({
+              templateUrl: '/components/import/import.tpl.html',
+              controller: 'DataImportCtrl',
+              backdrop: 'static',
+              size: 'lg',
+              resolve: {
+                workspace: function() {
+                  return $scope.workspace;
+                },
+                mapInfo: function() {
+                  return null;
+                },
+                contextInfo: function() {
+                  return null;
+                }
+              }
+            }).result.then(function(param) {
+              //TODO: Add store select (implement as state param)
+              $state.go('workspace.data.main');
             });
           }, 100);
         };

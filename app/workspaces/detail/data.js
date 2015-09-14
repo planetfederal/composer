@@ -4,7 +4,7 @@
 angular.module('gsApp.workspaces.data', [
   'gsApp.workspaces.data.delete',
   'gsApp.workspaces.data.update',
-  'gsApp.workspaces.data.import',
+  'gsApp.import',
   'gsApp.workspaces.formats.type',
   'gsApp.workspaces.data.attributes',
   'gsApp.workspaces.layers.import',
@@ -28,12 +28,6 @@ angular.module('gsApp.workspaces.data', [
             controller: 'DataMainCtrl',
           }
         }
-      });
-      $stateProvider.state('workspace.data.import', {
-        url: '',
-        templateUrl: '/components/import/import.tpl.html',
-        controller: 'DataImportCtrl',
-        params: { workspace: {} }
       });
     }])
 .controller('WorkspaceDataCtrl', ['$scope', '$rootScope', '$state',
@@ -225,42 +219,31 @@ angular.module('gsApp.workspaces.data', [
       }, true);
 
 
-
-      // for some reason modal below's being called twice without this lock
-      $rootScope.importInitiated = false;
-
       $scope.importNewData = function(info) {
         var workspace = info.workspace;
         var mapInfo = info.mapInfo;
 
-        if (!$scope.importInitiated) {
-          $rootScope.importInitiated = true;
-          $scope.mapInfo = mapInfo;
-          var importModalInstance = $modal.open({
-            templateUrl: '/components/import/import.tpl.html',
-            controller: 'DataImportCtrl',
-            backdrop: 'static',
-            size: 'lg',
-            resolve: {
-              workspace: function() {
-                return workspace;
-              },
-              mapInfo: function() {
-                return $scope.mapInfo;
-              }
+        var importModalInstance = $modal.open({
+          templateUrl: '/components/import/import.tpl.html',
+          controller: 'DataImportCtrl',
+          backdrop: 'static',
+          size: 'lg',
+          resolve: {
+            workspace: function() {
+              return workspace;
+            },
+            mapInfo: function() {
+              return mapInfo;
+            },
+            contextInfo: function() {
+              return null;
             }
-          }).result.then(function(param) {
-            $rootScope.importInitiated = false;
-            if (param != null) {
-              $scope.selectStore(param);
-            }
-          });
-        }
+          }
+        }).result.then(function(param) {
+          //TODO: Add store select (implement as state param)
+          $state.go('workspace.data.main');
+        });
       };
-
-      $rootScope.$on(AppEvent.ImportData, function(scope, info) {
-        $scope.importNewData(info);
-      });
 
       $rootScope.$on(AppEvent.StoreAdded, function(scope, workspace) {
         $scope.serverRefresh();
@@ -288,8 +271,21 @@ angular.module('gsApp.workspaces.data', [
       });
 
       $scope.addNewStore = function() {
-        $state.go('workspace.data.import.file', {
-          workspace: $scope.workspace
+        $modal.open({
+          templateUrl: '/components/import/import.tpl.html',
+          controller: 'DataImportCtrl',
+          backdrop: 'static',
+          size: 'lg',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            mapInfo: function() {
+              return $scope.mapInfo;
+            }
+          }
+        }).result.then(function(param) {
+          //TODO: Select store
         });
       };
 

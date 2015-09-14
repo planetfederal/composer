@@ -2,20 +2,6 @@
   <div class="container-fluid">
     <h3 class="page-title">
       <i class="icon-lg icon-map"></i> {{title}}
-      <span class="workspace-buttons">
-        <span class="divider"></span>
-        <a class="newmap" ng-click="createMap(workspace.selected.name);">
-          <i class="icon-plus icon"></i> <span class="text">New Map</span>
-        </a>
-        <span class="divider"></span>
-        <a class="import" ng-click="importData(workspace.selected.name);">
-          <i class="fa fa-share icon"></i> <span class="text">Add Data</span>
-        </a>
-        <span class="divider"></span>
-        <a class="settings" ng-click="go('workspace.settings', workspace.selected.name);">
-          <i class="fa fa-gear icon"></i> <span class="text">Settings</span>
-        </a>
-      </span>
     </h3>
     <div class="page-content all-maps">
       <div class="row">

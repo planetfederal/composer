@@ -219,15 +219,27 @@ angular.module('gsApp.editor.map', [
           if (response==='import') {
             $scope.map.hiddenLayers = $scope.getHiddenLayers();
             var mapInfo = $scope.map;
-            $timeout(function() {
-              $rootScope.$broadcast(AppEvent.ImportData, {
-                mapInfo: mapInfo,
-                workspace: $scope.workspace
-              });
-            }, 250);
-            // go to this state to initiate listener for broadcast above!
-            $state.go('workspace.data.import', {
-              workspace: $scope.workspace
+            $modal.open({
+              templateUrl: '/components/import/import.tpl.html',
+              controller: 'DataImportCtrl',
+              backdrop: 'static',
+              size: 'lg',
+              resolve: {
+                workspace: function() {
+                  return workspace;
+                },
+                mapInfo: function() {
+                  return mapInfo;
+                },
+                contextInfo: function() {
+                  return {title:'',hint:'',button:''};
+                }
+              }
+            }).result.then(function(param) {
+              if (param) {
+                //TODO: add layers to map, alert user
+              }
+              state.go('map.edit', {workspace: workspace, name: mapInfo.name, hiddenLayers: mapInfo.hiddenLayers});
             });
           } else if (response==='added') {
             $scope.refreshMap();

@@ -89,10 +89,6 @@ angular.module('gsApp.workspaces.layers', [
         }
       };
 
-      $scope.createMap = function() {
-        $state.go('workspace.maps.new', {workspace:$scope.workspace});
-      };
-
       $scope.$on(AppEvent.CreateNewMap, function() {
         $scope.createMap();
       });
@@ -164,13 +160,25 @@ angular.module('gsApp.workspaces.layers', [
       };
 
       $scope.createLayer = function() {
-        $timeout(function() {
-          $rootScope.$broadcast(AppEvent.ImportData, {
-            workspace: $scope.workspace
-          });
-        }, 500);
-        // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.data.main', {workspace: $scope.workspace});
+        $modal.open({
+          templateUrl: '/components/import/import.tpl.html',
+          controller: 'DataImportCtrl',
+          backdrop: 'static',
+          size: 'lg',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            mapInfo: function() {
+              return null;
+            },
+            contextInfo: function() {
+              return null;
+            }
+          }
+        }).result.then(function(param) {
+          $state.go('workspace.layers.main');
+        });
       };
 
       $scope.setMap = function(map) {
@@ -221,8 +229,8 @@ angular.module('gsApp.workspaces.layers', [
           } else {
             var createNewMapModal = $modal.open({
               templateUrl:
-              '/workspaces/detail/maps/createnew/map.new.fromselected.tpl.html',
-              controller: 'NewMapFromSelectedCtrl',
+              '/components/modals/map/map.new.tpl.html',
+              controller: 'NewMapCtrl',
               backdrop: 'static',
               size: 'lg',
               resolve: {
@@ -232,6 +240,10 @@ angular.module('gsApp.workspaces.layers', [
                 mapInfo: function() {
                   return mapInfo;
                 }
+              }
+            }).result.then(function (result) {
+              if (!result) {
+                $state.go('workspace.layers.main')
               }
             });
           }

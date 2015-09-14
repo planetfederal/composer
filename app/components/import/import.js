@@ -1,7 +1,7 @@
 /*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
-angular.module('gsApp.workspaces.data.import', [
+angular.module('gsApp.import', [
   'ngGrid',
   'angularFileUpload',
   'ui.bootstrap',
@@ -11,39 +11,42 @@ angular.module('gsApp.workspaces.data.import', [
 ])
 .config(['$stateProvider',
     function($stateProvider) {
-      $stateProvider.state('workspace.data.import.fileordb', {
+      $stateProvider.state('workspace.import', {
+        url: '/'
+      });
+      $stateProvider.state('workspace.import.fileordb', {
         views: {
           'importfile@': {
             url: '/',
-            templateUrl: '/workspaces/detail/data/import/import.file.tpl.html',
+            templateUrl: '/components/import/import.file.tpl.html',
             controller: 'DataImportFileCtrl'
           },
           'importdb@': {
             url: '/',
             templateUrl:
-              '/workspaces/detail/data/import/import.db.tpl.html',
+              '/components/import/import.db.tpl.html',
             controller: 'DataImportDbCtrl'
           }
         },
         params: { workspace: {}, importId: {}, connectParams: {}, format: {} }
       });
-      $stateProvider.state('workspace.data.import.details', {
+      $stateProvider.state('workspace.import.details', {
         views: {
           'importdetails@': {
             url: '/details',
             templateUrl:
-              '/workspaces/detail/data/import/import.details.tpl.html',
+              '/components/import/import.details.tpl.html',
             controller: 'DataImportDetailsCtrl',
           }
         },
         params: { workspace: {}, importId: {}, mapInfo: {} }
       });
-      $stateProvider.state('workspace.data.import.newmap', {
+      $stateProvider.state('workspace.import.newmap', {
         views: {
           'newmap@': {
             url: '/newmap',
             templateUrl:
-              '/workspaces/detail/data/import/import.newmap.tpl.html',
+              '/components/import/import.newmap.tpl.html',
             controller: 'ImportNewMapCtrl'
           }
         },
@@ -51,10 +54,10 @@ angular.module('gsApp.workspaces.data.import', [
       });
     }])
 .controller('DataImportCtrl', ['$scope', '$state', '$stateParams', 'GeoServer',
-  '$modal', '$modalInstance', 'workspace', 'mapInfo', 'mapInfoModel',
+  '$modal', '$modalInstance', 'workspace', 'contextInfo', 'mapInfo','mapInfoModel',
   '$rootScope', 'mapsListModel', 'storesListModel', '_',
     function($scope, $state, $stateParams, GeoServer, $modal, $modalInstance,
-        workspace, mapInfo, mapInfoModel, $rootScope, mapsListModel,
+        workspace, contextInfo, mapInfo, mapInfoModel, $rootScope, mapsListModel,
         storesListModel, _) {
 
       var wsName = workspace;
@@ -66,21 +69,29 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.showImportDetails = false;
       $scope.selectedStore = null;
 
-      $scope.close = function(newmapOrClose) {
-        $state.go('workspace.data.main', {workspace: wsName});
-        if (newmapOrClose) {
-          $modalInstance.close(newmapOrClose);
+      /*
+       * If import was opened from an import layers into map dialog (details in contextInfo)
+       * then return the list of imported, selected, layers (Note/TODO: All imported layers default to selected)
+       * else return the imported store
+       */
+      $scope.close = function(layerlist) {
+        if (contextInfo) {
+          if (layerlist) {
+            $modalInstance.close(layerlist);
+          } else {
+            $modalInstance.close();
+          }
         } else {
           $modalInstance.close($scope.selectedStore);
         }
       };
 
       $scope.is = function(route) {
-        return $state.is('workspace.data.import'+(route!=null?'.'+route:''));
+        return $state.is('workspace.import'+(route!=null?'.'+route:''));
       };
 
       $scope.go = function(route) {
-        $state.go('workspace.data.import.'+route, {
+        $state.go('workspace.import.'+route, {
           workspace: wsName
         });
       };
@@ -88,7 +99,7 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.next = function(imp) {
         $scope.showImportFile = false;
         $scope.showImportDetails = true;
-        $state.go('workspace.data.import.details', {
+        $state.go('workspace.import.details', {
           'workspace': wsName,
           'importId': String(imp.id)
         });
@@ -98,7 +109,7 @@ angular.module('gsApp.workspaces.data.import', [
       $scope.back = function() {
         if (!$scope.is('fileordb') && !$scope.showImportDB) {
         // back to Add File
-          $state.go('workspace.data.import.fileordb', {
+          $state.go('workspace.import.fileordb', {
             workspace: wsName,
             importId: $scope.importId
           });
@@ -109,7 +120,7 @@ angular.module('gsApp.workspaces.data.import', [
             $scope.params = null;
             $scope.db_home = true;
           } else {
-            $state.go('workspace.data.import.fileordb', {
+            $state.go('workspace.import.fileordb', {
               workspace: wsName,
               importId: $scope.importId,
               connectParams: $scope.connectParams,
@@ -120,7 +131,7 @@ angular.module('gsApp.workspaces.data.import', [
           $scope.db_home = true;
           $scope.showImportDetails = false;
           $scope.format = null;
-          $state.go('workspace.data.import.fileordb', {
+          $state.go('workspace.import.fileordb', {
             workspace: wsName,
             format: $scope.format
           });
@@ -129,7 +140,7 @@ angular.module('gsApp.workspaces.data.import', [
 
       $scope.inFileFlow = function() {
         var test = $scope.is() || $scope.is('fileordb');
-        test = test || $state.includes('workspace.data.import.details');
+        test = test || $state.includes('workspace.import.details');
         return test;
       };
 
@@ -137,13 +148,6 @@ angular.module('gsApp.workspaces.data.import', [
       if (mapInfoModel.getMapInfo()) {
         $scope.title += ' for ' + $scope.mapInfo.name;
       }
-
-      GeoServer.workspace.get(wsName).then(function(result) {
-        if (result.success) {
-          $scope.workspace = result.data;
-          $scope.go('fileordb');
-        }
-      });
 
       $scope.importResult = null;
       $scope.setImportResult = function(result) {
@@ -189,7 +193,7 @@ angular.module('gsApp.workspaces.data.import', [
       };
 
       $scope.goToCreateNewMap = function(workspace, importInfo) {
-        $state.go('workspace.data.import.newmap', {
+        $state.go('workspace.import.newmap', {
           workspace: workspace,
           import: importInfo
         });
@@ -303,6 +307,12 @@ angular.module('gsApp.workspaces.data.import', [
           });
       };
 
+      GeoServer.workspace.get(wsName).then(function(result) {
+        if (result.success) {
+          $scope.workspace = result.data;
+          $state.go('workspace.import.fileordb');
+        }
+      });
 
     }])
 .controller('DataImportFileCtrl', ['$scope', '$state', '$upload', '$log',
@@ -895,7 +905,7 @@ angular.module('gsApp.workspaces.data.import', [
                   ' layer(s) added to map ' + newMapInfo.name + '.',
                 fadeout: true
               }];
-              $scope.close('close');
+              $scope.close();
               $state.go('map.edit', {workspace: map.workspace,
                 name: newMapInfo.name});
             } else {
@@ -972,7 +982,7 @@ angular.module('gsApp.workspaces.data.import', [
       });
 
       $scope.back = function() {
-        $state.go('workspace.data.import.details', {
+        $state.go('workspace.import.details', {
           workspace: $scope.workspace,
           import: $scope.import,
           mapInfo: $scope.mapInfo

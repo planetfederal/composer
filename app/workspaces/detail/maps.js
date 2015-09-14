@@ -172,6 +172,10 @@ angular.module('gsApp.workspaces.maps', [
               return null;
             }
           }
+        }).result.then(function (result) {
+          if (!result) {
+            $state.go('workspace.maps.main')
+          }
         });
       };
 

@@ -66,16 +66,16 @@ angular.module('gsApp', [
       });
 
       // track app state changes
-      $scope.state = {};
+      $rootScope.state = {};
       $rootScope.title = "Composer";
-      $scope.$on('$stateChangeSuccess',
+      $rootScope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {
               //Whenever we change states, pre-emptively check if we are logged in. If not, go to the login page.
               $scope.stateChange = true;
               //If this is not a login redirect, save curr/prev states
               if (to.url && to.url.indexOf('/login') == -1) {
-                $scope.state.curr = {name: to, params: toParams};
-                $scope.state.prev = {name: from, params: fromParams};
+                $rootScope.state.curr = {name: to, params: toParams};
+                $rootScope.state.prev = {name: from, params: fromParams};
               }
               //Update page title
               if (to.url) {

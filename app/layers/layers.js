@@ -59,22 +59,6 @@ angular.module('gsApp.layers', [
         $state.go(route, {workspace: workspace});
       };
 
-      $scope.createMap = function(workspace) {
-        $timeout(function() {
-          $rootScope.$broadcast(AppEvent.CreateNewMap);
-        }, 250);
-        // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.maps.main', {workspace: workspace});
-      };
-
-      $scope.importData = function(workspace) {
-        $timeout(function() {
-          $rootScope.$broadcast(AppEvent.ImportData, {workspace: workspace});
-        }, 250);
-        // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.data.import', {workspace: workspace});
-      };
-
       $scope.addSelectedToMap = function() {
         var map = $scope.selectedMap;
         var mapInfo = {
