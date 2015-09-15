@@ -548,33 +548,54 @@ angular.module('gsApp.import', [
           }
         }
       };
+      //TODO: Add variable display name for proj and status
 
-      $scope.preimportGridOpts = angular.extend({
-        data: 'import.preimport',
+      $scope.gridOpts = angular.extend({
+        data: 'import.tasks',
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ' +
               'ng-change="toggleSelectAll(allSelected)"/>',
         sortInfo: {fields: ['name'], directions: ['asc']},
         columnDefs: [
-          {field: 'name', displayName: 'Name', width: '25%'},
-          {field: 'geometry', displayName: 'Geometry',
+          {
+            field: 'name', displayName: 'Name', width: '30%'
+          },
+          {
+            field: 'geometry', displayName: 'Geometry',
             cellTemplate:
               '<div class="ngCellText" ng-switch ' +
                 'on="row.entity.geometry==\'none\'">' +
-                '<span ng-switch-when="false">{{ row.entity.geometry }}' +
-                '</span>' +
-                '<span ng-switch-when="true">None *</span>' +
+                '<div ng-switch-when="false"><div get-type geometry="{{row.entity.geometry}}"></div></div>'+
+                '<div ng-switch-when="true">None *</div>' +
               '</div>',
             width: '20%'},
           {
-            displayName: ''
+            field: 'projection', displayName: 'Projection',
+            cellTemplate:
+              '<div ng-switch on="row.entity.status==\'NO_CRS\'">' +
+                '<proj-field ng-switch-when="true" proj="row.entity.proj">' +
+                '</proj-field>' +
+                '<div ng-switch-when="false" ng-show="!!row.entity.proj.srs" class="ngCellText">' +
+                ' {{ row.entity.proj.srs }}'+
+                '<div>' +
+              '</div>',
+            width: '30%'
           },
           {
-            displayName: '',
+            field: 'status', displayName: '',
             cellTemplate:
-              '<span class="loadingField" ng-show="row.entity.loading">' +
-              '<i class="fa fa-spinner fa-spin"></i> Importing</span>',
+              '<div ng-switch on="row.entity.status">' +
+              '<span ng-switch-when="RUNNING" class="loadingField">' +
+                '<i class="fa fa-spinner fa-spin"></i> Importing</span>' +
+              '<span ng-switch-when="NO_CRS">'+
+                '<i class="fa fa-exclamation-triangle"></i>No CRS</span>' +
+              '<span ng-switch-when="NO_BOUNDS">'+
+                '<i class="fa fa-exclamation-triangle"></i>No Bounds</span>' +
+              '<span ng-switch-when="ERROR">'+
+                '<i class="fa fa-x"></i>Error: {{row.entity.error.message}}</span>' + //TODO: link to dialog
+              '<span ng-switch-when="COMPLETE">'+
+                '<i class="fa fa-check"></i>Imported</span>',
             width: '20%'
           }
         ],
@@ -587,118 +608,11 @@ angular.module('gsApp.import', [
         enablePaging: false,
         enableColumnResize: false,
         showFooter: false,
-        totalServerItems: 'import.preimport.length',
+        totalServerItems: 'import.tasks.length',
         pagingOptions: {
           pageSize: 50,
           currentPage: 1
         },
-      }, baseGridOpts);
-
-      $scope.completedGridOpts = angular.extend({
-        data: 'import.imported',
-        checkboxHeaderTemplate:
-          '<input class="ngSelectionHeader" type="checkbox"' +
-            'ng-model="allSelected" ng-init="toggleSelectAll(true);"' +
-              'ng-change="toggleSelectAll(allSelected)"/>',
-        sortInfo: {fields: ['name'], directions: ['asc']},
-        columnDefs: [
-          {field: 'name', displayName: 'Layer', width: '30%'},
-          {field: 'title',
-            displayName: 'Title',
-            enableCellEdit: true,
-            cellTemplate:
-              '<div class="grid-text-padding"' +
-                'alt="{{row.entity.description}}"' +
-                'title="{{row.entity.description}}">' +
-                '{{row.entity.title}}' +
-              '</div>',
-            width: '50%'
-          },
-          {field: 'geometry',
-            displayName: 'Type',
-            cellClass: 'text-center',
-            cellTemplate:
-              '<div get-type ' +
-                'geometry="{{row.entity.geometry}}">' +
-              '</div>',
-            width: '20%'
-          }
-        ],
-        enablePaging: false,
-        enableColumnResize: false,
-        showFooter: false,
-        totalServerItems: 'import.imported.length',
-        pagingOptions: {
-          pageSize: 50,
-          currentPage: 1
-        }
-      }, baseGridOpts);
-      
-      $scope.pendingGridOpts = angular.extend({
-        data: 'import.pending',
-        checkboxHeaderTemplate:
-          '<input class="ngSelectionHeader" type="checkbox"' +
-            'ng-model="allSelected" ' +
-            'ng-change="toggleSelectAll(allSelected)"/>',
-        checkboxCellTemplate:
-          '<div class="ngSelectionCell">' +
-          '<input tabindex="-1" class="ngSelectionCheckbox" ' +
-          'type="checkbox" ng-checked="row.selected" ' +
-          'ng-disabled="row.entity.success" />' +
-          '</div>',
-        enablePaging: false,
-        showFooter: false,
-        columnDefs: [
-          {field: 'name', displayName: 'Name'},
-          {
-            displayName: 'Projection',
-            cellTemplate:
-              '<div ng-switch on="row.entity.success">' +
-                '<proj-field ng-switch-when="false" proj="row.entity.proj">' +
-                '</proj-field>' +
-                '<div ng-switch-when="true" class="ngCellText">' +
-                ' {{ row.entity.proj.srs }}'+
-                '<div>' +
-              '</div>',
-            width: '30%'
-          },
-          {
-            displayName: '',
-            cellTemplate:
-              '<div class="ngCellText" ' +
-                'ng-show="!row.entity.success && row.entity.proj != null">'+
-                '<a ng-click="applyProjToAll(row.entity.proj)" ' +
-                '  title="Apply projection to all pending layers">'+
-                'Apply to all</a> ' +
-                '<i class="fa fa-mail-forward fa-rotate-180" '+
-                'style="color: #999;"></i>' +
-              '</div>' +
-              '<div class="ngCellText" ng-show="row.entity.success == true">'+
-                '<i class="fa fa-check-circle"></i> Layer imported.' +
-              '</div>'
-          },
-          {
-            displayName: '',
-            cellTemplate:
-              '<button ng-click="reimport([row.entity])" ' +
-                  'ng-disabled="row.entity.success==true" ' +
-                  'ng-hide="row.entity.loading" ' +
-                  'class="btn btn-success btn-xs"> ' +
-                  '<span ng-hide="row.entity.success">' +
-                  '<i class="fa fa-refresh"></i> Retry Import</span>' +
-                  '<span ng-show="row.entity.success">' +
-                  '<i class="fa fa-check"></i> Imported</span>' +
-              '</button>' +
-              '<span class="errorField" ng-show="row.entity.error" ' +
-              'popover={{row.entity.errorMsg}} ' +
-              'popover-trigger="mouseenter" ' +
-              'popover-placement="top" popover-append-to-body="true">' +
-              '<i class="fa fa-exclamation-triangle"></i> Error</span>' +
-              '<span class="loadingField" ng-show="row.entity.loading">' +
-              '<i class="fa fa-spinner fa-spin"></i> Importing</span>',
-              width: '20%'
-          }
-        ]
       }, baseGridOpts);
 
       //Function definitions
@@ -717,9 +631,54 @@ angular.module('gsApp.import', [
       $scope.pollingGetCallback = function(result) {
         if (result.success) {
           var data = result.data;
+
+          var running = 0;
+          if (data.tasks) {
+            $scope.ignored = [];
+            data.tasks.forEach(function(t) {
+              //Copy over any saved CRS values
+              if ($scope.import) {
+                for (var i=0; i < $scope.import.tasks.length; i++) {
+                  var task_i = $scope.import.tasks[i];
+                  if (t.task == task_i.task && typeof t.proj === 'undefined' 
+                      && typeof task_i.proj !== 'undefined') {
+                    t.proj = task_i.proj;
+                  }
+                }
+              }
+
+              if (t.status == 'RUNNING') {
+                running++;
+              }
+              if (t.status == 'NO_CRS') {
+                //Copy over any saved CRS values
+                if ($scope.import) {
+                  for (var i=0; i < $scope.import.tasks.length; i++) {
+                    var task_i = $scope.import.tasks[i];
+                    if (t.task == task_i.task && typeof t.proj === 'undefined' 
+                        && typeof task_i.proj !== 'undefined') {
+                      t.proj = task_i.proj;
+                    }
+                  }
+                }
+              }
+              if (t.status == 'IGNORED') {
+                $scope.ignored.push(t);
+
+
+              }
+            });
+
+            //set global import data
+            $scope.import = data;
+            //remove 'ignored' tasks
+            $scope.import.tasks = data.tasks.filter(function(t) {
+              return t.status != 'IGNORED';
+            });
+          }
           
           // Completed
-          if (data.running && data.running.length == 0 && data.state != "running") {
+          if (data.tasks && running == 0 && data.state != "running") {
           
             // cleanup/reset
             $timeout.cancel(stopGetTimer);
@@ -728,40 +687,21 @@ angular.module('gsApp.import', [
             $scope.detailsLoading = false;
             $scope.importInProgress = false;
 
-            //configure pending
-            data.pending.forEach(function(t) {
-              t.success = false;
-              //Copy over any saved CRS values
-              if ($scope.import) {
-                for (var i=0; i < $scope.import.pending.length; i++) {
-                  var layer = $scope.import.pending[i];
-                  if (t.task == layer.task && typeof t.proj === 'undefined' 
-                      && typeof layer.proj !== 'undefined') {
-                    t.proj = layer.proj;
-                  }
-                }
+            $scope.imported = [];
+            data.tasks.forEach(function(t) {
+              if (t.status == 'COMPLETE') {
+                $scope.setStoreFromLayername(t.name);
+                t.layer.source = t.name;
+                $scope.imported.push(t);
               }
             });
+            mapInfoModel.setMapInfoLayers($scope.imported);
 
-            //configure imported
-            if (data.imported.length > 0) {
-              $scope.setStoreFromLayername(data.imported[0].name);
-            }
-            mapInfoModel.setMapInfoLayers(data.imported);
-
-            data.imported.forEach(function(t) {
-              t.layer.source = t.name;
-            });
-
-            //set global import data
-            $scope.import = data;
-
-            var totalImported = data.imported.length + data.pending.length +
-              data.preimport.length + data.failed.length +
-              data.running.length + data.ignored.length;
-            if (totalImported == 0) {
+            //TODO: Compare pre ($scope.import) and post (data) "COMPLETED" to get imported layer count
+            if ($scope.import.tasks.length == $scope.ignored.length) {
               $scope.noImportData = true;
-            } else {
+            } 
+            if ($scope.imported.length > 0) {
               $rootScope.$broadcast(AppEvent.StoreAdded);
             }
 
@@ -793,57 +733,32 @@ angular.module('gsApp.import', [
       };
 
       $scope.applyProjToAll = function(proj) {
-        $scope.import.pending.forEach(function(task) {
-          task.proj = proj;
+        $scope.import.tasks.forEach(function(task) {
+          if (task.status == 'NO_CRS') {
+            task.proj = angular.copy(proj);
+          }
         });
       };
 
-      $scope.importTables = function() {
+      $scope.doImport = function(items) {
         $scope.importInProgress = true;
-        var toImport;
-        var tasks = $scope.import.imported.length;
-        if (($scope.layerSelections.length === $scope.import.preimport.length) && ($scope.import.pending.length === 0)) {
-          toImport = {'filter': 'ALL'};
-          tasks = $scope.import.preimport.length;
-          $scope.layerSelections.forEach(function(task) {
-              task.loading = true;
-          });
-        } else {
-          toImport = {'tasks': []};
-          $scope.layerSelections.filter(function(item) {
-            return $scope.import.preimport.filter(function(layer) {return layer === item && !layer.imported;}).length > 0;
-          }).forEach(function(task) {
-              toImport.tasks.push({'task': task.task});
-              task.loading = true;
-              tasks++;
-          });
-        }
-
-        $scope.pollRetries = 500;
- 
-        importPollingService.pollUpdateOnce($scope.workspace,
-          $scope.importId, angular.toJson(toImport), $scope.pollingGetCallback);
-      };
-
-      $scope.reimport = function(items) {
-
         var toImport = {'tasks': []};
-        items.filter(function(item) {
-          return item.problem == 'NO_CRS' && item.proj != null;
-        }).forEach(function(task) {
-          toImport.tasks.push({'task': task.task, 'proj': task.proj});
-          task.loading = true;
-          // also reset error state
-          task.error = false;
-          task.errorMsg = '';
-        });
+
+        $scope.layerSelections.filter(function(item) {
+            return item.status != 'COMPLETE';
+          }).forEach(function(task) {
+            if (task.status == 'NO_CRS') {
+              toImport.tasks.push({'task': task.task, 'proj': task.proj});
+            } else {
+              toImport.tasks.push({'task': task.task});
+            }
+          });
 
         $scope.pollRetries = 500;
         
         if (toImport.tasks.length > 0) {
           importPollingService.pollUpdateOnce($scope.workspace,
-            $scope.importId, angular.toJson(toImport),
-            $scope.pollingGetCallback);
+            $scope.importId, angular.toJson(toImport), $scope.pollingGetCallback);
         }
       };
 
@@ -858,12 +773,11 @@ angular.module('gsApp.import', [
       $scope.createNewMap = function(selectedLayers) {
         var newMapInfo = {};
         newMapInfo.layers = [];
-        var imported = $scope.import.imported;
         for (var i=0; i < selectedLayers.length; i++) {
-          for (var k=0; k < imported.length; k++) {
-            var importedItem = imported[k];
-            if (selectedLayers[i].name &&
-                selectedLayers[i].name==importedItem.name) {
+          for (var k=0; k < $scope.imported.length; k++) {
+            var importedItem = $scope.imported[k];
+            if (selectedLayers[i].task &&
+                selectedLayers[i].task==importedItem.task) {
               newMapInfo.layers.push({
                 'name': importedItem.layer.name,
                 'workspace': importedItem.layer.workspace
@@ -883,12 +797,11 @@ angular.module('gsApp.import', [
           'abstract': map.abstract
         };
         newMapInfo.layers = [];
-        var imported = $scope.import.imported;
         for (var i=0; i < selectedLayers.length; i++) {
-          for (var k=0; k < imported.length; k++) {
+          for (var k=0; k < $scope.imported.length; k++) {
             var importedItem = imported[k];
-            if (selectedLayers[i].name &&
-                selectedLayers[i].name==importedItem.name) {
+            if (selectedLayers[i].task &&
+                selectedLayers[i].task==importedItem.task) {
               newMapInfo.layers.push({
                 'name': importedItem.layer.name,
                 'workspace': importedItem.layer.workspace
@@ -901,7 +814,7 @@ angular.module('gsApp.import', [
             if (result.success) {
               $rootScope.alerts = [{
                 type: 'success',
-                message: $scope.import.imported.length +
+                message: $scope.imported.length +
                   ' layer(s) added to map ' + newMapInfo.name + '.',
                 fadeout: true
               }];
