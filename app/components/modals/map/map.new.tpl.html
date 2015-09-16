@@ -7,9 +7,9 @@
   </div>
   <div class="modal-body">
 
-    <div ui-view="mapform" ng-show="step==1"></div>
-    <div ui-view="mapimport" ng-show="step==2"></div>
-    <div ui-view="maplayers" ng-show="step==3"></div>
+    <new-map-form ng-show="step==1"></new-map-form>
+    <new-map-import ng-show="step==2"></new-map-import>
+    <new-map-layers ng-show="step==3"></new-map-layers>
 
   </div>
   <div ng-show="mapInfo.layers.length > 0">

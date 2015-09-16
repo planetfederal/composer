@@ -12,51 +12,37 @@ angular.module('gsApp.modals.maps.new', [
   'ngGrid',
   'gsApp.inlineErrors'
 ])
-.config(['$stateProvider',
-  //Additionally, redirection to/from import?
-  function($stateProvider) {
-    $stateProvider.state('workspace.newmap', {
-      url: '/new'
-    });
-    $stateProvider.state('workspace.newmap.form', {
-      url: '/',
-      views: {
-        'mapform@': {
-          templateUrl:
-            '/components/modals/map/map.new.form.tpl.html',
-          controller: 'NewMapFormCtrl',
-        }
-      },
-      params: { workspace: {}, mapInfo: {}}
-    });
-    $stateProvider.state('workspace.newmap.import', {
-      url: '/',
-      views: {
-        'mapimport@': {
-          templateUrl:
-            '/components/modals/map/map.new.import.tpl.html',
-          controller: 'NewMapImportCtrl',
-        }
-      },
-      params: { workspace: {}, mapInfo: {}}
-    });
-    $stateProvider.state('workspace.newmap.layers', {
-      url: '/',
-      views: {
-        'maplayers@': {
-          templateUrl:
-            '/components/modals/map/map.new.layers.tpl.html',
-          controller: 'NewMapLayersCtrl',
-        }
-      },
-      params: { workspace: {}, mapInfo: {}}
-    });
-  }])
+.directive('newMapForm', ['$log', 'GeoServer', '$rootScope',
+    function ($log, GeoServer, $rootScope) {
+      return {
+        restrict: 'EA',
+        templateUrl: '/components/modals/map/map.new.form.tpl.html',
+        replace: true,
+        controller: 'NewMapFormCtrl',
+      };
+    }])
+.directive('newMapImport', ['$log', 'GeoServer', '$rootScope',
+    function ($log, GeoServer, $rootScope) {
+      return {
+        restrict: 'EA',
+        templateUrl: '/components/modals/map/map.new.import.tpl.html',
+        replace: true,
+      };
+    }])
+.directive('newMapLayers', ['$log', 'GeoServer', '$rootScope',
+    function ($log, GeoServer, $rootScope) {
+      return {
+        restrict: 'EA',
+        templateUrl: '/components/modals/map/map.new.layers.tpl.html',
+        replace: true,
+        controller: 'NewMapLayersCtrl',
+      };
+    }])
 //Setup and routing
 .controller('NewMapCtrl', ['$controller', '$modalInstance', '$scope', '$state',
-  '$stateParams', '$rootScope', '$log', 'GeoServer', '$window',
+  '$rootScope', '$log', 'GeoServer', '$window',
   'AppEvent', '_', 'workspace', 'mapInfo', '$modal',
-  function ($controller, $modalInstance, $scope, $state, $stateParams, $rootScope,
+  function ($controller, $modalInstance, $scope, $state, $rootScope,
     $log, GeoServer, $window, AppEvent, _, workspace, mapInfo, $modal) {
 
     angular.extend(this, $controller('ModalCtrl', {$scope: $scope}));
@@ -95,45 +81,24 @@ angular.module('gsApp.modals.maps.new', [
     }
 
     $scope.next = function () {
-      if ($state.is('workspace.newmap.form')) {
-        $scope.step=2;
-        $state.go('workspace.newmap.import', {
-          workspace: $scope.workspace,
-          mapInfo: $scope.mapInfo
-        });
-      }
-      if ($state.is('workspace.newmap.import')) {
-        $scope.step=3;
-        $state.go('workspace.newmap.layers', {
-          workspace: $scope.workspace,
-          mapInfo: $scope.mapInfo
-        });
+      if ($scope.step < 3) {
+        $scope.step++;
       }
     }
 
     $scope.back = function () {
-      if ($state.is('workspace.newmap.import')) {
+      if ($scope.step==2) {
         $scope.step=1;
-        $state.go('workspace.newmap.form');
       }
-      if ($state.is('workspace.newmap.layers')) {
-        if (mapInfo.layers.length > 0) {
-          $scope.selectLayers = true;
-        }
+      if ($scope.step==3) {
         $scope.step=2;
-        $state.go('workspace.newmap.import');
+        $scope.selectLayers = true;
       }
     };
 
     //return null on cancel, map on success.
     $scope.close = function (result) {
       $modalInstance.close(result);
-    };
-
-    //Get current state
-    $scope.is = function(route) {
-      return $state.is('workspace.newmap' +
-        (route!=null?'.'+route:''));
     };
 
     $scope.importNewLayers = function () {
@@ -162,10 +127,6 @@ angular.module('gsApp.modals.maps.new', [
           $scope.mapInfo.layers = param;
           $scope.step=1
         }
-        $state.go('workspace.newmap.form', {
-          workspace: $scope.workspace,
-          mapInfo: $scope.mapInfo
-        });
       });
     };
 
@@ -200,21 +161,13 @@ angular.module('gsApp.modals.maps.new', [
     };
 
     $scope.step=1;
-    $state.go('workspace.newmap.form', {
-      workspace: $scope.workspace,
-      mapInfo: $scope.mapInfo
-    });
   }])
 // Map settings
-.controller('NewMapFormCtrl', ['$scope', '$state', '$stateParams',
+.controller('NewMapFormCtrl', ['$scope',
   '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', '_',
   'projectionModel',
-  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
+  function ($scope, $rootScope, $log, GeoServer,
     $window, AppEvent, _, projectionModel, workspace, mapInfo) {
-
-    $scope.step=1;
-    $scope.workspace = $stateParams.workspace;
-    $scope.mapInfo = $stateParams.mapInfo;
 
     $scope.proj=null;
     $scope.projEnabled = false;
@@ -243,40 +196,11 @@ angular.module('gsApp.modals.maps.new', [
       $scope.proj = 'latlon';   // default
     });
   }])
-.controller('NewMapImportCtrl', ['$log', '$modal', '$rootScope', '$scope', '$state', '$stateParams',
-   '$timeout', '$window',  '_', 'AppEvent', 'GeoServer', 
-  function ($log, $modal, $rootScope, $scope, $state, $stateParams,
-   $timeout, $window,  _, AppEvent, GeoServer) {
-
-    $scope.step=2;
-    $scope.workspace = $stateParams.workspace;
-    $scope.mapInfo = $stateParams.mapInfo;
-
-    //Get layer count
-    GeoServer.layers.get($scope.workspace,0,0,'','').then(function(result) {
-      if (result.success) {
-        $scope.layers = result.data.total;
-      } else {
-        $rootScope.alerts = [{
-          type: 'danger',
-          message: 'Layers for workspace ' + $scope.workspace.name +
-            ' could not be loaded: '+result.data.message,
-          details: result.data.trace,
-          fadeout: true
-        }];
-      }
-    });
-
-  }])
 //Layer Select
-.controller('NewMapLayersCtrl', ['$scope', '$state', '$stateParams',
+.controller('NewMapLayersCtrl', ['$scope',
   '$rootScope', '$log', 'GeoServer', '$window', 'AppEvent', '_', '$modal',
-  function ($scope, $state, $stateParams, $rootScope, $log, GeoServer,
+  function ($scope, $rootScope, $log, GeoServer,
     $window, AppEvent, _, $modal) {
-
-    $scope.step=3;
-    $scope.workspace = $stateParams.workspace;
-    $scope.mapInfo = $stateParams.mapInfo;
 
     var modalWidth = 800;
 
