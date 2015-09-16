@@ -220,7 +220,7 @@ angular.module('gsApp.editor.map', [
 
       $scope.addMapLayer = function(workspace) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/layer/layer.addtomap.tpl.html',
+          templateUrl: '/components/editor/editor.map.modal.addlayer.tpl.html',
           controller: 'AddToMapLayerCtrl',
           size: 'lg',
           resolve: {
@@ -293,7 +293,7 @@ angular.module('gsApp.editor.map', [
 
       $scope.editLayerSettings = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/layer/layer.settings.tpl.html',
+          templateUrl: '/components/modalform/layer/layer.settings.tpl.html',
           controller: 'EditLayerSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -310,7 +310,7 @@ angular.module('gsApp.editor.map', [
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/map/map.settings.tpl.html',
+          templateUrl: '/components/modalform/map/map.settings.tpl.html',
           controller: 'EditMapSettingsCtrl',
           backdrop: 'static',
           size: 'md',

@@ -1,12 +1,14 @@
 /*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
-angular.module('gsApp.workspaces.layers.import', [])
-.controller('ImportLayerCtrl', ['resource', 'workspace', 'store', '$scope',
+angular.module('gsApp.workspaces.layers.import', ['gsApp.modal'])
+.controller('PublishLayerCtrl', ['resource', 'workspace', 'store', '$controller', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer',
   'AppEvent', 'layersListModel',
-    function(resource, workspace, store, $scope, $rootScope, $state, $log,
+    function(resource, workspace, store, $controller, $scope, $rootScope, $state, $log,
       $modalInstance, GeoServer, AppEvent, layersListModel) {
+
+      angular.extend(this, $controller('ModalCtrl', {$scope: $scope}));
 
       $scope.resource = resource;
       $scope.workspace = workspace;
@@ -58,15 +60,6 @@ angular.module('gsApp.workspaces.layers.import', [])
         }
         return null;
       };
-
-      $scope.crsTooltip =
-        '<h5>Add a projection in EPSG</h5>' +
-        '<p>Coordinate Reference System (CRS) info is available at ' +
-          '<a href="http://prj2epsg.org/search" target="_blank">' +
-            'http://prj2epsg.org' +
-          '</a>' +
-        '</p>';
-
 
       $scope.importAsLayer = function() {
         var layerInfo = $scope.layer;

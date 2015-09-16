@@ -85,7 +85,7 @@ angular.module('gsApp.workspaces.settings', [
       };
       $scope.deleteWorkspace = function() {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/delete.tpl.html',
+          templateUrl: '/workspaces/detail/workspace.modal.delete.tpl.html',
           controller: 'WorkspaceDeleteCtrl',
           backdrop: 'static',
           size: 'md',

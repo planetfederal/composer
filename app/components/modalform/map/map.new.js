@@ -16,7 +16,7 @@ angular.module('gsApp.modals.maps.new', [
     function ($log, GeoServer, $rootScope) {
       return {
         restrict: 'EA',
-        templateUrl: '/components/modals/map/map.new.form.tpl.html',
+        templateUrl: '/components/modalform/map/map.new.form.tpl.html',
         replace: true,
         controller: 'NewMapFormCtrl',
       };
@@ -25,7 +25,7 @@ angular.module('gsApp.modals.maps.new', [
     function ($log, GeoServer, $rootScope) {
       return {
         restrict: 'EA',
-        templateUrl: '/components/modals/map/map.new.import.tpl.html',
+        templateUrl: '/components/modalform/map/map.new.import.tpl.html',
         replace: true,
       };
     }])
@@ -33,7 +33,7 @@ angular.module('gsApp.modals.maps.new', [
     function ($log, GeoServer, $rootScope) {
       return {
         restrict: 'EA',
-        templateUrl: '/components/modals/map/map.new.layers.tpl.html',
+        templateUrl: '/components/modalform/map/map.new.layers.tpl.html',
         replace: true,
         controller: 'NewMapLayersCtrl',
       };

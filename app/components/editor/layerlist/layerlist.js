@@ -70,7 +70,7 @@ angular.module('gsApp.editor.layerlist', [])
 
         $scope.removeLayer = function(layer, index) {
           var modalInstance = $modal.open({
-            templateUrl: '/components/modals/map/map.layerremove.tpl.html',
+            templateUrl: '/components/editor/layerlist/layerremove.tpl.html',
             controller: 'MapRemoveLayerCtrl',
             size: 'md',
             resolve: {

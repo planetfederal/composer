@@ -132,7 +132,7 @@ angular.module('gsApp.editor.styleeditor', [
 
           $scope.editorSave = function(nextWindowType, state, args) {
             $modal.open({
-              templateUrl: '/components/editor/editorsave.modal.tpl.html',
+              templateUrl: '/components/editor/editor.modal.save.tpl.html',
               controller: ['linterIsvalid', '$scope', '$modalInstance',
                 function(linterIsvalid, $scope, $modalInstance) {
                   $scope.linterIsvalid = linterIsvalid;

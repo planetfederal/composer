@@ -14,7 +14,7 @@ angular.module('gsApp.workspaces.maps', [
     function($stateProvider) {
       $stateProvider.state('workspace.maps', {
         url: '/maps',
-        templateUrl: '/workspaces/detail/maps.tpl.html',
+        templateUrl: '/workspaces/detail/maps/maps.tpl.html',
         controller: 'WorkspaceMapsCtrl',
         abstract: true
       });
@@ -136,7 +136,7 @@ angular.module('gsApp.workspaces.maps', [
         if ($scope.layers && $scope.layers.length===0) {
           if (! $scope.datastores.length) {
             var nostores_modal = $modal.open({
-              templateUrl: '/components/modals/map/nostores.tpl.html',
+              templateUrl: '/components/modalform/map/nostores.tpl.html',
               controller: function($scope, $modalInstance) {
                 $scope.close = function() {
                   $modalInstance.close('close');
@@ -147,7 +147,7 @@ angular.module('gsApp.workspaces.maps', [
             });
           } else {
             var nolayer_modal = $modal.open({
-              templateUrl: '/components/modals/map/nolayers.tpl.html',
+              templateUrl: '/components/modalform/map/nolayers.tpl.html',
               controller: function($scope, $modalInstance) {
                 $scope.close = function() {
                   $modalInstance.close('close');
@@ -160,7 +160,7 @@ angular.module('gsApp.workspaces.maps', [
           return;
         }
         var createModalInstance = $modal.open({
-          templateUrl: '/components/modals/map/map.new.tpl.html',
+          templateUrl: '/components/modalform/map/map.new.tpl.html',
           controller: 'NewMapCtrl',
           backdrop: 'static',
           size: 'lg',
@@ -233,7 +233,7 @@ angular.module('gsApp.workspaces.maps', [
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/map/map.settings.tpl.html',
+          templateUrl: '/components/modalform/map/map.settings.tpl.html',
           controller: 'EditMapSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -255,7 +255,7 @@ angular.module('gsApp.workspaces.maps', [
           .then(function(src) {
             $scope.ol3src = src;
             $modal.open({
-              templateUrl: '/components/modals/map/map.export.tpl.html',
+              templateUrl: '/workspaces/detail/maps/maps.modal.export.tpl.html',
               scope: $scope
             });
           });

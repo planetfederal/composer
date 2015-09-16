@@ -1,0 +1,24 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Resource <strong>{{ resource.name }}</strong>: Publish to Layer</h4>
+    <small class="pull-right required-star">* Required</small>
+  </div>
+  <div class="modal-body">
+    <form name="form.layerSettings" role="form" class="layerSettings">
+      <form-name-layer form="form.layerSettings" model="layer.name" label="'Layer Name'"></form-name-layer>
+      <form-title form="form.layerSettings" model="layer.title" label="'Title'"></form-title>
+      <form-crs form="form.layerSettings" model="layer.proj" label="'Projection'"></form-crs>
+      <form-description form="form.layerSettings" model="layer.description" label="'Description'"></form-description>
+      <div class="form-group">
+        <label for="keywords">Keywords:</label> {{ layer.keywords }}
+      </div>
+    </form>
+    <alert ng-show="form.alerts" type="danger" style="margin-left: 0;">
+      {{ form.alerts }}
+    </alert>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    <button class="btn btn-success btn-sm" ng-click="importAsLayer();" ng-disabled="!layer.proj" style="margin-left:20px; margin-right:20px;">Import to Layer</button>
+  </div>
+</div>

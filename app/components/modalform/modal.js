@@ -43,7 +43,7 @@
           form: '=',
           model: '='
         },
-        templateUrl: '/components/modals/modal.form.name.layer.tpl.html',
+        templateUrl: '/components/modalform/modal.form.name.layer.tpl.html',
         replace: true,
         controller: function($scope, $element) {
           angular.extend(this, $controller('ModalCtrl', {$scope: $scope}));
@@ -63,7 +63,7 @@
           form: '=',
           model: '='
         },
-        templateUrl: '/components/modals/modal.form.name.map.tpl.html',
+        templateUrl: '/components/modalform/modal.form.name.map.tpl.html',
         replace: true,
         controller: function($scope, $element) {
           angular.extend(this, $controller('ModalCtrl', {$scope: $scope}));
@@ -83,7 +83,7 @@
           form: '=',
           model: '='
         },
-        templateUrl: '/components/modals/modal.form.crs.tpl.html',
+        templateUrl: '/components/modalform/modal.form.crs.tpl.html',
         replace: true,
         controller: function($scope, $element) {
           angular.extend(this, $controller('ModalCtrl', {$scope: $scope}));
@@ -103,7 +103,7 @@
           form: '=',
           model: '='
         },
-        templateUrl: '/components/modals/modal.form.title.tpl.html',
+        templateUrl: '/components/modalform/modal.form.title.tpl.html',
         replace: true,
       };
     }])
@@ -116,7 +116,7 @@
           form: '=',
           model: '='
         },
-        templateUrl: '/components/modals/modal.form.description.tpl.html',
+        templateUrl: '/components/modalform/modal.form.description.tpl.html',
         replace: true,
       };
     }]);

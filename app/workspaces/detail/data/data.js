@@ -16,7 +16,7 @@ angular.module('gsApp.workspaces.data', [
     function($stateProvider) {
       $stateProvider.state('workspace.data', {
         url: '/data',
-        templateUrl: '/workspaces/detail/data.tpl.html',
+        templateUrl: '/workspaces/detail/data/data.tpl.html',
         controller: 'WorkspaceDataCtrl',
         abstract: true
       });
@@ -305,7 +305,7 @@ angular.module('gsApp.workspaces.data', [
           $state.go('workspace.data.main', {workspace:$scope.workspace});
         }
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/data/data.delete.tpl.html',
+          templateUrl: '/workspaces/detail/data/data.modal.delete.tpl.html',
           controller: 'WorkspaceDeleteDataCtrl',
           backdrop: 'static',
           size: 'md',
@@ -369,7 +369,7 @@ angular.module('gsApp.workspaces.data', [
 
       $scope.showAttrs = function(layerOrResource, storename) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/data/data.attributes.tpl.html',
+          templateUrl: '/workspaces/detail/data/data.modal.attributes.tpl.html',
           controller: 'WorkspaceAttributesCtrl',
           size: 'md',
           resolve: {
@@ -388,7 +388,7 @@ angular.module('gsApp.workspaces.data', [
 
       $scope.enableDisableStore = function(store) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/data/data.update.tpl.html',
+          templateUrl: '/workspaces/detail/data/data.modal.update.tpl.html',
           controller: 'UpdateStoreCtrl',
           size: 'md',
           resolve: {
@@ -402,11 +402,11 @@ angular.module('gsApp.workspaces.data', [
         });
       };
 
-      $scope.importAsNewLayer = function(resource, store) {
+      $scope.publishLayer = function(resource, store) {
         $scope.resourceToUpdate = resource;
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/layer/layer.import.tpl.html',
-          controller: 'ImportLayerCtrl',
+          templateUrl: '/components/modalform/layer/layer.publish.tpl.html',
+          controller: 'PublishLayerCtrl',
           size: 'md',
           resolve: {
             resource: function() {
@@ -443,7 +443,7 @@ angular.module('gsApp.workspaces.data', [
         });
       $scope.getTypeDetails = function(resource) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/format.type.tpl.html',
+          templateUrl: '/workspaces/detail/data/format.type.tpl.html',
           controller: 'FormatTypeInfoCtrl',
           backdrop: 'static',
           size: 'md',

@@ -17,7 +17,7 @@ angular.module('gsApp.workspaces.layers', [
     function($stateProvider) {
       $stateProvider.state('workspace.layers', {
         url: '/layers',
-        templateUrl: '/workspaces/detail/layers.tpl.html',
+        templateUrl: '/workspaces/detail/layers/layers.tpl.html',
         controller: 'WorkspaceLayersCtrl',
         abstract: true
       });
@@ -129,7 +129,7 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.showAttrs = function(layerOrResource, attributes) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/data/data.attributes.tpl.html',
+          templateUrl: '/workspaces/detail/data/data.modal.attributes.tpl.html',
           controller: 'WorkspaceAttributesCtrl',
           size: 'md',
           resolve: {
@@ -145,7 +145,7 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.editLayerSettings = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/layer/layer.settings.tpl.html',
+          templateUrl: '/components/modalform/layer/layer.settings.tpl.html',
           controller: 'EditLayerSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -230,7 +230,7 @@ angular.module('gsApp.workspaces.layers', [
           } else {
             var createNewMapModal = $modal.open({
               templateUrl:
-              '/components/modals/map/map.new.tpl.html',
+              '/components/modalform/map/map.new.tpl.html',
               controller: 'NewMapCtrl',
               backdrop: 'static',
               size: 'lg',
@@ -339,7 +339,7 @@ angular.module('gsApp.workspaces.layers', [
 
       $scope.copyToNewLayer = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/layer/layer.duplicate.tpl.html',
+          templateUrl: '/components/modalform/layer/layer.duplicate.tpl.html',
           controller: 'DuplicateLayerCtrl',
           size: 'md',
           resolve: {

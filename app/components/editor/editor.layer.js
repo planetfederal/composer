@@ -157,7 +157,7 @@ angular.module('gsApp.editor.layer', [
 
       $scope.editLayerSettings = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/layer/layer.settings.tpl.html',
+          templateUrl: '/components/modalform/layer/layer.settings.tpl.html',
           controller: 'EditLayerSettingsCtrl',
           backdrop: 'static',
           size: 'md',

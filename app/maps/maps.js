@@ -145,7 +145,7 @@ angular.module('gsApp.maps', [
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
-          templateUrl: '/components/modals/map/map.settings.tpl.html',
+          templateUrl: '/components/modalform/map/map.settings.tpl.html',
           controller: 'EditMapSettingsCtrl',
           backdrop: 'static',
           size: 'md',
