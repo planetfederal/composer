@@ -9,6 +9,7 @@ angular.module('gsApp.workspaces.layers', [
   'gsApp.alertpanel',
   'gsApp.editor.layer',
   'gsApp.core.utilities',
+  'gsApp.import',
   'ngSanitize',
   'ui.scrollfix'
 ])

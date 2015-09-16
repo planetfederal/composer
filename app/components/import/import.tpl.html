@@ -6,7 +6,7 @@
   </div>
   <div class="modal-body">
     <div class="container-fluid form-container">
-      <div class="upload-options btn-group btn-group-justified" ng-show="is('fileordb')">
+      <div class="upload-options btn-group btn-group-justified" ng-show="!showImportDetails">
         <div class="btn-group">
           <button type="button" class="btn btn-default btn-sm" ng-click="showImportFile=true; showImportDB=false; importResult = null;" ng-class="{active: showImportFile}">
             Add Files
@@ -20,12 +20,16 @@
         </div>
       </div>
 
-      <div ui-view="importfile" ng-show="showImportFile"></div>
-      <div ui-view="importdb" ng-show="showImportDB"></div>
-      <div ui-view="importdetails" ng-show="showImportDetails"></div>
-      <div ui-view="newmap"></div>
+      <import-file ng-if="workspace" ng-show="showImportFile && !showImportDetails"></import-file>
+      <import-db ng-if="workspace" ng-show="showImportDB && !showImportDetails"></import-db>
+      <import-details ng-if="workspace && showImportDetails"></import-details>
 
-      <div class="import-result text-center" ng-show="importResult!==null && is('fileordb')">
+      <div class="import-error text-center" ng-if="importResult!==null && !showImportDetails">
+        <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
+          Next: Load &rarr;
+        </button>
+      </div>
+      <div class="import-result text-center" ng-show="importResult!==null && showImportDetails">
         <alert ng-if="importResult.imported.length > 0" type="success">
         {{ importResult.imported.length }} layer{{importResult.imported.length > 1 ? 's were' : ' was'}} successfully imported.
         </alert>
@@ -46,11 +50,7 @@
           <p>Add as an empty datastore you can import files into?
             <button type="button" ng-click="addStore()" style="margin-left: 10px;">Add Store</button></p>
         </alert>
-        <div class="import-error text-center" ng-if="importResult!==null">
-          <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
-            Next: Load &rarr;
-          </button>
-        </div>
+        
       </div>
     </div>
   </div>
@@ -58,7 +58,7 @@
     <div class="submit-buttons pull-right">
       <button class="btn btn-default btn-sm" style="display:none;" ng-click="back()" ng-show="!showImportFile && format!==null">&larr; Back</button>
       <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
-      <button class="btn btn-success btn-sm" ng-show="contextInfo && mapInfo && is('details')" ng-disabled="!contextInfo.selectedLayers || contextInfo.selectedLayers.length==0" ng-click="returnSelectedLayers(contextInfo.selectedLayers)">{{contextInfo.button}} &rarr;</button>
+      <button class="btn btn-success btn-sm" ng-show="contextInfo && mapInfo && showImportDetails" ng-disabled="!contextInfo.selectedLayers || contextInfo.selectedLayers.length==0" ng-click="returnSelectedLayers(contextInfo.selectedLayers)">{{contextInfo.button}} &rarr;</button>
     </div>
   </div>
 </div>

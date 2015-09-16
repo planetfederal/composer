@@ -28,6 +28,7 @@ angular.module('gsApp.editor.map', [
   'gsApp.editor.tools.fullscreen',
   'gsApp.alertpanel',
   'gsApp.featureinfopanel',
+  'gsApp.import',
   'gsApp.workspaces.maps.layerremove'
 ])
 .config(['$stateProvider',
@@ -265,6 +266,7 @@ angular.module('gsApp.editor.map', [
                     if (result.success) {
                       $scope.map.layers = $scope.reinstateVisiblility($scope.map.layers, result.data);
                       $scope.map.layer_count++;
+                      $scope.refreshMap();
                       $rootScope.alerts = [{
                         type: 'success',
                         message: layers.length +
@@ -282,7 +284,6 @@ angular.module('gsApp.editor.map', [
                     }
                   });
               }
-              $state.go('editmap', {workspace: $scope.workspace, name: $scope.map.name, hiddenLayers: $scope.map.hiddenLayers});
             });
           } else if (response==='added') {
             $scope.refreshMap();

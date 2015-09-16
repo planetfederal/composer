@@ -8,6 +8,7 @@ angular.module('gsApp.workspaces.home', [
   'gsApp.workspaces.data',
   'gsApp.workspaces.settings',
   'gsApp.alertpanel',
+  'gsApp.import',
   'ngSanitize'
 ])
 .config(['$stateProvider',

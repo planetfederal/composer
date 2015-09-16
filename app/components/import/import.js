@@ -7,51 +7,46 @@ angular.module('gsApp.import', [
   'ui.bootstrap',
   'gsApp.core.utilities',
   'gsApp.projfield',
-  'gsApp.inlineErrors',
+  'gsApp.inlineErrors'
 ])
-.config(['$stateProvider',
-    function($stateProvider) {
-      $stateProvider.state('import', {
-        url: '/'
-      });
-      $stateProvider.state('import.fileordb', {
-        views: {
-          'importfile@': {
-            url: '/',
-            templateUrl: '/components/import/import.file.tpl.html',
-            controller: 'DataImportFileCtrl'
-          },
-          'importdb@': {
-            url: '/',
-            templateUrl:
-              '/components/import/import.db.tpl.html',
-            controller: 'DataImportDbCtrl'
-          }
-        },
-        params: { workspace: {}, importId: {}, connectParams: {}, format: {} }
-      });
-      $stateProvider.state('import.details', {
-        views: {
-          'importdetails@': {
-            url: '/details',
-            templateUrl:
-              '/components/import/import.details.tpl.html',
-            controller: 'DataImportDetailsCtrl',
-          }
-        },
-        params: { workspace: {}, importId: {}, mapInfo: {} }
-      });
+.directive('importFile', ['$log', 'GeoServer', '$rootScope',
+    function ($log, GeoServer, $rootScope) {
+      return {
+        restrict: 'EA',
+        templateUrl: '/components/import/import.file.tpl.html',
+        replace: true,
+        controller: 'DataImportFileCtrl',
+      };
     }])
-.controller('DataImportCtrl', ['$scope', '$state', '$stateParams', 'GeoServer',
+.directive('importDb', ['$log', 'GeoServer', '$rootScope',
+    function ($log, GeoServer, $rootScope) {
+      return {
+        restrict: 'EA',
+        templateUrl: '/components/import/import.db.tpl.html',
+        replace: true,
+        controller: 'DataImportDbCtrl',
+      };
+    }])
+.directive('importDetails', ['$log', 'GeoServer', '$rootScope',
+    function ($log, GeoServer, $rootScope) {
+      return {
+        restrict: 'EA',
+        templateUrl: '/components/import/import.details.tpl.html',
+        replace: true,
+        controller: 'DataImportDetailsCtrl',
+      };
+    }])
+.controller('DataImportCtrl', ['$scope', 'GeoServer',
   '$modal', '$modalInstance', 'workspace', 'contextInfo', 'mapInfo','mapInfoModel',
   '$rootScope', 'mapsListModel', 'storesListModel', '_',
-    function($scope, $state, $stateParams, GeoServer, $modal, $modalInstance,
+    function($scope, GeoServer, $modal, $modalInstance,
         workspace, contextInfo, mapInfo, mapInfoModel, $rootScope, mapsListModel,
         storesListModel, _) {
 
       var wsName = workspace;
       $scope.mapInfo = mapInfo;
       $scope.contextInfo = contextInfo;
+
       mapInfoModel.setMapInfo(mapInfo);
 
       $scope.showImportFile = true;
@@ -89,63 +84,12 @@ angular.module('gsApp.import', [
         $scope.close(layers);
       }
 
-      $scope.is = function(route) {
-        return $state.is('import'+(route!=null?'.'+route:''));
-      };
-
-      $scope.go = function(route) {
-        $state.go('import.'+route, {
-          workspace: wsName
-        });
-      };
-
       $scope.next = function(imp) {
-        $scope.showImportFile = false;
         $scope.showImportDetails = true;
-        $state.go('import.details', {
-          'workspace': wsName,
-          'importId': String(imp.id)
-        });
+        $scope.importId = imp.id
       };
 
       $scope.db_home = false;
-      $scope.back = function() {
-        if (!$scope.is('fileordb') && !$scope.showImportDB) {
-        // back to Add File
-          $state.go('import.fileordb', {
-            workspace: wsName,
-            importId: $scope.importId
-          });
-        } else if ($scope.format) {  // back to DB connect
-          if ($scope.is('fileordb')) {
-            $scope.importResult = null;
-            $scope.connectParams = null;
-            $scope.params = null;
-            $scope.db_home = true;
-          } else {
-            $state.go('import.fileordb', {
-              workspace: wsName,
-              importId: $scope.importId,
-              connectParams: $scope.connectParams,
-              format: $scope.format
-            });
-          }
-        } else {
-          $scope.db_home = true;
-          $scope.showImportDetails = false;
-          $scope.format = null;
-          $state.go('import.fileordb', {
-            workspace: wsName,
-            format: $scope.format
-          });
-        }
-      };
-
-      $scope.inFileFlow = function() {
-        var test = $scope.is() || $scope.is('fileordb');
-        test = test || $state.includes('import.details');
-        return test;
-      };
 
       $scope.title = 'Import Data to ' + wsName;
       if (mapInfoModel.getMapInfo()) {
@@ -154,15 +98,6 @@ angular.module('gsApp.import', [
 
       $scope.importResult = null;
       $scope.setImportResult = function(result) {
-        $scope.importResult = result;
-        if (result && result.pending) {
-          $scope.importResult.total = result.failed.length +
-            result.ignored.length + result.pending.length +
-            result.imported.length + result.preimport.length;
-        }
-      };
-
-      $scope.setImportResultId = function(result) {
         $scope.importResult = result;
       };
 
@@ -203,16 +138,15 @@ angular.module('gsApp.import', [
       GeoServer.workspace.get(wsName).then(function(result) {
         if (result.success) {
           $scope.workspace = result.data;
-          $state.go('import.fileordb', {workspace: wsName});
         }
       });
     }])
-.controller('DataImportFileCtrl', ['$scope', '$state', '$upload', '$log',
-    'GeoServer', '$stateParams', 'AppEvent', '$rootScope', 'storesListModel', '_',
-    function($scope, $state, $upload, $log, GeoServer, $stateParams,
+.controller('DataImportFileCtrl', ['$scope', '$upload', '$log',
+    'GeoServer', 'AppEvent', '$rootScope', 'storesListModel', '_',
+    function($scope, $upload, $log, GeoServer,
       AppEvent, $rootScope, storesListModel, _) {
 
-      var wsName = $stateParams.workspace;
+      var wsName = $scope.workspace.name;
       $scope.existingStores = [];
 
       GeoServer.datastores.get(wsName, 0, null, null, null).then(
@@ -281,10 +215,10 @@ angular.module('gsApp.import', [
       $scope.upload = function() {
         var postURL;
         if ($scope.addToStore) {
-          postURL = GeoServer.import.urlToStore($scope.workspace.name,
+          postURL = GeoServer.import.urlToStore(wsName,
             $scope.chosenImportStore.name);
         } else {
-          postURL = GeoServer.import.url($scope.workspace.name);
+          postURL = GeoServer.import.url(wsName);
         }
 
         $upload.upload({
@@ -295,10 +229,8 @@ angular.module('gsApp.import', [
           $scope.progress.percent = parseInt(100.0 * e.loaded / e.total);
         }).success(function(e) {
           $scope.setImportResult(e);
-          $scope.$broadcast(AppEvent.StoreAdded,
-            {workspace: $scope.workspace});
         }).then(function(result) {
-          GeoServer.import.wsInfo().then(function(result) {
+          GeoServer.import.wsInfo(wsName).then(function(result) {
             if (result.success) {
               $scope.diskSize = result.data.spaceAvailable;
             }
@@ -336,14 +268,12 @@ angular.module('gsApp.import', [
       });
 
     }])
-.controller('DataImportDbCtrl', ['$scope', '$state', '$stateParams', '$log',
+.controller('DataImportDbCtrl', ['$scope', '$log',
     'GeoServer', '_', '$sce',
-    function($scope, $state, $stateParams, $log, GeoServer, _, $sce) {
-      $scope.workspace = $stateParams.workspace;
-      $scope.maps = $stateParams.maps;
-      $scope.params = $stateParams.connectParams;
-      $scope.chooseTables = false;
+    function($scope, $log, GeoServer, _, $sce) {
 
+      var wsName = $scope.workspace.name;
+      $scope.chooseTables = false;
       $scope.geoserverDatabaseLink = GeoServer.baseUrl() +
         '/web/?wicket:bookmarkablePage=:org.geoserver.importer.web.' +
         'ImportDataPage';
@@ -370,12 +300,12 @@ angular.module('gsApp.import', [
 
         $scope.setConnectionParamsAndFormat($scope.params, $scope.format);
 
-        GeoServer.import.post($scope.workspace, content)
+        GeoServer.import.post(wsName, content)
           .then(function(result) {
             if (result.success) {
               $scope.error = null;
               if (typeof result.data.id !== 'undefined') {
-                $scope.setImportResultId(result.data);
+                $scope.setImportResult(result.data);
               } else if (result.data.store) {
                 $scope.alert = result.data;
                 $scope.selectStore = result.data.store;
@@ -400,16 +330,14 @@ angular.module('gsApp.import', [
         }
       });
     }])
-.controller('DataImportDetailsCtrl', ['$scope', '$state', '$stateParams',
+.controller('DataImportDetailsCtrl', ['$scope',
     '$log', 'GeoServer', '$rootScope', 'AppEvent', 'mapInfoModel',
     'storesListModel', 'importPollingService', '$timeout',
-    function($scope, $state, $stateParams, $log, GeoServer, $rootScope,
+    function($scope, $log, GeoServer, $rootScope,
       AppEvent, mapInfoModel, storesListModel, importPollingService, $timeout) {
 
       // Initialize scope
-
-      $scope.workspace = $stateParams.workspace;
-      $scope.importId = $stateParams.importId;
+      var wsName = $scope.workspace.name;
       $scope.selectedLayers = [];
       if ($scope.contextInfo) {
         $scope.contextInfo.selectedLayers = $scope.selectedLayers;
@@ -419,7 +347,7 @@ angular.module('gsApp.import', [
 
       // if mapInfo's not defined it's import not create map workflow
       if (!mapInfoModel.getMapInfo()) {
-        GeoServer.maps.get($scope.workspace).then(
+        GeoServer.maps.get(wsName).then(
           function(result) {
             if (result.success) {
               $scope.maps = result.data.maps;
@@ -536,7 +464,7 @@ angular.module('gsApp.import', [
       //Function definitions
       $scope.setStoreFromLayername = function(importedLayerName) {
         if (!$scope.selectedStore) {
-          GeoServer.layer.get($scope.workspace, importedLayerName).then(
+          GeoServer.layer.get(wsName, importedLayerName).then(
             function(result) {
               if (result.success) {
                 $scope.storeSelected(result.data.resource);
@@ -634,7 +562,7 @@ angular.module('gsApp.import', [
             if ($scope.pollRetries > 0) {
               $scope.pollRetries--;
               stopGetTimer = $timeout(function() {
-                importPollingService.pollGetOnce($scope.workspace, $scope.importId,
+                importPollingService.pollGetOnce(wsName, $scope.importId,
                   $scope.pollingGetCallback);
               }, 2000);
             } else {
@@ -681,13 +609,9 @@ angular.module('gsApp.import', [
         $scope.pollRetries = 500;
         
         if (toImport.tasks.length > 0) {
-          importPollingService.pollUpdateOnce($scope.workspace,
+          importPollingService.pollUpdateOnce(wsName,
             $scope.importId, angular.toJson(toImport), $scope.pollingGetCallback);
         }
-      };
-
-      $scope.cancel = function() {
-        $state.go('workspace.data.main', {workspace:$scope.workspace.name});
       };
 
       $scope.setMap = function(map) {
@@ -697,7 +621,7 @@ angular.module('gsApp.import', [
       //Poll for import results
       $scope.pollRetries = 1000;
       
-      importPollingService.pollGetOnce($scope.workspace, $scope.importId,
+      importPollingService.pollGetOnce(wsName, $scope.importId,
         $scope.pollingGetCallback);
 
       $scope.$on('destroy', function(event) {

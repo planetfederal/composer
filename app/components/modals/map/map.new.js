@@ -4,6 +4,7 @@
 angular.module('gsApp.modals.maps.new', [
   'ngSanitize',
   'gsApp.alertpanel',
+  'gsApp.import',
   'gsApp.modal',
   'gsApp.projfield',
   'gsApp.core.utilities',
