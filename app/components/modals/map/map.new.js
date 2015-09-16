@@ -81,16 +81,12 @@ angular.module('gsApp.modals.maps.new', [
     //TODO: Setup layers
     $scope.title = 'New Map';
       $scope.nextButton = 'Add Layers \&rarr;' //move to html
-      $scope.selectLayers = true;
     if (mapInfo) {
       $scope.mapInfo = mapInfo;
       if ($scope.mapInfo.layers && Array.isArray($scope.mapInfo.layers) && $scope.mapInfo.layers.length > 0) {
         
         $scope.title = 'New Map from Selected Layers';
         $scope.nextButton = 'Create New Map' // move to html. Make seperate from Add Layers?
-
-        //This ensures we can still re-select layers if we select some, then go back.
-        $scope.selectLayers = false;
         //TODO: Show layerlist (collapsible) and "Create Map" button
       } 
     } else {
@@ -99,13 +95,11 @@ angular.module('gsApp.modals.maps.new', [
 
     $scope.next = function () {
       if ($state.is('workspace.newmap.form')) {
-        if ($scope.selectLayers) {
-          $scope.step=2;
-          $state.go('workspace.newmap.import', {
-            workspace: $scope.workspace,
-            mapInfo: $scope.mapInfo
-          });
-        } 
+        $scope.step=2;
+        $state.go('workspace.newmap.import', {
+          workspace: $scope.workspace,
+          mapInfo: $scope.mapInfo
+        });
       }
       if ($state.is('workspace.newmap.import')) {
         $scope.step=3;
@@ -122,6 +116,9 @@ angular.module('gsApp.modals.maps.new', [
         $state.go('workspace.newmap.form');
       }
       if ($state.is('workspace.newmap.layers')) {
+        if (mapInfo.layers.length > 0) {
+          $scope.selectLayers = true;
+        }
         $scope.step=2;
         $state.go('workspace.newmap.import');
       }
@@ -138,6 +135,39 @@ angular.module('gsApp.modals.maps.new', [
         (route!=null?'.'+route:''));
     };
 
+    $scope.importNewLayers = function () {
+      $modal.open({
+        templateUrl: '/components/import/import.tpl.html',
+        controller: 'DataImportCtrl',
+        backdrop: 'static',
+        size: 'lg',
+        resolve: {
+          workspace: function() {
+            return $scope.workspace;
+          },
+          mapInfo: function() {
+            return $scope.mapInfo;
+          },
+          contextInfo: function() {
+            return {
+              title:'Import layers into new map: '+$scope.mapInfo.name,
+              hint:'Create new map from selected layers',
+              button:'Create new map'
+            };
+          }
+        }
+      }).result.then(function(param) {
+        if (param) {
+          $scope.mapInfo.layers = param;
+          $scope.step=1
+        }
+        $state.go('workspace.newmap.form', {
+          workspace: $scope.workspace,
+          mapInfo: $scope.mapInfo
+        });
+      });
+    };
+
     $scope.createMap = function () {
       GeoServer.map.create($scope.workspace, $scope.mapInfo).then(
         function(result) {
@@ -151,7 +181,7 @@ angular.module('gsApp.modals.maps.new', [
             }];
             $rootScope.$broadcast(AppEvent.MapAdded, map);
             $scope.close(map);
-            $state.go('map.edit', {workspace: $scope.workspace,
+            $state.go('editmap', {workspace: $scope.workspace,
                 name: map.name});
           } else {
             var message = 'Could not create map: ' + result.data.message;
@@ -220,37 +250,6 @@ angular.module('gsApp.modals.maps.new', [
     $scope.step=2;
     $scope.workspace = $stateParams.workspace;
     $scope.mapInfo = $stateParams.mapInfo;
-
-    $scope.importNewLayers = function () {
-      //$scope.close();
-
-      $modal.open({
-        templateUrl: '/components/import/import.tpl.html',
-        controller: 'DataImportCtrl',
-        backdrop: 'static',
-        size: 'lg',
-        resolve: {
-          workspace: function() {
-            return $scope.workspace;
-          },
-          mapInfo: function() {
-            return $scope.mapInfo;
-          },
-          contextInfo: function() {
-            return {title:'',hint:'',button:''};
-          }
-        }
-      }).result.then(function(param) {
-        if (param) {
-          $scope.mapInfo.layers = param;
-        }
-        $state.go('workspace.newmap.form', {
-          workspace: $scope.workspace,
-          mapInfo: $scope.mapInfo
-        });
-      });
-
-    };
 
     //Get layer count
     GeoServer.layers.get($scope.workspace,0,0,'','').then(function(result) {

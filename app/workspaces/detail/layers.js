@@ -270,7 +270,7 @@ angular.module('gsApp.workspaces.layers', [
                 fadeout: true
               }];
               mapsListModel.addMap(result.data);
-              $state.go('map.edit', {workspace: map.workspace,
+              $state.go('editmap', {workspace: map.workspace,
                 name: mapInfo.name});
             } else {
               $rootScope.alerts = [{

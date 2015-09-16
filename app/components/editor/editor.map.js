@@ -32,11 +32,11 @@ angular.module('gsApp.editor.map', [
 ])
 .config(['$stateProvider',
     function($stateProvider) {
-      $stateProvider.state('map.edit', {
-        url: '/edit',
+      $stateProvider.state('editmap', {
+        url: 'edit/:workspace/:name',
         templateUrl: '/components/editor/editor.map.tpl.html',
         controller: 'MapComposeCtrl',
-        params: { workspace: {}, name: {}, hiddenLayers: {} }
+        params: { workspace: '', name: '', hiddenLayers: {} }
       });
     }])
 .controller('MapComposeCtrl',
@@ -202,6 +202,21 @@ angular.module('gsApp.editor.map', [
         return hiddenLayers.join();
       };
 
+      $scope.reinstateVisiblility = function (prevLayers, newLayers) {
+        for (var j=0; j < newLayers.length; j++) {
+          var newLayer = newLayers[j];
+          var prevLayer = _.find(prevLayers, function(prevLayer) {
+            return newLayer.name===prevLayer.name;
+          });
+          if (prevLayer) {
+            newLayer.visible = prevLayer.visible;
+          } else {
+            newLayer.visible = true;
+          }
+        }
+        return newLayers;
+      }
+
       $scope.addMapLayer = function(workspace) {
         var modalInstance = $modal.open({
           templateUrl: '/components/modals/layer/layer.addtomap.tpl.html',
@@ -213,12 +228,15 @@ angular.module('gsApp.editor.map', [
             },
             workspace: function() {
               return $scope.workspace;
+            },
+            reinstateVisibility: function() {
+              return $scope.reinstateVisiblility;
             }
           }
         }).result.then(function(response, args) {
           if (response==='import') {
             $scope.map.hiddenLayers = $scope.getHiddenLayers();
-            var mapInfo = $scope.map;
+
             $modal.open({
               templateUrl: '/components/import/import.tpl.html',
               controller: 'DataImportCtrl',
@@ -226,20 +244,45 @@ angular.module('gsApp.editor.map', [
               size: 'lg',
               resolve: {
                 workspace: function() {
-                  return workspace;
+                  return $scope.workspace;
                 },
                 mapInfo: function() {
-                  return mapInfo;
+                  return $scope.map;
                 },
                 contextInfo: function() {
-                  return {title:'',hint:'',button:''};
+                  return {
+                    title:'Import layers into existing map: '+$scope.map.name,
+                    hint:'Add selected layers to map '+$scope.map.name,
+                    button:'Add layers to map'
+                  };
                 }
               }
-            }).result.then(function(param) {
-              if (param) {
-                //TODO: add layers to map, alert user
+            }).result.then(function(layers) {
+              if (layers) {
+                //Add returned layers to map
+                GeoServer.map.layers.add($scope.workspace, $scope.map.name,
+                  layers).then(function(result) {
+                    if (result.success) {
+                      $scope.map.layers = $scope.reinstateVisiblility($scope.map.layers, result.data);
+                      $scope.map.layer_count++;
+                      $rootScope.alerts = [{
+                        type: 'success',
+                        message: layers.length +
+                          ' layer(s) added to map ' + $scope.map.name + '.',
+                        fadeout: true
+                      }];
+                    } else {
+                      $rootScope.alerts = [{
+                        type: 'danger',
+                        message: 'Layer(s) could not be added to map ' +
+                          $scope.map.name + ': ' + result.data.message,
+                        details: result.data.trace,
+                        fadeout: true
+                      }];
+                    }
+                  });
               }
-              state.go('map.edit', {workspace: workspace, name: mapInfo.name, hiddenLayers: mapInfo.hiddenLayers});
+              $state.go('editmap', {workspace: $scope.workspace, name: $scope.map.name, hiddenLayers: $scope.map.hiddenLayers});
             });
           } else if (response==='added') {
             $scope.refreshMap();

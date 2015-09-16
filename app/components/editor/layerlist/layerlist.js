@@ -9,8 +9,8 @@
  * Used by editor.map.js 
  */
 angular.module('gsApp.editor.layerlist', [])
-.directive('layerList', ['$log', '$rootScope', '$timeout', 'GeoServer',
-  function($log, $rootScope, $timeout, GeoServer) {
+.directive('layerList', ['$log', '$modal', '$rootScope', '$timeout', 'GeoServer',
+  function($log, $modal, $rootScope, $timeout, GeoServer) {
     return {
       restrict: 'EA',
       templateUrl: '/components/editor/layerlist/layerlist.tpl.html',

@@ -1,7 +1,7 @@
 /*
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
-angular.module('gsApp.home', [])
+angular.module('gsApp.home', ['gsApp.editor.map'])
 .config(['$stateProvider', '$urlRouterProvider',
     function($stateProvider, $urlRouterProvider) {
       $urlRouterProvider.otherwise('/');

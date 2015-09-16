@@ -196,7 +196,7 @@ angular.module('gsApp.maps', [
       };
 
       $scope.onCompose = function(map) {
-        $state.go('map.edit', {
+        $state.go('editmap', {
           workspace: map.workspace,
           name: map.name
         });

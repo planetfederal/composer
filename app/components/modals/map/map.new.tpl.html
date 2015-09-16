@@ -12,13 +12,16 @@
     <div ui-view="maplayers" ng-show="step==3"></div>
 
   </div>
+  <div ng-show="mapInfo.layers.length > 0">
+    {{mapInfo.layers.length + (mapInfo.layers.length==1 ? ' layer' : ' layers')}} selected.
+  </div>
   <div class="modal-footer">
     <div class="submit-buttons pull-right">
       <button ng-show="step>1" class="btn btn-default btn-sm" ng-click="back();">&larr; Back</button>
       <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
-      <button ng-show="step==1 && selectLayers" ng-disabled="!(mapInfo.proj && mapInfo.name)" class="btn btn-success btn-sm" ng-click="next()">Add Layers &rarr;</button>
+      <button ng-show="step==1 && selectLayers || mapInfo.layers.length==0" ng-disabled="!(mapInfo.proj && mapInfo.name)" class="btn btn-success btn-sm" ng-click="next()">Add Layers &rarr;</button>
+      <button ng-show="step==1 && mapInfo && mapInfo.layers && mapInfo.layers.length>0" ng-disabled="!(mapInfo.proj && mapInfo.name && mapInfo.layers.length > 0)" class="btn btn-primary btn-sm" ng-click="createMap()">Create Map</button>
       <button ng-show="step==2 && selectLayers" ng-disabled="!(mapInfo.proj && mapInfo.name)" class="btn btn-success btn-sm" ng-click="next()">Add Existing Layers &rarr;</button>
-      <button ng-show="step==1 && !selectLayers" ng-disabled="!(mapInfo.proj && mapInfo.name && mapInfo.layers.length > 0)" class="btn btn-primary btn-sm" ng-click="createMap()">Create Map</button>
       <button ng-show="step==3" ng-disabled="!(mapInfo.proj && mapInfo.name && mapInfo.layers.length > 0)" class="btn btn-primary btn-sm" ng-click="createMap()">Create Map with Selected</button>
     </div>
   </div>

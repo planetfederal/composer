@@ -35,7 +35,7 @@ angular.module('gsApp.layers', [
       $scope.dropdownBoxSelected = '';
 
       $scope.onStyleEdit = function(layer) {
-        $state.go('layer.edit', {
+        $state.go('editlayer', {
           workspace: layer.workspace,
           name: layer.name
         });
@@ -121,7 +121,7 @@ angular.module('gsApp.layers', [
                   ', now with ' + result.data.length + ' total.',
                 fadeout: true
               }];
-              $state.go('map.edit', {workspace: selectedWorkspace,
+              $state.go('editmap', {workspace: selectedWorkspace,
                 name: mapInfo.name});
             } else {
               $rootScope.alerts = [{

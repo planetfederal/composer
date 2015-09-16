@@ -4,30 +4,14 @@
 angular.module('gsApp.workspaces.layers.addtomap', [
   'ngGrid'
 ])
-.controller('AddToMapLayerCtrl', ['workspace', 'map', '$scope',
+.controller('AddToMapLayerCtrl', ['workspace', 'map', 'reinstateVisibility', '$scope',
   '$rootScope', '$state', '$log', '$modalInstance', 'GeoServer',
   'AppEvent', 'layersListModel', '_', '$timeout',
-    function(workspace, map, $scope, $rootScope, $state, $log,
-      $modalInstance, GeoServer, AppEvent, layersListModel, _,
-      $timeout) {
+    function(workspace, map, reinstateVisibility, $scope, $rootScope, $state, $log,
+      $modalInstance, GeoServer, AppEvent, layersListModel, _, $timeout) {
 
       $scope.workspace = workspace;
       $scope.map = map;
-
-      function reinstateVisibility (prevLayers, newLayers) {
-        for (var j=0; j < newLayers.length; j++) {
-          var newLayer = newLayers[j];
-          var prevLayer = _.find(prevLayers, function(prevLayer) {
-            return newLayer.name===prevLayer.name;
-          });
-          if (prevLayer) {
-            newLayer.visible = prevLayer.visible;
-          } else {
-            newLayer.visible = true;
-          }
-        }
-        return newLayers;
-      }
 
       $scope.addSelectedToMap = function() {
         var mapInfo = {
@@ -44,8 +28,7 @@ angular.module('gsApp.workspaces.layers.addtomap', [
         GeoServer.map.layers.add($scope.workspace, mapInfo.name,
           mapInfo.layersToAdd).then(function(result) {
             if (result.success) {
-              $scope.map.layers =
-                reinstateVisibility($scope.map.layers, result.data);
+              $scope.map.layers = reinstateVisibility($scope.map.layers, result.data);
               $scope.map.layer_count++;
               $rootScope.alerts = [{
                 type: 'success',
