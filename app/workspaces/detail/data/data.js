@@ -282,6 +282,9 @@ angular.module('gsApp.workspaces.data', [
             },
             mapInfo: function() {
               return $scope.mapInfo;
+            },
+            contextInfo: function() {
+              return null;
             }
           }
         }).result.then(function(param) {

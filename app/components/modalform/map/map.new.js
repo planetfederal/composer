@@ -116,7 +116,7 @@ angular.module('gsApp.modals.maps.new', [
           },
           contextInfo: function() {
             return {
-              title:'Import layers into new map: '+$scope.mapInfo.name,
+              title:'Import Layers into New Map: <i class="icon-map"></i> <strong>'+$scope.mapInfo.name+'</strong>',
               hint:'Create new map from selected layers',
               button:'Create new map'
             };

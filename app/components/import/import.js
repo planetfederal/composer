@@ -47,6 +47,12 @@ angular.module('gsApp.import', [
       $scope.mapInfo = mapInfo;
       $scope.contextInfo = contextInfo;
 
+      if (contextInfo && contextInfo.title) {
+        $scope.title = contextInfo.title;
+      } else {
+        $scope.title = 'Import Data to <i class="icon-folder-open"></i> <strong>'+wsName+'</strong>';
+      }
+
       mapInfoModel.setMapInfo(mapInfo);
 
       $scope.showImportFile = true;
@@ -90,12 +96,6 @@ angular.module('gsApp.import', [
       };
 
       $scope.db_home = false;
-
-      $scope.title = 'Import Data to ' + wsName;
-      if (mapInfoModel.getMapInfo()) {
-        $scope.title += ' for ' + $scope.mapInfo.name;
-      }
-
       $scope.importResult = null;
       $scope.setImportResult = function(result) {
         $scope.importResult = result;

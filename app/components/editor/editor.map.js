@@ -252,7 +252,7 @@ angular.module('gsApp.editor.map', [
                 },
                 contextInfo: function() {
                   return {
-                    title:'Import layers into existing map: '+$scope.map.name,
+                    title:'Import Layers into <i class="icon-map"></i> <strong>'+$scope.map.name+'</strong>',
                     hint:'Add selected layers to map '+$scope.map.name,
                     button:'Add layers to map'
                   };

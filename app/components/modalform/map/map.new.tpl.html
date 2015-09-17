@@ -1,9 +1,11 @@
 <div>
   <div class="modal-header">
-    <div class="create-title">
-      Create Map<span ng-show="step==2">:<strong> {{ mapInfo.name }}</strong></span> in {{ workspace }}
-    </div>
-    <small class="pull-right required-star" ng-show="step==1">* Required</small>
+    <h4 class="modal-title">
+      Create Map
+      <span ng-show="step==2">: <i class="icon-map"></i> <strong>{{ mapInfo.name }}</strong></span>
+      in <i class="icon-folder-open"></i> <strong>{{ workspace }}</strong>
+    </h4>
+    <small class="pull-right required-star">* Required</small>
   </div>
   <div class="modal-body">
 
