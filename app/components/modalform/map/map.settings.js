@@ -115,7 +115,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
           });
       }
 
-      $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
+      $scope.close = function () {
+        $modalInstance.close();
       };
     }]);

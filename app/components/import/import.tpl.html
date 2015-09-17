@@ -18,12 +18,12 @@
         </div>
       </div>
 
-      <import-file ng-if="workspace" ng-show="showImportFile && !showImportDetails"></import-file>
-      <import-db ng-if="workspace" ng-show="showImportDB && !showImportDetails"></import-db>
-      <import-details ng-if="workspace && showImportDetails"></import-details>
+      <import-file ng-if="workspace && workspace.name" ng-show="showImportFile && !showImportDetails"></import-file>
+      <import-db ng-if="workspace && workspace.name" ng-show="showImportDB && !showImportDetails"></import-db>
+      <import-details ng-if="workspace && workspace.name && showImportDetails"></import-details>
 
       <div class="import-error text-center" ng-if="importResult!==null && !showImportDetails">
-        <button class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
+        <button ng-if="importResult!==null && !showImportDetails" class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
           Next: Load &rarr;
         </button>
       </div>
@@ -53,9 +53,11 @@
     </div>
   </div>
   <div class="modal-footer">
+    <div class="submit-buttons pull-left">
+      <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+    </div>
     <div class="submit-buttons pull-right">
       <button class="btn btn-default btn-sm" style="display:none;" ng-click="back()" ng-show="!showImportFile && format!==null">&larr; Back</button>
-      <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
       <button class="btn btn-success btn-sm" ng-show="contextInfo && mapInfo && showImportDetails" ng-disabled="!contextInfo.selectedLayers || contextInfo.selectedLayers.length==0" ng-click="returnSelectedLayers(contextInfo.selectedLayers)">{{contextInfo.button}} &rarr;</button>
     </div>
   </div>

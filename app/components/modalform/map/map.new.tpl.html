@@ -18,9 +18,11 @@
     {{mapInfo.layers.length + (mapInfo.layers.length==1 ? ' layer' : ' layers')}} selected.
   </div>
   <div class="modal-footer">
+    <div class="submit-buttons pull-left">
+      <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
+    </div>
     <div class="submit-buttons pull-right">
       <button ng-show="step>1" class="btn btn-default btn-sm" ng-click="back();">&larr; Back</button>
-      <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
       <button ng-show="step==1 && selectLayers || mapInfo.layers.length==0" ng-disabled="!(mapInfo.proj && mapInfo.name)" class="btn btn-success btn-sm" ng-click="next()">Add Layers &rarr;</button>
       <button ng-show="step==1 && mapInfo && mapInfo.layers && mapInfo.layers.length>0" ng-disabled="!(mapInfo.proj && mapInfo.name && mapInfo.layers.length > 0)" class="btn btn-primary btn-sm" ng-click="createMap()">Create Map</button>
       <button ng-show="step==2 && selectLayers" ng-disabled="!(mapInfo.proj && mapInfo.name)" class="btn btn-success btn-sm" ng-click="next()">Add Existing Layers &rarr;</button>

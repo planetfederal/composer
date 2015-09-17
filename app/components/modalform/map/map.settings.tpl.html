@@ -46,9 +46,13 @@
     </alert>
 </div>
   <div class="modal-footer map-settings-footer">
-    <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
-    <button ng-click="deleteMap()" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
-    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty || form.mapSettings.mapName.invalid">Update Map Settings</button>
-    <button class="btn btn-default btn-sm" ng-click="cancel()">Close</button>
+    <div class="submit-buttons pull-left">
+      <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+    </div>
+    <div class="submit-buttons pull-right">
+      <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
+      <button ng-click="deleteMap()" class="btn btn-danger btn-sm"><i class="icon-remove"></i> Delete Map</button>
+      <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty || form.mapSettings.mapName.invalid">Update Map Settings</button>
+    </div>
   </div>
 </div>
