@@ -592,7 +592,7 @@ angular.module('gsApp.import', [
         });
       };
 
-      $scope.doImport = function(items) {
+      $scope.doImport = function() {
         $scope.importInProgress = true;
         var toImport = {'tasks': []};
 
