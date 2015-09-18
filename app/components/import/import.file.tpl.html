@@ -3,7 +3,7 @@
     <p class="lead">
       Upload one or more spatial files or .zip files<br/>containing any number of spatial files. 
       <span popover-html-unsafe="{{fileTooltip}}" popover-trigger="click" popover-placement="bottom">
-        <i class="fa fa-info-circle"></i>
+        <i class="icon-ln fa fa-info-circle"></i>
       </span>
       <small>When uploading .shp files, remember to include .prj, .dbx, and .shx files.</small>
     </p>
@@ -24,9 +24,9 @@
   </div>
   <div class="file-list" ng-show="files != null && files.length > 0">
     <div class="file-name" ng-repeat="file in files">
-      <h4>{{ file.name }}</h4>
-      <button class="btn btn-default btn-xs" ng-click="onFileRemove(file)"><i class="icon-close"></i></button>
-      <span>{{ file.size | bytesize }}</span>
+      <span class="file-remove" ng-click="onFileRemove(file)"><i class="icon icon-ln icon-cancel-circle"></i></span>
+      <strong> {{ file.name }}</strong>
+      <span class="file-info">{{ file.size | bytesize }}</span>
     </div>
     <div>
     <div class="file-space">
