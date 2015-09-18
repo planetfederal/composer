@@ -1,6 +1,6 @@
  <div class="form-group">
     <label for="form.layerSettings.crs">
-      {{label}} * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click" popover-placement="right"><i class="fa fa-info-circle"></i></div>
+      {{label}} * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click" popover-placement="right"><i class="icon-ln fa fa-info-circle"></i></div>
     </label>
     <proj-field name="crs" proj="model" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"
     ng-blur="setInalid(form.crs.$dirty && (form.proj.srs.$error.required || form.crs.$error.pattern || form.crs.$error.required))"></proj-field>
