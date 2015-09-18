@@ -46,6 +46,9 @@ angular.module('gsApp.import', [
       var wsName = workspace;
       $scope.mapInfo = mapInfo;
       $scope.contextInfo = contextInfo;
+      $scope.childScope = {};
+      $scope.layers = []
+      $scope.selectedLayers = []
 
       if (contextInfo && contextInfo.title) {
         $scope.title = contextInfo.title;
@@ -338,7 +341,8 @@ angular.module('gsApp.import', [
 
       // Initialize scope
       var wsName = $scope.workspace.name;
-      $scope.selectedLayers = [];
+      $scope.layers.length = 0;
+      $scope.selectedLayers.length=0;
       if ($scope.contextInfo) {
         $scope.contextInfo.selectedLayers = $scope.selectedLayers;
       }
@@ -374,7 +378,7 @@ angular.module('gsApp.import', [
       //TODO: Add variable display name for proj and status
 
       $scope.gridOpts = angular.extend({
-        data: 'import.tasks',
+        data: 'layers',
         checkboxHeaderTemplate:
           '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="allSelected" ' +
@@ -431,19 +435,19 @@ angular.module('gsApp.import', [
         enablePaging: false,
         enableColumnResize: false,
         showFooter: false,
-        totalServerItems: 'import.tasks.length',
+        totalServerItems: 'layers.length',
         pagingOptions: {
           pageSize: 50,
           currentPage: 1
         },
       }, baseGridOpts);
-
+      
       //Override ng-grid toggleSelectAll
       var gridScopeInit = $scope.$watch('gridOpts.$gridScope', function() {
         if ($scope.gridOpts.$gridScope && $scope.gridOpts.$gridScope.toggleSelectAll ) {
           $scope.gridOpts.$gridScope.toggleSelectAll = function (state) {
-            $scope.selectedLayers.length=0;
-            $scope.import.tasks.forEach(function (task) {
+            $scope.selectedLayers.length = 0;
+            $scope.layers.forEach(function (task) {
               if (state) {
                 $scope.selectedLayers.push(task);
               }
@@ -481,52 +485,34 @@ angular.module('gsApp.import', [
           if (data.tasks) {
             $scope.ignored = [];
             data.tasks.forEach(function(t) {
-              //Copy over any saved CRS values
-              if ($scope.import) {
-                for (var i=0; i < $scope.import.tasks.length; i++) {
-                  var task_i = $scope.import.tasks[i];
-                  if (t.task == task_i.task && typeof t.proj === 'undefined' 
-                      && typeof task_i.proj !== 'undefined') {
-                    t.proj = task_i.proj;
-                  }
-                }
-              }
 
               if (t.status == 'RUNNING') {
                 running++;
               }
-              if (t.status == 'NO_CRS') {
-                //Copy over any saved CRS values
-                if ($scope.import) {
-                  for (var i=0; i < $scope.import.tasks.length; i++) {
-                    var task_i = $scope.import.tasks[i];
-                    if (t.task == task_i.task && typeof t.proj === 'undefined' 
-                        && typeof task_i.proj !== 'undefined') {
-                      t.proj = task_i.proj;
-                    }
-                  }
-                }
-              }
               if (t.status == 'IGNORED') {
                 $scope.ignored.push(t);
+              }
+              //Do an in-place manual copy. Existing local properties (ie. proj) are preserved.
+              //(If this is the first import, length will be zero, so we skip this step)
+              for (var i=0; i < $scope.layers.length; i++) {
+                var l = $scope.layers[i];
+                if (t.task == l.task) {
+                  Object.keys(t).forEach(function (key) {
+                    l[key] = t[key];
+                  });
+                  break;
+                }
               }
             });
 
             //set global import data
-            //Update selected layers
-            for (var i = 0; i < $scope.selectedLayers.length; i++) {
-              for (var j = 0; j < data.tasks.length; j++) {
-                if ($scope.selectedLayers[i].task == data.tasks[j].task) {
-                  $scope.selectedLayers[i] = data.tasks[j];
-                  break;
-                }
-              }
-            }
             $scope.import = data;
-            //remove 'ignored' tasks
-            $scope.import.tasks = data.tasks.filter(function(t) {
-              return t.status != 'IGNORED';
-            });
+            //initialize layers list
+            if ($scope.layers.length==0) {
+              $scope.layers = data.tasks.filter(function(t) {
+                return t.status != 'IGNORED';
+              }); 
+            }
           }
           
           // Completed
@@ -550,7 +536,7 @@ angular.module('gsApp.import', [
             mapInfoModel.setMapInfoLayers($scope.imported);
 
             //TODO: Compare pre ($scope.import) and post (data) "COMPLETED" to get imported layer count
-            if ($scope.import.tasks.length == $scope.ignored.length) {
+            if ($scope.layers.length == $scope.ignored.length) {
               $scope.noImportData = true;
             } 
             if ($scope.imported.length > 0) {
@@ -585,7 +571,7 @@ angular.module('gsApp.import', [
       };
 
       $scope.applyProjToAll = function(proj) {
-        $scope.import.tasks.forEach(function(task) {
+        $scope.layers.forEach(function(task) {
           if (task.status == 'NO_CRS') {
             task.proj = angular.copy(proj);
           }
@@ -613,6 +599,9 @@ angular.module('gsApp.import', [
             $scope.importId, angular.toJson(toImport), $scope.pollingGetCallback);
         }
       };
+
+      //make visible to parent
+      $scope.childScope.doImport = $scope.doImport;
 
       $scope.setMap = function(map) {
         $scope.selectedMap = map;
