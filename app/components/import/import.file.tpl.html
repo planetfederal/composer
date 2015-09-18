@@ -1,4 +1,4 @@
-<div class="data-import-file">
+<div class="data-import-file" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-over">
   <div class="text-center">
     <p class="lead">
       Upload one or more spatial files or .zip files<br/>containing any number of spatial files. 
@@ -15,11 +15,11 @@
 
     <p>or</p>
     <p>
-      <div class="drop-box" ng-file-drop="onFileSelect($files)"
-        ng-file-drag-over-class="optional-css-class-name-or-function"
-        ng-show="dropSupported">Drop files here</div>
-      <div ng-file-drop-available="dropSupported=true"
-            ng-show="!dropSupported">HTML5 Drop File is not supported</div>
+      <div class="drop-box" ng-file-drop="onFileSelect($files)"  
+      ng-file-drop-available="dropSupported=true" ng-show="dropSupported">
+        Drop files here
+      </div>
+      <div ng-show="!dropSupported">HTML5 Drop File is not supported</div>
     </p>
   </div>
   <div class="file-list" ng-show="files != null && files.length > 0">
