@@ -21,33 +21,8 @@
       <import-file ng-if="workspace && workspace.name" ng-show="showImportFile && !showImportDetails"></import-file>
       <import-db ng-if="workspace && workspace.name" ng-show="showImportDB && !showImportDetails"></import-db>
       <import-details ng-if="workspace && workspace.name && showImportDetails"></import-details>
-
-      <div class="import-result text-center" ng-show="importResult!==null && showImportDetails">
-        <alert ng-if="importResult.imported.length > 0" type="success">
-        {{ importResult.imported.length }} layer{{importResult.imported.length > 1 ? 's were' : ' was'}} successfully imported.
-        </alert>
-        <alert ng-if="importResult.preimport.length > 0" type="success">
-        {{ importResult.preimport.length }} table{{importResult.preimport.length > 1 ? 's' : ''}} are available for import.
-        </alert>
-        <alert ng-if="importResult.pending.length > 0" type="warning">
-        {{ importResult.pending.length }} layer{{importResult.pending.length > 1 ? 's' : ''}} require{{importResult.pending.length == 1 ? 's' : ''}} additional input.
-        </alert>
-        <alert ng-if="importResult.ignored.length > 0" type="info">
-        {{ importResult.ignored.length }} file{{importResult.ignored.length > 1 ? 's were' : ' was'}} ignored.
-        </alert>
-        <alert ng-if="importResult.failed.length > 0" type="danger">
-        {{ importResult.failed.length }} layer{{importResult.failed.length > 1 ? 's' : ''}} resulted in an error.
-        </alert>
-        <alert ng-if="importResult.total == 0" type="warning">
-          <p><strong>No layers to import from database.</strong></p>
-          <p>Add as an empty datastore you can import files into?
-            <button type="button" ng-click="addStore()" style="margin-left: 10px;">Add Store</button></p>
-        </alert>
-        
-      </div>
     </div>
   </div>
-  {{ selectedLayers }}
   <div class="modal-footer">
     <div class="submit-buttons pull-left">
       <button class="btn btn-default btn-sm" ng-click="close()">Close</button>

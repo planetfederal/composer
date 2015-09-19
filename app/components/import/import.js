@@ -347,6 +347,11 @@ angular.module('gsApp.import', [
         $scope.contextInfo.selectedLayers = $scope.selectedLayers;
       }
       $scope.detailsLoading = true;
+
+      //dynamic ngGrid fields
+      $scope.showStatus = false;
+      $scope.showProjection = false;
+
       var stopUpdateTimer, stopGetTimer;
 
       // if mapInfo's not defined it's import not create map workflow
@@ -360,7 +365,6 @@ angular.module('gsApp.import', [
       }
 
       // ng-grid configuration
-
       var baseGridOpts = {
         enableCellSelection: false,
         enableRowSelection: true,
@@ -375,7 +379,6 @@ angular.module('gsApp.import', [
           }
         }
       };
-      //TODO: Add variable display name for proj and status
 
       $scope.gridOpts = angular.extend({
         data: 'layers',
@@ -391,7 +394,7 @@ angular.module('gsApp.import', [
           {
             field: 'geometry', displayName: 'Geometry',
             cellTemplate:
-              '<div class="ngCellText" ng-switch ' +
+              '<div class="grid-cell" ng-switch ' +
                 'on="row.entity.geometry==\'none\'">' +
                 '<div ng-switch-when="false"><div get-type geometry="{{row.entity.geometry}}"></div></div>'+
                 '<div ng-switch-when="true">None *</div>' +
@@ -407,23 +410,25 @@ angular.module('gsApp.import', [
                 ' {{ row.entity.proj.srs }}'+
                 '<div>' +
               '</div>',
-            width: '30%'
+            width: '30%',
+            visible: false
           },
           {
-            field: 'status', displayName: '',
+            field: 'status', displayName: 'Status',
             cellTemplate:
               '<div ng-switch on="row.entity.status">' +
-              '<span ng-switch-when="RUNNING" class="loadingField">' +
+              '<span ng-switch-when="RUNNING" class="grid-cell import-loading">' +
                 '<i class="fa fa-spinner fa-spin"></i> Importing</span>' +
-              '<span ng-switch-when="NO_CRS">'+
-                '<i class="fa fa-exclamation-triangle"></i>No CRS</span>' +
-              '<span ng-switch-when="NO_BOUNDS">'+
-                '<i class="fa fa-exclamation-triangle"></i>No Bounds</span>' +
-              '<span ng-switch-when="ERROR">'+
-                '<i class="fa fa-x"></i>Error: {{row.entity.error.message}}</span>' + //TODO: link to dialog
-              '<span ng-switch-when="COMPLETE">'+
-                '<i class="fa fa-check"></i>Imported</span>',
-            width: '20%'
+              '<span ng-switch-when="NO_CRS" class="grid-cell import-warning">'+
+                '<i class="fa fa-exclamation-triangle"></i> No CRS</span>' +
+              '<span ng-switch-when="NO_BOUNDS" class="grid-cell import-warning">'+
+                '<i class="fa fa-exclamation-triangle"></i> No Bounds</span>' +
+              '<span ng-switch-when="ERROR" class="grid-cell import-error">'+
+                '<i class="fa fa-x"></i> Error: {{row.entity.error.message}}</span>' + //TODO: link to dialog
+              '<span ng-switch-when="COMPLETE" class="grid-cell import-success">'+
+                '<i class="fa fa-check"></i> Imported</span>',
+            width: '20%',
+            visible: false
           }
         ],
         checkboxCellTemplate:
@@ -441,6 +446,7 @@ angular.module('gsApp.import', [
           currentPage: 1
         },
       }, baseGridOpts);
+
       
       //Override ng-grid toggleSelectAll
       var gridScopeInit = $scope.$watch('gridOpts.$gridScope', function() {
@@ -485,6 +491,23 @@ angular.module('gsApp.import', [
           if (data.tasks) {
             $scope.ignored = [];
             data.tasks.forEach(function(t) {
+              //hide the projection and status columns until relevant
+              if (!$scope.showProjection && t.status == 'NO_CRS') {
+                $scope.showProjection = true;
+                if ($scope.gridOpts.$gridScope) {
+                  $scope.gridOpts.$gridScope.columns[3].toggleVisible()
+                } else {
+                  $scope.gridOpts.columnDefs[2].visible = true;
+                }
+              }
+              if (!$scope.showStatus && t.status != 'READY' && t.status != 'PENDING' && t.status != 'IGNORED') {
+                $scope.showStatus = true;
+                if ($scope.gridOpts.$gridScope) {
+                  $scope.gridOpts.$gridScope.columns[4].toggleVisible()
+                } else {
+                  $scope.gridOpts.columnDefs[3].visible = true;
+                }
+              }
 
               if (t.status == 'RUNNING') {
                 running++;

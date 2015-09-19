@@ -21,20 +21,16 @@
     <div ng-grid="gridOpts" class="pending-layers"></div>
     <div class="pending-footnote">* May not contain spatial data.</div>
   </div>
- 
-  <!-- move to alert? p>Please specify the projection for the following layer{{import.pending.length > 1 ? 's' : ''}}.</p -->
-      
-  <!-- add alert?  The following layer{{import.imported.length > 1 ? 's have' : ' has'}} been created. -->
   
   <div ng-if="ignored.length > 0">
     <h3>Ignored File{{ignored.length > 1 ? 's' : ''}}</h3>
 
     <div ng-click="showIgnored = !showIgnored">
-      The following {{ignored.length}} file{{ignored.length > 1 ? 's were' : ' was'}} not recognized: <span class="icon"><i class="fa" ng-class="{ 'fa-chevron-right': !showIgnored, 'fa-chevron-down': showIgnored }"></i></span>
+      {{ignored.length}} file{{ignored.length==1 ? ' was' : 's were'}} not recognized: <a>{{showIgnored ? 'Hide...' : 'Show...'}}</a>
     </div>
     <div class="horizontal-divider" collapse="!showIgnored" ng-init="showIgnored = ignored.length < 10">
       <ul class="list-unstyled">
-        <li ng-repeat="file in ignored">{{ file.name }}</li>
+        <li class="col-sm-4" ng-repeat="file in ignored">{{ file.name }}</li>
       </ul>
     </div>
   </div>
