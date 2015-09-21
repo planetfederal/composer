@@ -5,19 +5,14 @@ angular.module('gsApp.workspaces.settings', [
   'gsApp.alertpanel',
   'ngSanitize'
 ])
-.config(['$stateProvider',
-    function($stateProvider) {
-      $stateProvider.state('workspace.settings', {
-        url: '/settings',
-        templateUrl: '/workspaces/detail/settings.tpl.html',
-        controller: 'WorkspaceSettingsCtrl'
-      });
-    }])
-.controller('WorkspaceSettingsCtrl', ['$scope', '$rootScope', '$state',
-    '$stateParams', '$modal', '$log', 'GeoServer', 'AppEvent',
-    function($scope, $rootScope, $state, $stateParams, $modal, $log,
+.controller('WorkspaceSettingsCtrl', ['$scope', '$rootScope', '$modalInstance',
+    '$modal', '$log', 'workspace', 'GeoServer', 'AppEvent',
+    function($scope, $rootScope, $modalInstance, $modal, $log, workspace,
       GeoServer, AppEvent) {
 
+      //Workspace name
+      $scope.workspace = workspace;
+      //workspace details
       $scope.wsSettings = {};
       $scope.form = {};
       var originalForm;
@@ -26,7 +21,7 @@ angular.module('gsApp.workspaces.settings', [
         'in a GeoServer request, the DEFAULT project is used.';
       $scope.showDefaultDesc = false;
 
-      GeoServer.workspace.get($scope.workspace).then(
+      GeoServer.workspace.get(workspace).then(
         function(result) {
           if (result.success) {
             var ws = result.data;
@@ -43,6 +38,9 @@ angular.module('gsApp.workspaces.settings', [
           }
         });
 
+      $scope.close = function () {
+        $modalInstance.close($scope.wsSettings);
+      }
       $scope.saveChanges = function() {
         if ($scope.form.settings.$dirty) {
           var patch = {};
@@ -65,9 +63,6 @@ angular.module('gsApp.workspaces.settings', [
                       'new': $scope.wsSettings.name
                     });
                   $scope.workspace = $scope.wsSettings.name;
-                  $state.go('workspace.home.settings', {
-                    workspace: $scope.workspace
-                  });
                 }
                 $scope.wsSettings.saved = true;
                 originalForm = angular.copy($scope.wsSettings);

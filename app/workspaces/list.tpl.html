@@ -55,7 +55,7 @@
                   <div class="workspace-default" ng-if="workspace.default" pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="bottom" ng-click="showDefaultDesc=!showDefaultDesc;">
                       <i class="icon-star"></i> Default</div>
                   <small class="modified" ng-if="workspace.modified">Modified {{ workspace.modified.pretty }}</small>
-                  <small class="workspace-settings" ng-click="go('workspace.settings', workspace);"><i class="fa fa-gear" title="Edit Workspace Settings"></i> Settings</small>
+                  <small class="workspace-settings" ng-click="workspaceSettings(workspace);"><i class="fa fa-gear" title="Edit Workspace Settings"></i> Settings</small>
                   <small class="workspace-view" ng-init="showInfo=false" ng-click="onWorkspaceInfo(workspace);"><i class="icon-info"></i> Info</small>
                 </div>
               </span>

@@ -74,6 +74,26 @@ angular.module('gsApp.workspaces.home', [
           $state.go(route, {workspace:wsName});
         };
 
+        $scope.workspaceSettings = function () {
+          $modal.open({
+            templateUrl: '/workspaces/detail/settings.tpl.html',
+            controller: 'WorkspaceSettingsCtrl',
+            backdrop: 'static',
+            size: 'md',
+            resolve: {
+              workspace: function() {
+                return $scope.workspace;
+              }
+            }
+          }).result.then(function(param) {
+            if (param) {
+              $scope.workspace = param.name;
+              $scope.title = param.name;
+              wsName = param.name;
+            }
+          });
+        }
+
         // hack to deal with strange issue with tabs being selected
         // when they are destroyed
         // https://github.com/angular-ui/bootstrap/issues/2155
