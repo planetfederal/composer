@@ -370,7 +370,13 @@ angular.module('gsApp.import', [
         sortInfo: {fields: ['name'], directions: ['asc']},
         columnDefs: [
           {
-            field: 'name', displayName: 'Name', width: '30%'
+            field: 'name', displayName: 'Name', 
+            cellTemplate:
+              '<div class="grid-text-padding"' +
+                'title="{{row.entity.name}}">' +
+                '{{row.entity.name}}' +
+              '</div>',
+            width: '30%'
           },
           {
             field: 'geometry', displayName: 'Geometry',

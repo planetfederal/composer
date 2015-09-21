@@ -227,7 +227,14 @@ angular.module('gsApp.maps', [
         selectedItems: $scope.gridSelections,
         multiSelect: false,
         columnDefs: [
-          {field: 'name', displayName: 'Map Name', width: '15%'},
+          {field: 'name', displayName: 'Map Name', 
+            cellTemplate:
+              '<div class="grid-text-padding"' +
+                'title="{{row.entity.name}}">' +
+                '{{row.entity.name}}' +
+              '</div>',
+            width: '15%'
+          },
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,

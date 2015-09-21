@@ -298,7 +298,15 @@ angular.module('gsApp.layers', [
         selectedItems: $scope.layerSelections,
         multiSelect: true,
         columnDefs: [
-          {field: 'name', displayName: 'Layer', width: '14%'},
+          {
+            field: 'name', displayName: 'Layer', 
+            cellTemplate:
+              '<div class="grid-text-padding"' +
+                'title="{{row.entity.name}}">' +
+                '{{row.entity.name}}' +
+              '</div>',
+            width: '14%'
+          },
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,

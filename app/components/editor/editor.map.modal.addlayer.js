@@ -133,7 +133,15 @@ angular.module('gsApp.workspaces.layers.addtomap', [
           headerCellTemplate: '<input class="ngSelectionHeader" type="checkbox"' +
             'ng-model="$parent.allSelected" ng-change="addAllToLayerSelections($parent.allSelected)"/>'
           },
-          {field: 'name', displayName: 'Layer', width: '20%'},
+          {
+            field: 'name', displayName: 'Layer', 
+            cellTemplate:
+              '<div class="grid-text-padding"' +
+                'title="{{row.entity.name}}">' +
+                '{{row.entity.name}}' +
+              '</div>',
+            width: '20%'
+          },
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: false,

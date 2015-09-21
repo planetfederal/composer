@@ -268,7 +268,14 @@ angular.module('gsApp.modals.maps.new', [
       selectWithCheckboxOnly: false,
       multiSelect: true,
       columnDefs: [
-        {field: 'name', displayName: 'Layer', width: '40%'},
+        {
+          field: 'name', displayName: 'Layer', 
+          cellTemplate:
+              '<div class="grid-text-padding"' +
+                'title="{{row.entity.name}}">' +
+                '{{row.entity.name}}' +
+              '</div>',
+          width: '40%'},
         {field: 'title',
           displayName: 'Title',
           enableCellEdit: false,
