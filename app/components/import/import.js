@@ -37,26 +37,25 @@ angular.module('gsApp.import', [
       };
     }])
 .controller('DataImportCtrl', ['$scope', 'GeoServer',
-  '$modal', '$modalInstance', 'workspace', 'contextInfo', 'mapInfo','mapInfoModel',
+  '$modal', '$modalInstance', 'workspace', 'contextInfo', 'mapInfo',
   '$rootScope', 'mapsListModel', 'storesListModel', '_',
     function($scope, GeoServer, $modal, $modalInstance,
-        workspace, contextInfo, mapInfo, mapInfoModel, $rootScope, mapsListModel,
+        workspace, contextInfo, mapInfo, $rootScope, mapsListModel,
         storesListModel, _) {
 
       var wsName = workspace;
       $scope.mapInfo = mapInfo;
       $scope.contextInfo = contextInfo;
       $scope.childScope = {};
-      $scope.layers = []
-      $scope.selectedLayers = []
+      $scope.layers = [];
+      $scope.selectedLayers = [];
+      $scope.imported = [];
 
       if (contextInfo && contextInfo.title) {
         $scope.title = contextInfo.title;
       } else {
         $scope.title = 'Import Data to <i class="icon-folder-open"></i> <strong>'+wsName+'</strong>';
       }
-
-      mapInfoModel.setMapInfo(mapInfo);
 
       $scope.showImportFile = true;
       $scope.showImportDB = false;
@@ -334,18 +333,15 @@ angular.module('gsApp.import', [
       });
     }])
 .controller('DataImportDetailsCtrl', ['$scope',
-    '$log', 'GeoServer', '$rootScope', 'AppEvent', 'mapInfoModel',
+    '$log', 'GeoServer', '$rootScope', 'AppEvent',
     'storesListModel', 'importPollingService', '$timeout',
     function($scope, $log, GeoServer, $rootScope,
-      AppEvent, mapInfoModel, storesListModel, importPollingService, $timeout) {
+      AppEvent, storesListModel, importPollingService, $timeout) {
 
       // Initialize scope
       var wsName = $scope.workspace.name;
       $scope.layers.length = 0;
       $scope.selectedLayers.length=0;
-      if ($scope.contextInfo) {
-        $scope.contextInfo.selectedLayers = $scope.selectedLayers;
-      }
       $scope.detailsLoading = true;
 
       //dynamic ngGrid fields
@@ -353,16 +349,6 @@ angular.module('gsApp.import', [
       $scope.showProjection = false;
 
       var stopUpdateTimer, stopGetTimer;
-
-      // if mapInfo's not defined it's import not create map workflow
-      if (!mapInfoModel.getMapInfo()) {
-        GeoServer.maps.get(wsName).then(
-          function(result) {
-            if (result.success) {
-              $scope.maps = result.data.maps;
-            }
-          });
-      }
 
       // ng-grid configuration
       var baseGridOpts = {
@@ -373,11 +359,6 @@ angular.module('gsApp.import', [
         selectWithCheckboxOnly: false,
         multiSelect: true,
         selectedItems: $scope.selectedLayers,
-        afterSelectionChange: function(rowItem, event) {
-          if (mapInfoModel.getMapInfo()) {
-            mapInfoModel.setMapInfoLayers($scope.selectedLayers);
-          }
-        }
       };
 
       $scope.gridOpts = angular.extend({
@@ -548,7 +529,7 @@ angular.module('gsApp.import', [
             $scope.detailsLoading = false;
             $scope.importInProgress = false;
 
-            $scope.imported = [];
+            $scope.imported.length = 0;
             data.tasks.forEach(function(t) {
               if (t.status == 'COMPLETE') {
                 $scope.setStoreFromLayername(t.name);
@@ -556,7 +537,6 @@ angular.module('gsApp.import', [
                 $scope.imported.push(t);
               }
             });
-            mapInfoModel.setMapInfoLayers($scope.imported);
 
             //TODO: Compare pre ($scope.import) and post (data) "COMPLETED" to get imported layer count
             if ($scope.layers.length == $scope.ignored.length) {
@@ -641,40 +621,6 @@ angular.module('gsApp.import', [
         $timeout.cancel(stopUpdateTimer);
       });
     }])
-.service('mapInfoModel', function(_) {
-  var _this = this;
-  this.mapInfo = null;
-  this.savedLayers = null;
-
-  this.setMapInfo = function(mapInfo) {
-    _this.mapInfo = mapInfo;
-  };
-
-  this.setMapInfoLayers = function(layers) {
-    // if it's an existing map keep new layers separate
-    if (_this.mapInfo) {
-      if (_this.mapInfo.created) {
-        _this.mapInfo.newLayers = layers;
-      } else {
-        _this.mapInfo.layers = layers;
-      }
-    } else { // save for layer to be added to new maps
-      _this.savedLayers = layers.map(function(t) {
-        return t.layer;
-      });
-    }
-  };
-
-  this.getMapInfo = function() {
-    if (_this.mapInfo) {  // check for saved layers
-      if (_this.mapInfo.layers.length == 0 && _this.savedLayers) {
-        _this.mapInfo.layers = _this.savedLayers;
-        _this.savedLayers = null;
-      }
-    }
-    return _this.mapInfo;
-  };
-})
 .factory('importPollingService', ['GeoServer',
   function(GeoServer) {
     return {

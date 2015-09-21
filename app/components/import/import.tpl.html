@@ -33,7 +33,7 @@
         Next: Load &rarr;
       </button>
       <button class="btn btn-success btn-sm pull-left" ng-show="showImportDetails" ng-click="childScope.doImport()" ng-disabled="!selectedLayers || selectedLayers.length==0">Import Selected Layers</button>
-      <button class="btn btn-success btn-sm" ng-show="contextInfo && mapInfo && showImportDetails" ng-disabled="!contextInfo.selectedLayers || contextInfo.selectedLayers.length==0 || !scope.imported || scope.imported.length==0" ng-click="returnselectedLayers(contextInfo.selectedLayers)">{{contextInfo.button}} &rarr;</button>
+      <button class="btn btn-success btn-sm" ng-show="contextInfo && mapInfo && showImportDetails" ng-disabled="!selectedLayers || selectedLayers.length==0 || !imported || imported.length==0" ng-click="returnSelectedLayers(selectedLayers)">{{contextInfo.button}} &rarr;</button>
     </div>
   </div>
 </div>

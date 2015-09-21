@@ -26,7 +26,7 @@
     <h3>Ignored File{{ignored.length > 1 ? 's' : ''}}</h3>
 
     <div ng-click="showIgnored = !showIgnored">
-      {{ignored.length}} file{{ignored.length==1 ? ' was' : 's were'}} not recognized: <a>{{showIgnored ? 'Hide...' : 'Show...'}}</a>
+      {{ignored.length}} file{{ignored.length==1 ? ' was' : 's were'}} not recognized. <a>{{showIgnored ? 'Hide...' : 'Show...'}}</a>
     </div>
     <div class="horizontal-divider" collapse="!showIgnored" ng-init="showIgnored = ignored.length < 10">
       <ul class="list-unstyled">

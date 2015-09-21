@@ -16,24 +16,33 @@
 
   .options {
     margin: 20px auto;
+    width: 60%;
 
     .lead {
       .gray {
         color: @gray;
       }
     }
-  }
 
-  .divider {
-    border-left: 1px solid @gray;
-    height: 110px;
+    text-align: center;
 
-    .or {
-      margin-left: -25px;
-      background: #fff;
-      margin-top: 40px;
+    .divider {
+      display: inline-block;
+
+      width: 80%;
+      border-top: 1px solid @gray;
+      
+      .or {
+        display: inline-block;
+        
+        width: 3em;
+        margin-top: -10px;
+        background: #fff;
+      }
     }
   }
+
+  
 
   form.new-map-form {
 
