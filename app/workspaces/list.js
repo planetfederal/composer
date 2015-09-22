@@ -85,6 +85,20 @@ angular.module('gsApp.workspaces.list', [
           });
         }
 
+      $scope.deleteWorkspace = function(workspace) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/workspace.modal.delete.tpl.html',
+          controller: 'WorkspaceDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return workspace.name;
+            }
+          }
+        });
+      };
+
     }])
 .service('workspacesListModel', function(GeoServer, _, $rootScope) {
   var _this = this;

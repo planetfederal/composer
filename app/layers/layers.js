@@ -9,6 +9,7 @@ angular.module('gsApp.layers', [
   'gsApp.editor.layer',
   'gsApp.core.utilities',
   'gsApp.workspaces.data',
+  'gsApp.workspaces.layers.delete',
   'gsApp.errorPanel'
 ])
 .config(['$stateProvider',
@@ -136,46 +137,6 @@ angular.module('gsApp.layers', [
 
       $scope.setMap = function(map) {
         $scope.selectedMap = map;
-      };
-
-      $scope.deleteLayer = function(layer) {
-        var modalInstance = $modal.open({
-          templateUrl: '/layers/deletelayer-modal.tpl.html',
-          controller: ['$scope', '$window', '$modalInstance',
-            function($scope, $window, $modalInstance) {
-              $scope.selectedLayer = layer;
-
-              $scope.ok = function() {
-                GeoServer.layer.delete(layer.workspace, layer.name).then(function(result) {
-                  if (result.success) {
-                      $rootScope.alerts = [{
-                        type: 'success',
-                        message: 'Layer "' + layer.name + '" has been deleted ' +
-                          'from the workspace "' + layer.workspace + '".',
-                        fadeout: true
-                      }];
-                      $scope.refreshLayers();
-                    } else {
-                      $rootScope.alerts = [{
-                        type: 'danger',
-                        message: 'Layer "' + layer.name + '" could not be ' +
-                          'deleted from the workspace "' + layer.workspace + '".',
-                        fadeout: true
-                      }];
-                    }
-
-                });
-                $modalInstance.dismiss('cancel');
-              };
-
-              $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
-              };
-            }],
-          backdrop: 'static',
-          size: 'med',
-          scope: $scope
-        });
       };
 
       $scope.editLayerSettings = function(layer) {
@@ -465,6 +426,25 @@ angular.module('gsApp.layers', [
               fadeout: true
             }];
           }
+        });
+      };
+
+      $scope.deleteLayer = function(layer) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/layers/layers.modal.delete.tpl.html',
+          controller: 'LayerDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace.selected.name;
+            },
+            layer: function() {
+              return layer;
+            }
+          }
+        }).result.then(function () {
+          $scope.refreshLayers();
         });
       };
 

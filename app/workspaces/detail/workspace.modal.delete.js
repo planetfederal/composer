@@ -14,7 +14,7 @@ angular.module('gsApp.workspaces.delete', [])
       $scope.deleteForever = function () {
         GeoServer.workspace.delete($scope.workspace).then(
           function(result) {
-            if (result.success || result) {
+            if (result && result.success) {
               $scope.workspaceDeleted = true;
               $rootScope.alerts = [{
                 type: 'success',

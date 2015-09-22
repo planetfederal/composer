@@ -45,19 +45,24 @@
                 <div class="workspace-icon" ng-mouseover="mouse=true" ng-mouseleave="mouse=false" ng-init="mouse=false">
                   <a ng-click="onWorkspaceClick(workspace)" class="no-underline"><i class="icon-folder"></i></a>
                   <div class="workspace-details in-folder" ng-show="mouse">
-                    <span class="view" ng-click="onWorkspaceClick(workspace)">Open</span>
+                    <span class="view" ng-click="onWorkspaceClick(workspace)"></span>
                   </div>
                 </div>
                 <div class="workspace-info">
                   <div class="inline">
-                    <h4 class="workspace-name inline" ng-click="onWorkspaceClick(workspace)">{{ workspace.name }}</h4>
+                    <h4 class="workspace-name inline">{{ workspace.name }}</h4>
                   </div>
                   <div class="workspace-default" ng-if="workspace.default" pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="bottom" ng-click="showDefaultDesc=!showDefaultDesc;">
                       <i class="icon-star"></i> Default</div>
-                  <small class="modified" ng-if="workspace.modified">Modified {{ workspace.modified.pretty }}</small>
-                  <small class="workspace-settings" ng-click="workspaceSettings(workspace);"><i class="fa fa-gear" title="Edit Workspace Settings"></i> Settings</small>
-                  <small class="workspace-view" ng-init="showInfo=false" ng-click="onWorkspaceInfo(workspace);"><i class="icon-info"></i> Info</small>
+                  <div class="workspace-default-spacer" ng-if="!workspace.default"> </div>
+                  <div class="modified" ng-if="workspace.modified"><i class="icon-clock"></i> Modified <strong>{{ workspace.modified.pretty }}</strong></div>
+                  <div class="btn-group workspace-links">
+                    <button class="btn btn-default btn-sm workspace-settings link" ng-click="workspaceSettings(workspace);"><i class="fa fa-gear" title="Edit Workspace Settings"></i> Settings</button>
+                    <button class="btn btn-default btn-sm workspace-view link" ng-init="showInfo=false" ng-click="onWorkspaceInfo(workspace);"><i class="icon-info"></i> Info</button>
+                    <button ng-click="deleteWorkspace(workspace)" class="btn btn-default btn-sm link"><i class="icon-remove"></i> Delete</button>
+                  </div>
                 </div>
+                
               </span>
             </div>
           </div>

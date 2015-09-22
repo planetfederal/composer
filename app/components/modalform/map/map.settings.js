@@ -72,28 +72,6 @@ angular.module('gsApp.workspaces.maps.settings', [])
         }
       };
 
-      $scope.deleteMap = function () {
-        GeoServer.map.delete($scope.workspace, originalMap.name, {'name': originalMap.name})
-        .then(function(result) {
-            if (result.success) {
-              $rootScope.$broadcast(AppEvent.MapRemoved, originalMap);
-              $rootScope.alerts = [{
-                type: 'success',
-                message: 'Map ' + originalMap.name + ' successfully deleted.',
-                fadeout: true
-              }];
-              $modalInstance.dismiss('close');
-            } else {
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Map ' + originalMap.name + ' could not be deleted: ' + result.data.message,
-                details: result.data.trace,
-                fadeout: true
-              }];
-            }
-          });
-      };
-
       $scope.calculateBounds = function() {
         GeoServer.map.bounds($scope.workspace, originalMap.name, {"proj":$scope.map.proj.srs}).then(function(result) {
             if (result.success) {

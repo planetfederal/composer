@@ -79,30 +79,6 @@ angular.module('gsApp.workspaces.layers.settings', [])
         }
       };
 
-      $scope.removeLayer = function (layer) {
-        GeoServer.layer.delete($scope.workspace, layer.name)
-        .then(function(result) {
-            if (result.success) {
-              layersListModel.removeLayer(layer);
-              $rootScope.$broadcast(AppEvent.LayersAllUpdated,
-                layersListModel.getLayers());
-              $rootScope.alerts = [{
-                type: 'success',
-                message: 'Layer ' + layer.name + ' successfully deleted.',
-                fadeout: true
-              }];
-              $modalInstance.dismiss('close');
-            } else {
-              $rootScope.alerts = [{
-                type: 'danger',
-                message: 'Layer could not be deleted: ' + result.data.message,
-                details: result.data.trace,
-                fadeout: true
-              }];
-            }
-          });
-      };
-
       $scope.cancel = function () {
         $modalInstance.dismiss('cancel');
       };

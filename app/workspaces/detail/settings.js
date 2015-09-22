@@ -78,18 +78,4 @@ angular.module('gsApp.workspaces.settings', [
             });
         }
       };
-      $scope.deleteWorkspace = function() {
-        var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/workspace.modal.delete.tpl.html',
-          controller: 'WorkspaceDeleteCtrl',
-          backdrop: 'static',
-          size: 'md',
-          resolve: {
-            workspace: function() {
-              return $scope.workspace;
-            }
-          }
-        });
-      };
-
     }]);

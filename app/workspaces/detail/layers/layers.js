@@ -4,6 +4,7 @@
 angular.module('gsApp.workspaces.layers', [
   'gsApp.workspaces.layers.settings',
   'gsApp.workspaces.layers.import',
+  'gsApp.workspaces.layers.delete',
   'gsApp.workspaces.layers.duplicate',
   'gsApp.workspaces.layers.addtomap',
   'gsApp.alertpanel',
@@ -38,8 +39,8 @@ angular.module('gsApp.workspaces.layers', [
         }
       }, 300);
 
-      $scope.lyrThumbsWidth = 75;
-      $scope.lyrThumbsHeight = 75;
+      $scope.lyrThumbsWidth = 112;
+      $scope.lyrThumbsHeight = 112;
 
       $scope.opts = {
         paging: {
@@ -283,6 +284,23 @@ angular.module('gsApp.workspaces.layers', [
               }];
             }
           });
+      };
+
+      $scope.deleteLayer = function(layer) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/layers/layers.modal.delete.tpl.html',
+          controller: 'LayerDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            layer: function() {
+              return layer;
+            }
+          }
+        });
       };
 
       $rootScope.$on(AppEvent.LayersAllUpdated, function(scope, layers) {

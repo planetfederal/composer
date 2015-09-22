@@ -1,11 +1,10 @@
 <div>
   <div class="modal-header">
-    <h4 class="modal-title">Delete Workspace</h4>
+    <h4 class="modal-title">Delete Map</h4>
   </div>
   <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
-    <p>Delete workspace <strong>{{ workspace }}</strong>?</p>
-    <p><strong>All data, layers and styles will be permanently deleted.</strong></p>
-    <p>This action cannot be undone! Are you absolutely sure?</p>
+    <p>Delete map <strong>{{ map.name }}</strong>?</p>
+    <p>All layers and styles will be preserved.</p>
   </div>
   <div class="modal-footer">
     <button class="btn btn-default btn-sm" ng-click="cancel()" style="float:left;">Cancel</button>

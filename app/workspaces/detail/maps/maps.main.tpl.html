@@ -41,12 +41,13 @@
             <div class="map-otherinfo">
               <div class="otherinfo"><i class="icon-stack"></i> {{ map.layer_count }} Layer<span ng-if="map.layer_count==0 || map.layer_count>1">s</span></div>
               <div class="otherinfo"><i class="icon-compass"></i> {{ map.proj.srs }}</div>
-              <div class="otherinfo" ng-if="map.modified.pretty"><i class="icon-clock"></i> {{ map.modified.pretty }}</div>
-              <div class="btn-group map-summary-links">
-                <button type="button" class="btn btn-default btn-sm map-link-icon" ng-click="editMapSettings(map);" alt="Map Settings" title="Map Settings"><i class="fa fa-gear"></i></button>
-                <button type="button" class="btn btn-default btn-sm map-link-icon link" ng-click="newOLWindow(map);" alt="Map Link" title="Map Link"><i class="icon-link"></i></button>
-                <button type="button" class="btn btn-default btn-sm map-link-icon link" ng-click="generateMapSrc(map);" alt="Generate Map" title="Generate Map"><i style="line-height: 1;">js</i></button>
-              </div>
+              <div class="otherinfo" ng-if="map.modified.pretty"><i class="icon-clock"></i> Modified <strong>{{ map.modified.pretty }}</strong></div>
+            </div>
+            <div class="btn-group map-summary-links">
+              <button type="button" class="btn btn-default btn-sm link" ng-click="editMapSettings(map);" alt="Map Settings" title="Map Settings"><i class="fa fa-gear"></i> Settings</button>
+              <button type="button" class="btn btn-default btn-sm link" ng-click="newOLWindow(map);" alt="Map Link" title="Map Link"><i class="icon-link"></i> Link</button>
+              <button type="button" class="btn btn-default btn-sm link" ng-click="generateMapSrc(map);" alt="Generate Map" title="Generate Map"><i style="line-height: 1;"><strong>js</strong></i> Export</button>
+              <button ng-click="deleteMap(map)" class="btn btn-default btn-sm link"><i class="icon-remove"></i> Delete</button>
             </div>
           </div>
           <div class="abstract" ng-if="map.description"><strong>Description:</strong> {{sanitizeHTML(map.description)}}</div>

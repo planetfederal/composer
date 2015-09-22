@@ -10,7 +10,7 @@
       </a>
     </li>
     <li class="dropdown" dropdown>
-      <a class="dropdown-toggle" dropdown-toggle title="New Project Workspace" data-toggle="dropdown-new">
+      <a class="dropdown-toggle list-entry" dropdown-toggle title="New Project Workspace" data-toggle="dropdown-new">
         <i class="icon-plus" ng-show="toggleSide"></i>
         <span class="txt">New <span class="caret"></span></span>
       </a>
@@ -27,25 +27,31 @@
       <ul class="workspaces" role="menu">
         <li class="single-workspace" ng-repeat="workspace in workspaces |
           limitTo:numWorkspaces" ng-class="{'open': toggleWkspc[workspace.name]}">
-          <a href="" ng-click="onWorkspaceClick(workspace);" alt="{{ workspace.name }}">
-            <i ng-class="{'icon-folder': !toggleWkspc[workspace.name], 'icon-folder-open': toggleWkspc[workspace.name]}"></i> <span class="txt">{{ workspace.name }}</span>
-          </a>
+          <div class="list-entry">
+            <a class="delete-workspace" href="" ng-click="deleteWorkspace(workspace);">
+              <i class="icon-remove"></i>
+            </a>
+            <a class="show-workspace" href="" ng-click="onWorkspaceClick(workspace);" alt="{{ workspace.name }}">
+              <i ng-class="{'icon-folder': !toggleWkspc[workspace.name], 'icon-folder-open': toggleWkspc[workspace.name]}"></i> <span class="txt">{{ workspace.name }}</span>
+            </a>
+          </div>
+          
           <ul class="workspace-items" collapse="!toggleWkspc[workspace.name]" role="menu">
             <li class="in-workspace">
-              <a ng-click="onWorkspaceTabClick(workspace,'maps.main');"
+              <a class="list-entry" ng-click="onWorkspaceTabClick(workspace,'maps.main');"
                 alt="Maps">
                 <i class="icon-map"></i> <span class="txt">Maps</span>
               </a>
             </li>
             <li class="in-workspace">
-              <a ng-click="onWorkspaceTabClick(workspace,'layers.main');"
+              <a class="list-entry" ng-click="onWorkspaceTabClick(workspace,'layers.main');"
                 alt="Layers">
                 <i class="icon-stack"></i> <span class="txt">Layers
                 </span>
               </a>
             </li>
             <li class="in-workspace">
-              <a ng-click="onWorkspaceTabClick(workspace,'data.main');"
+              <a class="list-entry" ng-click="onWorkspaceTabClick(workspace,'data.main');"
                 alt="Data">
                 <i class="fa fa-database fa-md"></i> <span class="txt" style="margin-left: 1px;"> Data
                 </span>
@@ -54,14 +60,14 @@
           </ul>
         </li>
         <li ng-show="workspaces.length > 2" class="more">
-          <a ui-sref="workspaces.list" alt="More..." title="More...">
+          <a  class="list-entry" ui-sref="workspaces.list" alt="More..." title="More...">
             <span class="txt">More...</span>
           </a>
         </li>
       </ul>
     </li>
     <li id="projects" ng-show="toggleSide" class="dropdown" dropdown>
-      <a ng-click="openWorkspaces();" class="dropdown-toggle"
+      <a class="list-entry" ng-click="openWorkspaces();" class="dropdown-toggle"
         data-toggle="tgdropdown" alt="Project Workspaces"
         title="Project Workspaces" dropdown-toggle>
         <i class="icon-folder-open"></i> <span class="txt">Project Workspaces</span>
@@ -70,13 +76,13 @@
         role="menu">
         <li class="single-workspace" ng-repeat="workspace in workspaces |
           limitTo: 5" ng-class="{'open': toggleWkspc2[workspace.name]}">
-          <a href="" ng-click="onWorkspaceClick2(workspace);" alt="{{ workspace.name }}"
+          <a class="list-entry" href="" ng-click="onWorkspaceClick2(workspace);" alt="{{ workspace.name }}"
             title="{{ workspace.name }}">
             <i ng-class="{'icon-folder': !toggleWkspc2[workspace.name], 'icon-folder-open': toggleWkspc2[workspace.name]}"></i> {{ workspace.name }}
           </a>
         </li>
         <li ng-show="workspaces.length > 2" class="more">
-          <a ui-sref="workspaces.list" alt="More..." title="More..."> More...</a>
+          <a class="list-entry" ui-sref="workspaces.list" alt="More..." title="More..."> More...</a>
         </li>
         <li ng-show="workspaces.length == 0" class="single-workspace">
           No Project Workspaces
@@ -86,15 +92,15 @@
   </ul>
   <ul class="sidebar-nav" ng-style="sideBottom">
     <li role="presentation" class="divider top-divider"></li>
-    <li><a ui-sref="maps" alt="All Maps" title="All Maps">
+    <li><a class="list-entry" ui-sref="maps" alt="All Maps" title="All Maps">
       <i class="icon-map"></i> <span class="txt">All Maps</span></a>
     </li>
-    <li><a ui-sref="layers" alt="All Layers" title="All Layers">
+    <li><a class="list-entry" ui-sref="layers" alt="All Layers" title="All Layers">
       <i class="icon-stack"></i> <span class="txt">All Layers</span></a>
     </li>
     <li role="presentation" class="divider"></li>
     <li>
-      <a ui-sref="home" alt="Recent" title="Recent">
+      <a class="list-entry" ui-sref="home" alt="Recent" title="Recent">
         <i class="icon-clock"></i> <span class="txt">Recent</span>
       </a>
     </li>

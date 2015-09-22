@@ -9,6 +9,7 @@ angular.module('gsApp.maps', [
   'gsApp.editor.map',
   'gsApp.projfield',
   'gsApp.core.utilities',
+  'gsApp.workspaces.maps.delete',
   'angularMoment'
 ])
 .config(['$stateProvider',
@@ -67,49 +68,6 @@ angular.module('gsApp.maps', [
         $state.go(route, {workspace: workspace});
       };
 
-      $scope.deleteMap = function(map) {
-        var modalInstance = $modal.open({
-          templateUrl: '/maps/deletemap-modal.tpl.html',
-          controller: ['$scope', '$window', '$modalInstance', '$state',
-            function($scope, $window, $modalInstance, $state) {
-              $scope.selectedMap = map;
-              
-              $scope.ok = function() {
-                GeoServer.map.delete(map.workspace, map.name).then(
-                  function(result) {
-                    $modalInstance.dismiss('cancel');
-                    if (result.success) {
-                      $rootScope.alerts = [{
-                        type: 'success',
-                        message: 'Map "' + map.name + '" has been deleted ' +
-                          'from the workspace "' + map.workspace + '".',
-                        fadeout: true
-                      }];
-                      $scope.refreshMaps();
-                    } else {
-                      $rootScope.alerts = [{
-                        type: 'danger',
-                        message: 'Map "' + map.name + '" could not be ' +
-                          'deleted from the workspace "' + map.workspace + '".',
-                        details: result.data.trace,
-                        fadeout: true
-                      }];
-                    }
-                    if ($scope.mapNameCheck.name) {$scope.mapNameError = true;}
-                    else {$scope.mapNameError = false;}
-                  });
-              };
-
-              $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
-              };
-            }],
-          backdrop: 'static',
-          size: 'med',
-          scope: $scope
-        });
-      };
-
       $scope.refreshMaps = function() {
         var opts = $scope.opts;
         $scope.ws = $scope.workspace.selected;
@@ -157,6 +115,25 @@ angular.module('gsApp.maps', [
               return map;
             }
           }
+        });
+      };
+
+      $scope.deleteMap = function(map) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/maps/maps.modal.delete.tpl.html',
+          controller: 'MapDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace.selected.name;
+            },
+            map: function() {
+              return map;
+            }
+          }
+        }).result.then(function () {
+          $scope.refreshMaps();
         });
       };
 

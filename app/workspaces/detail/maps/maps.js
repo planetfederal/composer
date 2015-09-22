@@ -4,6 +4,7 @@
 angular.module('gsApp.workspaces.maps', [
   'gsApp.modals.maps.new',
   'gsApp.workspaces.maps.settings',
+  'gsApp.workspaces.maps.delete',
   'gsApp.alertpanel',
   'gsApp.editor.map',
   'gsApp.core.utilities',
@@ -199,7 +200,7 @@ angular.module('gsApp.workspaces.maps', [
 
       $scope.$watch('opts', function(newVal, oldVal) {
         if (newVal && newVal !== oldVal) {
-          $scope.refreshMaps();
+          $scope.serverRefresh();
         }
       }, true);
     }])
@@ -263,6 +264,23 @@ angular.module('gsApp.workspaces.maps', [
 
       $scope.preview = function() {
         $window.open().document.write($scope.ol3src);
+      };
+
+      $scope.deleteMap = function(map) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/maps/maps.modal.delete.tpl.html',
+          controller: 'MapDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace;
+            },
+            map: function() {
+              return map;
+            }
+          }
+        });
       };
 
       $rootScope.$on(AppEvent.MapsAllUpdated, function(scope, maps) {
