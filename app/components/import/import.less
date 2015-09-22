@@ -1,0 +1,193 @@
+/* import.less */
+
+@import "../../variables.less";
+
+.import-modal {
+  height: 600px;
+}
+
+.form-container {
+  margin: 5px auto;
+
+  .upload-options {
+    max-width: 70%;
+    margin: 0 auto 20px;
+  }
+}
+
+.data-import-file {
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+
+  .lead {
+    margin-bottom: 10px;
+
+    small {
+      display: block;
+      margin: 10px auto 15px;
+      font-size: 12px;
+    }
+  }
+
+  .drop-box {
+    margin-top: 20px;
+    background: #F8F8F8;
+    border: 5px dashed #DDD;
+    height: 80px;
+    text-align: center;
+    padding-top: 16px;
+    margin: 0 auto;
+    font-size: 24px;
+    font-weight: bold;
+    color: @light-gray;
+
+    
+  }
+
+  &.file-over .drop-box {
+    border-color: @skyblue;
+    color: @skyblue
+  }
+
+  .browse-button {
+    margin-bottom: 5px;
+    margin-left: 0px;
+  }
+
+  .file-list {
+    margin-top: 25px;
+    margin-left: auto;
+    margin-right: auto;
+
+    .file-name {
+      margin-bottom: 5px;
+      
+      span.file-remove {
+        float: left;
+        margin-right: 10px;
+        margin-top: .15em;
+        margin-left: 0px;
+        
+        .icon-ln {
+          color: @status-red;
+        }
+
+      }
+      span.file-info {
+        float: right;
+      }
+      
+    }
+
+    .row {
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    div[class*="col-"] {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+
+    .file-space {
+
+      border-top: 1px solid #DDD;
+      margin-bottom: 5px;
+
+      overflow: hidden;
+
+      table {
+        float: right;
+        font-size: 13px;
+
+          .file-space-heading {
+            padding-right: 50px;
+            text-align: left;
+          }
+          .file-space-value {
+            text-align: right;
+          }
+      }
+
+      .file-space-warning {
+        color: @red;
+        font-weight: bold;
+      }
+
+    }
+
+
+    .progress {
+      margin-top: 5px;
+    }
+  }
+}
+
+.data-import-file-tooltip {
+  h5 {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #E5E5E5;
+  }
+  p {
+    font-size: 13px;
+  }
+
+  .file-type {
+    margin-left: 15px;
+    margin-bottom: 5px;
+    font-size: 12px;
+  }
+}
+
+.data-import-db {
+  .db-list {
+    [class*="col-"] {
+      padding: 25px;
+
+      .db-logo {
+        margin-bottom: 10px;
+        color: @gray;
+      }
+    }
+  }
+  .instructions {
+    font-size: 14px;
+    .in-dev {
+      color: @md-lt-gray;
+      margin-bottom: 20px;
+    }
+  }
+  .geoserver-link {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+
+  .db-details {
+    .db-format-generic {
+      margin-left: 15px;
+      margin-top: 15px;
+
+      label[title]:not([title='']) {
+        border-bottom: 1px dotted @monacoblue;
+      }
+      input[type='checkbox'] {
+        width: 34px;
+      }
+      .hint-required {
+        padding-left: 0px;
+        //padding-top: 10px;
+        //border-top: 1px solid #E5E5E5;
+      }
+    }
+  } 
+}
+
+.import-result {
+  width: 70%;
+  margin: 0 auto;
+
+  .import-error {
+    margin-top: 10px;
+  }
+}

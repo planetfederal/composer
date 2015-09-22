@@ -1,0 +1,128 @@
+/* import.details.less */
+
+@import "../../variables.less";
+
+.data-import-file {
+  .alert {
+    margin-bottom: 5px;
+  }
+}
+
+.pending-layers {
+
+  width: 100%;
+
+  input, button {
+    height: 25px;
+    padding: 2px 4px;
+    border-radius: 1px;
+    margin-top: 2px;
+  }
+  .ngViewport.ng-scope {
+    min-height: 90px !important;
+    max-height: 330px;
+    height: auto !important;
+  }
+  input[type="checkbox"] {
+    margin: -7px 5px 0px 0px !important;
+  }
+  .proj-field {
+    span {
+      line-height: 28px;
+      vertical-align: middle;
+    }
+  }
+  span.grid-cell {
+    vertical-align: middle;
+    line-height: 28px;
+    margin-left: 15px;
+
+    &.import-error i {
+      color: @status-red;
+    }
+
+    &.import-warning i {
+      color: @status-yellow;
+    }
+
+    &.import-success i {
+      color: @status-green;
+    }
+  }
+}
+
+.completed-layers {
+  .ngViewport.ng-scope {
+    min-height: 90px !important;
+    max-height: 330px;
+    height: auto !important;
+  }
+}
+
+.data-import-details {
+  .map-choice {
+    margin: 25px auto 10px;
+  }
+  .map-label {
+    margin-bottom: 10px;
+  }
+  .map-picker {
+    margin-bottom: 5px;
+    width: 180px;
+    display: inline-block;
+  }
+  .map-button {
+    margin-left: 15px;
+    margin-top: 0;
+  }
+  .dropdown-menu {
+    font-size: 12px;
+  }
+
+  .imported-msg {
+    margin-right: 20px;
+    float: left;
+    padding: 6px 12px;
+    border-radius: 3px;
+  }
+  .next-import-button {
+    display: inline-block;
+    margin-right: 20px;
+    float: left;
+    padding: 6px;
+  }
+
+  .all-import-button {
+    display: inline-block;
+    margin-right: 50px;
+    float: left;
+    padding: 6px;
+  }
+
+  .options {
+    margin: 20px auto;
+
+    .lead {
+      .gray {
+        color: @gray;
+      }
+    }
+  }
+
+  .vertical-divider {
+    border-left: 1px solid @gray;
+    height: 110px;
+
+    .or {
+      margin-left: -25px;
+      background: #fff;
+      margin-top: 40px;
+    }
+  }
+
+  .horizontal-divider {
+    border-top: 2px solid #9c9a9a;
+    margin-top: 5px;
+  }
+
+}

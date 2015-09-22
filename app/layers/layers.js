@@ -6,10 +6,11 @@ angular.module('gsApp.layers', [
   'ui.select',
   'ngSanitize',
   'gsApp.alertpanel',
+  'gsApp.editor.layer',
   'gsApp.core.utilities',
   'gsApp.workspaces.data',
-  'gsApp.layers.style',
-  'gsApp.errorPanel',
+  'gsApp.workspaces.layers.delete',
+  'gsApp.errorPanel'
 ])
 .config(['$stateProvider',
   function($stateProvider) {
@@ -35,7 +36,7 @@ angular.module('gsApp.layers', [
       $scope.dropdownBoxSelected = '';
 
       $scope.onStyleEdit = function(layer) {
-        $state.go('layer.style', {
+        $state.go('editlayer', {
           workspace: layer.workspace,
           name: layer.name
         });
@@ -57,22 +58,6 @@ angular.module('gsApp.layers', [
 
       $scope.go = function(route, workspace) {
         $state.go(route, {workspace: workspace});
-      };
-
-      $scope.createMap = function(workspace) {
-        $timeout(function() {
-          $rootScope.$broadcast(AppEvent.CreateNewMap);
-        }, 250);
-        // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.maps.main', {workspace: workspace});
-      };
-
-      $scope.importData = function(workspace) {
-        $timeout(function() {
-          $rootScope.$broadcast(AppEvent.ImportData, {workspace: workspace});
-        }, 250);
-        // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.data.import', {workspace: workspace});
       };
 
       $scope.addSelectedToMap = function() {
@@ -137,7 +122,7 @@ angular.module('gsApp.layers', [
                   ', now with ' + result.data.length + ' total.',
                 fadeout: true
               }];
-              $state.go('map.compose', {workspace: selectedWorkspace,
+              $state.go('editmap', {workspace: selectedWorkspace,
                 name: mapInfo.name});
             } else {
               $rootScope.alerts = [{
@@ -154,49 +139,9 @@ angular.module('gsApp.layers', [
         $scope.selectedMap = map;
       };
 
-      $scope.deleteLayer = function(layer) {
-        var modalInstance = $modal.open({
-          templateUrl: '/layers/deletelayer-modal.tpl.html',
-          controller: ['$scope', '$window', '$modalInstance',
-            function($scope, $window, $modalInstance) {
-              $scope.selectedLayer = layer;
-
-              $scope.ok = function() {
-                GeoServer.layer.delete(layer.workspace, layer.name).then(function(result) {
-                  if (result.success) {
-                      $rootScope.alerts = [{
-                        type: 'success',
-                        message: 'Layer "' + layer.name + '" has been deleted ' +
-                          'from the workspace "' + layer.workspace + '".',
-                        fadeout: true
-                      }];
-                      $scope.refreshLayers();
-                    } else {
-                      $rootScope.alerts = [{
-                        type: 'danger',
-                        message: 'Layer "' + layer.name + '" could not be ' +
-                          'deleted from the workspace "' + layer.workspace + '".',
-                        fadeout: true
-                      }];
-                    }
-
-                });
-                $modalInstance.dismiss('cancel');
-              };
-
-              $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
-              };
-            }],
-          backdrop: 'static',
-          size: 'med',
-          scope: $scope
-        });
-      };
-
       $scope.editLayerSettings = function(layer) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/layer.settings.tpl.html',
+          templateUrl: '/components/modalform/layer/layer.settings.tpl.html',
           controller: 'EditLayerSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -314,7 +259,15 @@ angular.module('gsApp.layers', [
         selectedItems: $scope.layerSelections,
         multiSelect: true,
         columnDefs: [
-          {field: 'name', displayName: 'Layer', width: '14%'},
+          {
+            field: 'name', displayName: 'Layer', 
+            cellTemplate:
+              '<div class="grid-text-padding"' +
+                'title="{{row.entity.name}}">' +
+                '{{row.entity.name}}' +
+              '</div>',
+            width: '14%'
+          },
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,
@@ -473,6 +426,25 @@ angular.module('gsApp.layers', [
               fadeout: true
             }];
           }
+        });
+      };
+
+      $scope.deleteLayer = function(layer) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/layers/layers.modal.delete.tpl.html',
+          controller: 'LayerDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace.selected.name;
+            },
+            layer: function() {
+              return layer;
+            }
+          }
+        }).result.then(function () {
+          $scope.refreshLayers();
         });
       };
 

@@ -112,11 +112,12 @@
       }
       .map-otherinfo {
         margin-top: 15px;
+        font-size: 11px;
         .otherinfo {
           margin-top: 10px;
           i {
             margin-right: 6px;
-            color: @md-lt-gray;
+            color: @gray;
           }
         }
       }
@@ -132,15 +133,18 @@
       .box-shadow(0 1px 1px @gray);
       .border-radius(3px, 3px, 3px, 3px);
 
-      .map-link-icon {
-        color: @md-lt-gray;
+      display: block;
+
+      .link {
+        padding: 3px 6px 3px 6px;
+        color: @gray;
+        font-size: 11px;
 
         &:hover {
           color: @monacoblue;
-        }
-
-        .link {
-          font-size: 11px;
+          i {
+            color: @monacoblue;
+          }
         }
       }
     }

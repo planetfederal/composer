@@ -1,0 +1,59 @@
+<div class="editor editor-layer">
+  <div class="row">
+    <div class="col-xs-12 layer-name-row">
+      <nav class="navbar navbar-default layer-name" role="navigation">
+        <div class="row">
+          <div class="col-xs-6 col-lg-7 resizable-left">
+            <div class="navbar-brand">
+              <a ng-click="viewWorkspace(workspace);" title="{{ workspace }}"><i class="icon-lg icon-folder-open"></i> {{ workspace }}</a>
+              <a ng-click="editLayerSettings(layer);" title="{{ layer.name }}"><i class="fa fa-angle-right" style="padding: 0 5px;"></i> <span class="icon-wonky"><i class="icon-stack"></i></span> <span class="map-name-span">{{ layer.name }}</span></a>
+            </div>
+            <div class="render-progress-container">
+              <span ng-show="isRendering" class="render-progress">
+                <i class="fa fa-spinner fa-spin"></i>
+                Rendering map
+              </span>
+              <featureinfo-panel featureinfo="featureinfo" active-layer="layer"></featureinfo-panel>
+            </div>
+          </div>
+          <div class="col-xs-6 col-lg-5 info resizable-right">
+            <div class="top">
+              <div class="shortcuts">
+                <style-editor-shortcuts></style-editor-shortcuts>
+                <a ng-click="editLayerSettings(layer);" style="margin-left: 10px;">
+                  <i class="icon-cog icon-lg"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+  <div class="row">
+    <div id="mapPanel" class="col-xs-6 col-lg-7 resizable-left" ng-style="mapBackground">
+      <div ol-map class="map" map-opts="mapOpts"
+        ng-class="{'hide-all': hideCtrl.all, 'hide-lonlat': hideCtrl.lonlat}"></div>
+    </div>
+    <div id="editingPanel" class="col-xs-6 col-lg-5 resizable-right">
+      <div class="editor-background">
+        <div id="resizer" resizer="vertical" alt="Drag to resize" title="Drag to resize" left-min="300" right-min="300"></div>
+        <div class="map-editor">
+          <div class="style-toolbar">
+            <ul class="list-unstyled list-inline">
+              <style-editor-fullscreen click="toggleFullscreen"></style-editor-fullscreen>
+              <style-editor-save editor="editor" click="saveStyle"></style-editor-save>
+              <style-editor-undo editor="editor"></style-editor-undo>
+              <style-editor-display editor="editor"></style-editor-display>
+              <style-editor-color editor="editor"></style-editor-color>
+              <style-editor-icons editor="editor"></style-editor-icons>
+              <style-editor-attrs editor="editor" layer="layer"></style-editor-attrs>
+              <style-editor-sld editor="editor" layer="layer"></style-editor-sld>
+            </ul>
+          </div>
+          <style-editor></style-editor>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

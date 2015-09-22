@@ -1,0 +1,50 @@
+/* map.settings.less */
+
+@import "../../../variables.less";
+
+.map-settings {
+  width: 90%;
+  margin-left: 20px;
+
+  .mapSettings {
+    margin-top: 0;
+  }
+
+  ul.extent-list > li {
+    display: inline-block;
+    width: 24%;
+
+    .mapExtent {
+      width: 100%;
+    }
+  }
+  .boundsButton {
+    margin: 0;
+    width: 122px;
+  }
+
+  #mapRenderTimeout {
+    width: 25%;
+    display: inline-block;
+  }
+}
+
+small.hint {
+  display: block;
+  margin-top: 3px;
+}
+small.units {
+  display: inline-block;
+  margin-left: 5px;
+}
+
+.map-settings-footer {
+  .btn {
+    margin-left: 20px !important;
+  }
+  .saved {
+    float: left;
+    color: @green;
+  }
+}
+

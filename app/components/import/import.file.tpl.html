@@ -1,0 +1,73 @@
+<div class="data-import-file" ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="file-over">
+  <div class="text-center">
+    <p class="lead">
+      Upload one or more spatial files or .zip files<br/>containing any number of spatial files. 
+      <span popover-html-unsafe="{{fileTooltip}}" popover-trigger="click" popover-placement="bottom">
+        <i class="icon-ln fa fa-info-circle"></i>
+      </span>
+      <small>When uploading .shp files, remember to include .prj, .dbx, and .shx files.</small>
+    </p>
+
+    <button class="btn btn-primary btn-sm browse-button" type="button"
+      ng-file-select="onFileSelect($files)" data-multiple="true">
+      Browse
+    </button>
+
+    <p>or</p>
+    <p>
+      <div class="drop-box" ng-file-drop="onFileSelect($files)"  
+      ng-file-drop-available="dropSupported=true" ng-show="dropSupported">
+        Drop files here
+      </div>
+      <div ng-show="!dropSupported">HTML5 Drop File is not supported</div>
+    </p>
+  </div>
+  <div class="file-list" ng-show="files != null && files.length > 0">
+    <div class="file-name" ng-repeat="file in files">
+      <span class="file-remove" ng-click="onFileRemove(file)"><i class="icon icon-ln icon-cancel-circle"></i></span>
+      <strong> {{ file.name }}</strong>
+      <span class="file-info">{{ file.size | bytesize }}</span>
+    </div>
+    <div>
+    <div class="file-space">
+    <table>
+      <tr>
+        <td class="file-space-heading">Space required:</td>
+        <td class="file-space-value">{{ fileSize | bytesize }}</td>
+      </tr>
+      <tr>
+        <td class="file-space-heading">Space available:</td>
+        <td class="file-space-value" ng-class="fileSize >= diskSize ? 'file-space-warning' : ''">{{ diskSize | bytesize }}</td>
+      </tr>
+    </table>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <span>
+          <button class="btn btn-primary btn-sm" type="button"
+          ng-click="upload()" ng-disabled="files == null  || files.length == 0">Upload</button>
+          <button class="btn btn-sm" type="button"
+          ng-click="cancel()" ng-disabled="progress.percent == 0">Cancel</button>
+        </span>
+      </div>
+      <div class="col-sm-6">
+        <progressbar class="progress-stripped" type="info" value="progress.percent">
+        {{ progress.percent }} %
+        </progressbar>
+      </div>
+    </div>
+    <div class="row" ng-show="existingStores.length > 0">
+      <div class="col-sm-12" style="margin-bottom:10px;">
+        <input type="checkbox" id="uploadToStore" ng-model="addToStore" /> Add to Existing Store
+        <div style="display:inline-block; margin-left: 10px;" ng-show="addToStore">
+          <select ng-model="chosenImportStore" ng-options="es.name for es in existingStores">
+          </select>
+        </div>
+      </div>
+    </div>
+    <div ng-if="progress.percent == 100 && importResult == null">
+      <i class="fa fa-spinner fa-spin"></i>
+      Processing upload... please wait.
+    </div>
+  </div>
+</div>

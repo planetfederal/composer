@@ -15,9 +15,9 @@ angular.module('gsApp.workspaces.list', [
           controller: 'WorkspacesListCtrl'
         });
     }])
-.controller('WorkspacesListCtrl', ['$scope', 'GeoServer', '$state', '$log',
+.controller('WorkspacesListCtrl', ['$scope', 'GeoServer', '$state', '$log', '$modal',
   '$rootScope', 'AppEvent', '_', 'workspacesListModel', '$timeout',
-    function($scope, GeoServer, $state, $log, $rootScope, AppEvent, _,
+    function($scope, GeoServer, $state, $log, $modal, $rootScope, AppEvent, _,
       workspacesListModel, $timeout) {
       $scope.title = 'All Project Workspaces';
 
@@ -65,6 +65,38 @@ angular.module('gsApp.workspaces.list', [
 
       $scope.go = function(route, workspace) {
         $state.go(route, {workspace: workspace.name});
+      };
+
+      $scope.workspaceSettings = function (workspace) {
+          $modal.open({
+            templateUrl: '/workspaces/detail/settings.tpl.html',
+            controller: 'WorkspaceSettingsCtrl',
+            backdrop: 'static',
+            size: 'md',
+            resolve: {
+              workspace: function() {
+                return workspace.name;
+              }
+            }
+          }).result.then(function(param) {
+            if (param) {
+              //TODO: update name, etc. if applicable
+            }
+          });
+        }
+
+      $scope.deleteWorkspace = function(workspace) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/workspace.modal.delete.tpl.html',
+          controller: 'WorkspaceDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return workspace.name;
+            }
+          }
+        });
       };
 
     }])

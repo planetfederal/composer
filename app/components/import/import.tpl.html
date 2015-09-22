@@ -1,0 +1,39 @@
+<div>
+  <div class="modal-header">
+    <div class="create-title" ng-bind-html="title"></div>
+  </div>
+  <div class="modal-body">
+    <div class="container-fluid form-container">
+      <div class="upload-options btn-group btn-group-justified" ng-show="!showImportDetails">
+        <div class="btn-group">
+          <button type="button" class="btn btn-default btn-sm" ng-click="showImportFile=true; showImportDB=false; importResult = null;" ng-class="{active: showImportFile}">
+            Add Files
+          </button>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default btn-sm"
+          ng-click="showImportFile=false; showImportDB=true; importResult = null;" ng-class="{active: showImportDB}">
+            Add Database
+          </button>
+        </div>
+      </div>
+
+      <import-file ng-if="workspace && workspace.name" ng-show="showImportFile && !showImportDetails"></import-file>
+      <import-db ng-if="workspace && workspace.name" ng-show="showImportDB && !showImportDetails"></import-db>
+      <import-details ng-if="workspace && workspace.name && showImportDetails"></import-details>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <div class="submit-buttons pull-left">
+      <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+    </div>
+    <div class="submit-buttons pull-right">
+      <button class="btn btn-default btn-sm" style="display:none;" ng-click="back()" ng-show="!showImportFile && format!==null">&larr; Back</button>
+      <button ng-if="importResult!==null && !showImportDetails" class="btn btn-success btn-sm" type="button" ng-click="next(importResult)">
+        Next: Load &rarr;
+      </button>
+      <button class="btn btn-success btn-sm pull-left" ng-show="showImportDetails" ng-click="childScope.doImport()" ng-disabled="!selectedLayers || selectedLayers.length==0">Import Selected Layers</button>
+      <button class="btn btn-success btn-sm" ng-show="contextInfo && mapInfo && showImportDetails" ng-disabled="!selectedLayers || selectedLayers.length==0 || !imported || imported.length==0" ng-click="returnSelectedLayers(selectedLayers)">{{contextInfo.button}} &rarr;</button>
+    </div>
+  </div>
+</div>

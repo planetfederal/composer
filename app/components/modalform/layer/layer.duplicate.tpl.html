@@ -1,0 +1,28 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Copy <i class="icon-stack"></i> <strong>{{ fromLayer.name }}</strong> to New Layer</h4>
+    <small class="pull-right required-star">* Required</small>
+  </div>
+  <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
+    <form name="form.layerSettings" role="form" class="layer-settings">
+      <form-name-layer form="form.layerSettings" model="layer.name" label="'New Layer Name'"></form-name-layer>
+      <form-title form="form.layerSettings" model="layer.title" label="'New Layer Title'"></form-title>
+      <form-crs form="form.layerSettings" model="layer.proj" label="'Projection'"></form-crs>
+      <form-description form="form.layerSettings" model="layer.description" label="'Description'"></form-description>
+      <div class="form-group">
+        <label for="type">Type:</label> {{ layer.type | firstCaps}}
+      </div>
+    </form>
+    <alert ng-show="form.layerSettings.alerts" type="danger" style="margin-left: 0;">
+      {{ form.layerSettings.alerts }}
+    </alert>
+  </div>
+  <div class="modal-footer">
+    <div class="submit-buttons pull-left">
+      <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+    </div>
+    <div class="submit-buttons pull-right">
+      <button class="btn btn-success btn-sm" ng-click="importAsLayer();" ng-disabled="!form.layerSettings.$valid || form.layerSettings.name.invalid" style="margin-left:20px; margin-right:20px;">Copy to New Layer</button>
+    </div>
+  </div>
+</div>

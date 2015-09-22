@@ -1,0 +1,57 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title"><i class="icon-map"></i> <strong>{{ mapname }}</strong></h4>
+    <small class="pull-right required-star">* Required</small>
+  </div>
+  <div class="modal-body map-settings">
+    <form name="form.mapSettings" role="form" class="mapSettings">
+      <form-name-map form="form.mapSettings" model="map.name" label="'Map Name'"></form-name-map>
+      <form-title form="form.mapSettings" model="map.title" label="'Title'"></form-title>
+      <form-crs form="form.mapSettings" model="map.proj" label="'Projection'"></form-crs>
+      <div class="form-group">
+        <label for="mapExtent">
+          Extent <div class="crs-warning" popover-html-unsafe="{{extentTooltip}}" popover-trigger="click" popover-placement="right"><i class="icon-ln fa fa-info-circle"></i></div>
+        </label>
+        <ul class="list-unstyled extent-list">
+          <li>
+            <small>South</small>
+            <input name="bbox.south" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.south">
+          </li>
+          <li>
+            <small>West</small>
+            <input name="bbox.west" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.west">
+          </li>
+          <li>
+            <small>North</small>
+            <input name="bbox.north" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.north">
+          </li>
+          <li>
+            <small>East</small>
+            <input name="bbox.east" type="text" class="form-control input-sm mapExtent" ng-model="map.bbox.east">
+          </li>
+        </ul>
+        <button ng-click="calculateBounds()" class="btn btn-sm boundsButton">Generate Extent</button>
+      </div>
+      <form-description form="form.mapSettings" model="map.description" label="'Description'"></form-description>
+      <div class="form-group">
+        <label for="renderTimeout">
+          Render Timeout
+          <div class="crs-warning" popover-html-unsafe="{{renderTooltip}}" popover-trigger="click" popover-append-to-body="true" popover-placement="right"><i class="icon-ln fa fa-info-circle"></i></div>
+        </label>
+        <input name="title" type="number" class="form-control input-sm" id="mapRenderTimeout" ng-model="map.timeout" min="3"><small class="units"> seconds</small>
+      </div>
+    </form>
+    <alert ng-show="form.mapSettings.alerts" type="danger" style="margin-left: 0;">
+      {{ form.mapSettings.alerts }}
+    </alert>
+</div>
+  <div class="modal-footer map-settings-footer">
+    <div class="submit-buttons pull-left">
+      <button class="btn btn-default btn-sm" ng-click="close()">Close</button>
+    </div>
+    <div class="submit-buttons pull-right">
+      <div ng-show="form.mapSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
+      <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.mapSettings.$dirty || form.mapSettings.mapName.invalid">Update Map Settings</button>
+    </div>
+  </div>
+</div>

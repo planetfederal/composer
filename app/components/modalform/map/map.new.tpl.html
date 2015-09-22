@@ -1,0 +1,31 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      Create Map
+      <span ng-show="step==2">: <i class="icon-map"></i> <strong>{{ mapInfo.name }}</strong></span>
+      in <i class="icon-folder-open"></i> <strong>{{ workspace }}</strong>
+    </h4>
+    <small class="pull-right required-star">* Required</small>
+  </div>
+  <div class="modal-body">
+
+    <new-map-form ng-show="step==1"></new-map-form>
+    <new-map-import ng-show="step==2"></new-map-import>
+    <new-map-layers ng-show="step==3"></new-map-layers>
+
+  </div>
+
+  <div class="modal-footer">
+    <div class="submit-buttons pull-left">
+      <button class="btn btn-default btn-sm" ng-click="close()">Cancel</button>
+    </div>
+    <div class="submit-buttons pull-right">
+      <button ng-show="step>1" class="btn btn-default btn-sm" ng-click="back();">&larr; Back</button>
+      <button ng-show="step==1 && selectLayers || mapInfo.layers.length==0" ng-disabled="!(mapInfo.proj && mapInfo.name)" class="btn btn-success btn-sm" ng-click="next()">Add Layers &rarr;</button>
+      <button ng-show="step==1 && mapInfo && mapInfo.layers && mapInfo.layers.length>0" ng-disabled="!(mapInfo.proj && mapInfo.name && mapInfo.layers.length > 0)" class="btn btn-primary btn-sm" ng-click="createMap()">Create Map</button>
+      <button ng-show="step==2 && selectLayers" ng-disabled="!(mapInfo.proj && mapInfo.name)" class="btn btn-success btn-sm" ng-click="next()">Add Existing Layers &rarr;</button>
+      <button ng-show="step==3" ng-disabled="!(mapInfo.proj && mapInfo.name && mapInfo.layers.length > 0)" class="btn btn-primary btn-sm" ng-click="createMap()">Create Map with Selected</button>
+    </div>
+  </div>
+</div>
+

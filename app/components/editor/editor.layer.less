@@ -1,0 +1,25 @@
+/* editor.layer.less */
+
+@import "../../variables.less";
+
+.editor-layer {
+
+  .layer-name, .layer-name-row {
+    min-height: 35px;
+    height: 35px;
+    line-height: 28px;
+    color: @slate-blue;
+  }
+  .layer-name-row {
+    z-index: 0;
+    border-bottom: 1px solid @very-lt-gray;
+    .box-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .layer-name {
+    background-color: @light-bl-gray;
+    a {
+      color: @dark-gray;
+    }
+  }
+  
+}

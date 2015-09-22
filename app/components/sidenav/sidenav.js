@@ -5,8 +5,8 @@
 /*global $, window*/
 angular.module('gsApp.sidenav', [
   'gsApp.workspaces.home',
+  'gsApp.workspaces.delete',
   'ui.bootstrap',
-  'gsApp.olmap'
 ])
 .directive('sidenav', function() {
     return {
@@ -17,9 +17,9 @@ angular.module('gsApp.sidenav', [
     };
   })
 .controller('SideNavCtrl', ['$scope', '$rootScope', 'GeoServer', 'AppEvent',
-  '$state', '$log', '$timeout', '$window', 'AppSession', '$location', '_',
+  '$state', '$log', '$modal', '$timeout', '$window', 'AppSession', '$location', '_',
   'workspacesListModel',
-  function($scope, $rootScope, GeoServer, AppEvent, $state, $log,
+  function($scope, $rootScope, GeoServer, AppEvent, $state, $log, $modal,
     $timeout, $window, AppSession, $location, _, workspacesListModel) {
 
     $scope.toggleWkspc = {}; // workspaces in wide sidenav
@@ -183,6 +183,20 @@ angular.module('gsApp.sidenav', [
 
     $scope.newWorkspace = function() {
       $state.go('workspaces.new');
+    };
+
+    $scope.deleteWorkspace = function(workspace) {
+      var modalInstance = $modal.open({
+        templateUrl: '/workspaces/detail/workspace.modal.delete.tpl.html',
+        controller: 'WorkspaceDeleteCtrl',
+        backdrop: 'static',
+        size: 'md',
+        resolve: {
+          workspace: function() {
+            return workspace.name;
+          }
+        }
+      });
     };
 
     $rootScope.$on(AppEvent.Login, function(e, login) {

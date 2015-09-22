@@ -6,9 +6,10 @@ angular.module('gsApp.maps', [
   'ui.select',
   'ngSanitize',
   'gsApp.alertpanel',
+  'gsApp.editor.map',
   'gsApp.projfield',
   'gsApp.core.utilities',
-  'gsApp.maps.compose',
+  'gsApp.workspaces.maps.delete',
   'angularMoment'
 ])
 .config(['$stateProvider',
@@ -67,67 +68,6 @@ angular.module('gsApp.maps', [
         $state.go(route, {workspace: workspace});
       };
 
-      $scope.createMap = function(workspace) {
-        $timeout(function() {
-          $rootScope.$broadcast(AppEvent.CreateNewMap);
-        }, 250);
-        // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.maps.main', {workspace: workspace});
-      };
-
-      $scope.importData = function(workspace) {
-        $timeout(function() {
-          $rootScope.$broadcast(AppEvent.ImportData, {
-            workspace: workspace
-          });
-        }, 250);
-        // go to this state to initiate listener for broadcast above!
-        $state.go('workspace.data.import', { workspace: workspace });
-      };
-
-      $scope.deleteMap = function(map) {
-        var modalInstance = $modal.open({
-          templateUrl: '/maps/deletemap-modal.tpl.html',
-          controller: ['$scope', '$window', '$modalInstance', '$state',
-            function($scope, $window, $modalInstance, $state) {
-              $scope.selectedMap = map;
-              
-              $scope.ok = function() {
-                GeoServer.map.delete(map.workspace, map.name).then(
-                  function(result) {
-                    $modalInstance.dismiss('cancel');
-                    if (result.success) {
-                      $rootScope.alerts = [{
-                        type: 'success',
-                        message: 'Map "' + map.name + '" has been deleted ' +
-                          'from the workspace "' + map.workspace + '".',
-                        fadeout: true
-                      }];
-                      $scope.refreshMaps();
-                    } else {
-                      $rootScope.alerts = [{
-                        type: 'danger',
-                        message: 'Map "' + map.name + '" could not be ' +
-                          'deleted from the workspace "' + map.workspace + '".',
-                        details: result.data.trace,
-                        fadeout: true
-                      }];
-                    }
-                    if ($scope.mapNameCheck.name) {$scope.mapNameError = true;}
-                    else {$scope.mapNameError = false;}
-                  });
-              };
-
-              $scope.cancel = function() {
-                $modalInstance.dismiss('cancel');
-              };
-            }],
-          backdrop: 'static',
-          size: 'med',
-          scope: $scope
-        });
-      };
-
       $scope.refreshMaps = function() {
         var opts = $scope.opts;
         $scope.ws = $scope.workspace.selected;
@@ -163,7 +103,7 @@ angular.module('gsApp.maps', [
 
       $scope.editMapSettings = function(map) {
         var modalInstance = $modal.open({
-          templateUrl: '/workspaces/detail/modals/map.settings.tpl.html',
+          templateUrl: '/components/modalform/map/map.settings.tpl.html',
           controller: 'EditMapSettingsCtrl',
           backdrop: 'static',
           size: 'md',
@@ -175,6 +115,25 @@ angular.module('gsApp.maps', [
               return map;
             }
           }
+        });
+      };
+
+      $scope.deleteMap = function(map) {
+        var modalInstance = $modal.open({
+          templateUrl: '/workspaces/detail/maps/maps.modal.delete.tpl.html',
+          controller: 'MapDeleteCtrl',
+          backdrop: 'static',
+          size: 'md',
+          resolve: {
+            workspace: function() {
+              return $scope.workspace.selected.name;
+            },
+            map: function() {
+              return map;
+            }
+          }
+        }).result.then(function () {
+          $scope.refreshMaps();
         });
       };
 
@@ -214,7 +173,7 @@ angular.module('gsApp.maps', [
       };
 
       $scope.onCompose = function(map) {
-        $state.go('map.compose', {
+        $state.go('editmap', {
           workspace: map.workspace,
           name: map.name
         });
@@ -245,7 +204,14 @@ angular.module('gsApp.maps', [
         selectedItems: $scope.gridSelections,
         multiSelect: false,
         columnDefs: [
-          {field: 'name', displayName: 'Map Name', width: '15%'},
+          {field: 'name', displayName: 'Map Name', 
+            cellTemplate:
+              '<div class="grid-text-padding"' +
+                'title="{{row.entity.name}}">' +
+                '{{row.entity.name}}' +
+              '</div>',
+            width: '15%'
+          },
           {field: 'title',
             displayName: 'Title',
             enableCellEdit: true,

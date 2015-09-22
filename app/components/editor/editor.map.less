@@ -1,0 +1,61 @@
+/* editor.map.less */
+
+@import "../../variables.less";
+
+.editor-map {
+
+  > .row {
+    margin-left: 0;
+    margin-right: 0;
+
+    div[class*='col-'] {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  .top {
+    .layers-toggle {
+      margin-left: 4px;
+      display: inline-block;
+      vertical-align: top;
+      color: @slate-blue;
+
+      &:hover {
+        text-decoration: none;
+        color: @monacoblue;
+      }
+    }
+
+    .add-layer {
+      display: inline-block;
+      vertical-align: top;
+      margin-left: 10px;
+      background-color: @light-bl-gray;
+      color: @slate-blue;
+      &:hover {
+        background-color: darken(@light-bl-gray, 10%);
+        color: lighten(@dark-gray, 10%);
+      }
+    }
+  }
+  
+  .map-name, .map-name-row {
+    min-height: 35px;
+    height: 35px;
+    line-height: 28px;
+    color: @slate-blue;
+  }
+  .map-name-row {
+    z-index: 0;
+    border-bottom: 1px solid @very-lt-gray;
+    .box-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .map-name {
+    background-color: @light-bl-gray;
+    a {
+      color: @dark-gray;
+    }
+  }
+  
+}

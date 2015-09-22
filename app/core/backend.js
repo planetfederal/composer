@@ -445,11 +445,10 @@ angular.module('gsApp.core.backend',['gsApp.config'])
             });
           },
 
-          delete: function(workspace, name, data) {
+          delete: function(workspace, name) {
             return http({
               method: 'DELETE',
               url: apiRoot+'/maps/'+workspace+'/'+name,
-              data: data
             });
           },
 

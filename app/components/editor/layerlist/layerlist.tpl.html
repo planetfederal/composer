@@ -1,0 +1,21 @@
+<div class="editor-layerlist" ng-class="{show: showLayerList == true}">
+	<div class="reorder-info">Drag to Reorder</div>
+    <ul ui-sortable="{stop:layersReordered}" ng-model="map.layers"
+        class="list-unstyled">
+      <li ng-repeat="l in map.layers" ng-click="selectLayer(l)"
+        ng-class="{active: layer == l}" >
+        <div class="map-layer">
+          <input type="checkbox" ng-model="l.visible" ng-click="toggleVisibility(l, $index)" />
+        {{ l.name }}
+        </div>
+        <div class="map-layer-overlay text-right">
+          <span class="icons">
+            <i class="fa fa-arrow-circle-o-left" title="Zoom To Layer"
+              ng-click="zoomToLayer(l)"></i>
+            <i class="fa fa-trash" title="Remove Layer"
+              ng-click="removeLayer(l, $index)"></i>
+          </span>
+        </div>
+      </li>
+    </ul>
+</div>

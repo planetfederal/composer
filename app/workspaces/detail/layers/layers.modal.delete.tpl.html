@@ -1,0 +1,15 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Delete Layer</h4>
+  </div>
+  <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
+    <p>Delete layer <strong>{{ layer.name }}</strong>?</p>
+    <p><strong>This layer and its style will be permanently deleted.</strong></p>
+    <p>This layer will also be removed from any maps containing it.</p>
+    <p>The data store containing the layer data will be preserved.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="cancel()" style="float:left;">Cancel</button>
+    <button class="btn btn-danger btn-sm" ng-click="deleteForever()" style="margin-left:20px; margin-right:20px;">Delete</button>
+  </div>
+</div>

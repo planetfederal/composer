@@ -1,0 +1,43 @@
+<div class="new-map">
+  <div class="row">
+    <div class="col-sm-12">
+      <form name="newMap" role="form" class="new-map-form form-1">
+        <form-name-map form="newMap" model="mapInfo.name" label="'Map Name'"></form-name-map>
+        <form-title form="newMap" model="mapInfo.title" label="'Title'"></form-title>
+        <div class="form-group" name="newMapCrs">
+          <label for="map.crs">
+            Projection * <div class="crs-warning" popover-placement="right" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click"><i class="icon-ln fa fa-info-circle"></i></div>
+            <span ng-hide="projEnabled"> Fetching projections...</span>
+          </label>
+          <div class="projection-options">
+            <div class="proj-check">
+              <input type="radio" ng-model="proj" value="latlon">
+              Lat/Lon (WGS)
+            </div>
+            <div class="proj-check">
+              <input type="radio" ng-model="proj" value="mercator"> Web Mercator
+            </div>
+            <div class="proj-check other">
+              <input type="radio" ng-model="proj" value="other" ng-click="custom.proj = true"> Other
+              <proj-field name="crs" id="otherproj" proj="customproj" ng-class="{'hide-proj-msg': proj != 'other'}" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"></proj-field>
+              <span ng-show="newMap.crs.$dirty && !newMap.crs.$error.pattern && !newMap.crs.$error.required" class="validProj"><i class="fa fa-check"></i> Valid CRS.</span>
+              <span ng-show="!newMap.crs.$error.pattern && newMap.crs.$error.required" class="error">Required</span>
+            </div>
+          </div>
+        </div>
+        <form-description form="newMap" model="mapInfo.description" label="'Description'"></form-description>
+      </form>
+      <div ng-show="mapInfo.layers.length > 0">
+        <label>Layers</label>
+        <div ng-click="showLayers = !showLayers">
+          {{mapInfo.layers.length + (mapInfo.layers.length==1 ? ' layer' : ' layers')}} selected. <a>{{showLayers ? 'Hide...' : 'Show...'}}</a>
+        </div>
+        <div class="horizontal-divider" collapse="!showLayers" ng-init="showLayers = mapInfo.layers.length < 10">
+          <ul class="list-unstyled">
+            <li class="col-sm-4" ng-repeat="layer in mapInfo.layers">{{ layer.name }}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

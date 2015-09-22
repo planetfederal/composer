@@ -31,7 +31,7 @@ angular.module('gsApp', [
         if (!($scope.modal || $scope.stateChange) && ($state.current.url.indexOf('/login') == -1)) {
           $scope.modal = true;
           var modalInstance = $modal.open({
-            templateUrl: '/login/login.modal.tpl.html',
+            templateUrl: '/core/login/login.modal.tpl.html',
             controller: 'LoginModalCtrl',
             scope: $scope,
             size: 'md',
@@ -66,16 +66,16 @@ angular.module('gsApp', [
       });
 
       // track app state changes
-      $scope.state = {};
+      $rootScope.state = {};
       $rootScope.title = "Composer";
-      $scope.$on('$stateChangeSuccess',
+      $rootScope.$on('$stateChangeSuccess',
           function(e, to, toParams, from, fromParams) {
               //Whenever we change states, pre-emptively check if we are logged in. If not, go to the login page.
               $scope.stateChange = true;
               //If this is not a login redirect, save curr/prev states
               if (to.url && to.url.indexOf('/login') == -1) {
-                $scope.state.curr = {name: to, params: toParams};
-                $scope.state.prev = {name: from, params: fromParams};
+                $rootScope.state.curr = {name: to, params: toParams};
+                $rootScope.state.prev = {name: from, params: fromParams};
               }
               //Update page title
               if (to.url) {
@@ -86,8 +86,8 @@ angular.module('gsApp', [
                         title += ' | ' + toParams.workspace;
                       }
                       break;
-                    case '/compose':
-                      title += ' | Editing Map: ' + toParams.name;
+                    case '/edit':
+                      title += ' | Editing: ' + toParams.workspace + ":" + toParams.name;
                       break;
                     case '/layers':
                       title += ' | All Layers';
@@ -97,9 +97,6 @@ angular.module('gsApp', [
                       break;
                     case '/maps':
                       title += ' | All Maps';
-                      break;
-                    case '/style':
-                      title += ' | Editing Layer: ' + toParams.name;
                       break;
                   }
                   $rootScope.title = title;

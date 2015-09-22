@@ -1,0 +1,13 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title">Delete Map</h4>
+  </div>
+  <div class="modal-body" style="font-size: 13px; margin-left: 20px;">
+    <p>Delete map <strong>{{ map.name }}</strong>?</p>
+    <p>All layers and styles will be preserved.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-default btn-sm" ng-click="cancel()" style="float:left;">Cancel</button>
+    <button class="btn btn-danger btn-sm" ng-click="deleteForever()" style="margin-left:20px; margin-right:20px;">Delete</button>
+  </div>
+</div>

@@ -2,11 +2,13 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.home', [
+  'gsApp.editor.map',
   'gsApp.workspaces.maps',
   'gsApp.workspaces.layers',
   'gsApp.workspaces.data',
   'gsApp.workspaces.settings',
   'gsApp.alertpanel',
+  'gsApp.import',
   'ngSanitize'
 ])
 .config(['$stateProvider',
@@ -72,6 +74,26 @@ angular.module('gsApp.workspaces.home', [
           $state.go(route, {workspace:wsName});
         };
 
+        $scope.workspaceSettings = function () {
+          $modal.open({
+            templateUrl: '/workspaces/detail/settings.tpl.html',
+            controller: 'WorkspaceSettingsCtrl',
+            backdrop: 'static',
+            size: 'md',
+            resolve: {
+              workspace: function() {
+                return $scope.workspace;
+              }
+            }
+          }).result.then(function(param) {
+            if (param) {
+              $scope.workspace = param.name;
+              $scope.title = param.name;
+              wsName = param.name;
+            }
+          });
+        }
+
         // hack to deal with strange issue with tabs being selected
         // when they are destroyed
         // https://github.com/angular-ui/bootstrap/issues/2155
@@ -103,8 +125,25 @@ angular.module('gsApp.workspaces.home', [
           $scope.selectTab($scope.tabs[2]);
           $scope.tabs[2].active = true;
           $timeout(function() {
-            $rootScope.$broadcast(AppEvent.ImportData, {
-              workspace: $scope.workspace
+            $modal.open({
+              templateUrl: '/components/import/import.tpl.html',
+              controller: 'DataImportCtrl',
+              backdrop: 'static',
+              size: 'lg',
+              resolve: {
+                workspace: function() {
+                  return $scope.workspace;
+                },
+                mapInfo: function() {
+                  return null;
+                },
+                contextInfo: function() {
+                  return null;
+                }
+              }
+            }).result.then(function(param) {
+              //TODO: Add store select (implement as state param)
+              $state.go('workspace.data.main');
             });
           }, 100);
         };

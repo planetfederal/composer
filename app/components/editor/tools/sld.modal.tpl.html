@@ -1,0 +1,17 @@
+<div class="sld-modal">
+  <div class="modal-header">
+    <div class="inline">
+      <h4 class="modal-title">SLD for selected layer: <strong>{{ layer.name }}</strong></h4>
+      <small>Export only</small>
+    </div>
+  </div>
+  <div class="modal-body">
+    <div class="sld-view" ui-codemirror="{ onLoad : onCodeMirrorLoad }"
+      ui-codemirror-opts="codeMirrorOpts" ng-model="sld"></div>
+  </div>
+  <div class="modal-footer">
+    <div class="pull-left">
+      <button class="btn btn-default btn-sm cancel" ng-click="close()">Close</button>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,24 @@
+@import "../../variables.less";
+
 .settings {
 	.delete {
 		margin-left: 0px;
 	}
+
+  input[name='workspaceName'] {
+    width: 50%;
+    display: inline-block;
+  }
+
+  .errorInput {
+    color: @red;
+    display: inline-block;
+    margin-left: 10px;
+  }
+}
+.ws-settings-footer {
+  .saved {
+    float: left;
+    color: @green;
+  }
 }
