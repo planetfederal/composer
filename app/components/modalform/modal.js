@@ -74,6 +74,26 @@
         }
       };
     }])
+.directive('formNameWorkspace', ['$controller', '$log', 'GeoServer', '$rootScope',
+    function ($controller, $log, GeoServer, $rootScope) {
+      return {
+        restrict: 'EA',
+        scope: {
+          label: '=',
+          form: '=',
+          model: '='
+        },
+        templateUrl: '/components/modalform/modal.form.name.ws.tpl.html',
+        replace: true,
+        controller: function($scope, $element) {
+          angular.extend(this, $controller('ModalCtrl', {$scope: $scope}));
+
+          $scope.setInvalid = function(invalid) {
+            $scope.form.workspaceName.invalid = invalid;
+          }
+        }
+      };
+    }])
 .directive('formCrs', ['$controller', '$log', 'GeoServer', '$rootScope',
     function ($controller, $log, GeoServer, $rootScope) {
       return {

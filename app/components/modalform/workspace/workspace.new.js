@@ -2,19 +2,10 @@
  * (c) 2014 Boundless, http://boundlessgeo.com
  */
 angular.module('gsApp.workspaces.new', [])
-.config(['$stateProvider',
-    function($stateProvider) {
-      $stateProvider
-        .state('workspaces.new', {
-          url: '/new',
-          templateUrl: '/workspaces/new.tpl.html',
-          controller: 'WorkspaceNewCtrl'
-        });
-    }])
-.controller('WorkspaceNewCtrl', ['$scope', '$rootScope', '$state',
+.controller('WorkspaceNewCtrl', ['$modalInstance','$scope', '$rootScope', '$state',
     '$stateParams', '$log', 'GeoServer', 'workspacesListModel', '$timeout',
     'AppEvent', '_',
-    function($scope, $rootScope, $state, $stateParams, $log, GeoServer,
+    function($modalInstance, $scope, $rootScope, $state, $stateParams, $log, GeoServer,
       workspacesListModel, $timeout, AppEvent, _) {
 
       $scope.title = 'New Project';
@@ -28,7 +19,7 @@ angular.module('gsApp.workspaces.new', [])
       $scope.showDefaultDesc = false;
 
       $scope.cancel = function() {
-        $state.go('workspaces.list');
+        $modalInstance.dismiss();
       };
 
       $scope.updateUri = function() {
@@ -51,6 +42,7 @@ angular.module('gsApp.workspaces.new', [])
               $timeout(function() {
                 $rootScope.$broadcast(AppEvent.WorkspaceTab, 'layers');
               }, 250);
+              $modalInstance.close();
               $state.go('workspace', {workspace: $scope.workspace.name});
             } else {
               var msg = result.data.message?

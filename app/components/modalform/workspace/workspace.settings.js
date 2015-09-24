@@ -39,7 +39,7 @@ angular.module('gsApp.workspaces.settings', [
         });
 
       $scope.close = function () {
-        $modalInstance.close($scope.wsSettings);
+        $modalInstance.dismiss();
       }
       $scope.saveChanges = function() {
         if ($scope.form.settings.$dirty) {

@@ -69,7 +69,7 @@ angular.module('gsApp.workspaces.list', [
 
       $scope.workspaceSettings = function (workspace) {
           $modal.open({
-            templateUrl: '/workspaces/detail/settings.tpl.html',
+            templateUrl: '/components/modalform/workspace/workspace.settings.tpl.html',
             controller: 'WorkspaceSettingsCtrl',
             backdrop: 'static',
             size: 'md',
@@ -77,10 +77,6 @@ angular.module('gsApp.workspaces.list', [
               workspace: function() {
                 return workspace.name;
               }
-            }
-          }).result.then(function(param) {
-            if (param) {
-              //TODO: update name, etc. if applicable
             }
           });
         }

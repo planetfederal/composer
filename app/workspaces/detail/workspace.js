@@ -27,7 +27,6 @@ angular.module('gsApp.workspaces.home', [
       AppEvent, $timeout, $location, $rootScope, _) {
 
       var wsName = $stateParams.workspace;
-
       $scope.workspace = wsName;
 
       var loc = $location.path();
@@ -49,8 +48,6 @@ angular.module('gsApp.workspaces.home', [
           $state.go('workspaces.list');
           return;
         }
-
-        $scope.title = wsName;
 
         $scope.tabs = [
           { heading: 'Maps',
@@ -76,7 +73,7 @@ angular.module('gsApp.workspaces.home', [
 
         $scope.workspaceSettings = function () {
           $modal.open({
-            templateUrl: '/workspaces/detail/settings.tpl.html',
+            templateUrl: '/components/modalform/workspace/workspace.settings.tpl.html',
             controller: 'WorkspaceSettingsCtrl',
             backdrop: 'static',
             size: 'md',
@@ -84,12 +81,6 @@ angular.module('gsApp.workspaces.home', [
               workspace: function() {
                 return $scope.workspace;
               }
-            }
-          }).result.then(function(param) {
-            if (param) {
-              $scope.workspace = param.name;
-              $scope.title = param.name;
-              wsName = param.name;
             }
           });
         }
@@ -158,7 +149,6 @@ angular.module('gsApp.workspaces.home', [
             if (to.name == 'workspace') {
               $scope.go($scope.tabs[0].route);
             }
-            $scope.showSettings = $state.is('workspace.settings');
           });
       });
 
@@ -173,7 +163,12 @@ angular.module('gsApp.workspaces.home', [
         }
       });
 
-      $scope.showSettings = $state.is('workspace.settings');
+      $rootScope.$on(AppEvent.WorkspaceNameChanged, function(scope, names) {
+        if ($scope.workspace == names.original) {
+          $scope.workspace = names.new;
+          wsName = names.new;
+        }
+      });
 
       // if no tab is active go to maps tab
       if (!isActive('maps') && !isActive('layers') && !isActive('data') && !isActive('settings')) {

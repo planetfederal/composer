@@ -1,0 +1,30 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title"><i class="icon-folder-open"></i> <strong>{{workspace}}</strong></h4>
+    <small class="pull-right required-star">* Required</small>
+  </div>
+</div>
+<div class="modal-body">
+  <form name="form.settings" role="form" class="settings">
+    <form-name-workspace form="form.settings" model="wsSettings.name" label="'Name'"></form-name-workspace>
+    <div class="form-group">
+      <label for="workspaceUri">Namespace URI</label>
+      <input type="url" class="form-control input-sm" id="workspaceURI" placeholder="Workspace URI" ng-model="wsSettings.uri" ng-bind-html/>
+    </div>
+    <div class="checkbox">
+      <label>
+        <input type="checkbox" ng-model="wsSettings.default"/> Default?
+      </label>
+      <span pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="right" ng-click="showDefaultDesc=!showDefaultDesc;"><i class="icon-ln fa fa-info-circle"></i></span>
+    </div>
+  </form>
+</div>
+<div class="modal-footer ws-settings-footer">
+  <div class="form-group pull-left">
+    <button ng-click="close()" class="btn btn-sm btn-default">Close</button>
+  </div>
+  <div class="form-group pull-right">
+    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.settings.$dirty || form.settings.workspaceName.invalid">Update Workspace Settings</button>
+    <div ng-show="wsSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
+  </div>
+</div>

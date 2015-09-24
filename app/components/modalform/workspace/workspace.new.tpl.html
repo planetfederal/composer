@@ -1,0 +1,27 @@
+<div>
+  <div class="modal-header">
+    <h4 class="modal-title"><i class="icon-folder-open"></i> <strong>New Project Workspace</strong></h4>
+    <small class="pull-right required-star">* Required</small>
+  </div>
+</div>
+<div class="modal-body new-workspace"> 
+  <div>A workspace is a container for organizing your maps, layers and data together.</div>
+  <form name="createform.settings" role="form" class="settings">
+    <form-name-workspace form="createform.settings" model="workspace.name" label="'Name'"></form-name-workspace>
+    <div class="checkbox">
+      <label>
+      <input type="checkbox" ng-model="workspace.default" name="default"> Default?
+      </label>
+      <span pop="{{ defaultDesc }}" pop-show="{{ showDefaultDesc }}" pop-placement="right" ng-click="showDefaultDesc=!showDefaultDesc;"><i class="icon-ln fa fa-info-circle"></i></span>
+    </div>
+  </form>
+</div>
+<div class="modal-footer ws-settings-footer">
+  <div class="form-group pull-left">
+    <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
+  </div>
+  <div class="form-group pull-right">
+    <div ng-show="workspaceCreated" class="saved" style="text-align: left;color:#4cae4c;"><i class="fa fa-check"></i> Workspace Created.</div>
+    <button class="btn btn-primary btn-sm" ng-click="create()" style="margin-left:20px;" ng-disabled="!createform.settings.$valid">Create Workspace</button>
+  </div>
+</div>

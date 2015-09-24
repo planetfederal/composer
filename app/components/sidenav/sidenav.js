@@ -182,7 +182,12 @@ angular.module('gsApp.sidenav', [
     };
 
     $scope.newWorkspace = function() {
-      $state.go('workspaces.new');
+      var modalInstance = $modal.open({
+        templateUrl: '/components/modalform/workspace/workspace.new.tpl.html',
+        controller: 'WorkspaceNewCtrl',
+        backdrop: 'static',
+        size: 'md'
+      });
     };
 
     $scope.deleteWorkspace = function(workspace) {

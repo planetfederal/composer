@@ -3,7 +3,7 @@
     <h3 class="section-title">
       <a ng-click="go('workspace.maps.main')">
         <i class="icon-lg icon-folder-open"></i>
-        {{ title }}
+        {{ workspace }}
       </a>
       <span class="workspace-buttons">
         <span class="divider"></span>
@@ -20,7 +20,7 @@
         </a>
       </span>
     </h3>
-    <tabset class="maps-data-tabs" ng-show="!showSettings">
+    <tabset class="maps-data-tabs">
       <tab ng-repeat="t in tabs" select="selectTab(t)" active="t.active">
         <tab-heading>
           <i ng-class="t.icon" class="tab-icon"></i> {{ t.heading }}

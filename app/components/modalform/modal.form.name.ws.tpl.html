@@ -1,0 +1,10 @@
+<div class="form-group">
+  <label for="workspaceName">{{label}} *</label>
+  <input name="workspaceName" type="text" class="form-control input-sm" ng-model="model" placeholder="Workspace Name" maxlength="10" required ng-pattern="/^[a-zA-Z][a-zA-Z\d\-_]*$/" ng-model-options="{updateOn: 'default blur'}" focus-init
+  ng-blur="setInvalid(form.workspaceName.$dirty && (form.workspaceName.$error.required || form.workspaceName.$error.pattern || form.workspaceName.$error.maxlength))"/>
+  <span ng-show="form.workspaceName.$error.pattern" class="errorInput">Invalid characters in workspace name.</span>
+  <span ng-show="!form.workspaceName.$error.pattern && form.workspaceName.$error.maxlength" class="errorInput">Max 10 characters allowed.</span>
+  <span ng-show="form.workspaceName.$dirty && !form.workspaceName.$error.pattern && !form.workspaceName.$error.maxlength && form.workspaceName.$error.required" class="errorInput">Required</span>
+  <span ng-show="form.workspaceName.$dirty && !form.workspaceName.$error.pattern && !form.workspaceName.$error.maxlength && !form.workspaceName.$error.required && form.workspaceName.$error.alreadyExists" class="error">Name already exists</span>
+  <small class="hint">(No spaces, max 10 characters, for web URLs.)</small>
+</div>
