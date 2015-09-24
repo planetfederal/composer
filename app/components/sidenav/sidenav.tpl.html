@@ -76,10 +76,15 @@
         role="menu">
         <li class="single-workspace" ng-repeat="workspace in workspaces |
           limitTo: 5" ng-class="{'open': toggleWkspc2[workspace.name]}">
-          <a class="list-entry" href="" ng-click="onWorkspaceClick2(workspace);" alt="{{ workspace.name }}"
+          <div class="list-entry">
+            <a class="delete-workspace" href="" ng-click="deleteWorkspace(workspace);">
+              <i class="icon-remove"></i>
+            </a>
+            <a class="list-entry" href="" ng-click="onWorkspaceClick2(workspace);" alt="{{ workspace.name }}"
             title="{{ workspace.name }}">
-            <i ng-class="{'icon-folder': !toggleWkspc2[workspace.name], 'icon-folder-open': toggleWkspc2[workspace.name]}"></i> {{ workspace.name }}
-          </a>
+              <i ng-class="{'icon-folder': !toggleWkspc2[workspace.name], 'icon-folder-open': toggleWkspc2[workspace.name]}"></i> {{ workspace.name }}
+            </a>
+          </div>
         </li>
         <li ng-show="workspaces.length > 2" class="more">
           <a class="list-entry" ui-sref="workspaces.list" alt="More..." title="More..."> More...</a>

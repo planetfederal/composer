@@ -1,4 +1,4 @@
-/* sidebar.less */
+/* sidenav.less */
 
 @import "../../variables.less";
 
@@ -188,11 +188,28 @@
           margin-right: 5px;
           background: none;
 
-          a {
+          .list-entry, .list-entry > a {
             color: #333;
-            &:hover {
-                color: #28728d;
-                background-color: #ccc;
+            .delete-workspace {
+              i {
+                color: @almost-white;
+              }
+            }
+  
+          }
+          .list-entry:hover {
+            background-color: #ccc;
+
+            a {
+              color: #28728d;
+            }
+            .delete-workspace {
+              i {
+                color: #333;
+                &:hover {
+                  color: #28728d;
+                }
+              }
             }
           }
         }
