@@ -29,7 +29,7 @@ angular.module('gsApp.editor.layer', [
 .config(['$stateProvider',
     function($stateProvider) {
       $stateProvider.state('editlayer', {
-        url: '/edit/layer/:workspace/:name',
+        url: '/editlayer/:workspace/:name',
         templateUrl: '/components/editor/editor.layer.tpl.html',
         controller: 'LayerStyleCtrl',
         params: { workspace: '', name: ''}

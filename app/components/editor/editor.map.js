@@ -34,7 +34,7 @@ angular.module('gsApp.editor.map', [
 .config(['$stateProvider',
     function($stateProvider) {
       $stateProvider.state('editmap', {
-        url: 'edit/map/:workspace/:name',
+        url: 'editmap/:workspace/:name',
         templateUrl: '/components/editor/editor.map.tpl.html',
         controller: 'MapComposeCtrl',
         params: { workspace: '', name: '', hiddenLayers: {} }
