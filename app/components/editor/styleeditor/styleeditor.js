@@ -74,7 +74,7 @@ angular.module('gsApp.editor.styleeditor', [
             var content = $scope.editor.getValue();
             var wsName = $scope.workspace;
             var layerName = $scope.layer.name;
-            GeoServer.style.put(wsName, layerName, content).then(function(result) {
+            return GeoServer.style.put(wsName, layerName, content).then(function(result) {
               if (result.success == true) {
                 $scope.markers = null;
                 $rootScope.alerts = [{
@@ -87,6 +87,7 @@ angular.module('gsApp.editor.styleeditor', [
                     .then(function(result) {
                       if (result.success) {
                         $scope.layer.style = result.data.style;
+                        $scope.generation = $scope.editor.changeGeneration();
                       } else {
                         $rootScope.alerts = [{
                           type: 'warning',
