@@ -95,15 +95,12 @@ angular.module('gsApp.workspaces.layers', [
         $scope.createMap();
       });
 
-      $scope.$on(AppEvent.MapUpdated, function(scope, map) {
+      $scope.$on(AppEvent.LayerUpdated, function(scope, layer) {
         // Update thumbnail if name changed
-        if (map && map.new) {
-          var _new = map.new;
-          var _original = map.original;
-
+        if (layer && layer.new) {
           for (var i=0; i < $scope.layers.length; i++) {
-            if (angular.equals($scope.layers[i], _original)) {
-              $scope.layers[i] = angular.copy(_new);
+            if (angular.equals($scope.layers[i].name, layer.original.name)) {
+              $scope.layers[i] = angular.copy(layer.new);
             }
           }
         }
