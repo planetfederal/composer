@@ -1,6 +1,6 @@
 <div tracking></div>
 <div class="editor editor-map">
-  <div class="row">
+  <div class="row row-editor-navbar">
     <div class="col-xs-12 map-name-row">
       <nav class="navbar navbar-default map-name" role="navigation">
         <div class="row map-detail-compose-nav">
@@ -32,12 +32,12 @@
       </nav>
     </div>
   </div>
-  <div class="row">
-    <div id="mapPanel" class="col-xs-6 col-lg-7 resizable-left" ng-style="mapBackground">
+  <div class="row row-editor-content">
+    <div id="mapPanel" class="col-xs-6 col-lg-7 resizable-left map-panel" ng-style="mapBackground">
       <div ol-map class="map" map-opts="mapOpts"
         ng-class="{'hide-all': hideCtrl.all, 'hide-lonlat': hideCtrl.lonlat}"></div>
     </div>
-    <div id="editingPanel" class="col-xs-6 col-lg-5 resizable-right">
+    <div id="editingPanel" class="col-xs-6 col-lg-5 resizable-right editing-panel">
       <div class="editor-background">
         <div id="resizer" resizer="vertical" alt="Drag to resize" title="Drag to resize" left-min="300" right-min="300"></div>
         <layer-list></layer-list>

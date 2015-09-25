@@ -2,6 +2,10 @@
 
 @import "../../variables.less";
 
+.editing-panel {
+  height: 100%;
+}
+
 .editor-background {
   height: 100%;
   background: @gray;
@@ -11,6 +15,8 @@
   position: fixed;
   height: 100%;
   width: 100%;
+
+  
 
   .top {
     color: @slate-blue;
@@ -97,6 +103,15 @@
     margin-right: 0;
 
   }
+
+  .row-editor-content {
+    position: absolute;
+    top: 36px;
+    bottom: 0px;
+    right: 0px;
+    left: 0px;
+  }
+
   div[class*='col-'] {
     padding-left: 0;
     padding-right: 0;
@@ -131,8 +146,14 @@
   position: relative;
   height: 100%;
   z-index: 10;
-  padding-bottom: 137px; // Note: otherwise it overflows past the bottom
   overflow: hidden;
+}
+.style-toolbar {
+
+}
+.style-editor {
+  padding-bottom: 108px;
+  height: 100%;
 }
 
 /* Resizer bar */
@@ -242,10 +263,11 @@
       float: right;
       padding-bottom: 0px;
       max-width: 100%;
+      height: 100%;
       display: inline-block;
     }
     .style-editor {
-       padding-bottom: 4em;
+       padding-bottom: 57px;
        position:absolute;
        display:block;
        width: 100%;

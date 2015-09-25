@@ -2,6 +2,13 @@
 
 @import "../../../variables.less";
 
+.toggled {
+  .ui-scrollfix {
+    left: 70px !important;
+  }
+}
+
+
 .layers-tab-inner {
   .layers-count-sort {
     width: 100%;
@@ -81,8 +88,10 @@
 
     &.ui-scrollfix {
       position: fixed;
-      top: 40;
-      width: 75%;
+      top: 45px;
+      width: auto !important;
+      left: 255px;
+      right: 25px;
       z-index: 100;
       .box-shadow(0 2px 2px @gray);
     }
