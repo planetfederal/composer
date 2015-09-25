@@ -22,7 +22,7 @@
       <button class="btn btn-default btn-sm" ng-click="cancel()">Cancel</button>
     </div>
     <div class="submit-buttons pull-right">
-      <button class="btn btn-success btn-sm" ng-click="importAsLayer();" ng-disabled="!layer.proj" style="margin-left:20px; margin-right:20px;">Import to Layer</button>
+      <button class="btn btn-success btn-sm" ng-click="importAsLayer();" ng-disabled="!form.layerSettings.$dirty || !form.layerSettings.$valid || !layer.proj" style="margin-left:20px; margin-right:20px;">Import to Layer</button>
     </div>
   </div>
 </div>

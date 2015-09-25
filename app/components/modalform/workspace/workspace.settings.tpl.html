@@ -24,7 +24,7 @@
     <button ng-click="close()" class="btn btn-sm btn-default">Close</button>
   </div>
   <div class="form-group pull-right">
-    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.settings.$dirty || form.settings.workspaceName.invalid">Update Workspace Settings</button>
+    <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.settings.$dirty || !form.settings.$valid">Update Workspace Settings</button>
     <div ng-show="wsSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
   </div>
 </div>

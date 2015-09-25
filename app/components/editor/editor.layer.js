@@ -29,7 +29,7 @@ angular.module('gsApp.editor.layer', [
 .config(['$stateProvider',
     function($stateProvider) {
       $stateProvider.state('editlayer', {
-        url: '/edit/:workspace/:name',
+        url: '/edit/layer/:workspace/:name',
         templateUrl: '/components/editor/editor.layer.tpl.html',
         controller: 'LayerStyleCtrl',
         params: { workspace: '', name: ''}
@@ -172,9 +172,12 @@ angular.module('gsApp.editor.layer', [
         });
       };
 
-      $rootScope.$on(AppEvent.MapUpdated, function(scope, layer) {
-        if ($scope.layer.name == layer.original.name) {
+      $rootScope.$on(AppEvent.LayerUpdated, function(scope, layer) {
+        if ($scope.layer && $scope.layer.name == layer.original.name) {
           $scope.layer = layer.new;
+          if (layer.new.name != layer.original.name) {
+            $scope.mapOpts.layers = [{name: $scope.layer.name, visible: $scope.mapOpts.layers[0].visible}];
+          }
 
           if (layer.new.proj != layer.original.proj) {
             $scope.mapOpts.proj = layer.new.proj;

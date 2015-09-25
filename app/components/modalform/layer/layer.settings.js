@@ -58,7 +58,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
               if (result.success) {
                 $scope.form.layerSettings.saved = true;
                 $scope.form.layerSettings.$setPristine();
-                $rootScope.$broadcast(AppEvent.MapUpdated, {
+                $rootScope.$broadcast(AppEvent.LayerUpdated, {
                   'original': originalLayer,
                   'new': $scope.layer
                 });

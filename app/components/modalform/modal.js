@@ -51,6 +51,15 @@
           $scope.setInvalid = function(invalid) {
             $scope.form.layerName.invalid = invalid;
           }
+
+          $scope.$watch('form.layerName', function(newVal) {
+            if (newVal != null && $scope.form.layerName) {
+              $scope.setInvalid($scope.form.layerName.$dirty && 
+                ($scope.form.layerName.$error.required || 
+                  $scope.$scope.form.layerName.$error.pattern || 
+                  $scope.form.layerName.$error.maxlength));
+            }
+          });
         }
       };
     }])
@@ -71,6 +80,15 @@
           $scope.setInvalid = function(invalid) {
             $scope.form.mapName.invalid = invalid;
           }
+
+          $scope.$watch('form.mapName', function(newVal) {
+            if (newVal != null && $scope.form.mapName) {
+              $scope.setInvalid($scope.form.mapName.$dirty && 
+                ($scope.form.mapName.$error.required || 
+                  $scope.$scope.form.mapName.$error.pattern || 
+                  $scope.form.mapName.$error.maxlength));
+            }
+          });
         }
       };
     }])
@@ -91,6 +109,15 @@
           $scope.setInvalid = function(invalid) {
             $scope.form.workspaceName.invalid = invalid;
           }
+
+          $scope.$watch('form.workspaceName', function(newVal) {
+            if (newVal != null && $scope.form.workspaceName) {
+              $scope.setInvalid($scope.form.workspaceName.$dirty && 
+                ($scope.form.workspaceName.$error.required || 
+                  $scope.$scope.form.workspaceName.$error.pattern || 
+                  $scope.form.workspaceName.$error.maxlength));
+            }
+          });
         }
       };
     }])
@@ -111,6 +138,15 @@
           $scope.setInvalid = function(invalid) {
             $scope.form.crs.invalid = invalid;
           }
+
+          $scope.$watch('form.crs', function(newVal) {
+            if (newVal != null && $scope.form.proj && $scope.form.crs) {
+              $scope.setInvalid($scope.form.crs.$dirty && 
+                ($scope.form.proj.srs.$error.required || 
+                  $scope.form.crs.$error.pattern || 
+                  $scope.form.crs.$error.required));
+            }
+          });
         }
       };
     }])

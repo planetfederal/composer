@@ -2,8 +2,7 @@
     <label for="form.layerSettings.crs">
       {{label}} * <div class="crs-warning" popover-html-unsafe="{{crsTooltip}}" popover-trigger="click" popover-placement="right"><i class="icon-ln fa fa-info-circle"></i></div>
     </label>
-    <proj-field name="crs" proj="model" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}"
-    ng-blur="setInalid(form.crs.$dirty && (form.proj.srs.$error.required || form.crs.$error.pattern || form.crs.$error.required))"></proj-field>
+    <proj-field name="crs" proj="model" ng-model-options="{updateOn: 'default blur', 'allowInvalid': true}" ></proj-field>
     <span ng-show="form.crs.$dirty && !form.crs.$error.pattern && !form.proj.srs.$error.required" class="success"><i class="fa fa-check"></i> Valid CRS.</span>
     <span ng-show="form.crs.$dirty && !form.crs.$error.pattern && form.crs.$error.required" class="error">Required</span>
     <small>(e.g. EPSG:4326)</small>

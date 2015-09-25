@@ -34,7 +34,7 @@ angular.module('gsApp.editor.map', [
 .config(['$stateProvider',
     function($stateProvider) {
       $stateProvider.state('editmap', {
-        url: 'edit/:workspace/:name',
+        url: 'edit/map/:workspace/:name',
         templateUrl: '/components/editor/editor.map.tpl.html',
         controller: 'MapComposeCtrl',
         params: { workspace: '', name: '', hiddenLayers: {} }
@@ -337,9 +337,20 @@ angular.module('gsApp.editor.map', [
         }
       });
 
-      $scope.$on(AppEvent.MapUpdated, function(scope, map) {
+      $rootScope.$on(AppEvent.MapUpdated, function(scope, map) {
         if ($scope.map.name == map.original.name) {
+          for (var i = 0; i < $scope.mapOpts.layers.length; i++) {
+            if (map.original.layers[i].name == $scope.mapOpts.layers[i].name) {
+              map.new.layers[i].visible = $scope.mapOpts.layers[i].visible
+               $scope.mapOpts.layers[i] = map.new.layers[i];
+            }
+          }
           $scope.map = map.new;
+
+          if (map.new.name != map.original.name) {
+            $scope.mapOpts.name = map.new.name;
+          }
+          
 
           if (map.new.proj != map.original.proj) {
             $scope.mapOpts.proj = map.new.proj;
@@ -349,6 +360,22 @@ angular.module('gsApp.editor.map', [
           }
         }
       }); 
+
+      $rootScope.$on(AppEvent.LayerUpdated, function(scope, layer) {
+        for (var i = 0; i < $scope.mapOpts.layers.length; i++) {
+          if (layer.original.name == $scope.mapOpts.layers[i].name) {
+
+            layer.new.visible = $scope.mapOpts.layers[i].visible;
+            $scope.map.layers[i] = layer.new;
+            $scope.mapOpts.layers[i] = layer.new;
+
+            if ($scope.layer.name = layer.original.name) {
+              $scope.layer = layer.new;
+            }
+          }
+          
+        }
+      });
 
       $scope.toggleFullscreen = function() {
         $rootScope.broadcast(AppEvent.ToggleFullscreen);

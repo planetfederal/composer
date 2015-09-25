@@ -25,7 +25,7 @@
     <div class="submit-buttons pull-right">
       <div ng-show="form.layerSettings.saved" class="saved"><i class="fa fa-check"></i> Changes Saved.</div>
       <div ng-show="errorSaving" class="errorSaving"><i class="fa fa-remove"></i> Error saving.</div>
-      <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.layerSettings.$dirty || form.layerSettings.name.invalid">Update Layer Settings</button>
+      <button ng-click="saveChanges()" class="btn btn-success btn-sm save" ng-disabled="!form.layerSettings.$dirty || !form.layerSettings.$valid || !layer.proj">Update Layer Settings</button>
     </div>
   </div>
 </div>

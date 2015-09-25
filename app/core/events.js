@@ -35,6 +35,10 @@ angular.module('gsApp.core.event', [])
    */
   LayersAllUpdated: 'layers-all-updated',
   /**
+   * Fire when a single layer in a workspace is updated
+   */
+  LayerUpdated: 'layer-updated',
+  /**
    * Fired when user successfully logs in.
    */
   Login: 'app-login',
@@ -66,6 +70,10 @@ angular.module('gsApp.core.event', [])
    * Fired when a single map's settings are updated
    */
   MapSettingsUpdated: 'map-settings-updated',
+  /**
+   * Fired when a single map's settings are updated
+   */
+  MapUpdated: 'map-updated',
   /**
    * Fire when custom projection is set
    */
