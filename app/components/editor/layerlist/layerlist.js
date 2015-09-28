@@ -46,9 +46,24 @@ angular.module('gsApp.editor.layerlist', [])
         */
 
         /* Initialized in layerlist.js
-        $scope.showLayerList  //boolean indicating wheter to display the layer list
+        $scope.showLayerList  //boolean indicating whether to display the layer list
         */
         $scope.showLayerList = true;
+        $scope.headerStyle = {width:'100%'};
+
+        $scope.isOSX = function () {
+          return navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i);
+        }
+        $timeout(function() {
+          $scope.listElement = angular.element($('ul.layerlist-list'))[0];
+          $scope.headerStyle = {width:$scope.listElement.clientWidth};
+          $scope.$watch('listElement.clientWidth', function(newVal) {
+            if (newVal) {
+              $scope.headerStyle = {width:newVal};
+            }
+          })
+
+        }, 1000);
 
         $scope.selectLayer = function(layer) {
           var activeLayer = $scope.layer;
