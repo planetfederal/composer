@@ -1,5 +1,4 @@
-<div class="editor-layerlist" ng-class="{show: showLayerList == true}">
-	<div class="reorder-info">Drag to Reorder</div>
+<div class="editor-layerlist" ng-class="{show: showLayerList == true, osx: isOSX()}">
     <ul ui-sortable="{stop:layersReordered}" ng-model="map.layers"
         class="list-unstyled">
       <li ng-repeat="l in map.layers" ng-click="selectLayer(l)"
@@ -18,4 +17,5 @@
         </div>
       </li>
     </ul>
+	<div class="reorder-info">Drag to Reorder</div>
 </div>

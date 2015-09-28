@@ -49,6 +49,10 @@ angular.module('gsApp.editor.layerlist', [])
         $scope.showLayerList  //boolean indicating wheter to display the layer list
         */
         $scope.showLayerList = true;
+		
+		$scope.isOSX = function () {
+			return navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i);
+		}
 
         $scope.selectLayer = function(layer) {
           var activeLayer = $scope.layer;
