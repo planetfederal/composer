@@ -226,6 +226,11 @@ angular.module('gsApp.core.utilities', [])
       right.each(function (i, element) {
         element.style.width =  100 * editorWidth/panelsWidth + '%';
       });
+
+      var listHeader = $('.reorder-info');
+      if (listHeader[0]) {
+        listHeader[0].style.width = $('ul.layerlist-list').width()+'px';
+      }
     }
     function mouseup() {
       $element.removeClass('active');
