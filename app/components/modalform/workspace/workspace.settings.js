@@ -66,7 +66,7 @@ angular.module('gsApp.workspaces.settings', [
                 }
                 $scope.wsSettings.saved = true;
                 originalForm = angular.copy($scope.wsSettings);
-
+                $modalInstance.close();
               } else {
                 // TODO move alerts to top of header nav
                 $scope.alerts = [{

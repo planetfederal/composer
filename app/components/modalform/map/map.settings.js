@@ -57,6 +57,7 @@ angular.module('gsApp.workspaces.maps.settings', [])
                 $scope.map = result.data;
                 originalMap = angular.copy($scope.map);
                 $scope.form.mapSettings.alerts = null;
+                $modalInstance.close($scope.map);
               } else {
                 $rootScope.alerts = [{
                   type: 'danger',
@@ -94,6 +95,6 @@ angular.module('gsApp.workspaces.maps.settings', [])
       }
 
       $scope.close = function () {
-        $modalInstance.close();
+        $modalInstance.dismiss();
       };
     }]);

@@ -63,6 +63,7 @@ angular.module('gsApp.workspaces.layers.settings', [])
                   'new': $scope.layer
                 });
                 originalLayer = angular.copy($scope.layer);
+                $modalInstance.close($scope.layer);
               } else {
                 $scope.form.layerSettings.saved = false;
                 $scope.form.layerSettings.alerts = 'Layer update failed: ' +

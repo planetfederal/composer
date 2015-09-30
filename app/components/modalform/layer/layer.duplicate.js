@@ -36,7 +36,7 @@ angular.module('gsApp.workspaces.layers.duplicate', [])
                 message: 'New layer ' + layer.name + ' successfully created.',
                 fadeout: true
               }];
-              $modalInstance.dismiss('created');
+              $modalInstance.close(layer);
             } else {
               $rootScope.alerts = [{
                 type: 'danger',
