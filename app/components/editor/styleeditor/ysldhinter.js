@@ -491,7 +491,7 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
 
           return atts.map(function(att) {
             //text = text.replace(new RegExp('^'+escapeForRegExp(state.line.key)), '');
-            return {displayText: att.name, text: '${' + att.name + '}'};
+            return {displayText: att.name, text: '${"' + att.name + '"}'};
           });
         };
 
