@@ -22,6 +22,7 @@ angular.module('gsApp', [
 .controller('AppCtrl', ['$scope', '$rootScope', '$state', 'AppEvent', 'AppSession', '$window', '$modal', '$modalStack', '$timeout', 'GeoServer',
     function($scope, $rootScope, $state, AppEvent, AppSession, $window, $modal, $modalStack, $timeout, GeoServer) {
       $scope.session = AppSession;
+	  $scope.init = true;
 
       var timeout = null;
       var timeoutWarning = 15;
