@@ -34,8 +34,12 @@
   </div>
   <div class="row row-editor-content">
     <div id="mapPanel" class="col-xs-6 col-lg-7 resizable-left map-panel" ng-style="mapBackground">
-      <div ol-map class="map" map-opts="mapOpts"
-        ng-class="{'hide-all': hideCtrl.all, 'hide-lonlat': hideCtrl.lonlat}"></div>
+      <div ol-map class="map" map-opts="mapOpts" ng-show="!mapError"
+        ng-class="{'hide-all': hideCtrl.all, 'hide-lonlat': hideCtrl.lonlat}">
+      </div>
+      <div class="map-error" ng-show="mapError"> 
+        Error creating the OL3 Map.<br/>Verify the projection and view bounds are valid.
+      </div>
     </div>
     <div id="editingPanel" class="col-xs-6 col-lg-5 resizable-right editing-panel">
       <div class="editor-background">

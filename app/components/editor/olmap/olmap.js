@@ -302,31 +302,41 @@ angular.module('gsApp.editor.olmap', [])
         if (typeof(Storage) !== "undefined") {
           var savedExtent = null;
 
-          //map
-          if (mapOpts.name) {
-            savedExtent = JSON.parse("[" + localStorage.getItem("bounds.maps."
-              +mapOpts.workspace+"."+mapOpts.name) + "]");
-          //layer
-          } else {
-            savedExtent = JSON.parse("[" + localStorage.getItem("bounds.layers."
-              +mapOpts.workspace+"."+mapOpts.layers[0].name) + "]");
-          }
-          if (savedExtent && !isNaN(savedExtent[0]) && !isNaN(savedExtent[1]) &&
-                  !isNaN(savedExtent[2]) && !isNaN(savedExtent[3])) {
-            map.getView().fit(savedExtent, map.getSize());
-          }
-          //Fix for SUITE-1031 - wait until the map loads before registering this listener
-          $timeout(function() {
-            map.on('moveend', function(evt) {
-              var map = evt.map;
-              var extent = map.getView().calculateExtent(map.getSize());
-              if (mapOpts.name) {
-                localStorage.setItem("bounds.maps."+mapOpts.workspace+"."+mapOpts.name, extent);
-              } else {
-                localStorage.setItem("bounds.layers."+mapOpts.workspace+"."+mapOpts.layers[0].name, extent);
-              }
+          try {
+            //map
+            if (mapOpts.name) {
+              savedExtent = JSON.parse("[" + localStorage.getItem("bounds.maps."
+                +mapOpts.workspace+"."+mapOpts.name) + "]");
+            //layer
+            } else {
+              savedExtent = JSON.parse("[" + localStorage.getItem("bounds.layers."
+                +mapOpts.workspace+"."+mapOpts.layers[0].name) + "]");
             }
-          )}, 100);
+            if (savedExtent && !isNaN(savedExtent[0]) && !isNaN(savedExtent[1]) &&
+                    !isNaN(savedExtent[2]) && !isNaN(savedExtent[3])) {
+              map.getView().fit(savedExtent, map.getSize());
+            }
+            //Fix for SUITE-1031 - wait until the map loads before registering this listener
+            $timeout(function() {
+              map.on('moveend', function(evt) {
+                var map = evt.map;
+                var extent = map.getView().calculateExtent(map.getSize());
+                if (mapOpts.name) {
+                  localStorage.setItem("bounds.maps."+mapOpts.workspace+"."+mapOpts.name, extent);
+                } else {
+                  localStorage.setItem("bounds.layers."+mapOpts.workspace+"."+mapOpts.layers[0].name, extent);
+                }
+              }
+            )}, 100);
+
+          } catch (e) {
+            $rootScope.alerts = [{
+              type: 'warning',
+              message: 'Error saving view bounds',
+              details: e.message,
+              fadeout: true
+            }];
+          }
         }
 
         if (mapOpts.featureInfo) {
@@ -547,14 +557,52 @@ angular.module('gsApp.editor.olmap', [])
             'all': false,
             'lonlat': false
           };
+          $scope.mapError = false;
 
           var timer = null;
+
+          $scope.refreshMap = function() {
+            $scope.olMap.refresh();
+          }
+
+          $scope.fitToBounds = function(bounds) {
+            var map = $scope.olMap.olMap;
+            var extent = ol.proj.transformExtent(
+                [bounds.west, bounds.south, bounds.east, bounds.north],
+                'EPSG:4326', map.getView().getProjection());
+            if (!isNaN(extent[0]) && !isNaN(extent[1]) &&
+                !isNaN(extent[2]) && !isNaN(extent[3])) {
+              map.getView().fit(extent, map.getSize());
+            }
+          }
+
+          //Verify map is created correctly and update the ui flag
+          $scope.validateMap = function() {
+            var map = $scope.olMap.olMap;
+            var extent = map.getView().calculateExtent(map.getSize());
+            if (!map.getView() || isNaN(map.getView().getResolution()) || 
+                isNaN(extent[0]) || isNaN(extent[1]) || isNaN(extent[2]) || isNaN(extent[3])) {
+
+              $scope.mapError = true;
+            } else {
+              $scope.mapError = false;
+              var canvas = $('canvas.ol-unselectable')[0];
+              canvas.style.display = '';
+              //refresh the canvas
+              $timeout(function() {
+                map.updateSize();
+              }, 100);
+            }
+            return (!$scope.mapError);
+          }
 
           $scope.$watch('mapOpts.layers', function(newVal, oldVal) {
             if (newVal == null) {
               return;
             } if (!$scope.olMap) {
               $scope.olMap = MapFactory.createMap($scope.mapOpts, $element);
+      
+              $scope.validateMap();
             } else {
               if (timer) {
                 $timeout.cancel(timer);
@@ -568,15 +616,7 @@ angular.module('gsApp.editor.olmap', [])
 
           $scope.$watch('mapOpts.bounds', function(newVal, oldVal) {
             if (newVal && newVal !== oldVal) {
-              var map = $scope.olMap.olMap;
-              var bounds = newVal.bbox.lonlat;
-              var extent = ol.proj.transformExtent(
-                  [bounds.west, bounds.south, bounds.east, bounds.north],
-                  'EPSG:4326', map.getView().getProjection());
-              if (!isNaN(extent[0]) && !isNaN(extent[1]) &&
-                  !isNaN(extent[2]) && !isNaN(extent[3])) {
-                map.getView().fit(extent, map.getSize());
-              }
+              $scope.fitToBounds(newVal.bbox.lonlat);
             }
           });
 
@@ -619,6 +659,8 @@ angular.module('gsApp.editor.olmap', [])
               $scope.olMap.olMap.getViewport().remove();
               $scope.olMap = MapFactory.createMap($scope.mapOpts, $element);
               $scope.olMap.refresh();
+              $timeout($scope.validateMap, 100);
+              $timeout(function() {$scope.fitToBounds($scope.mapOpts.bbox);}, 500);
             }
           });
 
@@ -642,10 +684,6 @@ angular.module('gsApp.editor.olmap', [])
           $scope.$on(AppEvent.EditorBackground, function(scope, color) {
             $scope.mapBackground = {'background': color};
           });
-
-          $scope.refreshMap = function() {
-            $scope.olMap.refresh();
-          }
         }
       };
     }]);
