@@ -214,8 +214,10 @@ angular.module('gsApp.import', [
         }
       };
 
+      $scope.uploadInProgress = false;
       $scope.upload = function() {
         var postURL;
+        $scope.uploadInProgress = true;
         if ($scope.addToStore) {
           postURL = GeoServer.import.urlToStore(wsName,
             $scope.chosenImportStore.name);
@@ -247,8 +249,10 @@ angular.module('gsApp.import', [
             }];
             $scope.close();
           }
+          $scope.uploadInProgress = false;
         });
       };
+
       $scope.initProgress();
 
       GeoServer.formats.get().then(function(result) {

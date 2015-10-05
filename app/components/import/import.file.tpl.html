@@ -45,7 +45,7 @@
       <div class="col-sm-6">
         <span>
           <button class="btn btn-primary btn-sm" type="button"
-          ng-click="upload()" ng-disabled="files == null  || files.length == 0">Upload</button>
+          ng-click="upload()" ng-disabled="files == null  || files.length == 0 || uploadInProgress">Upload</button>
           <button class="btn btn-sm" type="button"
           ng-click="cancel()" ng-disabled="progress.percent == 0">Cancel</button>
         </span>
