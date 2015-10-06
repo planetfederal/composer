@@ -13,7 +13,7 @@ Building Composer requires Node be [installed](http://nodejs.org/). In addition 
 
 To install all project dependencies simply run
 
-    npm install
+    ant build
 
 To build all client side assets run
 

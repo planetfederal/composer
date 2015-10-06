@@ -33,6 +33,6 @@
   },
   "dependencies": {
     "mapcfg": "boundlessgeo/mapcfg",
-    "openlayers": "^3.8.0"
+    "openlayers": "git://github.com/openlayers/ol3.git#7c5bec2"
   }
 }
