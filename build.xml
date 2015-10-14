@@ -2,12 +2,7 @@
 
   <target name="build" description="builds client">
     <exec executable="npm" failonerror="true">
-      <arg line="install"/>
-    </exec>
-
-
-    <exec executable="make" dir="./node_modules/openlayers" failonerror="true">
-      <arg line="build"/>
+       <arg line="install"/>
     </exec>
 
     <replace file="build/config.js" value="${suite.version}" token="suite.version"/>
