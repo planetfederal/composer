@@ -684,6 +684,12 @@ angular.module('gsApp.editor.olmap', [])
           $scope.$on(AppEvent.EditorBackground, function(scope, color) {
             $scope.mapBackground = {'background': color};
           });
+
+          $scope.$on(AppEvent.BaseMapChanged, function(scope, basemap) {
+            if ($scope.mapOpts) {
+              $scope.mapOpts.basemap = basemap;
+            }
+          });
         }
       };
     }]);

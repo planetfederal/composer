@@ -11,7 +11,7 @@ angular.module('gsApp.editor.tools.display', [
       return {
         restrict: 'EA',
         scope: {
-          editor: '=',
+          editor: '='
         },
         templateUrl: '/components/editor/tools/display.tpl.html',
         replace: true,
@@ -120,12 +120,6 @@ angular.module('gsApp.editor.tools.display', [
               $scope.hideBasemap();
             }
           };
-          
-          $scope.$on(AppEvent.BaseMapChanged, function(scope, basemap) {
-            if ($scope.mapOpts) {
-              $scope.mapOpts.basemap = basemap;
-            }
-          });
         }
       };
     }]);
