@@ -87,7 +87,8 @@ angular.module('gsApp', [
                         title += ' | ' + toParams.workspace;
                       }
                       break;
-                    case '/edit':
+                    case '/editlayer/:workspace/:name':
+                    case '/editmap/:workspace/:name':
                       title += ' | Editing: ' + toParams.workspace + ":" + toParams.name;
                       break;
                     case '/layers':
