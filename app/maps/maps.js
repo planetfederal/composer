@@ -109,12 +109,14 @@ angular.module('gsApp.maps', [
           size: 'md',
           resolve: {
             workspace: function() {
-              return $scope.workspace;
+              return $scope.workspace.selected.name;
             },
             map: function() {
               return map;
             }
           }
+        }).result.then(function(response) {
+          $scope.refreshMaps();
         });
       };
 

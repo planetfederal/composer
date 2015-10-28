@@ -153,6 +153,8 @@ angular.module('gsApp.layers', [
               return layer;
             }
           }
+        }).result.then(function(response) {
+          $scope.refreshLayers();
         });
       };
 
