@@ -166,6 +166,7 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'polygon': mapping,
           'text': mapping,
           'raster': mapping,
+          'graphic': mapping,
           'geometry': scalar,
           'uom': scalar,
           'symbols': sequence,
@@ -198,6 +199,11 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'priority': scalar,
           'placement': scalar,
           'color-map': mapping,
+          'channels': mapping,
+          'gray': scalar,
+          'red': scalar,
+          'green': scalar,
+          'blue': scalar,
           'entries': sequence,
           'contrast-enhancement': mapping,
           'mode': scalar,
@@ -231,6 +237,8 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'x-composite': scalar,
           'x-composite-base': scalar,
           'x-labelObstacle': scalar,
+          'x-labelAllGroup': scalar,
+          'x-labelPriority': scalar,
           'x-allowOverruns': scalar,
           'x-autoWrap': scalar,
           'x-conflictResolution': scalar,
@@ -308,6 +316,8 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
             'options',
             'geometry',
             'uom',
+            'x-composite',
+            'x-composite-base',
             'x-labelObstacle'
           ],
           'line': [
@@ -323,6 +333,8 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
             'offset',
             'geometry',
             'uom',
+            'x-composite',
+            'x-composite-base',
             'x-labelObstacle'
           ],
           'polygon': [
@@ -342,6 +354,9 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
             'displacement',
             'geometry',
             'uom',
+            'x-composite',
+            'x-composite-base',
+            'x-graphic-margin',
             'x-labelObstacle',
             'x-random',
             'x-random-tile-size',
@@ -355,6 +370,11 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
             'font-size',
             'font-style',
             'font-weight',
+            'fill-color',
+            'fill-opacity',
+            'fill-graphic',
+            'stroke-graphic-fill',
+            'stroke-graphic',
             'halo',
             'priority',
             'placement',
@@ -362,8 +382,13 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
             'anchor',
             'displacement',
             'rotation',
+            'graphic',
+            'geometry',
+            'uom',
             'x-allowOverruns',
             'x-autoWrap',
+            'x-composite',
+            'x-composite-base',
             'x-conflictResolution',
             'x-followLine',
             'x-forceLeftToRight',
@@ -372,6 +397,7 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
             'x-graphic-resize',
             'x-group',
             'x-labelAllGroup',
+            'x-labelPriority',
             'x-repeat',
             'x-maxAngleDelta',
             'x-maxDisplacement',
@@ -382,6 +408,7 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           ],
           'raster': [
             'color-map',
+            'channels',
             'opacity',
             'contrast-enhancement',
             'options'
@@ -389,6 +416,28 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'color-map': [
             'type',
             'entries'
+          ],
+          'channels': [
+            'gray',
+            'red',
+            'green',
+            'blue',
+          ],
+          'gray': [
+            'name',
+            'contrast-enhancement'
+          ],
+          'red': [
+            'name',
+            'contrast-enhancement'
+          ],
+          'green': [
+            'name',
+            'contrast-enhancement'
+          ],
+          'blue': [
+            'name',
+            'contrast-enhancement'
           ],
           'entries': [],
           'stroke-graphic-fill': [
@@ -405,6 +454,12 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'contrast-enhancement': [
             'mode',
             'gamma'
+          ],
+          'graphic': [
+            'symbols',
+            'size',
+            'opacity',
+            'rotation'
           ],
           'stroke-graphic': [
             'symbols',
@@ -663,7 +718,9 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
 
         };
         //TODO, blocked by SUITE-229
-        var font = function(state, cm) {};
+        var font = function(state, cm) {
+          return hintTemplate('<font_name>')(state, cm);
+        };
 
         
 
@@ -702,6 +759,7 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'url':icon,
           'format':mappingValue,
           'font-family':font,
+          'font-size':hintNumber,
           'font-style':mappingValue,
           'font-weight':mappingValue,
           'placement':mappingValue,
@@ -709,10 +767,10 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'type':mappingValue,
           'mode':mappingValue,
           'gamma':hintNumber,
-          'gray':hintNumber,
-          'red':hintNumber,
-          'green':hintNumber,
-          'blue':hintNumber,
+          'gray':hintTemplate('<channel_index>', '\n  <channel_options>'),
+          'red':hintTemplate('<channel_index>', '\n  <channel_options>'),
+          'green':hintTemplate('<channel_index>', '\n  <channel_options>'),
+          'blue':hintTemplate('<channel_index>', '\n  <channel_options>'),
           'input':hintTemplate('<parameter>'),
 
           'x-FirstMatch':mappingValue,
