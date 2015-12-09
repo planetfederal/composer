@@ -92,7 +92,20 @@ angular.module('gsApp.core.backend',['gsApp.config'])
             return result;
           });
         },
-
+        serverInfo: {
+          get: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot + '/serverInfo'
+            });
+          },
+          renderingTransforms: function() {
+            return http({
+              method: 'GET',
+              url: apiRoot + '/serverInfo/renderingTransforms'
+            });
+          }
+        },
         import: {
           url: function(workspace) {
             return importRoot + workspace;
@@ -150,15 +163,6 @@ angular.module('gsApp.core.backend',['gsApp.config'])
             method: 'GET',
             url: apiRoot + '/logout'
           });
-        },
-
-        serverInfo: {
-          get: function() {
-            return http({
-              method: 'GET',
-              url: apiRoot + '/serverInfo'
-            });
-          }
         },
 
         workspaces: {
