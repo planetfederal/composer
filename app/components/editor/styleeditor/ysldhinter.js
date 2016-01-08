@@ -248,7 +248,6 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'x-graphic-margin': scalar,
           'x-graphic-resize': scalar,
           'x-group': scalar,
-          'x-labelAllGroup': scalar,
           'x-repeat': scalar,
           'x-maxAngleDelta': scalar,
           'x-maxDisplacement': scalar,
