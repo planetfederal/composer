@@ -4,7 +4,7 @@ Composer is a single-page application for easy creation and managing of geoserve
 
 ## Requirements
 
-Building Composer requires Node be [installed](http://nodejs.org/). In addition to installing node and npm it is recommended that `bower` and `grunt-cli` be installed globally:
+Building Composer requires Node and npm (v3.x) be [installed](http://nodejs.org/). In addition to installing node and npm it is recommended that `bower` and `grunt-cli` be installed globally:
 
     npm install -g bower
     npm install -g grunt-cli
