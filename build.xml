@@ -9,7 +9,7 @@
 
   </target>
   
-  <target name="assemble" description="assemble WAR" depends="build">
+  <target name="assemble" description="assemble WAR">
     <jar destfile="target/composer.war" basedir="build" />
   </target>
 
