@@ -327,7 +327,7 @@ module.exports = function(grunt) {
          overwrite: true,
          replacements: [{
           from: /base href=".*"/g,
-          to: 'base href="/geoserver/composer/"'
+          to: 'base href="/composer/"'
          }]
        }
     },

@@ -8,6 +8,10 @@
     <replace file="build/config.js" value="${suite.version}" token="suite.version"/>
 
   </target>
+  
+  <target name="assemble" description="assemble WAR" depends="build">
+    <jar destfile="composer.war" basedir="build" />
+  </target>
 
   <target name="clean">
     <delete dir="bower_components" failonerror="false" />
