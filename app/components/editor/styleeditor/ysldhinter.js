@@ -65,7 +65,7 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           var hints = []
           for (var i = 0; i < arguments.length; i++) {
             hints[i] = { hint:arguments[i], 
-              tokens: arguments[i].split(/<\w*>/g).filter(function(val) {
+              tokens: arguments[i].split(/<[\w\s]*>/g).filter(function(val) {
                 return val.length > 0;
               })};
           }
@@ -818,7 +818,7 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
           'outputHeight':hintNumber
         };
 
-        //rendering transforms
+        //rendering transform defaults
         this.transform = {};
         this.transform.mappingValues = {
           'name': [
@@ -852,6 +852,60 @@ angular.module('gsApp.editor.styleeditor.ysldhinter', [])
             'queryBuffer',
           ],
         };
+
+        var transformMapping = this.transform;
+        var valuesMapping = this.values;
+
+        // get rendering transforms from geoserver:
+        var getRenderingTransforms = function() {
+          GeoServer.serverInfo.renderingTransforms().then(
+            function(result) {
+              var names = [];
+              for (var i = 0; i < result.data.length; i++) {
+                //put name
+                var transform = result.data[i];
+                names.push(transform.name)
+
+                var params = [];
+                for (var param in transform.params) {
+                  params.push(param);
+                  //put to values
+                  var paramInfo = transform.params[param];
+                  var type = paramInfo.type;
+                  if (type.indexOf("com.vividsolutions.jts.geom") >= 0 
+                      || type.indexOf("org.geotools.feature") >= 0
+                      || type.indexOf("org.geotools.data") >= 0) {
+                    mappingValues[param] = completeAttribute;
+
+                  } else if (type.indexOf("java.lang.Double") >= 0
+                           || type.indexOf("java.lang.Integer") >= 0) {
+                    mappingValues[param] = hintNumber;
+
+                  } else if (type.indexOf("java.lang.Boolean") >= 0) {
+                    valuesMapping[param] = mappingValue;
+                    mappingValues[param] = bool;
+
+                  } else if (type.indexOf("java.lang.String") >= 0) {
+                    mappingValues[param] = hintText;
+
+                  } else if (type.indexOf("org.opengis.referencing.crs") >= 0) {
+                    valuesMapping[param] = hintTemplate('EPSG:<code>');
+
+                  } else {
+                    valuesMapping[param] = hintTemplate('<'+paramInfo.description+'>');
+
+                  }
+
+                }
+                //put param array
+                transformMapping.params[transform.name] = params;
+              }
+
+              transformMapping.mappingValues['name'] = names;
+            });
+        };
+
+        getRenderingTransforms();
 
         //gridsets
         this.gridsets = [];
