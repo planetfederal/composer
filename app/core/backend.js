@@ -68,7 +68,7 @@ angular.module('gsApp.core.backend',['gsApp.config'])
         },
 
         docUrl: function() {
-          var url = '/opengeo-docs/';
+          var url = '/suite-docs/';
           return getRemote(url).then(function (result) {
             if (result.success) {
               result.data.url = url;

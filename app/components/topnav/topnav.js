@@ -40,7 +40,7 @@ angular.module('gsApp.topnav', ['gsApp.alertlist'])
       }
       $scope.adminLink = GeoServer.baseUrl();
 
-      $scope.docUrl = '/opengeo-docs/'
+      $scope.docUrl = '/suite-docs/'
       GeoServer.docUrl().then(function (result) {
         if (result.success && result.data.url) {
           $scope.docUrl = result.data.url;
