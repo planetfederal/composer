@@ -147,7 +147,7 @@ angular.module('gsApp.workspaces.home', [
               }
             });
             if (to.name == 'workspace') {
-              $scope.go($scope.tabs[0].route);
+              $state.go($scope.tabs[0].route, toParams);
             }
           });
       });
