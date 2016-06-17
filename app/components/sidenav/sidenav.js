@@ -39,7 +39,11 @@ angular.module('gsApp.sidenav', [
         $scope.sideBottom = {'position': 'relative'};
       } else {
         $scope.sideStyle = {'position': 'absolute'};
-        $scope.sideBottom = {'top': (windowHeight-30) + 'px'};
+        if ($scope.toggleSide) {
+          $scope.sideBottom = {'top': (windowHeight-50) + 'px'};
+        } else {
+          $scope.sideBottom = {'top': (windowHeight-30) + 'px'};
+        }
       }
       $scope.numWorkspaces = Math.floor((windowHeight - 230) / 30);
     };
@@ -92,6 +96,14 @@ angular.module('gsApp.sidenav', [
 
     $scope.onResize = function() {
       $rootScope.$broadcast(AppEvent.SidenavResized);
+      var windowHeight = $window.innerHeight - 160;
+      if (windowHeight > 300) {
+        if ($scope.toggleSide) {
+          $scope.sideBottom = {'top': (windowHeight-50) + 'px'};
+        } else {
+          $scope.sideBottom = {'top': (windowHeight-30) + 'px'};
+        }
+      }
     };
 
     // re-open when sidebar toggled
