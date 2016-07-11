@@ -44,6 +44,10 @@ angular.module('gsApp', [
           });
         }
       }
+      //Configure ZeroClipboard
+      ZeroClipboard.config( { swfPath: "/assets/zeroclipboard/dist/ZeroClipboard.swf" } );
+
+
       //handle fullscreen mode
       $scope.$on(AppEvent.ToggleFullscreen, function(e) {
         $scope.fullscreen = !$scope.fullscreen;

@@ -222,6 +222,11 @@ module.exports = function(grunt) {
           cwd: 'app',
           src: 'images/**/*',
           dest: 'build/'
+        }, {
+          expand: true,
+          cwd: 'bower_components',
+          src: 'zeroclipboard/dist/ZeroClipboard.swf',
+          dest: 'build/assets'
         }]
       },
       ol: {
