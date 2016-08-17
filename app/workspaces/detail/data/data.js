@@ -251,9 +251,9 @@ angular.module('gsApp.workspaces.data', [
 
       $rootScope.$on(AppEvent.StoreUpdated, function(scope, info) {
         for (var i = 0; i < $scope.datastores.length; i++) {
-          if ($scope.datastores[i].name = info.original.name) {
+          if ($scope.datastores[i].name == info.original.name) {
             $scope.datastores[i] = info.updated;
-            if ($scope.selectedStore.name = info.original.name) {
+            if ($scope.selectedStore.name == info.original.name) {
               $scope.selectedStore = info.updated;
               if ($scope.selectedStore.enabled) {
                 $scope.selectedStore = null;
