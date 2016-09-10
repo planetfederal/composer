@@ -128,7 +128,7 @@ angular.module('gsApp.editor.styleeditor', [
               size: 'med',
               resolve: {
                 linterIsvalid: function() {
-                  return $scope.editor.getStateAfter().pair;
+                  return !$scope.markers || $scope.markers.length < 0;
                 }
               }
             }).result.then(function(result) {
