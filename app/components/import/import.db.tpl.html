@@ -54,7 +54,7 @@
       </div>
       <div class="db-format-generic" ng-if="format.type && format.type.toLowerCase()!='database'">
         <div class="col-sm-12" ng-repeat="param in params">
-          <div class="form-group row" ng-if="param.required || param.level=='user'" ng-switch on="param.isPassword? 'password' : param.type.toLowerCase()">
+          <div class="form-group row" ng-if="param.required || (param.level.toLowerCase()=='user' && param.title.toLowerCase()!='namespace')" ng-switch on="param.isPassword? 'password' : param.type.toLowerCase()">
             <label ng-attr-title="{{param.description ? param.description:''}}" for="{param.title}">
               {{ param.title }}
             </label>
