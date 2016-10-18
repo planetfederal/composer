@@ -34,7 +34,7 @@
     commentStart: "<!--",
     commentEnd: "-->",
     newlineAfterToken: function(type, content, textAfter) {
-      return type == "tag" && />$/.test(content) || /^</.test(textAfter);
+      return type == "tag" && />$/.test(content) || /^<(?!\/)/.test(textAfter) || ( />$/.test(content) && /^</.test(textAfter) );
     }
   });
 
